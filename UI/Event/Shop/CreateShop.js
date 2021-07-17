@@ -156,13 +156,13 @@ export default class CreateShop extends Component {
               if (this.state.photoURLPath.length == 0) {
                 this.state.photoURLPath = result[i]['fileUri'];
               } else {
-                this.state.documentFile = result[i]['fileUri'];
+                this.state.documentURLPath = result[i]['fileUri'];
               }
             } else {
-              this.state.documentFile = result[i]['fileUri'];
+              this.state.documentURLPath = result[i]['fileUri'];
             }
             if (uploadIncrement === uploadBase64.length) {
-              this.setState({ isVisible: false })
+              this.createAccountApi()
             }
           });
         }
@@ -173,16 +173,108 @@ export default class CreateShop extends Component {
         setTimeout(() => {Alert.alert(error) }, 50)
       }
     } else {
-      this.setState({ isVisible: false })
+      this.createAccountApi()
     }
   };
-  /*  Buttons   */
 
+  createAccountApi = async () => {
+    var dict = {
+      'category_id':[this.state.selectedCatData['id']],
+      'name': this.state.name,
+      'type': 'accounts',
+    }
+    if (this.state.photo != null) {
+      dict['image_path'] = this.state.photoURLPath;
+    }
+    if (this.state.description.length != 0) {
+      dict['description'] = this.state.description;
+    }
+    if (this.state.selectAddress['formatted_address'] !== undefined) {
+      latitude = this.state.selectAddress['latitude'];
+      longitude = this.state.selectAddress['longitude'];
+      dict['coordinates'] = {'latitude': latitude,'longitude': longitude};
+    }
+    if (this.state.shippingID != 0) {
+      dict['shipping_methods'] = [this.state.shippingID]
+    }
+    var attributeAry = [];
+    for (let objc of this.state.attributeArray) {
+      let fieldType = objc['field_type'];
+      console.log('fieldType',fieldType);
+      if (fieldType == 1) {
+        if (this.state.singleSelectedArray.length != 0) {
+          let atrDic = {
+            values:[this.state.singleSelectedArray[0]['id']],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 2) {
+        if (this.state.multipleSelectedsArray.length != 0) {
+          var idAry = [];
+          for (let obj of this.state.multipleSelectedsArray) {
+            idAry.push(obj['id'])
+          }
+          let atrDic = {
+            values:idAry,
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 3) {
+        if (this.state.singleValue.length != 0) {
+          let atrDic = {
+            values:[this.state.singleValue],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 4) {
+        if (this.state.tagsArray.length != 0) {
+          let atrDic = {
+            values:this.state.tagsArray,
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 5) {
+        if (this.state.documentURLPath.length != 0) {
+          let atrDic = {
+            values:[this.state.documentURLPath],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+    }
+    if (attributeAry != 0) {
+      dict['attributes'] = attributeAry
+    }
+    console.log('dict == ', dict);
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts, 'POST', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey)
+    console.log(" responseJson =  ", responseJson) 
+    if (responseJson) {
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.setState({ isVisible: false })
+      } else {
+        this.setState({ isVisible: false })
+        console.log(" error ", responseJson)
+        let error = errorHandler.errorHandle(responseJson['error']['code'])
+        console.log('error',error)
+        // setTimeout(() => {Alert.alert(error) }, 50)
+      }
+    }
+  }
+
+  /*  Buttons   */
   createBtnAction() {
     this.uploadFilesAPI()
-  }
-  didSelectDropDown = (item, index) => {
-    this.setState({ showDropDown: false, categoryID: index,categoryName:item})
+    // this.createAccountApi()
   }
   categoryBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Category, {
@@ -227,6 +319,7 @@ export default class CreateShop extends Component {
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAddress = data => {
+    console.log('dsdsdsdsd',data);
     this.setState({selectAddress: data});
   }
   /*  UI   */
@@ -432,13 +525,14 @@ export default class CreateShop extends Component {
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={'Enter Name'}
-                onChangeText={value => this.setState({singleValue: value})}
+                onChangeText={value => this.setState({name: value})}
                 />
               <View style={{ height: 20 }} />
               <Text style={commonStyles.textLabelStyle}>Description</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Description'}
+                onChangeText={value => this.setState({description: value})}
                 multiline={true} />
               <View style={{ height: 20 }} />
               <this.renderCategoryView />

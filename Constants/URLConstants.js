@@ -11,7 +11,7 @@ module.exports = {
     shippingMethod: 'tenants/shipping_methods',
     searchAddress: 'addresses/search?key=',
     S3signedUploadURL: 'utils/S3signedUploadURL',
-
+    accounts: 'accounts',
     
   }
 }
