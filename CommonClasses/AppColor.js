@@ -1,5 +1,5 @@
 export default {
-  AppTheme:'rgba(19, 181, 140, 1)',
+  AppTheme:'#13B58C',
   Lightgray:'rgba(167, 167, 167, 1)',
   LightUltraGray: '#EEEEEE',
   lightTransparent:'rgba(1, 1, 1, 0)',
@@ -7,7 +7,7 @@ export default {
   AppOrange:'rgba(255, 168, 0, 1)',
   AppYellow:'rgba(222, 163, 6, 1)',
   AppRed:'rgba(238, 90, 85, 1)',
-  AppGreen: '#12B38B',
+  AppGreen: '#11a680',
   AppGray:'#212121',
   BorderColor: 'rgba(222, 227, 230, 1)',
   LightBlueColor:'rgba(246, 249, 255, 1)',
@@ -16,4 +16,5 @@ export default {
   LightGreen:'rgba(223, 251, 244, 1)',
   GradientTop: '#2BDBC0',
   GradientBottom: '#13B58C',
+
 };

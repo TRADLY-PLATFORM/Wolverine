@@ -11,31 +11,32 @@ const Tab = createBottomTabNavigator();
 function AppTabbar() {
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{
-      activeTintColor:colors.AppTheme ,
+      activeTintColor: colors.AppTheme,
       inactiveTintColor: '#c3d5fa',
-      labelStyle: { fontSize: 12, color: 'black' }  
-    }}  screenOptions={({ route }) => ({
+      labelStyle: { fontSize: 12, color: 'black' }
+      
+    }} screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
         if (route.name === 'Home') {
-          iconName = focused    ? require('../assets/home.png')  : require('../assets/home.png');
+          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
         } else if (route.name === 'Explore') {
-          iconName = focused    ? require('../assets/feed.png')  : require('../assets/feed.png');
+          iconName = focused ? require('../assets/feed.png') : require('../assets/feed.png');
         } else if (route.name === 'Sell') {
-         iconName = focused    ? require('../assets/home.png')  : require('../assets/home.png');
+          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
         } else if (route.name === 'Chat') {
-         iconName = focused    ? require('../assets/chat.png')  : require('../assets/chat.png');
+          iconName = focused ? require('../assets/chat.png') : require('../assets/chat.png');
         } else if (route.name === 'Profile') {
-          iconName = focused    ? require('../assets/profile.png')  : require('../assets/profile.png');
+          iconName = focused ? require('../assets/profile.png') : require('../assets/profile.png');
         }
-        return  <Image source={iconName} resizeMode={'contain'} style={{width: 18, height: 18}} />
+        return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
       },
     })}>
-      <Tab.Screen name="Home" component={Home}/>
+      <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} />
-      <Tab.Screen name="Sell" component={shop} />
+      <Tab.Screen name="Sell" component={shop} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={Home} />
-      <Tab.Screen name="Profile" component={Home} />     
+      <Tab.Screen name="Profile" component={Home} />
     </Tab.Navigator>
   );
 }

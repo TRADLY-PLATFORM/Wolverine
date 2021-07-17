@@ -115,6 +115,16 @@ module.exports = StyleSheet.create({
     borderColor: colors.LightUltraGray,
     marginTop: 10,
   },
+  txtFieldWithImageStyle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: colors.AppGray,
+    paddingBottom: 5,
+    borderBottomWidth: 1,
+    borderColor: colors.LightUltraGray,
+    marginTop: 10,
+    width: '90%'
+  },
   txtViewStyle: {
     fontSize: 16,
     fontWeight: '400',
@@ -165,11 +175,10 @@ module.exports = StyleSheet.create({
     marginRight: 10,
   },
   nextIconStyle: {
-    width: 15,
-    height: 15,
-    // alignSelf: 'center',
-    transform: [{rotate: '270deg'}],
+    width: 20,
+    height: 20,
     marginRight: 10,
+    marginTop: 2,
   },
 });
 

@@ -1,3 +1,5 @@
 rootProject.name = 'tradlyEvent'
+include ':react-native-search-bar'
+project(':react-native-search-bar').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-search-bar/android')
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'

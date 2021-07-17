@@ -10,7 +10,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
+import { TabActions } from '@react-navigation/native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
@@ -25,7 +27,10 @@ import APPURL from '../../../Constants/URLConstants';
 import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
-
+import forwardIcon from '../../../assets/forward.png';
+import Tags from "react-native-tags";
+import uncheck from '../../../assets/uncheck.png';
+import check from '../../../assets/check.png';
 const windowWidth = Dimensions.get('window').width;
 
 export default class CreateShop extends Component {
@@ -36,15 +41,27 @@ export default class CreateShop extends Component {
       photo: null,
       updateUI: false,
       categoryArray: [],
+      attributeArray: [],
+      shippingArray: [],
       showDropDown: false,
       categoryID: -1,
       categoryName: 'Select Category',
       bToken: '',
       selectedCatData: {},
+      shippingID: 0,
+      singleSelectedArray: [],
+      multipleSelectedsArray: [],
+      singleValue: '',
+      tagsArray: [],
+      selectAddress: {},
+      name: '',
+      description: '',
+      documentFile: null,
+      isVisible: false,
+      photoURLPath: '',
+      documentURLPath: '',
     }
-    this.renderSupplier = this.renderSupplier.bind(this);
-    this.renderGovtRegView = this.renderGovtRegView.bind(this);
-
+    this.renderAddressView = this.renderAddressView.bind(this);
   }
   componentDidMount() {
     DefaultPreference.get('token').then(function (value) {
@@ -61,17 +78,109 @@ export default class CreateShop extends Component {
       this.state.categoryArray = cData;
       console.log('cData == >',cData)
       this.setState({categoryArray: cData})
+    }else {
+      this.setState({ isVisible: false })
     }
   }
   loadShippingApi = async () => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.shippingMethod, 'get','',this.state.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.shippingMethod, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
-   
+      let shipData = responseJson['data']['shipping_methods'];
+      console.log('shipping_methods == >',shipData)
+      this.state.shippingArray = shipData
+      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
+    }else {
+      this.setState({ isVisible: false })
     }
   }
+  loadAttributeApi = async (cid) => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.attribute + cid, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let cData = responseJson['data']['attributes'];
+      this.state.attributeArray = cData
+      this.setState({ updateUI: !this.state.updateUI,isVisible: false  })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  uploadFilesAPI = async () => {
+    this.setState({ isVisible: true })
+    var imgParm = [];
+    var uploadBase64 = [];
+    if (this.state.photo != null) {
+      console.log('calling.......here');
+      let fileName = this.state.photo.data;
+      if (fileName != null) {
+        var splashDict = {
+          name: this.state.photo['filename'],
+          type: this.state.photo['mime'],
+        };
+        uploadBase64.push({
+          file: 'data:image/png;base64,' + this.state.photo.data,
+        });
+        imgParm.push(splashDict);
+      }
+    }
+    if (this.state.documentFile != null) {
+      let fileName = this.state.documentFile.data;
+      if (fileName != null) {
+        var androidIconDict = {
+          name: this.state.documentFile['filename'],
+          type: this.state.documentFile['mime'],
+        };
+        uploadBase64.push({
+          file: 'data:image/png;base64,' + this.state.documentFile.data,
+        });
+        imgParm.push(androidIconDict);
+      }
+    }
+    console.log('imgParm',imgParm)
+    if (imgParm != 0) {
+      const responseJson = await networkService.networkCall(
+        APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );
+      if (responseJson['status'] == true) {
+        var result = responseJson['data']['result'];
+        console.log('result', result);
+        var uploadIncrement = 0;
+        for (let i = 0; i < imgParm.length; i++) {
+          fetch(uploadBase64[i]['file']).then(async res => {
+            const file_upload_res = await networkService.uploadFileWithSignedURL(
+              result[i]['signedUrl'],
+              imgParm[i]['type'],
+              await res.blob(),
+            );
+            uploadIncrement++;
+            if (this.state.photo != null) {
+              if (this.state.photoURLPath.length == 0) {
+                this.state.photoURLPath = result[i]['fileUri'];
+              } else {
+                this.state.documentFile = result[i]['fileUri'];
+              }
+            } else {
+              this.state.documentFile = result[i]['fileUri'];
+            }
+            if (uploadIncrement === uploadBase64.length) {
+              this.setState({ isVisible: false })
+            }
+          });
+        }
+      } else {
+        this.setState({ isVisible: false })
+        let error = errorHandler.errorHandle(responseJson['error']['code'])
+        console.log('error',error)
+        setTimeout(() => {Alert.alert(error) }, 50)
+      }
+    } else {
+      this.setState({ isVisible: false })
+    }
+  };
   /*  Buttons   */
 
+  createBtnAction() {
+    this.uploadFilesAPI()
+  }
   didSelectDropDown = (item, index) => {
     this.setState({ showDropDown: false, categoryID: index,categoryName:item})
   }
@@ -81,17 +190,59 @@ export default class CreateShop extends Component {
       getCatID: this.getSelectedCategoryID,
     });
   }
+  valueBtnAction(id) {
+    let item = this.state.attributeArray[id];
+    let singleSelect = item['field_type'] == 1 ? true : false
+    this.props.navigation.navigate(NavigationRoots.AttributeList, {
+      attributeArray: item['values'],
+      getAtriValue: this.getAttributeSelectedValues,
+      singleSelect: singleSelect,
+    });
+  }
+ 
+  cancelBtnAction() {
+    const jumpToAction = TabActions.jumpTo("Home");
+    this.props.navigation.dispatch(jumpToAction);
+  }
+  addressBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.AddressList, {
+      getAddress: this.getAddress,
+    });
+  }
+  /*  Delegates   */
+  onTagChanges(data) {
+    this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
   getSelectedCategoryID = data => {
     this.setState({selectedCatData: data, categoryName: data['name']})
+    this.loadAttributeApi(data['id'])
+  }
+  getAttributeSelectedValues = (data, singleSelect) => {
+    if (singleSelect) {
+      this.state.singleSelectedArray = data
+    } else {
+      this.state.multipleSelectedsArray = data
+    }
+    this.setState({ updateUI: !this.state.updateUI })
+  }
+  getAddress = data => {
+    this.setState({selectAddress: data});
   }
   /*  UI   */
-  imagePicker() {
+  imagePicker(id) {
     ImagePicker.openPicker({
       height: 200,
       width: 200,
       cropping: false,
+      includeBase64: true,
     }).then(image => {
-      this.state.photo = image.sourceURL;
+      // console.log('image', image);
+      if (id == 2) {
+        this.state.documentFile = image;
+      }else {
+        this.state.photo = image;
+      }
       this.setState({ updateUI: !this.state.updateUI })
     });
   }
@@ -102,12 +253,10 @@ export default class CreateShop extends Component {
         <View>
           <View style={styles.imagePickerPlaceholderStyle}>
             <TouchableOpacity onPress={() => this.imagePicker()}>
-              <View>
-                <Image source={{ uri: this.state.photo }}
+                <Image source={{ uri: this.state.photo.sourceURL }}
                   style={styles.SelectedImageStyle}
-                  resizeMode={'contain'}
+                  resizeMode={'cover'}
                 />
-              </View>
             </TouchableOpacity>
           </View>
         </View>,
@@ -130,134 +279,6 @@ export default class CreateShop extends Component {
     }
     return views;
   };
-  renderDropDownCategory = props => {
-    if (this.state.showDropDown == true) {
-      return <View style={styles.dropDownViewStyle} >
-        <FlatList
-          data={categoryArray}
-          horizontal={false}
-          renderItem={this.renderDropDownItem}
-          extraData={this.state}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={true}
-          ItemSeparatorComponent={
-            () => <View style={{ width: 0, height: 0, backgroundColor: colors.blackTransparent }} />
-          }
-        />
-      </View>
-    }
-    return <View></View>
-  }
-  renderDropDownItem = ({ item, index }) => {
-    return <TouchableOpacity onPress={() => this.didSelectDropDown(item, index)} style={{top: 1, height: 35, marginBottom: 5 }}>
-      <View style={{ justifyContent: 'center', width: "100%", top: 10 }}>
-        <Text style={{textAlign: 'left', fontSize: 16, color:colors.AppGray}}> {item} </Text>
-      </View>
-    </TouchableOpacity>
-  }
-
-  renderNGOView = () => {
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>NGO Registration No</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Enter Registration No'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Opreation Days</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Opreation Days'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Agent No</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Agent'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Business Registration</Text>
-      <View style={styles.dottedViewStyle}>
-        <Image source={upload} style={{ width: 20, height: 20, alignSelf: 'center' }} />
-        <View style={{ height: 10 }} />
-        <Text> Upload file document limit of 5 MB </Text>
-      </View>
-    </View>
-  }
-  renderGovtRegView = () => {
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Govt Registration No</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Enter Govt Registration No'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Opreation Days</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Opreation Days'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Speciality </Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Speciality'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Locality</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Locality'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Address'} />
-      <View style={{ height: 20 }} />
-    </View>
-  }
- 
-  renderHomeShop = () => {
-    return <View>
-    <View style={{ height: 20 }} />
-    <Text style={commonStyles.textLabelStyle}>Whatsapp (Optional)</Text>
-    <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Enter Whatsapp'} />
-    <View style={{ height: 20 }} />
-    <Text style={commonStyles.textLabelStyle}>Address</Text>
-    <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Address'} />
-    <View style={{ height: 20 }} />
-  </View>
-  }
-  renderSuperRetailer = () => {
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>GSTIN</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Enter GSTIN No'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Purchase Preference</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Purchase Preference'} />
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Address'} />
-      <View style={{ height: 20 }} />
-    </View>
-  }
-  renderSupplier = () => {
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Select Address'} />
-      <View style={{ height: 20 }} />
-    </View>
-  }
-  renderFields = () => {
-    if (this.state.categoryID == 0) {
-      return <View>{this.renderGovtRegView()}</View>
-    } else if (this.state.categoryID == 2) {
-      return <View>{this.renderNGOView()}</View>
-    } else if (this.state.categoryID == 1) {
-      return <View>{this.renderHomeShop()}</View>
-    } else if (this.state.categoryID == 3) {
-      return <View>{this.renderSuperRetailer()}</View>
-    } else if (this.state.categoryID == 4) {
-      return <View>{this.renderSupplier()}</View>
-    } else if (this.state.categoryID == 5) {
-      return <View>{this.renderSupplier()}</View>
-    } else {return <View />}
-  }
-  renderShipmentView = () => {
-    let titleAry = ['Online Session', 'Pick Up', 'Delivery']
-    var views = [];
-    for (let a = 0; a < 3; a++) {
-      views.push(<View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ height: 20, width: 20, borderWidth: 2, borderColor: colors.AppGreen, backgroundColor: colors.AppWhite }}></View>
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{titleAry[a]}</Text>
-      </View>)
-    }
-    return views;
-  }
-
-
   renderTitleLbl = ({ title }) => {
     return (
       <View style={{margin: -5}}>
@@ -274,21 +295,133 @@ export default class CreateShop extends Component {
         <TouchableOpacity 
           style={{ flexDirection: 'row',width: '100%',justifyContent: 'space-between' }} 
           onPress={() => this.categoryBtnAction()}>
-          <Text style={commonStyles.addTxtFieldStyle}>{this.state.categoryName}</Text>
+          <Text style={commonStyles.txtFieldWithImageStyle}>{this.state.categoryName}</Text>
           <Image style={commonStyles.nextIconStyle}
             resizeMode="contain"
-            source={dropdownIcon}
+            source={forwardIcon}
           />
         </TouchableOpacity>
-        {/* <this.renderDropDownCategory /> */}
       </View>
     </View>
   }
+  renderAttributeFields = () => {
+    var views = [];
+    if (this.state.attributeArray.length != 0) {
+      for (let a = 0; a < this.state.attributeArray.length; a++) {
+        let item = this.state.attributeArray[a];
+        let fieldType = item['field_type'];
+        if (fieldType == 1 || fieldType == 2) {
+          var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
+          if (fieldType == 1) {
+            if (this.state.singleSelectedArray.length !== 0) {
+              value = this.state.singleSelectedArray[0]['name']
+            }
+          } else {
+            if (this.state.multipleSelectedsArray.length != 0) {
+              var nameAry = [];
+              for (let obj of this.state.multipleSelectedsArray) {
+                nameAry.push(obj['name'])
+              }
+              value = nameAry.join()
+            }
+          }
+          views.push(<View>
+            <View style={{ height: 20 }} />
+            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            <View style={{ width: '100%', zIndex: 10 }}>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+                onPress={() => this.valueBtnAction(a)}>
+                <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
+                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon}/>
+              </TouchableOpacity>
+            </View>
+          </View>)
+        } else if (fieldType == 3) {
+          views.push(<View>
+            <View style={{ height: 20 }} />
+            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            <TextInput
+              style={commonStyles.addTxtFieldStyle}
+              placeholder={'Enter Value'}
+              onChangeText={value => this.setState({singleValue: value})}
+              />
+          </View>)
+        } else if (fieldType == 4) {
+          views.push(<View>
+            <View style={{ height: 20 }} />
+            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            <Tags
+              tagContainerStyle={{backgroundColor: colors.LightGreenColor}}
+              inputContainerStyle={{backgroundColor: '#f5f5f5'}}
+              initialTags={this.state.tagsArray}
+              onChangeTags={tags => this.onTagChanges(tags)}
+            /> 
+          </View>)
+        } else if (fieldType == 5) {
+          var value = 'Upload file document limit of 5 MB';
+          if (this.state.documentFile !== null) {
+            value = this.state.documentFile.filename;
+          }
+          views.push(<View>
+            <View style={{ height: 20 }} />
+            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            <View style={{ height: 10 }} />
+            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker(2)}>
+              <Image source={upload} style={{ width: 20, height: 20, alignSelf: 'center' }} />
+              <View style={{ height: 10 }} />
+              <Text>{value}</Text>
+            </TouchableOpacity>
+          </View>)
+        }
+      }
+    }else {
+      views.push(<View />)
+    }
+    return views;
+  }
+  renderShipmentView = () => {
+    var views = [];
+    for (let a = 0; a < this.state.shippingArray.length; a++) {
+      let item = this.state.shippingArray[a];
+      views.push(<TouchableOpacity style={styles.shippingViewStyle} onPress={() => this.setState({shippingID: item['id']})}>
+        <View style={styles.squareViewStyle}>
+          <Image style={styles.tickImageStyle} source={this.state.shippingID != item['id'] ? uncheck : check} />
+        </View>
+        <Text style={{color: colors.AppGray, marginLeft: 10}}>{item['name']}</Text>
+      </TouchableOpacity>)
+    }
+    return views;
+  }
 
+  renderAddressView = () => {
+    var value = 'Select Address'
+    if (this.state.selectAddress['formatted_address'] !== undefined) {
+      value = this.state.selectAddress['formatted_address'];
+    }
+    return <View>
+      <View style={{ height: 20 }} />
+      <Text style={commonStyles.textLabelStyle}>Address</Text>
+      <View style={{ width: '100%', zIndex: 10 }}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+          onPress={() => this.addressBtnAction()}>
+          <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
+          <Image style={commonStyles.nextIconStyle}
+            resizeMode="contain"
+            source={forwardIcon}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Create you store'} showBackBtn={false} />
+        <HeaderView title={'Create you store'}
+          showBackBtn={false} showDoneBtn={true}
+          doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
+        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ margin: 10, width: windowWidth - 20, height: imagePickerHeight }}>
@@ -296,24 +429,29 @@ export default class CreateShop extends Component {
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '80%', padding: 16 }}>
               <this.renderTitleLbl title={'Name'} />
-              <TextInput style={commonStyles.addTxtFieldStyle} placeholder={'Enter Name'} />
+              <TextInput 
+                style={commonStyles.addTxtFieldStyle}
+                placeholder={'Enter Name'}
+                onChangeText={value => this.setState({singleValue: value})}
+                />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Description'} />
+              <Text style={commonStyles.textLabelStyle}>Description</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Description'}
                 multiline={true} />
               <View style={{ height: 20 }} />
               <this.renderCategoryView />
+              <this.renderAttributeFields />
               <View style={{ zIndex: 1,}}>
-                <this.renderSupplier />
+                <this.renderAddressView />
                 <View style={{ height: 20 }} />
-                <Text style={commonStyles.textLabelStyle}>Preferred Shipment*</Text>
+                <this.renderTitleLbl title={'Preferred Shipment'} />
                 <View>
                   <this.renderShipmentView />
                 </View>
                 <View style={{ height: 60 }} />
-                <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.setState({ showModal: true })}>
+                <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
                   <Text style={commonStyles.themeTitleStyle}>Create</Text>
                 </TouchableOpacity>
                 <View style={{ height: 60 }} />
@@ -330,12 +468,6 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
-  },
-  imageSelectedStyle: {
-    height: imagePickerHeight,
-    width: '90%',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   imagePickerPlaceholderStyle: {
     height: imagePickerHeight,
@@ -355,34 +487,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: colors.BorderColor,
     borderWidth: 2,
-  },
-  groupViewContainerStyle: {
-    flexWrap: 'wrap',
-    flexDirection: 'row',
-    padding: 10,
-    justifyContent: 'flex-start',
-  },
-  groupViewStyle: {
-    borderRadius: 10,
-    borderColor: colors.BorderColor,
-    borderWidth: 2,
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedGroupViewStyle: {
-    borderRadius: 10,
-    borderColor: colors.AppTheme,
-    borderWidth: 2,
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageThumbnail: {
-    width: 35,
-    height: 35,
   },
   dottedViewStyle: {
     marginTop: 10,
@@ -406,14 +510,19 @@ const styles = StyleSheet.create({
     zIndex: 90,
     borderBottomWidth: 1,
   },
-  nextIconStyle: {
-    width: 15,
-    height: 15,
-    alignSelf: 'center',
-    transform: [{rotate: '270deg'}],
-    marginRight: 10,
-    marginTop: 2,
+  shippingViewStyle: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-});
+  squareViewStyle: {
+    height: 30,
+    width: 30,
+    justifyContent: 'center',
+  },
+  tickImageStyle: {
+    height: 24,
+    width: 24,
+  },
 
-const categoryArray = ['Govt.Registered Shop', 'Home Shop', 'NGO', 'Super Retailer', 'Supplier', 'Parents'];
+});

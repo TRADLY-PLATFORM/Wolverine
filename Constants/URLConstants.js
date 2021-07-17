@@ -9,6 +9,9 @@ module.exports = {
     category:'categories?parent=0&type=',
     attribute:'attributes/?type=accounts&category_id=',
     shippingMethod: 'tenants/shipping_methods',
+    searchAddress: 'addresses/search?key=',
+    S3signedUploadURL: 'utils/S3signedUploadURL',
+
     
   }
 }

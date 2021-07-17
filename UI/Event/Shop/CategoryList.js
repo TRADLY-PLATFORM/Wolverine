@@ -72,7 +72,7 @@ export default class CategoryList extends Component {
             <TouchableOpacity onPress={() => this.didSelect(item, item)}>
               <View style={styles.listViewStyle}>
                 <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
-                <Image style={styles.tickIconStyle} source={this.state.selectedCatData['id'] != item['id'] ? emptyIcon : tickIcon} />
+                <Image style={commonStyles.nextIconStyle} source={this.state.selectedCatData['id'] != item['id'] ? emptyIcon : tickIcon} />
               </View>
             </TouchableOpacity>
           );
@@ -81,7 +81,7 @@ export default class CategoryList extends Component {
             <TouchableOpacity onPress={() => this.didSelect(item, a)}>
               <View style={styles.listViewStyle}>
                 <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
-                <Image style={styles.tickIconStyle} source={forwardIcon} />
+                <Image style={commonStyles.nextIconStyle} source={forwardIcon} />
               </View>
             </TouchableOpacity>
           );
@@ -115,12 +115,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 10,
-  },
-  tickIconStyle: {
-    width: 20,
-    height: 20,
-    alignSelf: 'center',
-    marginRight: 10,
   },
 });
 

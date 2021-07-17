@@ -7,4 +7,6 @@ module.exports  = {
   BottomTabbar: 'BottomTabbar',
   Home:'Home',
   Category: 'Category',
+  AttributeList: 'AttributeList',
+  AddressList: 'AddressList',
 }

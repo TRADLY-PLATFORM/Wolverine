@@ -21,6 +21,9 @@ import Verifications from './UI/User/Verification';
 import ForgotPassword from './UI/User/ForgotPassword';
 import bottomBar from './Component/BottomTabbar';
 import CategoryList from './UI/Event/Shop/CategoryList';
+import AttributesList from './UI/Event/Shop/AttributeList';
+import AddressList from './UI/Event/Shop/AddressList';
+
 
 
 const Stack = createStackNavigator();
@@ -48,11 +51,14 @@ export default class App extends Component {
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }} />
+         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar}/>
         <Stack.Screen name={NavigationRoots.SignUp}component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification}component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword}component={ForgotPassword} />
-        <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar}/>
         <Stack.Screen name={NavigationRoots.Category}component={CategoryList} />
+        <Stack.Screen name={NavigationRoots.AttributeList}component={AttributesList} />
+        <Stack.Screen name={NavigationRoots.AddressList}component={AddressList} />
+
 
         {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
         <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />

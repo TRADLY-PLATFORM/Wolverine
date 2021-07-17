@@ -12,6 +12,8 @@ target 'tradlyEvent' do
     :hermes_enabled => false
   )
 
+  pod 'RNSearchBar', :path => '../node_modules/react-native-search-bar'
+
   target 'tradlyEventTests' do
     inherit! :complete
     # Pods for testing

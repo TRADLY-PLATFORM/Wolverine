@@ -19,13 +19,16 @@ export default class AppHeader extends Component {
     notificationBtnAction: PropTypes.func,
     showDoneBtn:PropTypes.bool,
     doneBtnAction: PropTypes.func,
+    doneBtnTitle: PropTypes.string,
   };
 
   renderDoneBtn = () => {
     if (this.props.showDoneBtn) {
       return <View>
         <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-            <Text style={{color: 'white', fontSize: 16}}>{'Done'}</Text>
+            <Text style={{color: 'white', fontSize: 16, fontWeight: '500'}}>
+              {this.props.doneBtnTitle == undefined ? 'Done' : this.props.doneBtnTitle }
+            </Text>
         </TouchableOpacity>
       </View>
     } else {
@@ -47,9 +50,7 @@ export default class AppHeader extends Component {
       return <View style={commonStyle.headerViewStyle}>
         <StatusBar barStyle="light-content" />
         <Text style={commonStyle.headerTitleStyle}>{this.props.title}</Text>
-        {/* <TouchableOpacity onPress={() => this.props.notificationBtnAction()}>
-          <Image source={notificationIcon} style={commonStyle.backBtnStyle} />
-        </TouchableOpacity> */}
+        <this.renderDoneBtn />
       </View>
     }
   }

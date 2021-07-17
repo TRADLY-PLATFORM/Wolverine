@@ -8,6 +8,7 @@ class NetworkManager {
     console.log('url == ', url)
     console.log('param == ', param)
     console.log('token == ', token)
+    console.log('auth == ', auth)
     let err, response
     [err, response] = await to(fetch(url, {
       method: method,
@@ -108,7 +109,23 @@ class NetworkManager {
       return json
     }
   }
-
+ async uploadFileWithSignedURL(signed_url, mime, blob_body) {
+    let err, response;
+    [err, response] = await to(
+      fetch(signed_url, {
+        method: 'put',
+        headers: {'Content-Type': mime},
+        body: blob_body,
+      }),
+    );
+    if (err) {
+      console.log('response error', err);
+      return false;
+    } else {
+      console.log('response uploadFileWithSignedURL', response);
+      return true;
+    }
+  }
 
 }
 const network = new NetworkManager();
