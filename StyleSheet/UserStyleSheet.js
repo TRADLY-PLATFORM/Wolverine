@@ -82,8 +82,8 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleStyle: {
-    fontSize: 22,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '400',
     color: '#FFFFFF',
   },
   themeBtnStyle: {

@@ -14,6 +14,8 @@ import commonStyle from './../../StyleSheet/UserStyleSheet'
 import DefaultPreference from 'react-native-default-preference';
 import dummy from './../../assets/dummy.png';
 import appConstant from './../../Constants/AppConstants';
+import APPURL from './../../Constants/URLConstants';
+import networkService from './../../NetworkManager/NetworkManager';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -29,9 +31,13 @@ export default class Home extends Component {
       appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
         appConstant.authKey = authKey;
+        DefaultPreference.get('userId').then(function (userId) {
+          appConstant.userId = userId;
+        }.bind(this))
       }.bind(this))
     }.bind(this))
   }
+
   /*  Buttons   */
 
   /*  UI   */
@@ -112,7 +118,7 @@ export default class Home extends Component {
   renderEventItemCell = () => {
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={styles.eventCellItemStyle}>
-        <Text style={{fontSize: 14, fontWeight: '700', color: colors.AppWhite}}>Events in Chennai</Text>
+        <Text style={{fontSize: 14, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>Events in Chennai</Text>
           <View style={styles.viewAllViewContainerStyle}>
             <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme,}}>View All</Text>
           </View>
@@ -279,6 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 5,
   },
   followContainerStyle: {
     backgroundColor: colors.AppTheme,

@@ -9,4 +9,7 @@ module.exports  = {
   Category: 'Category',
   AttributeList: 'AttributeList',
   AddressList: 'AddressList',
+  More:'More',
+  MyStore: 'MyStore',
+  Profile: 'Profile',
 }

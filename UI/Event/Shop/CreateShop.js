@@ -261,6 +261,7 @@ export default class CreateShop extends Component {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
         this.setState({ isVisible: false })
+        Alert.alert('SuccessFully')
       } else {
         this.setState({ isVisible: false })
         console.log(" error ", responseJson)
@@ -274,7 +275,6 @@ export default class CreateShop extends Component {
   /*  Buttons   */
   createBtnAction() {
     this.uploadFilesAPI()
-    // this.createAccountApi()
   }
   categoryBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Category, {

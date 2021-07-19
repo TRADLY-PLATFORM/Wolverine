@@ -12,6 +12,5 @@ module.exports = {
     searchAddress: 'addresses/search?key=',
     S3signedUploadURL: 'utils/S3signedUploadURL',
     accounts: 'accounts',
-    
   }
 }

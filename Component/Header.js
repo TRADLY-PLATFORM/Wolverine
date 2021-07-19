@@ -10,6 +10,8 @@ import {
 import PropTypes from 'prop-types';
 // import notificationIcon from '../assets/notification.png';
 import commonStyle from '../StyleSheet/UserStyleSheet';
+import backIcon from '../assets/back.png'
+import closeIcon from '../assets/close.png'
 
 export default class AppHeader extends Component {
   static propTypes = {
@@ -20,6 +22,7 @@ export default class AppHeader extends Component {
     showDoneBtn:PropTypes.bool,
     doneBtnAction: PropTypes.func,
     doneBtnTitle: PropTypes.string,
+    backBtnIcon: PropTypes.string,
   };
 
   renderDoneBtn = () => {
@@ -40,7 +43,7 @@ export default class AppHeader extends Component {
       return <View style={commonStyle.headerViewStyle}>
         <StatusBar barStyle="light-content" />
         <TouchableOpacity style={{left:0}} onPress={() => this.props.backBtnAction()}>
-          <Image style={commonStyle.backBtnStyle} resizeMode="contain" source={require('../assets/back.png')}>
+          <Image style={commonStyle.backBtnStyle} resizeMode="contain" source={this.props.backBtnIcon == undefined ? backIcon : closeIcon}>
           </Image>
         </TouchableOpacity>
         <Text style={commonStyle.headerTitleStyle}>{this.props.title}</Text>

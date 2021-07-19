@@ -23,7 +23,8 @@ import bottomBar from './Component/BottomTabbar';
 import CategoryList from './UI/Event/Shop/CategoryList';
 import AttributesList from './UI/Event/Shop/AttributeList';
 import AddressList from './UI/Event/Shop/AddressList';
-
+import MyStore from './UI/Event/More/MyStore/MyStore';
+import Profile from './UI/Event/More/EditProfile/EditProfile';
 
 
 const Stack = createStackNavigator();
@@ -47,19 +48,23 @@ export default class App extends Component {
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
-        options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }} />
-         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar}/>
+          options={{
+            title: '',
+            ...TransitionPresets.ModalSlideFromBottomIOS,
+          }} />
+         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
         <Stack.Screen name={NavigationRoots.SignUp}component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification}component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword}component={ForgotPassword} />
         <Stack.Screen name={NavigationRoots.Category}component={CategoryList} />
         <Stack.Screen name={NavigationRoots.AttributeList}component={AttributesList} />
         <Stack.Screen name={NavigationRoots.AddressList}component={AddressList} />
-
-
+        <Stack.Screen name={NavigationRoots.MyStore}component={MyStore} />
+        <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}/>
+        
         {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
         <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
         <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
