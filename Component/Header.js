@@ -43,7 +43,9 @@ export default class AppHeader extends Component {
       return <View style={commonStyle.headerViewStyle}>
         <StatusBar barStyle="light-content" />
         <TouchableOpacity style={{left:0}} onPress={() => this.props.backBtnAction()}>
-          <Image style={commonStyle.backBtnStyle} resizeMode="contain" source={this.props.backBtnIcon == undefined ? backIcon : closeIcon}>
+          <Image 
+            style={this.props.backBtnIcon == undefined ? commonStyle.backBtnStyle : styles.crossStyle} resizeMode="contain" 
+            source={this.props.backBtnIcon == undefined ? backIcon : closeIcon}>
           </Image>
         </TouchableOpacity>
         <Text style={commonStyle.headerTitleStyle}>{this.props.title}</Text>
@@ -58,3 +60,9 @@ export default class AppHeader extends Component {
     }
   }
 }
+const styles = StyleSheet.create({
+  crossStyle: {
+    height: 15,
+    width: 15,
+  },
+});

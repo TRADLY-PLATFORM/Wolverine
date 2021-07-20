@@ -83,7 +83,7 @@ module.exports = StyleSheet.create({
   },
   headerTitleStyle: {
     fontSize: 20,
-    fontWeight: '400',
+    fontWeight: '600',
     color: '#FFFFFF',
   },
   themeBtnStyle: {
@@ -112,18 +112,18 @@ module.exports = StyleSheet.create({
     color: colors.AppGray,
     paddingBottom: 5,
     borderBottomWidth: 1,
-    borderColor: colors.LightUltraGray,
-    marginTop: 10,
+    borderColor: colors.BorderColor,
+    marginTop: 16,
   },
   txtFieldWithImageStyle: {
     fontSize: 16,
     fontWeight: '400',
     color: colors.AppGray,
     paddingBottom: 5,
-    borderBottomWidth: 1,
-    borderColor: colors.LightUltraGray,
-    marginTop: 10,
-    width: '90%'
+    // borderBottomWidth: 1,
+    borderColor: colors.BorderColor,
+    marginTop: 16,
+    width: '85%',
   },
   txtViewStyle: {
     fontSize: 16,
@@ -132,7 +132,7 @@ module.exports = StyleSheet.create({
     paddingBottom: 5,
     borderBottomWidth: 1,
     borderColor: colors.LightUltraGray,
-    marginTop: 10,
+    marginTop: 16,
     // height: 60,
   },
   selectedViewStyle: {

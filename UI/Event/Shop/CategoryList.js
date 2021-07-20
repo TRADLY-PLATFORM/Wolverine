@@ -19,9 +19,6 @@ import forwardIcon from '../../../assets/forward.png';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
 
-
-const windowWidth = Dimensions.get('window').width;
-
 export default class CategoryList extends Component {
   constructor(props) {
     super(props);

@@ -31,6 +31,8 @@ import forwardIcon from '../../../assets/forward.png';
 import Tags from "react-native-tags";
 import uncheck from '../../../assets/uncheck.png';
 import check from '../../../assets/check.png';
+import eventStyles from '../../../StyleSheet/EventStyleSheet';
+
 const windowWidth = Dimensions.get('window').width;
 
 export default class CreateShop extends Component {
@@ -65,7 +67,7 @@ export default class CreateShop extends Component {
   }
   componentDidMount() {
     DefaultPreference.get('token').then(function (value) {
-      this.setState({bToken: value })
+      this.setState({ bToken: value })
       this.loadCategoryApi()
       this.loadShippingApi()
     }.bind(this))
@@ -76,7 +78,7 @@ export default class CreateShop extends Component {
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['categories'];
       this.state.categoryArray = cData;
-      console.log('cData == >',cData)
+      // console.log('cData == >',cData)
       this.setState({categoryArray: cData})
     }else {
       this.setState({ isVisible: false })
@@ -96,7 +98,7 @@ export default class CreateShop extends Component {
   }
   loadAttributeApi = async (cid) => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.attribute + cid, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['attributes'];
       this.state.attributeArray = cData
@@ -293,8 +295,13 @@ export default class CreateShop extends Component {
   }
  
   cancelBtnAction() {
-    const jumpToAction = TabActions.jumpTo("Home");
-    this.props.navigation.dispatch(jumpToAction);
+
+    // if (this.props.route.params) {
+    //   const jumpToAction = TabActions.jumpTo("Home");
+    //   this.props.navigation.dispatch(jumpToAction);
+    // } else {
+      this.props.navigation.goBack();
+    // }
   }
   addressBtnAction() {
     this.props.navigation.navigate(NavigationRoots.AddressList, {
@@ -385,8 +392,7 @@ export default class CreateShop extends Component {
     return <View>
       {this.renderTitleLbl('category')}
       <View style={{ width: '100%', zIndex: 10 }}>
-        <TouchableOpacity 
-          style={{ flexDirection: 'row',width: '100%',justifyContent: 'space-between' }} 
+        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} 
           onPress={() => this.categoryBtnAction()}>
           <Text style={commonStyles.txtFieldWithImageStyle}>{this.state.categoryName}</Text>
           <Image style={commonStyles.nextIconStyle}
@@ -422,9 +428,7 @@ export default class CreateShop extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <View style={{ width: '100%', zIndex: 10 }}>
-              <TouchableOpacity
-                style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-                onPress={() => this.valueBtnAction(a)}>
+              <TouchableOpacity style={eventStyles.clickAbleFieldStyle}  onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
                 <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon}/>
               </TouchableOpacity>
@@ -460,7 +464,7 @@ export default class CreateShop extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <View style={{ height: 10 }} />
-            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker(2)}>
+            <TouchableOpacity style={eventStyles.dottedViewStyle} onPress={() => this.imagePicker(2)}>
               <Image source={upload} style={{ width: 20, height: 20, alignSelf: 'center' }} />
               <View style={{ height: 10 }} />
               <Text>{value}</Text>
@@ -496,9 +500,7 @@ export default class CreateShop extends Component {
       <View style={{ height: 20 }} />
       <Text style={commonStyles.textLabelStyle}>Address</Text>
       <View style={{ width: '100%', zIndex: 10 }}>
-        <TouchableOpacity
-          style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-          onPress={() => this.addressBtnAction()}>
+        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
           <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
           <Image style={commonStyles.nextIconStyle}
             resizeMode="contain"
@@ -582,16 +584,6 @@ const styles = StyleSheet.create({
     borderColor: colors.BorderColor,
     borderWidth: 2,
   },
-  dottedViewStyle: {
-    marginTop: 10,
-    borderRadius: 10,
-    height: 80,
-    borderColor: colors.AppTheme,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-  },
   dropDownViewStyle: {
     width: "100%",
     backgroundColor: 'white',
@@ -618,5 +610,4 @@ const styles = StyleSheet.create({
     height: 24,
     width: 24,
   },
-
 });

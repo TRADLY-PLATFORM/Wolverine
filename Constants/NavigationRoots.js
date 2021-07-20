@@ -10,6 +10,9 @@ module.exports  = {
   AttributeList: 'AttributeList',
   AddressList: 'AddressList',
   More:'More',
+  CreateStore: 'CreateStore',
   MyStore: 'MyStore',
   Profile: 'Profile',
+  AddEvent: 'AddEvent',
+  Currency: 'Currency',
 }

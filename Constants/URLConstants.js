@@ -1,16 +1,19 @@
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.dev.tradly.app/app/v1/',
-    config: 'tenants/eventdev/configs',
-    register: 'users/register',
-    login: 'users/login',
-    verify: 'users/verify',
-    forgotpassword: 'users/password/recovery',
-    category:'categories?parent=0&type=',
-    attribute:'attributes/?type=accounts&category_id=',
-    shippingMethod: 'tenants/shipping_methods',
-    searchAddress: 'addresses/search?key=',
-    S3signedUploadURL: 'utils/S3signedUploadURL',
-    accounts: 'accounts',
+    BaseURL: 'https://api.dev.tradly.app/app/',
+    config: 'v1/tenants/eventdev/configs',
+    register: 'v1/users/register',
+    login: 'v1/users/login',
+    verify: 'v1/users/verify',
+    forgotpassword: 'v1/users/password/recovery',
+    category:'v1/categories?parent=0&type=',
+    attribute:'v1/attributes/?category_id=',
+    shippingMethod: 'v1/tenants/shipping_methods',
+    searchAddress: 'v1/addresses/search?key=',
+    S3signedUploadURL: 'v1/utils/S3signedUploadURL',
+    accounts: 'v1/accounts',
+    listings: 'products/v1/listings',
+    currencies: 'v1/currencies'
+
   }
 }

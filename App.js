@@ -25,7 +25,9 @@ import AttributesList from './UI/Event/Shop/AttributeList';
 import AddressList from './UI/Event/Shop/AddressList';
 import MyStore from './UI/Event/More/MyStore/MyStore';
 import Profile from './UI/Event/More/EditProfile/EditProfile';
-
+import CreateStore from './UI/Event/Shop/CreateShop';
+import AddEvent from './UI/Event/More/AddEvent/AddEvent';
+import Currency from './UI/Event/More/AddEvent/Currency';
 
 const Stack = createStackNavigator();
 
@@ -44,7 +46,7 @@ export default class App extends Component {
   }
   navigationReturn = () => {
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.SignIn} screenOptions={{
+      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
@@ -60,11 +62,19 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AttributeList}component={AttributesList} />
         <Stack.Screen name={NavigationRoots.AddressList}component={AddressList} />
         <Stack.Screen name={NavigationRoots.MyStore}component={MyStore} />
+        <Stack.Screen name={NavigationRoots.Currency}component={Currency} />
         <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }}/>
-        
+        <Stack.Screen name={NavigationRoots.CreateStore} component={CreateStore} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }} />
+         <Stack.Screen name={NavigationRoots.AddEvent} component={AddEvent} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }} />
         {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
         <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
         <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
