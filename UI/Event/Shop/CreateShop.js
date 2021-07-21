@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  FlatList,
   TextInput,
   Text,
   Image,
@@ -186,7 +185,7 @@ export default class CreateShop extends Component {
       'type': 'accounts',
     }
     if (this.state.photo != null) {
-      dict['image_path'] = this.state.photoURLPath;
+      dict['images'] = this.state.photoURLPath;
     }
     if (this.state.description.length != 0) {
       dict['description'] = this.state.description;

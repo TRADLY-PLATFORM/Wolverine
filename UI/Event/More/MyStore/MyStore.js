@@ -111,7 +111,10 @@ export default class MyStore extends Component {
     this.props.navigation.navigate(NavigationRoots.CreateStore,{accId: accId})
   }
   addEventBtnAction () {
-    this.props.navigation.navigate(NavigationRoots.AddEvent)
+    const {accId} = this.props.route.params;
+    this.props.navigation.navigate(NavigationRoots.AddEvent,{
+      accountId: accId,
+    } )
   }
   ratingStarBtnAction(id) {
     this.setState({starRatingValue: id + 1})
@@ -364,8 +367,9 @@ export default class MyStore extends Component {
     </View>
   }
   renderHorizontalCellItem = ({ item, index }) => {
+    console.log('item', item['id']);
     let price = item['list_price'];
-    let photo = item['images'];
+    var photo = item['images'] ? item['images'] : [];
     let startDate = dateConversionFromTimeStamp(item['start_at']);
     let endDate = dateConversionFromTimeStamp(item['end_at']);
 

@@ -33,11 +33,24 @@ export default class Home extends Component {
         appConstant.authKey = authKey;
         DefaultPreference.get('userId').then(function (userId) {
           appConstant.userId = userId;
+          this.getMyStoreApi()
         }.bind(this))
       }.bind(this))
     }.bind(this))
   }
 
+  getMyStoreApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let acctData = responseJson['data']['accounts'];
+      if (acctData.length != 0) {
+        appConstant.accountID = acctData[0]['id'];
+      }
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
   /*  Buttons   */
 
   /*  UI   */

@@ -28,6 +28,11 @@ import Profile from './UI/Event/More/EditProfile/EditProfile';
 import CreateStore from './UI/Event/Shop/CreateShop';
 import AddEvent from './UI/Event/More/AddEvent/AddEvent';
 import Currency from './UI/Event/More/AddEvent/Currency';
+import EventTimings from './UI/Event/More/AddEvent/EventTiming';
+import AddVariant from './UI/Event/More/AddEvent/AddVariant';
+import VariantList from './UI/Event/More/AddEvent/VariantList';
+
+
 
 const Stack = createStackNavigator();
 
@@ -63,6 +68,10 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AddressList}component={AddressList} />
         <Stack.Screen name={NavigationRoots.MyStore}component={MyStore} />
         <Stack.Screen name={NavigationRoots.Currency}component={Currency} />
+        <Stack.Screen name={NavigationRoots.EventTiming}component={EventTimings} />
+        <Stack.Screen name={NavigationRoots.AddVariant}component={AddVariant} />
+        <Stack.Screen name={NavigationRoots.VariantList}component={VariantList} />
+
         <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

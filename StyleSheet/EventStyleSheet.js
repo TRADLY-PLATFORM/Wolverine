@@ -41,5 +41,16 @@ module.exports = StyleSheet.create({
     borderStyle: 'dashed',
     borderWidth: 1,
   },
+  addBntViewStyle: {
+    backgroundColor: colors.AppWhite,
+    height: 30,
+    borderRadius: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: colors.AppTheme,
+    borderWidth: 1,
+    paddingLeft:16,
+    paddingRight: 16,
+  },
 });
 

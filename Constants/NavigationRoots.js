@@ -15,4 +15,7 @@ module.exports  = {
   Profile: 'Profile',
   AddEvent: 'AddEvent',
   Currency: 'Currency',
+  EventTiming: 'EventTiming',
+  AddVariant: 'AddVariant',
+  VariantList: 'VariantList',
 }

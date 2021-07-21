@@ -85,7 +85,7 @@ export default class More extends Component {
     return <TouchableOpacity style={{ marginBottom: 10, top: 10 }} onPress={() => this.didSelectList({ index: index })} >
         <Text style={{ fontSize: 12, fontWeight: '500', color: index != (menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
-}
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>

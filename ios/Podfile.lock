@@ -322,6 +322,8 @@ PODS:
     - React-perflogger (= 0.64.2)
   - RNCMaskedView (0.1.11):
     - React
+  - RNDateTimePicker (3.5.2):
+    - React-Core
   - RNDefaultPreference (1.4.3):
     - React
   - RNDeviceInfo (8.1.3):
@@ -428,6 +430,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -514,6 +517,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
@@ -573,6 +578,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
+  RNDateTimePicker: c9911be59b1f8670b9f244b85af3a7c295e175ed
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 49f6d50f861c7810fac2dd9b71cfb56cc1940e14
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211

@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
+  Alert,
 } from 'react-native';
 import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
@@ -26,8 +26,12 @@ import cancelIcon from '../../../../assets/cancel.png';
 import forwardIcon from '../../../../assets/forward.png';
 import upload from '../../../../assets/upload.png';
 import Tags from "react-native-tags";
+import calendarIcon from '../../../../assets/calendarIcon.png';
+import deleteIcon from '../../../../assets/deleteIcon.png';
+import editGreen from '../../../../assets/editGreen.png';
+import timeIcon from '../../../../assets/timeIcon.png';
+import Spinner from 'react-native-loading-spinner-overlay';
 
-// const windowWidth = Dimensions.get('window').width;
 
 export default class AddEvent extends Component {
   constructor(props) {
@@ -35,7 +39,6 @@ export default class AddEvent extends Component {
     this.state = {
       categoryArray: [],
       imagesArray: [],
-      documentFile:null,
       currencyArray: [],
       updateUI: false,
       isVisible: false,
@@ -47,12 +50,29 @@ export default class AddEvent extends Component {
       multipleSelectedsArray: [],
       singleValue: '',
       tagsArray: [],
+      eventDateArray:[],
+      selectAddress: {},
+      uploadImageURL: [],
+      documentURLPath: '',
+      attributeFilePath: '',
+      documentFile:null,
+      name: '',
+      description: '',
+      offerPrice: '',
+      eventPrice: '',
+      ticketLimit:'',
+      accountId: 0,
     }
   }
   componentDidMount() {
+    let {accountId} = appConstant.accountID;
+    this.state.accountId = accountId;
     this.loadCategoryApi()
     this.getCurrencyApi();
   }
+
+  /*  APIS Methods */
+
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.category + 'listings', 'get','',appConstant.bToken,appConstant.authKey)
@@ -69,7 +89,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['attributes'];
-      console.log('cData == >',cData)
+      // console.log('cData == >',cData)
       this.state.attributeArray = cData
       this.setState({ updateUI: !this.state.updateUI,isVisible: false  })
     } else {
@@ -90,8 +110,199 @@ export default class AddEvent extends Component {
       this.setState({ isVisible: false })
     }
   }
+  uploadFilesAPI = async () => {
+    this.setState({ isVisible: true })
+    var imgParm = [];
+    var uploadBase64 = [];
+    if (this.state.imagesArray.length != 0) {
+      for (let p = 0; p < this.state.imagesArray.length; p++) {
+        let photo = this.state.imagesArray[p]
+        let fileName = photo.data;
+        if (fileName != null) {
+          var dict = {
+            name: photo['filename'],
+            type: photo['mime'],
+          };
+          uploadBase64.push({
+            file: 'data:image/png;base64,' + photo.data,
+          });
+          imgParm.push(dict);
+        }
+      }
+    }
+    if (this.state.documentFile != null) {
+      let fileName = this.state.documentFile.data;
+      if (fileName != null) {
+        var androidIconDict = {
+          name: this.state.documentFile['filename'],
+          type: this.state.documentFile['mime'],
+        };
+        uploadBase64.push({
+          file: 'data:image/png;base64,' + this.state.documentFile.data,
+        });
+        imgParm.push(androidIconDict);
+      }
+    }
+    console.log('imgParm',imgParm)
+    if (imgParm != 0) {
+      const responseJson = await networkService.networkCall(
+        APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );
+      if (responseJson['status'] == true) {
+        var result = responseJson['data']['result'];
+        console.log('result', result);
+        var uploadIncrement = 0;
+        for (let i = 0; i < imgParm.length; i++) {
+          fetch(uploadBase64[i]['file']).then(async res => {
+            const file_upload_res = await networkService.uploadFileWithSignedURL(
+              result[i]['signedUrl'],
+              imgParm[i]['type'],
+              await res.blob(),
+            );
+            uploadIncrement++;
+            if (uploadIncrement === uploadBase64.length) {
+              var imageP = [];
+              for (let obj of result) {
+                imageP.push(obj['fileUri'])
+              }
+              if (this.state.documentFile != null) {
+                this.setState({attributeFilePath: imageP[imageP.length - 1]})
+                imageP.splice(imageP.length - 1, 1)
+                this.state.uploadImageURL = imageP;
+              } else {
+                this.state.uploadImageURL = imageP;
+              }
+              this.createEventApi()
+            }
+          });
+        }
+      } else {
+        this.setState({ isVisible: false })
+        let error = errorHandler.errorHandle(responseJson['error']['code'])
+        console.log('error',error)
+        Alert.alert(error) 
+      }
+    } else {
+      this.createEventApi()
+    }
+  };
+  createEventApi = async () => {
+    var dict = {
+      'category_id':[this.state.selectedCatData['id']],
+      'title': this.state.name,
+      'type': 'events',
+      'currency_id': this.state.selectedCurrency['id'],
+      'account_id': this.state.accountId,
+    }
+    if (this.state.imagesArray.length != 0) {
+        dict['images'] = this.state.uploadImageURL;;
+    }
+    if (this.state.description.length != 0) {
+      dict['description'] = this.state.description;
+    }
+    if (this.state.eventPrice.length != 0) {
+      dict['list_price'] = this.state.eventPrice;
+    }
+    if (this.state.offerPrice.length != 0) {
+      dict['offer_percent'] = this.state.offerPrice;
+    }
+    if (this.state.ticketLimit.length != 0) {
+      dict['stock'] = this.state.ticketLimit;
+    }
+    if (this.state.selectAddress['formatted_address'] !== undefined) {
+      latitude = this.state.selectAddress['latitude'];
+      longitude = this.state.selectAddress['longitude'];
+      dict['coordinates'] = {'latitude': latitude,'longitude': longitude};
+    }
+
+    var attributeAry = [];
+    for (let objc of this.state.attributeArray) {
+      let fieldType = objc['field_type'];
+      if (fieldType == 1) {
+        if (this.state.singleSelectedArray.length != 0) {
+          let atrDic = {
+            values:[this.state.singleSelectedArray[0]['id']],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 2) {
+        if (this.state.multipleSelectedsArray.length != 0) {
+          var idAry = [];
+          for (let obj of this.state.multipleSelectedsArray) {
+            idAry.push(obj['id'])
+          }
+          let atrDic = {
+            values:idAry,
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 3) {
+        if (this.state.singleValue.length != 0) {
+          let atrDic = {
+            values:[this.state.singleValue],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 4) {
+        if (this.state.tagsArray.length != 0) {
+          let atrDic = {
+            values:this.state.tagsArray,
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+      if (fieldType == 5) {
+        console.log('this.state.attributeFilePath', this.state.attributeFilePath);
+        if (this.state.attributeFilePath.length != 0) {
+          let atrDic = {
+            values:[this.state.attributeFilePath],
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
+        }
+      }
+    }
+    if (attributeAry != 0) {
+      dict['attributes'] = attributeAry
+    }
+    console.log('dict == ', dict);
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings, 'POST', JSON.stringify({ listing: dict }),appConstant.bToken,appConstant.authKey)
+    console.log(" responseJson =  ", responseJson) 
+    if (responseJson) {
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.setState({ isVisible: false })
+        Alert.alert('SuccessFully')
+      } else {
+        this.setState({ isVisible: false })
+        console.log(" error ", responseJson)
+        let error = errorHandler.errorHandle(responseJson['error']['code'])
+        console.log('error',error)
+        // setTimeout(() => {Alert.alert(error) }, 50)
+      }
+    }
+  }
   /*  Buttons   */
-  didSelect = (item, itemData) => {
+  createBtnAction() {
+    this.uploadFilesAPI()
+  }
+  selectDateTimeBtnAction(isEdit) {
+    if (isEdit) {
+      this.props.navigation.navigate(NavigationRoots.EventTiming, {
+        eventDateTime: this.state.eventDateArray[0],
+        getDateTime: this.getEventDateTime
+      });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.EventTiming, {
+        getDateTime: this.getEventDateTime
+      });
+    }
   }
   doneBtnAction () {
   }
@@ -111,14 +322,6 @@ export default class AddEvent extends Component {
       getCatID: this.getSelectedCategoryID,
     });
   }
-  /*  Delegates  */
-  getSelectedCategoryID = data => {
-    this.setState({selectedCatData: data, categoryName: data['name']})
-    this.loadAttributeApi(data['id'])
-  }
-  getCurrencyData = (data) => {
-    console.log('data => ', data);
-  }
   valueBtnAction(id) {
     let item = this.state.attributeArray[id];
     let singleSelect = item['field_type'] == 1 ? true : false
@@ -128,17 +331,58 @@ export default class AddEvent extends Component {
       singleSelect: singleSelect,
     });
   }
+  addressBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.AddressList, {
+      getAddress: this.getAddress,
+    });
+  }
+  addVarianBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.AddVariant);
+  }
+  
+  /*  Delegates  */
+  getAddress = data => {
+    this.setState({selectAddress: data});
+  }
+  getEventDateTime = data => {
+    // console.log('data => ', data);
+    this.state.eventDateArray = [];
+    this.state.eventDateArray.push(data);
+    this.setState({updateUI: !this.state.updateUI});
+  }
+  getSelectedCategoryID = data => {
+    this.setState({selectedCatData: data, categoryName: data['name']})
+    this.loadAttributeApi(data['id'])
+  }
+  getCurrencyData = (data) => {
+    console.log('data => ', data);
+    this.setState({selectedCurrency: data})
+  }
+  onTagChanges(data) {
+    this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
+  getAttributeSelectedValues = (data, singleSelect) => {
+    if (singleSelect) {
+      this.state.singleSelectedArray = data
+    } else {
+      this.state.multipleSelectedsArray = data
+    }
+    this.setState({ updateUI: !this.state.updateUI })
+  }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
       height: 200,
       width: 200,
-      cropping: true,
+      cropping: false,
+      includeBase64: true,
+      compressImageQuality: 0.5,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
       }else {
-      this.state.imagesArray.push(image.sourceURL)
+      this.state.imagesArray.push(image)
       }
       this.setState({updateUI: !this.state.updateUI})
     });
@@ -156,7 +400,7 @@ export default class AddEvent extends Component {
               <TouchableOpacity onPress={() => this.imagePicker()}>
                 <View>
                   <Image
-                    source={{ uri: this.state.imagesArray[i]}}
+                    source={{ uri: this.state.imagesArray[i].sourceURL}}
                     style={styles.SelectedImageStyle}
                     resizeMode={'cover'}
                   />
@@ -206,7 +450,7 @@ export default class AddEvent extends Component {
           style={commonStyles.txtFieldWithImageStyle}
           placeholder={'Enter Price'}
           keyboardType={'number-pad'}
-          onChangeText={value => this.setState({ name: value })}
+          onChangeText={value => this.setState({ eventPrice: value })}
         />
         <TouchableOpacity style={{ width: 40, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}
           onPress={() => this.currecnyBtnAction()}>
@@ -292,10 +536,94 @@ export default class AddEvent extends Component {
     }
     return views;
   }
+  renderAddressView = () => {
+    var value = 'Select Address'
+    if (this.state.selectAddress['formatted_address'] !== undefined) {
+      value = this.state.selectAddress['formatted_address'];
+    }
+    return <View>
+      <View style={{ height: 20 }} />
+      <Text style={commonStyles.textLabelStyle}>Address</Text>
+      <View style={{ width: '100%', zIndex: 10 }}>
+        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
+          <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
+          <Image style={commonStyles.nextIconStyle}
+            resizeMode="contain"
+            source={forwardIcon}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  }
+  renderEventDateTimeView = () => {
+    return ( <View style={styles.mainViewStyle}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={commonStyles.textLabelStyle}>Event Date & Time</Text>
+        <View>
+          <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.selectDateTimeBtnAction()}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>Select</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View>
+        {this.renderEventDateTimeListView()}
+      </View>
+    </View>)
+  }
+  renderEventDateTimeListView = () => {
+    return (<View>
+      <FlatList
+        data={this.state.eventDateArray}
+        renderItem={this.renderListCellItem}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+      />
+    </View>)
+  }
+  renderListCellItem = ({ item, index }) => {
+    console.log('item',item)
+    return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between' }}>
+      <View style={{ flexDirection: 'row' }}>
+        <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
+        <View>
+          <View style={{ margin: 5, flexDirection: 'row' }}>
+            <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
+            <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
+              <Image style={{ width: 15, height: 15, marginLeft: 10 }} resizeMode='center' source={editGreen} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
+            <Image style={{ width: 16, height: 16 }} resizeMode='center' source={timeIcon} />
+            <View style={{ width: 5 }} />
+            <Text style={eventStyles.subTitleStyle}>{`${item['startTime']} to ${item['endTime']}`}</Text>
+          </View>
+        </View>
+      </View>
+      <View>
+        <Image style={commonStyles.backBtnStyle} resizeMode='center' source={deleteIcon} />
+      </View>
+    </View>
+  }
+  renderVariantsView = () => {
+    return ( <View style={styles.mainViewStyle}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={commonStyles.textLabelStyle}>Variants</Text>
+        <View>
+          <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.addVarianBtnAction()}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>+Add Variants</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View>
+      </View>
+    </View>)
+  }
+
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={true} />
+        <HeaderView title={'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
+        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ padding: 16 }}>
@@ -324,6 +652,15 @@ export default class AddEvent extends Component {
                 <this.renderTitleLbl title={'Price'} />
                 <this.renderPriceView />
               </View>
+              <View style={{ marginTop: 20 }}>
+                <Text style={commonStyles.textLabelStyle}>Offer Price</Text>
+                <TextInput
+                  style={commonStyles.addTxtFieldStyle}
+                  placeholder={'Enter Offer Price'}
+                  keyboardType={'number-pad'}
+                  onChangeText={value => this.setState({ offerPrice: value })}
+                />
+              </View>
               <View style={{ marginTop: 20 }} >
                 <this.renderTitleLbl title={'Category'} />
                 <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.categoryBtnAction()}>
@@ -338,20 +675,18 @@ export default class AddEvent extends Component {
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={'Enter Ticket Limits'}
                 keyboardType={'number-pad'}
-                onChangeText={value => this.setState({ name: value })}
+                onChangeText={value => this.setState({ ticketLimit: value })}
               />
+              <this.renderAddressView />
             </View>
             <View style={{ height: 10 }} />
-            <View style={styles.mainViewStyle}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <this.renderTitleLbl title={'Event Date & Time'} />
-                <View>
-                  <View style={styles.activeBntViewStyle}>
-                  <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>Select</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
+            <this.renderEventDateTimeView />
+            <View style={{ height: 10 }} />
+            <this.renderVariantsView />
+            <View style={{ height: 60 }} />
+            <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
+              <Text style={commonStyles.themeTitleStyle}>Create</Text>
+            </TouchableOpacity>
             <View style={{ height: 60 }} />
           </ScrollView>
         </View>
@@ -397,16 +732,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderColor: colors.BorderColor,
     borderWidth: 1,
-  },
-  activeBntViewStyle: {
-    backgroundColor: colors.AppWhite,
-    width: 80,
-    height: 30,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: colors.AppTheme,
-    borderWidth: 1
   },
 });
 

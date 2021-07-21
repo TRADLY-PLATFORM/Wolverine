@@ -13,7 +13,8 @@ module.exports = {
     S3signedUploadURL: 'v1/utils/S3signedUploadURL',
     accounts: 'v1/accounts',
     listings: 'products/v1/listings',
-    currencies: 'v1/currencies'
+    currencies: 'v1/currencies',
+    variantType: 'products/v1/variant_types',
 
   }
 }

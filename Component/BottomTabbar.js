@@ -3,9 +3,11 @@ import {Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../UI/Event/Home';
 import shop from '../UI/Event/Shop/CreateShop'
+import AddEvent from '../UI/Event/More/AddEvent/AddEvent'
 import explore from '../UI/Event/Explore/Explore'
 import colors from '../CommonClasses/AppColor';
 import More from '../UI/Event/More/More';
+import appConstant from '../Constants/AppConstants';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +37,7 @@ function AppTabbar() {
     })}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} />
-      <Tab.Screen name="Sell" component={shop} options={{tabBarVisible: false}}/>
+      <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={Home} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>

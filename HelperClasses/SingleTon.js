@@ -7,3 +7,8 @@ export function dateConversionFromTimeStamp(bDate) {
   var formatted = Moment(ctime).format(frmt);
   return formatted;
 }
+export function changeDateFormat(bDate, format) {
+  var ctime = new Date(bDate);
+  var formatted = Moment(ctime).format(format);
+  return formatted;
+}
