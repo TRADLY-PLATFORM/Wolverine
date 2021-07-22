@@ -38,20 +38,9 @@ export default class VariantList extends Component {
   /*  Buttons   */
 
   didSelect = (item) => {
-    const {multipleSelect} = this.props.route.params;
-    if (multipleSelect) {
-      let obj = this.state.selectedVariantType.findIndex(x => x.id === item['id'])
-      if (obj != -1) {
-        this.state.selectedVariantType.splice(obj, 1);
-      }else {
-        this.state.selectedVariantType.push(item);
-      }
-    }else {
-      this.state.selectedVariantType = [];
-      this.state.selectedVariantType.push(item);
-    }
-    
-    this.setState({updateUI: !this.state.updateUI})
+    this.state.selectedVariantType = [];
+    this.state.selectedVariantType.push(item);
+    this.setState({ updateUI: !this.state.updateUI })
   }
   doneBtnAction () {
     const {multipleSelect} = this.props.route.params;

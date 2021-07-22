@@ -29,7 +29,7 @@ export default class AppHeader extends Component {
     if (this.props.showDoneBtn) {
       return <View>
         <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-            <Text style={{color: 'white', fontSize: 16, fontWeight: '500'}}>
+            <Text style={{color: 'white', fontSize: 16, fontWeight: '700'}}>
               {this.props.doneBtnTitle == undefined ? 'Done' : this.props.doneBtnTitle }
             </Text>
         </TouchableOpacity>

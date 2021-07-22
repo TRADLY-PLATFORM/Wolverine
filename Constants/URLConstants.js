@@ -1,6 +1,7 @@
 module.exports = {
   URLPaths: {
     BaseURL: 'https://api.dev.tradly.app/app/',
+    token: 'v1/users/token/refresh',
     config: 'v1/tenants/eventdev/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',

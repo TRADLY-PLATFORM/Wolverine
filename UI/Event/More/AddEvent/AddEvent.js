@@ -31,6 +31,7 @@ import deleteIcon from '../../../../assets/deleteIcon.png';
 import editGreen from '../../../../assets/editGreen.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
+import sample from '../../../../assets/dummy.png';
 
 
 export default class AddEvent extends Component {
@@ -62,6 +63,7 @@ export default class AddEvent extends Component {
       eventPrice: '',
       ticketLimit:'',
       accountId: 0,
+      selectVariantArray: [],
     }
   }
   componentDidMount() {
@@ -177,9 +179,7 @@ export default class AddEvent extends Component {
         }
       } else {
         this.setState({ isVisible: false })
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        Alert.alert(error) 
+        Alert.alert(responseJson) 
       }
     } else {
       this.createEventApi()
@@ -277,14 +277,9 @@ export default class AddEvent extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        this.setState({ isVisible: false })
         Alert.alert('SuccessFully')
       } else {
-        this.setState({ isVisible: false })
-        console.log(" error ", responseJson)
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        // setTimeout(() => {Alert.alert(error) }, 50)
+        Alert.alert(responseJson)
       }
     }
   }
@@ -337,10 +332,46 @@ export default class AddEvent extends Component {
     });
   }
   addVarianBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.AddVariant);
+    this.props.navigation.navigate(NavigationRoots.AddVariant,{
+      getVariant: this.getVariant,
+      selectVariantArray: this.state.selectVariantArray,
+    });
   }
-  
+  didSelectVariant(id) {
+    this.props.navigation.navigate(NavigationRoots.AddVariantValue,{
+      variantData: this.state.selectVariantArray[id],
+      index:id,
+      currencyArray: this.state.currencyArray,
+      getDeleteVariant: this.getDeleteVariant,
+    });
+  }
+  deleteEventDateTimeBtnAction(id) {
+    Alert.alert(
+      "Are you sure you want to delete this event dete & time?", "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "Yes", onPress: () => {
+            this.state.eventDateArray.splice(id, 1);
+            this.setState({updateUI: !this.state.updateUI});
+          }
+        }
+      ],
+    )
+  }  
   /*  Delegates  */
+  getDeleteVariant = data => {
+    this.state.selectVariantArray.splice(data, 1);
+    this.setState({updateUI: !this.state.updateUI});
+  }
+  getVariant = data => {
+    console.log('getVariant data', data);
+    this.state.selectVariantArray = data;
+    this.setState({updateUI: !this.state.updateUI});
+  }
   getAddress = data => {
     this.setState({selectAddress: data});
   }
@@ -582,26 +613,26 @@ export default class AddEvent extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     console.log('item',item)
-    return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between' }}>
+    return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
         <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
             <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
-              <Image style={{ width: 15, height: 15, marginLeft: 10 }} resizeMode='center' source={editGreen} />
+              <Image style={{ width: 12, height: 12, marginLeft: 10 }} resizeMode='center' source={editGreen} />
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-            <Image style={{ width: 16, height: 16 }} resizeMode='center' source={timeIcon} />
+            <Image style={{ width: 12, height: 12 }} resizeMode='center' source={timeIcon} />
             <View style={{ width: 5 }} />
             <Text style={eventStyles.subTitleStyle}>{`${item['startTime']} to ${item['endTime']}`}</Text>
           </View>
         </View>
       </View>
-      <View>
+      <TouchableOpacity onPress={() => this.deleteEventDateTimeBtnAction(index)}>
         <Image style={commonStyles.backBtnStyle} resizeMode='center' source={deleteIcon} />
-      </View>
+      </TouchableOpacity>
     </View>
   }
   renderVariantsView = () => {
@@ -614,11 +645,34 @@ export default class AddEvent extends Component {
           </TouchableOpacity>
         </View>
       </View>
-      <View>
+      <View style={{marginTop: 20}}>
+        {this.renderVariantListView()}
       </View>
     </View>)
   }
-
+  renderVariantListView = () => {
+    return (<View>
+      <FlatList
+        data={this.state.selectVariantArray}
+        renderItem={this.renderVariantListCellItem}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+      />
+    </View>)
+  }
+  renderVariantListCellItem = ({ item, index }) => {
+    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectVariant(index)}>
+      <View style={{ flexDirection: 'row'}}>
+        <Image style={{width: 60, height: 60 }}source={sample} />
+        <View style={{margin: 5}}>
+          <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['values']['name']}</Text>
+        </View>
+      </View>
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        <Image style={commonStyles.backBtnStyle} resizeMode='center' source={forwardIcon} />
+      </View>
+    </TouchableOpacity>
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
@@ -683,11 +737,11 @@ export default class AddEvent extends Component {
             <this.renderEventDateTimeView />
             <View style={{ height: 10 }} />
             <this.renderVariantsView />
-            <View style={{ height: 60 }} />
+            <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
               <Text style={commonStyles.themeTitleStyle}>Create</Text>
             </TouchableOpacity>
-            <View style={{ height: 60 }} />
+            <View style={{ height: 80 }} />
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -733,5 +787,15 @@ const styles = StyleSheet.create({
     borderColor: colors.BorderColor,
     borderWidth: 1,
   },
+  variantCellViewStyle: {
+    flexDirection: 'row',
+    margin: 5,
+    borderWidth: 1,
+    borderColor: colors.BorderColor, 
+    justifyContent: 'space-between', 
+    alignContent: 'center',
+    borderRadius: 5,
+    overflow: 'hidden',
+  }
 });
 

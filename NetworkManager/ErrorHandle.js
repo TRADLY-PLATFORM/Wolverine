@@ -9,8 +9,7 @@ export default class ErrorHandler {
           case 301: return 'User already exist'
           case 401: return 'Unauthorized'
           case 402: return 'Technical issue'
-          default:
-            Alert.alert("NUMBER NOT FOUND");
+          default: return 'invalid or missing parameters' ;
           }
   }
 }

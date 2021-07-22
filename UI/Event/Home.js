@@ -31,6 +31,9 @@ export default class Home extends Component {
       appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
         appConstant.authKey = authKey;
+        DefaultPreference.get('refreshKey').then(function (refreshKey) {
+          appConstant.refreshKey = refreshKey;
+        }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {
           appConstant.userId = userId;
           this.getMyStoreApi()

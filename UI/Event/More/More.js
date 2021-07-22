@@ -1,7 +1,8 @@
 
 import React, { Component } from 'react';
-import {FlatList, Alert, TextInput, Text, Image, View,
-  StyleSheet, SafeAreaView, TouchableOpacity,ScrollView
+import {
+  FlatList, Alert, TextInput, Text, Image, View,
+  StyleSheet, SafeAreaView, TouchableOpacity, ScrollView
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../CommonClasses/AppColor';
@@ -20,7 +21,7 @@ export default class More extends Component {
     this.state = {
       isVisible: false,
       accountId: 0,
-      updateUI:false
+      updateUI: false
     }
   }
   componentDidMount() {
@@ -28,14 +29,14 @@ export default class More extends Component {
   }
   getMyStoreApi = async () => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
-        this.setState({accountId: acctData[0]['id']})
+        this.setState({ accountId: acctData[0]['id'] })
       }
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
       this.setState({ isVisible: false })
     }
   }
@@ -45,33 +46,33 @@ export default class More extends Component {
   }
   logoutBtnAction() {
     Alert.alert(
-        "Are you sure you want to logout?", "",
-        [
-            {
-                text: "Cancel",
-                onPress: () => console.log("Cancel Pressed"),
-            },
-            {
-                text: "OK", onPress: () => {
-                    this.props.navigation.replace(NavigationRoots.SignIn)
-                }
-            }
-        ],
+      "Are you sure you want to logout?", "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "OK", onPress: () => {
+            this.props.navigation.replace(NavigationRoots.SignIn)
+          }
+        }
+      ],
     );
-}
+  }
   didSelectList = ({ index }) => {
     if (index == menuArray.length - 1) {
       this.logoutBtnAction()
     } else if (index == 0) {
-      this.props.navigation.navigate(NavigationRoots.MyStore,{accId: this.state.accountId})
+      this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId })
     }
   }
   /*  UI   */
   renderListView = () => {
     return (
-      <View style={{width: '100%'}}>
+      <View style={{ width: '100%' }}>
         <FlatList
-          style={{ margin: 10}}
+          style={{ margin: 10 }}
           data={menuArray}
           renderItem={this.renderListCellItem}
           showsVerticalScrollIndicator={false}
@@ -83,7 +84,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{ marginBottom: 10, top: 10 }} onPress={() => this.didSelectList({ index: index })} >
-        <Text style={{ fontSize: 12, fontWeight: '500', color: index != (menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '500', color: index != (menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   render() {
@@ -107,7 +108,7 @@ export default class More extends Component {
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '70%', }}>
               <View style={styles.listContainerView} >
-              <this.renderListView />
+                <this.renderListView />
               </View>
             </View>
           </View>

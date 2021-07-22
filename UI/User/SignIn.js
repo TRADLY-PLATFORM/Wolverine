@@ -52,11 +52,13 @@ export default class SignIn extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
+        console.log('refresh_key => ', responseJson['data']['user']['key']);
         const auth_key = responseJson['data']['user']['key']['auth_key'];
+        const refresh_key = responseJson['data']['user']['key']['refresh_key'];
         const id = responseJson['data']['user']['id'];
-
-        DefaultPreference.set('authKey', auth_key).then(function () { console.log('') });
-        DefaultPreference.set('userId', id).then(function () { console.log('') });
+        DefaultPreference.set('refreshKey', refresh_key).then();
+        DefaultPreference.set('authKey', auth_key).then();
+        DefaultPreference.set('userId', id).then();
         DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
         this.props.navigation.navigate(NavigationRoots.BottomTabbar)
       } else {

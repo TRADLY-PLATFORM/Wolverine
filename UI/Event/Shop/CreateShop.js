@@ -61,6 +61,7 @@ export default class CreateShop extends Component {
       isVisible: false,
       photoURLPath: '',
       documentURLPath: '',
+      storeDetail: {},
     }
     this.renderAddressView = this.renderAddressView.bind(this);
   }
@@ -70,6 +71,19 @@ export default class CreateShop extends Component {
       this.loadCategoryApi()
       this.loadShippingApi()
     }.bind(this))
+
+    let {storeDetail} = this.props.route.params;
+    if(storeDetail) {
+      console.log('storeDetail == >', storeDetail)
+      this.state.storeDetail = storeDetail;
+      this.state.selectAddress = storeDetail['location'];
+      this.state.description = storeDetail['description'];
+      this.state.name = storeDetail['name'];
+      this.state.categoryName = storeDetail['categories'][0]['name'];
+      this.state.selectedCatData = storeDetail['categories'][0];
+      this.loadAttributeApi(this.state.selectedCatData['id'])
+      this.setState({ updateUI: !this.state.updateUI})
+    }
   }
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
@@ -88,7 +102,6 @@ export default class CreateShop extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.shippingMethod, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let shipData = responseJson['data']['shipping_methods'];
-      console.log('shipping_methods == >',shipData)
       this.state.shippingArray = shipData
       this.setState({ updateUI: !this.state.updateUI,isVisible: false })
     }else {
@@ -97,7 +110,7 @@ export default class CreateShop extends Component {
   }
   loadAttributeApi = async (cid) => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['attributes'];
       this.state.attributeArray = cData
@@ -169,9 +182,7 @@ export default class CreateShop extends Component {
         }
       } else {
         this.setState({ isVisible: false })
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        setTimeout(() => {Alert.alert(error) }, 50)
+         Alert.alert(responseJson);
       }
     } else {
       this.createAccountApi()
@@ -256,7 +267,7 @@ export default class CreateShop extends Component {
       dict['attributes'] = attributeAry
     }
     console.log('dict == ', dict);
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts, 'POST', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts + '/107', 'put', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey)
     console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
@@ -265,10 +276,7 @@ export default class CreateShop extends Component {
         Alert.alert('SuccessFully')
       } else {
         this.setState({ isVisible: false })
-        console.log(" error ", responseJson)
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        // setTimeout(() => {Alert.alert(error) }, 50)
+        Alert.alert(responseJson)
       }
     }
   }
@@ -325,7 +333,6 @@ export default class CreateShop extends Component {
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAddress = data => {
-    console.log('dsdsdsdsd',data);
     this.setState({selectAddress: data});
   }
   /*  UI   */
@@ -526,6 +533,7 @@ export default class CreateShop extends Component {
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={'Enter Name'}
+                value={this.state.name}
                 onChangeText={value => this.setState({name: value})}
                 />
               <View style={{ height: 20 }} />
@@ -533,6 +541,7 @@ export default class CreateShop extends Component {
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Description'}
+                value={this.state.description}
                 onChangeText={value => this.setState({description: value})}
                 multiline={true} />
               <View style={{ height: 20 }} />

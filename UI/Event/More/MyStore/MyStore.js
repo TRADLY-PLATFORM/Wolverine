@@ -107,8 +107,7 @@ export default class MyStore extends Component {
     this.updateStatusAPI()
   }
   editBtnAction () {
-    const {accId} = this.props.route.params;
-    this.props.navigation.navigate(NavigationRoots.CreateStore,{accId: accId})
+    this.props.navigation.navigate(NavigationRoots.CreateStore,{storeDetail: this.state.storeDetail})
   }
   addEventBtnAction () {
     const {accId} = this.props.route.params;

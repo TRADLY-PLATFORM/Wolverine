@@ -18,4 +18,6 @@ module.exports  = {
   EventTiming: 'EventTiming',
   AddVariant: 'AddVariant',
   VariantList: 'VariantList',
+  AddVariantValue: 'AddVariantValue',
+
 }

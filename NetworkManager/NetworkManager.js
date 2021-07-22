@@ -1,6 +1,9 @@
 const APPURL = require('../Constants/URLConstants');
 import errorHandler from './ErrorHandle'
 const to = require('await-to-js').default
+import appConstant from '../Constants/AppConstants';
+import DefaultPreference from 'react-native-default-preference';
+
 
 class NetworkManager {
   networkCall = async (path, method, param, token, auth) => {
@@ -28,26 +31,26 @@ class NetworkManager {
       return error
     } else {
       const json = await response.json();
-      console.log('response actual', json)
-      return json
+      if(json["error"])
+      {
+        if(json["error"]['code'] == 401){
+          return  this.refreshKeyCall(path,method,param,token,auth)
+        } else {
+          console.log('error => errror json ', json)
+          let error = errorHandler.errorHandle(json['error']['code']);
+          return error
+        }
+      }else {
+        console.log('response actual', json)
+        return json
+      }
     }
   }
-
-  networkServicesWithoutToken = async (path, method, param) => {
-    DefaultPreference.get('token').then(function (token) {
-      console.log('bToken = =', token)
-      DefaultPreference.get('authKey').then(function (auth) {
-        console.log('auth = =', auth)
-        const responseJson = this.networkCall(path, method, param, token, auth)
-        return responseJson
-      }.bind(this))
-    }.bind(this))
-  }
-  async refreshKeyCall(path, method, param, auth) {
-    let url = APPURL.URLPaths.BaseURL + path;
+  async refreshKeyCall(path, method, param,token,auth) {
+    let url = APPURL.URLPaths.BaseURL + APPURL.URLPaths.token;
     console.log(' refreshKey url == ', url)
-    console.log(' refreshKey param == ', param)
     console.log(' refreshKeyauth == ', auth)
+    console.log(' refresh Key == ', appConstant.refreshKey)
 
     let err, response
     [err, response] = await to(fetch(url, {
@@ -56,10 +59,11 @@ class NetworkManager {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'auth_key': auth,
+        'X-Refresh-Key': appConstant.refreshKey,
         'x-agent': 1,
+        'Authorization': "Bearer " + token,
       },
-      body: param,
+      body: '',
     }))
     if (err) {
       console.log('response error', err)
@@ -68,9 +72,19 @@ class NetworkManager {
     } else {
       const json = await response.json();
       console.log('response actual', json)
-
-      this.networkCall(path, method, param, auth)
-      return json
+      if(json["error"])
+      {        
+        let error = errorHandler.errorHandle(json['error']['code']);
+        return json
+      }else {
+        const auth_key = json['data']['user']['key']['auth_key'];
+        const refresh_key = json['data']['user']['key']['refresh_key'];
+        appConstant.authKey = auth_key;
+        appConstant.refreshKey = refresh_key;
+        DefaultPreference.set('refreshKey', refresh_key).then();
+        DefaultPreference.set('authKey', auth_key).then();
+        return this.networkCall(path, method, param,token ,auth_key)
+      }
     }
   }
   async uploadImage(path, method, param, mimeType) {
