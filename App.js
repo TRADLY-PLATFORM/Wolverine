@@ -32,6 +32,8 @@ import EventTimings from './UI/Event/More/AddEvent/EventTiming';
 import AddVariant from './UI/Event/More/AddEvent/AddVariant';
 import VariantList from './UI/Event/More/AddEvent/VariantList';
 import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
+import Filter from './UI/Event/Explore/Filter';
+import Sort from './UI/Event/Explore/Sort';
 
 
 
@@ -73,7 +75,14 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AddVariant}component={AddVariant} />
         <Stack.Screen name={NavigationRoots.VariantList}component={VariantList} />
         <Stack.Screen name={NavigationRoots.AddVariantValue}component={AddVariantValue} />
-
+        <Stack.Screen name={NavigationRoots.Sort}component={Sort} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}/>
+        <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}/>
         <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

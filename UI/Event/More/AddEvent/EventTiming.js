@@ -78,6 +78,7 @@ export default class EventTiming extends Component {
     this.setState({updateUI: !this.state.updateUI})
   }
   handleConfirmTime(time){
+    console.log('time', time);
     var event = new Date(time);
     let sTime = event.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
     if (this.state.timeIndex == 2) {

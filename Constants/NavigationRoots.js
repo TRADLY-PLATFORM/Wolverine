@@ -19,5 +19,6 @@ module.exports  = {
   AddVariant: 'AddVariant',
   VariantList: 'VariantList',
   AddVariantValue: 'AddVariantValue',
-
+  Filter: 'Filter',
+  Sort: 'Sort',
 }

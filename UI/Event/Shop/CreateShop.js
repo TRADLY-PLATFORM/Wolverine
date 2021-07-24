@@ -31,6 +31,7 @@ import Tags from "react-native-tags";
 import uncheck from '../../../assets/uncheck.png';
 import check from '../../../assets/check.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
+import FastImage from 'react-native-fast-image'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -62,6 +63,8 @@ export default class CreateShop extends Component {
       photoURLPath: '',
       documentURLPath: '',
       storeDetail: {},
+      isEditing: false,
+      accountId: '',
     }
     this.renderAddressView = this.renderAddressView.bind(this);
   }
@@ -75,13 +78,53 @@ export default class CreateShop extends Component {
     let {storeDetail} = this.props.route.params;
     if(storeDetail) {
       console.log('storeDetail == >', storeDetail)
+      this.state.photo = storeDetail['images'].length != 0 ? storeDetail['images'][0] : null ;
+      this.state.photoURLPath = storeDetail['images'].length != 0 ? storeDetail['images'][0] : '' ;
       this.state.storeDetail = storeDetail;
       this.state.selectAddress = storeDetail['location'];
       this.state.description = storeDetail['description'];
       this.state.name = storeDetail['name'];
       this.state.categoryName = storeDetail['categories'][0]['name'];
       this.state.selectedCatData = storeDetail['categories'][0];
-      this.loadAttributeApi(this.state.selectedCatData['id'])
+      this.state.attributeArray = storeDetail['attributes'];
+      this.state.isEditing = true;
+      this.state.accountId = storeDetail['id']
+      // this.loadAttributeApi(this.state.selectedCatData['id'])
+      for (let item of this.state.attributeArray) {
+        let fieldType = item['field_type'];
+        if (fieldType == 1) {
+          if (item['values'].length != 0) {
+            this.state.singleSelectedArray = item['values'];
+          }
+        }
+        if (fieldType == 2) {
+          if (item['values'].length != 0) {
+            this.state.multipleSelectedsArray = item['values'];
+          }
+        }
+        if (fieldType == 3) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.singleValue = item['values'][0];
+            }
+          }
+        }
+        if (fieldType == 4) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.tagsArray = item['values'];
+            }
+          }
+        }
+        if (fieldType == 5) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.documentFile = item['values'][0];
+              this.state.documentURLPath = item['values'][0];
+            }
+          }
+        }
+      }
       this.setState({ updateUI: !this.state.updateUI})
     }
   }
@@ -196,7 +239,7 @@ export default class CreateShop extends Component {
       'type': 'accounts',
     }
     if (this.state.photo != null) {
-      dict['images'] = this.state.photoURLPath;
+      dict['images'] = [this.state.photoURLPath];
     }
     if (this.state.description.length != 0) {
       dict['description'] = this.state.description;
@@ -266,8 +309,10 @@ export default class CreateShop extends Component {
     if (attributeAry != 0) {
       dict['attributes'] = attributeAry
     }
-    console.log('dict == ', dict);
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts + '/107', 'put', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey)
+    let path = this.state.isEditing ? `/${this.state.accountId}` : ''
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts + path,
+       this.state.isEditing ? 'put' : 'post', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey);
+
     console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
@@ -355,11 +400,17 @@ export default class CreateShop extends Component {
   viewSelectedImages = () => {
     var views = [];
     if (this.state.photo != null) {
+      var photoPath = ''
+      if (this.state.photo['sourceURL']) {
+        photoPath = this.state.photo.sourceURL;
+      }else {
+        photoPath = this.state.photo; 
+      }
       views.push(
         <View>
           <View style={styles.imagePickerPlaceholderStyle}>
             <TouchableOpacity onPress={() => this.imagePicker()}>
-                <Image source={{ uri: this.state.photo.sourceURL }}
+                <FastImage source={{uri: photoPath}}
                   style={styles.SelectedImageStyle}
                   resizeMode={'cover'}
                 />
@@ -447,6 +498,7 @@ export default class CreateShop extends Component {
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
+              value={this.state.singleValue}
               onChangeText={value => this.setState({singleValue: value})}
               />
           </View>)
@@ -463,8 +515,10 @@ export default class CreateShop extends Component {
           </View>)
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
-          if (this.state.documentFile !== null) {
-            value = this.state.documentFile.filename;
+          if (this.state.documentFile['sourceURL']) {
+            value = this.state.documentFile['filename'];
+          } else {
+            value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
           }
           views.push(<View>
             <View style={{ height: 20 }} />
@@ -522,7 +576,7 @@ export default class CreateShop extends Component {
         <HeaderView title={'Create you store'}
           showBackBtn={false} showDoneBtn={true}
           doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ margin: 10, width: windowWidth - 20, height: imagePickerHeight }}>

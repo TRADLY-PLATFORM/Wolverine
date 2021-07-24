@@ -15,7 +15,7 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
   },
   titleStyle: {
-    color: colors.AppGray,
+    color: colors.AppBlack,
     fontSize: 14,
     fontWeight: '700'
   },

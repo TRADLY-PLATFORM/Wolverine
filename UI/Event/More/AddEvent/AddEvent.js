@@ -32,7 +32,8 @@ import editGreen from '../../../../assets/editGreen.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-
+import {changeDateFormat} from '../../../../HelperClasses/SingleTon'
+import FastImage from 'react-native-fast-image'
 
 export default class AddEvent extends Component {
   constructor(props) {
@@ -44,71 +45,184 @@ export default class AddEvent extends Component {
       updateUI: false,
       isVisible: false,
       selectedCurrency: {},
-      selectedCatData:{},
-      categoryName:'Select Category',
+      selectedCatData: {},
+      categoryName: 'Select Category',
       attributeArray: [],
       singleSelectedArray: [],
       multipleSelectedsArray: [],
       singleValue: '',
       tagsArray: [],
-      eventDateArray:[],
+      eventDateArray: [],
       selectAddress: {},
       uploadImageURL: [],
-      documentURLPath: '',
       attributeFilePath: '',
-      documentFile:null,
+      documentFile: null,
       name: '',
       description: '',
       offerPrice: '',
       eventPrice: '',
-      ticketLimit:'',
+      ticketLimit: '',
       accountId: 0,
       selectVariantArray: [],
+      listingID: 0,
+      isEditing: false,
+      selectedVariantIndex: 0,
     }
   }
   componentDidMount() {
-    let {accountId} = appConstant.accountID;
-    this.state.accountId = accountId;
+    this.state.accountId = appConstant.accountID;
     this.loadCategoryApi()
     this.getCurrencyApi();
+
+    let {listingID} = this.props.route.params;
+    if (listingID) {
+      this.state.listingID = listingID
+      this.setState({isEditing: true})
+      this.loadEventDetailApi();
+      this.loadVariantTypeApi();
+    }
   }
 
   /*  APIS Methods */
-
+  loadEventDetailApi = async () => {
+    this.setState({ isVisible: true })
+    const {accId} = this.props.route.params;
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let listData = responseJson['data']['listing'];
+      this.state.name = listData['title'];
+      this.state.description = listData['description'];
+      this.state.selectAddress = listData['location'];
+      this.state.eventPrice = listData['list_price']['amount'];
+      this.state.offerPrice = listData['offer_percent'];
+      this.state.ticketLimit = listData['stock'];
+      this.state.attributeArray =  listData['attributes'];
+      this.state.categoryName = listData['categories'][0]['name'];
+      this.state.selectedCatData = listData['categories'][0];
+      this.state.imagesArray = listData['images'] || [];
+      var eventStart = new Date(listData['start_at'] * 1000);
+      var eventEnd = new Date(listData['end_at'] * 1000);
+      let sTime = eventStart.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
+      let eTime = eventEnd.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
+      let eventdate = changeDateFormat(eventStart,'ddd, D MMM yy')
+      let dict = {
+        date: eventdate,
+        startTime: sTime,
+        endTime: eTime,
+      }
+      this.state.eventDateArray.push(dict);
+      for (let item of this.state.attributeArray) {
+        let fieldType = item['field_type'];
+        if (fieldType == 1) {
+          if (item['values'].length != 0) {
+            this.state.singleSelectedArray = item['values'];
+          }
+        }
+        if (fieldType == 2) {
+          if (item['values'].length != 0) {
+            this.state.multipleSelectedsArray = item['values'];
+          }
+        }
+        if (fieldType == 3) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.singleValue = item['values'][0];
+            }
+          }
+        }
+        if (fieldType == 4) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.tagsArray = item['values'];
+            }
+          }
+        }
+        if (fieldType == 5) {
+          if (item['values']) {
+            if (item['values'].length != 0) {
+              this.state.documentFile = item['values'][0];
+              this.state.attributeFilePath = item['values'][0];
+            }
+          }
+        }
+      }
+      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.category + 'listings', 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.category + 'listings', 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['categories'];
       this.state.categoryArray = cData;
-      this.setState({categoryArray: cData})
-    }else {
+      this.setState({ categoryArray: cData })
+    } else {
       this.setState({ isVisible: false })
     }
   }
   loadAttributeApi = async (cid) => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['attributes'];
-      // console.log('cData == >',cData)
       this.state.attributeArray = cData
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false  })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  loadVariantTypeApi  = async () =>  {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let vData = responseJson['data']['variants'];
+      for (let objc of vData){
+        let v1 = objc['variant_values'][0];
+        let dic1 = {
+          name:v1['variant_type']['name'],
+          id:v1['variant_type']['id'],
+        }
+        let vDict = {
+          name:v1['variant_type_value']['name'],
+          id:v1['variant_type_value']['id'],
+        }
+        dic1['values'] = vDict;
+        let dic2 = {
+          'list_price': objc['list_price']['amount'],
+          'offer_percent': objc['offer_percent'],
+          'stock': objc['stock'],
+          'title': objc['title'],
+          'description': objc['description'],
+          'images': objc['images'],
+        }
+        
+        let fDict = {'id': objc['id']};
+        fDict['variantType'] = dic1;
+        fDict['uploadParm'] = dic2;
+        fDict['currency'] = this.state.selectedCurrency;
+        this.state.selectVariantArray.push(fDict)
+        let vvv = this.state.selectVariantArray[0];
+        let dc = vvv['variantType'];
+        console.log('dc == ', dc['values']);
+      }
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
   getCurrencyApi = async () => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.currencies}?user_id=${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.currencies}?user_id=${appConstant.userId}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let ccData = responseJson['data']['currencies'];
       this.state.currencyArray = ccData;
-      if (this.state.currencyArray.length != 0){
+      if (this.state.currencyArray.length != 0) {
         this.state.selectedCurrency = ccData[0];
       }
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
       this.setState({ isVisible: false })
     }
   }
@@ -129,6 +243,8 @@ export default class AddEvent extends Component {
             file: 'data:image/png;base64,' + photo.data,
           });
           imgParm.push(dict);
+        } else {
+          this.state.uploadImageURL.push(photo);
         }
       }
     }
@@ -145,19 +261,15 @@ export default class AddEvent extends Component {
         imgParm.push(androidIconDict);
       }
     }
-    console.log('imgParm',imgParm)
     if (imgParm != 0) {
       const responseJson = await networkService.networkCall(
-        APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );
+        APPURL.URLPaths.S3signedUploadURL, 'POST', JSON.stringify({ files: imgParm }), appConstant.bToken, appConstant.authKey);
       if (responseJson['status'] == true) {
         var result = responseJson['data']['result'];
-        console.log('result', result);
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
           fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(
-              result[i]['signedUrl'],
-              imgParm[i]['type'],
+            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
               await res.blob(),
             );
             uploadIncrement++;
@@ -167,7 +279,7 @@ export default class AddEvent extends Component {
                 imageP.push(obj['fileUri'])
               }
               if (this.state.documentFile != null) {
-                this.setState({attributeFilePath: imageP[imageP.length - 1]})
+                this.setState({ attributeFilePath: imageP[imageP.length - 1] })
                 imageP.splice(imageP.length - 1, 1)
                 this.state.uploadImageURL = imageP;
               } else {
@@ -179,7 +291,7 @@ export default class AddEvent extends Component {
         }
       } else {
         this.setState({ isVisible: false })
-        Alert.alert(responseJson) 
+        Alert.alert(responseJson)
       }
     } else {
       this.createEventApi()
@@ -187,14 +299,14 @@ export default class AddEvent extends Component {
   };
   createEventApi = async () => {
     var dict = {
-      'category_id':[this.state.selectedCatData['id']],
+      'category_id': [this.state.selectedCatData['id']],
       'title': this.state.name,
       'type': 'events',
       'currency_id': this.state.selectedCurrency['id'],
       'account_id': this.state.accountId,
     }
     if (this.state.imagesArray.length != 0) {
-        dict['images'] = this.state.uploadImageURL;;
+      dict['images'] = this.state.uploadImageURL;;
     }
     if (this.state.description.length != 0) {
       dict['description'] = this.state.description;
@@ -211,7 +323,7 @@ export default class AddEvent extends Component {
     if (this.state.selectAddress['formatted_address'] !== undefined) {
       latitude = this.state.selectAddress['latitude'];
       longitude = this.state.selectAddress['longitude'];
-      dict['coordinates'] = {'latitude': latitude,'longitude': longitude};
+      dict['coordinates'] = { 'latitude': latitude, 'longitude': longitude };
     }
 
     var attributeAry = [];
@@ -220,7 +332,7 @@ export default class AddEvent extends Component {
       if (fieldType == 1) {
         if (this.state.singleSelectedArray.length != 0) {
           let atrDic = {
-            values:[this.state.singleSelectedArray[0]['id']],
+            values: [this.state.singleSelectedArray[0]['id']],
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -233,7 +345,7 @@ export default class AddEvent extends Component {
             idAry.push(obj['id'])
           }
           let atrDic = {
-            values:idAry,
+            values: idAry,
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -242,7 +354,7 @@ export default class AddEvent extends Component {
       if (fieldType == 3) {
         if (this.state.singleValue.length != 0) {
           let atrDic = {
-            values:[this.state.singleValue],
+            values: [this.state.singleValue],
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -251,17 +363,16 @@ export default class AddEvent extends Component {
       if (fieldType == 4) {
         if (this.state.tagsArray.length != 0) {
           let atrDic = {
-            values:this.state.tagsArray,
+            values: this.state.tagsArray,
             id: objc['id'],
           }
           attributeAry.push(atrDic)
         }
       }
       if (fieldType == 5) {
-        console.log('this.state.attributeFilePath', this.state.attributeFilePath);
         if (this.state.attributeFilePath.length != 0) {
           let atrDic = {
-            values:[this.state.attributeFilePath],
+            values: [this.state.attributeFilePath],
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -271,13 +382,122 @@ export default class AddEvent extends Component {
     if (attributeAry != 0) {
       dict['attributes'] = attributeAry
     }
-    console.log('dict == ', dict);
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings, 'POST', JSON.stringify({ listing: dict }),appConstant.bToken,appConstant.authKey)
-    console.log(" responseJson =  ", responseJson) 
+    if (this.state.eventDateArray != 0) {
+      let dateDict = this.state.eventDateArray[0];
+      let startDate = dateDict['date'] + ` ${dateDict['startTime']}`
+      let endDate = dateDict['date'] + ` ${dateDict['endTime']}`
+      let startTimestamp = new Date(startDate).getTime() / 1000;
+      let endTimestamp = new Date(endDate).getTime() / 1000;
+      dict['start_at'] = startTimestamp;
+      dict['end_at'] = endTimestamp;
+    }
+    let path = this.state.isEditing ? `/${this.state.listingID}` : ''
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
+      this.state.isEditing ? 'put' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
+    console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        Alert.alert('SuccessFully')
+        let dictData = responseJson['data']['listing'];
+        this.setState({ listingID: dictData['id'] })
+        if (!this.state.isEditing){
+          this.addVariantUploadServiceMethod(0);
+        }else {
+        Alert.alert('Update SuccessFully')
+        }
+      } else {
+        Alert.alert(responseJson)
+      }
+    }
+  }
+  addVariantUploadServiceMethod(index) {
+    let dic = this.state.selectVariantArray[index];
+    if (dic != undefined){
+      if (dic['variantType']) {
+        let uploadDic = dic['uploadParm']['images'];
+        this.uploadVariantImages(uploadDic, index);
+      } else {
+        if (this.state.selectVariantArray.length > index) {
+          this.addVariantUploadServiceMethod(index + 1)
+        } else {
+          Alert.alert('SuccessFull');
+        }
+      }
+    }else {
+      Alert.alert('SuccessFull');
+    }
+  }
+  uploadVariantImages = async (uploadImageArray, index) => {
+    this.setState({ isVisible: true })
+    var imgParm = [];
+    var uploadBase64 = [];
+    var imageFileURI = [];
+    if (uploadImageArray.length != 0) {
+      for (let p = 0; p < uploadImageArray.length; p++) {
+        let photo = uploadImageArray[p]
+        let fileName = photo.data;
+        if (fileName != null) {
+          var dict = {
+            name: photo['filename'],
+            type: photo['mime'],
+          };
+          uploadBase64.push({
+            file: 'data:image/png;base64,' + photo.data,
+          });
+          imgParm.push(dict);
+        }  else {
+          imageFileURI.push(photo);
+        }
+      }
+    }
+    if (imgParm != 0) {
+      const responseJson = await networkService.networkCall(
+        APPURL.URLPaths.S3signedUploadURL, 'POST', JSON.stringify({ files: imgParm }), appConstant.bToken, appConstant.authKey);
+      if (responseJson['status'] == true) {
+        var result = responseJson['data']['result'];
+        var uploadIncrement = 0;
+        for (let i = 0; i < imgParm.length; i++) {
+          fetch(uploadBase64[i]['file']).then(async res => {
+            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
+              await res.blob(),
+            );
+            uploadIncrement++;
+            if (uploadIncrement === uploadBase64.length) {
+              for (let obj of result) {
+                imageFileURI.push(obj['fileUri'])
+              }
+              this.addVariantTypeApi(imageFileURI, index)
+            }
+          });
+        }
+      } else {
+        this.setState({ isVisible: false })
+        Alert.alert(responseJson)
+      }
+    } else {
+      this.addVariantTypeApi(imageFileURI, index)
+    }
+  }
+  addVariantTypeApi = async (images, index) => {
+    let dic = this.state.selectVariantArray[index];
+    var dict = dic['uploadParm'];
+    dict['images'] = images;
+    let item = dic['variantType']
+    let variantvalues = [{variant_type_id: item['id'], variant_type_value_id:item['values']['id']}]
+    dict['variant_values'] = variantvalues;
+    var path = '/variants'
+    var reqMethod = 'POST';
+    if(item['id']){
+       path = '/variants/' + item['id'];
+       reqMethod = 'PUT';
+    }
+    console.log('path == >', path)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod, JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
+    console.log(" responseJson =  ", responseJson)
+    if (responseJson) {
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.addVariantUploadServiceMethod(index + 1)
       } else {
         Alert.alert(responseJson)
       }
@@ -299,11 +519,11 @@ export default class AddEvent extends Component {
       });
     }
   }
-  doneBtnAction () {
+  doneBtnAction() {
   }
   deleteImageButtonAction(id) {
     this.state.imagesArray.splice(id, 1)
-    this.setState({updateUI: !this.state.updateUI});
+    this.setState({ updateUI: !this.state.updateUI });
   }
   currecnyBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Currency, {
@@ -332,17 +552,20 @@ export default class AddEvent extends Component {
     });
   }
   addVarianBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.AddVariant,{
+    this.props.navigation.navigate(NavigationRoots.AddVariant, {
       getVariant: this.getVariant,
       selectVariantArray: this.state.selectVariantArray,
+      isEditing: this.state.isEditing,
     });
   }
   didSelectVariant(id) {
-    this.props.navigation.navigate(NavigationRoots.AddVariantValue,{
+    this.state.selectedVariantIndex = id;
+    this.props.navigation.navigate(NavigationRoots.AddVariantValue, {
       variantData: this.state.selectVariantArray[id],
-      index:id,
+      index: id,
       currencyArray: this.state.currencyArray,
       getDeleteVariant: this.getDeleteVariant,
+      getVariantTypeUploadValue: this.getVariantTypeUploadValue,
     });
   }
   deleteEventDateTimeBtnAction(id) {
@@ -356,38 +579,43 @@ export default class AddEvent extends Component {
         {
           text: "Yes", onPress: () => {
             this.state.eventDateArray.splice(id, 1);
-            this.setState({updateUI: !this.state.updateUI});
+            this.setState({ updateUI: !this.state.updateUI });
           }
         }
       ],
     )
-  }  
+  }
   /*  Delegates  */
   getDeleteVariant = data => {
     this.state.selectVariantArray.splice(data, 1);
-    this.setState({updateUI: !this.state.updateUI});
+    this.setState({ updateUI: !this.state.updateUI });
   }
   getVariant = data => {
-    console.log('getVariant data', data);
     this.state.selectVariantArray = data;
-    this.setState({updateUI: !this.state.updateUI});
+    this.setState({ updateUI: !this.state.updateUI });
+  }
+  getVariantTypeUploadValue = (data, index) => {
+    this.state.selectVariantArray[index] = data;
+    this.setState({ updateUI: !this.state.updateUI });
+    if (this.state.isEditing) {
+      this.addVariantUploadServiceMethod(this.state.selectedVariantIndex);
+    }
   }
   getAddress = data => {
-    this.setState({selectAddress: data});
+    this.setState({ selectAddress: data });
   }
   getEventDateTime = data => {
-    // console.log('data => ', data);
     this.state.eventDateArray = [];
     this.state.eventDateArray.push(data);
-    this.setState({updateUI: !this.state.updateUI});
+    this.setState({ updateUI: !this.state.updateUI });
   }
   getSelectedCategoryID = data => {
-    this.setState({selectedCatData: data, categoryName: data['name']})
+    this.setState({ selectedCatData: data, categoryName: data['name'] })
     this.loadAttributeApi(data['id'])
   }
   getCurrencyData = (data) => {
-    console.log('data => ', data);
-    this.setState({selectedCurrency: data})
+    // console.log('data => ', data);
+    this.setState({ selectedCurrency: data })
   }
   onTagChanges(data) {
     this.state.tagsArray = data
@@ -408,79 +636,93 @@ export default class AddEvent extends Component {
       width: 200,
       cropping: false,
       includeBase64: true,
-      compressImageQuality: 0.5,
+      compressImageQuality: 0.2,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
-      }else {
-      this.state.imagesArray.push(image)
+      } else {
+        this.state.imagesArray.push(image)
       }
-      this.setState({updateUI: !this.state.updateUI})
+      this.setState({ updateUI: !this.state.updateUI })
     });
   }
   viewSelectedImages = () => {
     var views = [];
     for (let i = 0; i < this.state.imagesArray.length + 1; i++) {
-      let imageObj = {};
-      if (this.state.imagesArray[i]) {
-        imageObj = this.state.imagesArray[i];
+      let photo =  this.state.imagesArray[i];
+      var photoPath = ''
+      if (photo) {
+        if (photo['sourceURL']) {
+           photoPath = photo.sourceURL;
+        }else {
+          photoPath = photo; 
+        }
       }
+      // if (this.state.imagesArray[i]) {
+      //   imageObj = this.state.imagesArray[i];
+      // }
       if (this.state.imagesArray[i]) {
         views.push(
-            <View style={styles.imageSelectedStyle}>
-              <TouchableOpacity onPress={() => this.imagePicker()}>
-                <View>
-                  <Image
-                    source={{ uri: this.state.imagesArray[i].sourceURL}}
-                    style={styles.SelectedImageStyle}
-                    resizeMode={'cover'}
+          <View style={styles.imageSelectedStyle}>
+            <TouchableOpacity onPress={() => this.imagePicker()}>
+              <View>
+                <FastImage
+                  source={{ uri: photoPath }}
+                  style={styles.SelectedImageStyle}
+                  resizeMode={'cover'}
+                />
+                <TouchableOpacity
+                  style={styles.deleteViewStyle}
+                  onPress={() => this.deleteImageButtonAction(i)}>
+                  <Image resizeMode={'center'} style={{ height: 20, width: 20 }}
+                    source={cancelIcon}
                   />
-                  <TouchableOpacity
-                    style={styles.deleteViewStyle}
-                    onPress={() => this.deleteImageButtonAction(i)}>
-                    <Image resizeMode={'center'} style={{height:20, width:20}}
-                      source={cancelIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            </View>,
-        );
-      } else {
-        views.push(
-          <View>
-            <View style={styles.dottedViewStyle}>
-              <TouchableOpacity onPress={() => this.imagePicker()}>
-                <View style={{ justifyContent: 'center' }}>
-                  <Image source={cameraIcon}
-                    style={{ width: 30, height: 30, alignSelf: 'center' }}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
           </View>,
         );
+      } else {
+        if (this.state.imagesArray.length < 4) {
+          views.push(
+            <View>
+              <View style={styles.dottedViewStyle}>
+                <TouchableOpacity onPress={() => this.imagePicker()}>
+                  <View style={{ justifyContent: 'center' }}>
+                    <Image source={cameraIcon}
+                      style={{ width: 30, height: 30, alignSelf: 'center' }}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>,
+          );
+        } else {
+          views.push(<View />)
+        }
+       
       }
     }
     return views;
   };
   renderTitleLbl = ({ title }) => {
     return (
-      <View style={{margin: -5}}>
+      <View style={{ margin: -5 }}>
         <Text style={commonStyles.textLabelStyle}> {title == undefined ? 'Category' : title}
-          <Text style={{color: colors.AppRed, paddingTop: 5}}> *</Text>
+          <Text style={{ color: colors.AppRed, paddingTop: 5 }}> *</Text>
         </Text>
       </View>
     );
   }
-
   renderPriceView = () => {
+    let amount = this.state.eventPrice
     return (<View>
       <View style={eventStyles.clickAbleFieldStyle}>
         <TextInput
           style={commonStyles.txtFieldWithImageStyle}
           placeholder={'Enter Price'}
           keyboardType={'number-pad'}
+          value={amount.toString()}
           onChangeText={value => this.setState({ eventPrice: value })}
         />
         <TouchableOpacity style={{ width: 40, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}
@@ -491,7 +733,7 @@ export default class AddEvent extends Component {
           <Image style={{ margin: 5, height: 10, width: 10 }} resizeMode='center' source={dropdownIcon} />
         </TouchableOpacity>
       </View>
-    </View>  )
+    </View>)
   }
   renderAttributeFields = () => {
     var views = [];
@@ -518,9 +760,9 @@ export default class AddEvent extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <View style={{ width: '100%', zIndex: 10 }}>
-              <TouchableOpacity style={eventStyles.clickAbleFieldStyle}  onPress={() => this.valueBtnAction(a)}>
+              <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
-                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon}/>
+                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
               </TouchableOpacity>
             </View>
           </View>)
@@ -531,24 +773,29 @@ export default class AddEvent extends Component {
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
-              onChangeText={value => this.setState({singleValue: value})}
-              />
+              value={this.state.singleValue}
+              onChangeText={value => this.setState({ singleValue: value })}
+            />
           </View>)
         } else if (fieldType == 4) {
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
-              tagContainerStyle={{backgroundColor: colors.LightGreenColor}}
-              inputContainerStyle={{backgroundColor: '#f5f5f5'}}
+              tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
+              inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
               initialTags={this.state.tagsArray}
               onChangeTags={tags => this.onTagChanges(tags)}
-            /> 
+            />
           </View>)
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
-          if (this.state.documentFile !== null) {
-            value = this.state.documentFile.filename;
+          if (this.state.documentFile !=  null) {
+            if (this.state.documentFile['sourceURL'])  {
+              value = this.state.documentFile['filename'];
+            }else {
+              value = this.state.attributeFilePath.substring(this.state.attributeFilePath.lastIndexOf('/')+1);
+            }
           }
           views.push(<View>
             <View style={{ height: 20 }} />
@@ -562,7 +809,7 @@ export default class AddEvent extends Component {
           </View>)
         }
       }
-    }else {
+    } else {
       views.push(<View />)
     }
     return views;
@@ -587,12 +834,12 @@ export default class AddEvent extends Component {
     </View>
   }
   renderEventDateTimeView = () => {
-    return ( <View style={styles.mainViewStyle}>
+    return (<View style={styles.mainViewStyle}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={commonStyles.textLabelStyle}>Event Date & Time</Text>
         <View>
           <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.selectDateTimeBtnAction()}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>Select</Text>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>Select</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -612,7 +859,7 @@ export default class AddEvent extends Component {
     </View>)
   }
   renderListCellItem = ({ item, index }) => {
-    console.log('item',item)
+    // console.log('item', item)
     return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
         <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
@@ -636,39 +883,75 @@ export default class AddEvent extends Component {
     </View>
   }
   renderVariantsView = () => {
-    return ( <View style={styles.mainViewStyle}>
+    return (<View style={styles.mainViewStyle}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={commonStyles.textLabelStyle}>Variants</Text>
         <View>
           <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.addVarianBtnAction()}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>+Add Variants</Text>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>+Add Variants</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{marginTop: 20}}>
+      <View >
         {this.renderVariantListView()}
       </View>
     </View>)
   }
   renderVariantListView = () => {
-    return (<View>
-      <FlatList
-        data={this.state.selectVariantArray}
-        renderItem={this.renderVariantListCellItem}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => index}
-      />
-    </View>)
+    if (this.state.selectVariantArray.length != 0) {
+      return (<View style={{ marginTop: 20 }}>
+        <FlatList
+          data={this.state.selectVariantArray}
+          renderItem={this.renderVariantListCellItem}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => index}
+        />
+      </View>)
+    } else { return <View /> }
   }
   renderVariantListCellItem = ({ item, index }) => {
+    var title = "";
+    var price = "";
+    var stock = "";
+    var available = "";
+    var photos = [];
+    if (item['values']) {
+      title = item['values']['name'];
+    }
+    if (item['variantType']) {
+      let value = item['variantType']
+      if(value['values']) {
+        title = value['values']['name'];
+      }
+      let pp = item['uploadParm']['list_price'];
+        let curency = item['currency']['format']
+        console.log('curency = > ', curency);
+      if(curency != undefined) {
+        price = curency.replace('{amount}', ` ${pp}`)
+      } else {
+        price = `$ ${pp}`
+      }
+      stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
+      available = ` Available`
+      photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
+      if (photos['sourceURL']) { 
+        photos = photos[0]['sourceURL'];
+      } else {
+        photos = photos[0];
+      }
+    }
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectVariant(index)}>
-      <View style={{ flexDirection: 'row'}}>
-        <Image style={{width: 60, height: 60 }}source={sample} />
-        <View style={{margin: 5}}>
-          <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['values']['name']}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <FastImage style={{ width: 70, height: 70 }} source={photos.length == 0 ? sample : { uri: photos}} />
+        <View style={{ margin: 5 }}>
+          <Text style={eventStyles.titleStyle}>{title}</Text>
+          <View style={{ height: 5 }} />
+          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{price}</Text>
+          <View style={{ height: 5 }} />
+          <Text style={{ color: stock == '0' ? colors.AppRed : colors.Lightgray, fontSize: 12 }}>{stock + available}</Text>
         </View>
       </View>
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
         <Image style={commonStyles.backBtnStyle} resizeMode='center' source={forwardIcon} />
       </View>
     </TouchableOpacity>
@@ -677,7 +960,7 @@ export default class AddEvent extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ padding: 16 }}>
@@ -693,6 +976,7 @@ export default class AddEvent extends Component {
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={'Enter Name'}
+                value={this.state.name}
                 onChangeText={value => this.setState({ name: value })}
               />
               <View style={{ height: 20 }} />
@@ -700,6 +984,7 @@ export default class AddEvent extends Component {
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Description'}
+                value={this.state.description}
                 onChangeText={value => this.setState({ description: value })}
                 multiline={true} />
               <View style={{ marginTop: 20 }}>
@@ -711,10 +996,20 @@ export default class AddEvent extends Component {
                 <TextInput
                   style={commonStyles.addTxtFieldStyle}
                   placeholder={'Enter Offer Price'}
+                  value={this.state.offerPrice.toString()}
                   keyboardType={'number-pad'}
                   onChangeText={value => this.setState({ offerPrice: value })}
                 />
               </View>
+              <View style={{ height: 20 }} />
+              <this.renderTitleLbl title={'Ticket Limits'} />
+              <TextInput
+                style={commonStyles.addTxtFieldStyle}
+                placeholder={'Enter Ticket Limits'}
+                keyboardType={'number-pad'}
+                value={this.state.ticketLimit.toString()}
+                onChangeText={value => this.setState({ ticketLimit: value })}
+              />
               <View style={{ marginTop: 20 }} >
                 <this.renderTitleLbl title={'Category'} />
                 <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.categoryBtnAction()}>
@@ -723,14 +1018,6 @@ export default class AddEvent extends Component {
                 </TouchableOpacity>
               </View>
               <this.renderAttributeFields />
-              <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Ticket Limits'} />
-              <TextInput
-                style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter Ticket Limits'}
-                keyboardType={'number-pad'}
-                onChangeText={value => this.setState({ ticketLimit: value })}
-              />
               <this.renderAddressView />
             </View>
             <View style={{ height: 10 }} />
@@ -739,7 +1026,7 @@ export default class AddEvent extends Component {
             <this.renderVariantsView />
             <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-              <Text style={commonStyles.themeTitleStyle}>Create</Text>
+              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? 'Editing' : 'Create'}</Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
           </ScrollView>
@@ -791,11 +1078,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     margin: 5,
     borderWidth: 1,
-    borderColor: colors.BorderColor, 
-    justifyContent: 'space-between', 
+    borderColor: colors.BorderColor,
+    justifyContent: 'space-between',
     alignContent: 'center',
     borderRadius: 5,
     overflow: 'hidden',
+    height: 70,
   }
 });
 

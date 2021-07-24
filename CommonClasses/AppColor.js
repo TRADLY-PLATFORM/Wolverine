@@ -16,5 +16,6 @@ export default {
   LightGreen:'rgba(223, 251, 244, 1)',
   GradientTop: '#2BDBC0',
   GradientBottom: '#13B58C',
+  AppBlack:'rgba(1, 1, 1, 1)',
 
 };

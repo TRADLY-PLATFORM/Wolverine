@@ -27,13 +27,10 @@ import product from '../../../../assets/product.png';
 import productGray from '../../../../assets/productGray.png';
 import info from '../../../../assets/info.png';
 import infoGreen from '../../../../assets/infoGreen.png';
-import grid from '../../../../assets/grid.png';
-import listIcon from '../../../../assets/list.png';
 import plusIcon from '../../../../assets/plusIcon.png';
 import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon';
-
+import FastImage from 'react-native-fast-image'
 
 // const windowWidth = Dimensions.get('window').width;
 
@@ -42,87 +39,101 @@ export default class MyStore extends Component {
     super(props);
     this.state = {
       eventsArray: [],
-      isVisible:false,
+      isVisible: false,
       updateUI: false,
       segmentIndex: 0,
-      storeDetail:{},
+      storeDetail: {},
       activeSatus: false,
       starRatingValue: 0,
     }
   }
 
   componentDidMount() {
-    this.setState({updateUI: !this.state.updateUI})
+    this.apiCalls();
+    this.props.navigation.addListener('focus', () => {
+      this.apiCalls();
+    });
+  }
+  apiCalls() {
+    this.setState({ updateUI: !this.state.updateUI })
     this.getMyStoreDetailApi();
     this.getEventsApi();
   }
+  componentWillUnmount() {
+    console.log('Calling this');
+  }
   getMyStoreDetailApi = async () => {
     this.setState({ isVisible: true })
-    const {accId} = this.props.route.params;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}`, 'get','',appConstant.bToken,appConstant.authKey)
+    const { accId } = this.props.route.params;
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['account'];
       this.state.storeDetail = acctData;
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
       this.setState({ isVisible: false })
     }
   }
   getEventsApi = async () => {
     this.setState({ isVisible: true })
-    const {accId} = this.props.route.params;
+    const { accId } = this.props.route.params;
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=1&per_page=30&type=events`,
-     'get','',appConstant.bToken,appConstant.authKey)
+      'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
       this.state.eventsArray = events;
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
       this.setState({ isVisible: false })
     }
   }
   updateStatusAPI = async () => {
     this.setState({ isVisible: true })
-    const {accId} = this.props.route.params;
+    const { accId } = this.props.route.params;
     let dict = {
       active: !this.state.activeSatu,
     }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}`, 'patch',
-    JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey)
+      JSON.stringify({ account: dict }), appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       this.state.activeSatus = !this.state.activeSatus;
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
       this.setState({ isVisible: false })
     }
   }
 
   /*  Buttons   */
-  didSelect = (item, itemData) => {
+  didSelect = item => {
+    const { accId } = this.props.route.params;
+    this.props.navigation.navigate(NavigationRoots.AddEvent, {
+      accountId: accId,
+      listingID: item['id'],
+    })
   }
-  doneBtnAction () {
+  doneBtnAction() {
   }
-  activeBtnAction () {
+  activeBtnAction() {
     this.updateStatusAPI()
   }
-  editBtnAction () {
-    this.props.navigation.navigate(NavigationRoots.CreateStore,{storeDetail: this.state.storeDetail})
+  editBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.CreateStore, { storeDetail: this.state.storeDetail })
   }
-  addEventBtnAction () {
-    const {accId} = this.props.route.params;
-    this.props.navigation.navigate(NavigationRoots.AddEvent,{
+  addEventBtnAction() {
+    const { accId } = this.props.route.params;
+    this.props.navigation.navigate(NavigationRoots.AddEvent, {
       accountId: accId,
-    } )
+    })
   }
   ratingStarBtnAction(id) {
-    this.setState({starRatingValue: id + 1})
+    this.setState({ starRatingValue: id + 1 })
   }
 
   /*  UI   */
 
   renderProfileView = () => {
-    var address =  ''
+    var address = ''
     var review = ''
     if (this.state.storeDetail['location']) {
       let add = this.state.storeDetail['location']
@@ -131,20 +142,20 @@ export default class MyStore extends Component {
       review = reRate['rating_average'];
     }
     return (<View style={styles.headerContainderStyle}>
-      <View style={{ flexDirection: 'column'}}>
-        <View style={{flexDirection: 'row',alignItems: 'center', margin: 16 }}>
-        <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
-        <View style={{ marginLeft: 16 }}>
-          <Text style={eventStyles.titleStyle}>{this.state.storeDetail['name']}</Text>
-          <View style={{flexDirection: 'row', marginLeft: -5, marginTop: 5, alignItems: 'center', width:'50%'}}>
-            <Image source={locationIcon} style={{height: 20,width: 20}} resizeMode= {'center'} />
-            <Text style={eventStyles.subTitleStyle} numberOfLines={1}>{address}</Text>
-            <View style={{width: 5}} />
-            <Text style={styles.greenLinkStyle}>View Location</Text>
+      <View style={{ flexDirection: 'column' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
+          <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+          <View style={{ marginLeft: 16 }}>
+            <Text style={eventStyles.titleStyle}>{this.state.storeDetail['name']}</Text>
+            <View style={{ flexDirection: 'row', marginLeft: -5, marginTop: 5, alignItems: 'center', width: '50%' }}>
+              <Image source={locationIcon} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+              <Text style={eventStyles.subTitleStyle} numberOfLines={1}>{address}</Text>
+              <View style={{ width: 5 }} />
+              <Text style={styles.greenLinkStyle}>View Location</Text>
+            </View>
           </View>
         </View>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={styles.ratingViewStyle} >
             <View style={{ flexDirection: 'row' }}>
               <Text>3.0</Text>
@@ -159,24 +170,24 @@ export default class MyStore extends Component {
             <Text style={eventStyles.subTitleStyle}>Total Events</Text>
           </View>
           <View style={styles.ratingViewStyle}>
-          <Text>{this.state.storeDetail['total_followers']}</Text>
+            <Text>{this.state.storeDetail['total_followers']}</Text>
             <View style={{ height: 5 }} />
             <Text style={eventStyles.subTitleStyle}>Followers</Text>
           </View>
         </View>
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 2}}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 2 }}>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={this.state.activeSatus ? styles.activeBntViewStyle : styles.inActiveBtnViewStyle}
             onPress={() => this.activeBtnAction()}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color:this.state.activeSatus ? colors.AppTheme : colors.AppYellow}}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: this.state.activeSatus ? colors.AppTheme : colors.AppYellow }}>
               {this.state.activeSatus ? 'Active' : 'In-Active'}
             </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
           <View style={styles.activeBntViewStyle}>
-            <Image source={shareIcon} style={{ height: 15, width: 15}} resizeMode={'center'} />
+            <Image source={shareIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
           </View>
         </View>
         <View style={styles.ratingViewStyle}>
@@ -187,7 +198,7 @@ export default class MyStore extends Component {
       </View>
     </View>)
   }
-  
+
   renderSegmentBar = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
@@ -209,7 +220,7 @@ export default class MyStore extends Component {
     </View>)
   }
   renderFilterView = () => {
-    return (<View style={{height: 40, justifyContent: 'space-between', flexDirection: 'row', padding: 16}}>
+    return (<View style={{ height: 40, justifyContent: 'space-between', flexDirection: 'row', padding: 16 }}>
       <View style={{ height: 20 }}>
         {/* <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ color: colors.AppGray }}>All</Text>
@@ -224,16 +235,16 @@ export default class MyStore extends Component {
     </View>)
   }
   renderAboutView = () => {
-    return (<View style={{margin: 16, marginTop: 5}}>
-      <View style={{borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite}}>
-        <Text style={{padding: 5, fontSize: 12}}>{this.state.storeDetail['description']}</Text>
-          {this.renderArrtibutes()}
+    return (<View style={{ margin: 16, marginTop: 5 }}>
+      <View style={{ borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite }}>
+        <Text style={{ padding: 5, fontSize: 12 }}>{this.state.storeDetail['description']}</Text>
+        {this.renderArrtibutes()}
       </View>
-      <View style={{height: 20}} />
+      <View style={{ height: 20 }} />
       {this.renderRateStoreView()}
-      <View style={{height: 20}} />
+      <View style={{ height: 20 }} />
       {this.renderRatingReviewView()}
-      <View style={{height: 20}} />
+      <View style={{ height: 20 }} />
       {this.renderReviewView()}
     </View>)
   }
@@ -253,19 +264,19 @@ export default class MyStore extends Component {
         }
         if (item['field_type'] == 5) {
           views.push(<View style={{ flexDirection: 'row', borderTopWidth: 1, borderColor: colors.BorderColor }}>
-          <View style={{ width: '40%', height: 40, padding: 5, justifyContent: 'center' }}>
-            <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
-          </View>
-          <TouchableOpacity style={{width: '60%', height: 40, padding: 5, justifyContent: 'center' }}>
-            <Text style={styles.greenLinkStyle}>{values.toString()}</Text>
-          </TouchableOpacity>
-        </View>)
-        }else {
-          views.push(<View style={{ flexDirection: 'row', borderTopWidth: 1, borderColor: colors.BorderColor }}>
-            <View style={{width: '40%', height: 40, padding: 5, justifyContent: 'center'}}>
+            <View style={{ width: '40%', height: 40, padding: 5, justifyContent: 'center' }}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <View style={{width: '60%', height: 40, padding: 5, justifyContent: 'center'}}>
+            <TouchableOpacity style={{ width: '60%', height: 40, padding: 5, justifyContent: 'center' }}>
+              <Text style={styles.greenLinkStyle}>{values.toString()}</Text>
+            </TouchableOpacity>
+          </View>)
+        } else {
+          views.push(<View style={{ flexDirection: 'row', borderTopWidth: 1, borderColor: colors.BorderColor }}>
+            <View style={{ width: '40%', height: 40, padding: 5, justifyContent: 'center' }}>
+              <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
+            </View>
+            <View style={{ width: '60%', height: 40, padding: 5, justifyContent: 'center' }}>
               <Text style={styles.textStyle}>{values.toString()}</Text>
             </View>
           </View>)
@@ -278,21 +289,21 @@ export default class MyStore extends Component {
     var views = []
     var starViews = [];
     for (let a = 0; a < 5; a++) {
-      starViews.push(<TouchableOpacity style={{margin: 16}} onPress={() => this.ratingStarBtnAction(a)}>
-        <Image source={this.state.starRatingValue > a ? starIcon : emptyStar } style={{ height: 30, width: 30}} />
+      starViews.push(<TouchableOpacity style={{ margin: 16 }} onPress={() => this.ratingStarBtnAction(a)}>
+        <Image source={this.state.starRatingValue > a ? starIcon : emptyStar} style={{ height: 30, width: 30 }} />
       </TouchableOpacity>
       )
     }
-    views.push( <View>
-        <Text style={eventStyles.titleStyle}>{`Rate This Store`}</Text>
-        <View style={{height:5}} />
-        <Text style={eventStyles.subTitleStyle}>{`Tell others what you think`}</Text>
-        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-          {starViews}
-        </View>
-        <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>
-          {`Write a review`}
-        </Text>
+    views.push(<View>
+      <Text style={eventStyles.titleStyle}>{`Rate This Store`}</Text>
+      <View style={{ height: 5 }} />
+      <Text style={eventStyles.subTitleStyle}>{`Tell others what you think`}</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        {starViews}
+      </View>
+      <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
+        {`Write a review`}
+      </Text>
     </View>)
     return views;
   }
@@ -301,21 +312,20 @@ export default class MyStore extends Component {
     var allStartView = [];
     var valueView = [];
     var progressView = [];
-
     for (let a = 0; a < 5; a++) {
       var starView = [];
       for (let b = 0; b <= a; b++) {
-        starView.push(<View style={{flexDirection: 'row', margin: 5}}>
+        starView.push(<View style={{ flexDirection: 'row', margin: 5 }}>
           <Image source={starIcon} style={{ height: 15, width: 15 }} />
         </View>)
       }
-      allStartView.push(<View> 
-         {starView} 
+      allStartView.push(<View>
+        {starView}
       </View>)
-       progressView.push(<View style={{borderRadius: 5, backgroundColor:'red',height: 10, width: 10 * a + 10 , margin: 5, marginTop: 10}} />)
-       valueView.push(<View style={{margin: 5}}>
+      progressView.push(<View style={{ borderRadius: 5, backgroundColor: 'red', height: 10, width: 10 * a + 10, margin: 5, marginTop: 10 }} />)
+      valueView.push(<View style={{ margin: 5 }}>
         <Text style={eventStyles.subTitleStyle}>{10 * a} </Text>
-        </View>)
+      </View>)
     }
 
     views.push(<View>
@@ -325,11 +335,11 @@ export default class MyStore extends Component {
           <Text style={{ fontWeight: '600', fontSize: 44 }}>{'4.4'}</Text>
           <Text style={eventStyles.subTitleStyle}>{`216 ratings`}</Text>
         </View>
-        <View style={{ flexDirection: 'row', marginTop: 10,justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row' }}>
             {allStartView}
           </View>
-          <View style={{width: '33%'}}>
+          <View style={{ width: '33%' }}>
             {progressView}
           </View>
           <View>
@@ -345,10 +355,10 @@ export default class MyStore extends Component {
     views.push(
       <Text style={eventStyles.titleStyle}>{`Reviews`}</Text>
     )
-    for(let a = 0; a < 5; a++){
-      views.push(<View style={{backgroundColor: colors.AppWhite, padding: 30, margin: 5, marginTop: 30}}>
-        <Image source={sample} style={{height: 30, width: 30,borderRadius: 15, marginLeft: -35, marginTop: -50}} />
-    </View>)
+    for (let a = 0; a < 5; a++) {
+      views.push(<View style={{ backgroundColor: colors.AppWhite, padding: 30, margin: 5, marginTop: 30 }}>
+        <Image source={sample} style={{ height: 30, width: 30, borderRadius: 15, marginLeft: -35, marginTop: -50 }} />
+      </View>)
     }
     return views;
   }
@@ -366,34 +376,30 @@ export default class MyStore extends Component {
     </View>
   }
   renderHorizontalCellItem = ({ item, index }) => {
-    console.log('item', item['id']);
     let price = item['list_price'];
     var photo = item['images'] ? item['images'] : [];
-    let startDate = dateConversionFromTimeStamp(item['start_at']);
-    let endDate = dateConversionFromTimeStamp(item['end_at']);
-
-    return (<View style={styles.horizontalCellItemStyle}>
-      <Image style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{padding: 2}}>
-        <Text style={{fontWeight: '600',fontSize: 12,padding: 3}}>{item['title']}</Text>
+    return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelect(item)}>
+      <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
+      <View style={{ padding: 2 }}>
+        <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }}>{item['title']}</Text>
         {/* <Text style={{fontWeight: '500',fontSize: 12,padding: 3}}>{price['formatted']}</Text>
         <Text style={styles.cellItemTextStyle}>Start Date: {startDate}</Text>
         <Text style={styles.cellItemTextStyle}>End Date: {endDate}</Text> */}
-        <View style={{height: 5}} />
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',padding: 3}}>
-          <View style={{ flexDirection: 'row',alignItems: 'center' }}>
+        <View style={{ height: 5 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
             <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
-            <Text style={{color: colors.Lightgray, fontSize: 10, padding: 5}}>{item['account']['name']}</Text>
+            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{item['account']['name']}</Text>
           </View>
           <View>
             <View style={eventStyles.followContainerStyle}>
-              <Text style={{fontSize: 14, fontWeight: '600', color: colors.AppWhite }}>{price['formatted']}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.AppWhite }}>{price['formatted']}</Text>
             </View>
           </View>
         </View>
-        <View style={{height: 5}} />
+        <View style={{ height: 5 }} />
       </View>
-    </View>)
+    </TouchableOpacity>)
   }
 
   renderTabActionView = () => {
@@ -414,22 +420,22 @@ export default class MyStore extends Component {
         <HeaderView title={'My Store'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View>
-            <View style={{ position: 'relative', flexDirection: 'column' }}>
-              <View style={{ backgroundColor: colors.AppTheme, height: '10%'}}>
-              </View>
-              <View style={{ backgroundColor: colors.LightBlueColor, height: '100%'}}>
-                <View style={styles.headerContainerViewStyle} >
-                  <this.renderProfileView />
-                </View>
-                <this.renderSegmentBar />
-                <this.renderFilterView />
-                <View style={{height:10}}/>
-                <ScrollView>
-                  <this.renderTabActionView />
-                    <View style={{height:300}}/>
-                </ScrollView>
-              </View>
+          <View style={{ position: 'relative', flexDirection: 'column' }}>
+            <View style={{ backgroundColor: colors.AppTheme, height: '10%' }}>
             </View>
+            <View style={{ backgroundColor: colors.LightBlueColor, height: '100%' }}>
+              <View style={styles.headerContainerViewStyle} >
+                <this.renderProfileView />
+              </View>
+              <this.renderSegmentBar />
+              <this.renderFilterView />
+              <View style={{ height: 10 }} />
+              <ScrollView>
+                <this.renderTabActionView />
+                <View style={{ height: 300 }} />
+              </ScrollView>
+            </View>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -474,8 +480,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRightWidth: 1, 
-    borderLeftWidth:1, 
+    borderRightWidth: 1,
+    borderLeftWidth: 1,
     borderColor: colors.BorderColor,
   },
   activeBntViewStyle: {
@@ -503,16 +509,16 @@ const styles = StyleSheet.create({
   selectedSegmentViewStyle: {
     flex: 1,
     height: 60,
-    borderBottomWidth:3,
-    borderBottomColor:colors.AppTheme,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.AppTheme,
     justifyContent: 'center',
     alignItems: 'center',
   },
   segmentViewStyle: {
     flex: 1,
     height: 60,
-    borderBottomWidth:3,
-    borderBottomColor:colors.BorderColor,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.BorderColor,
     justifyContent: 'center',
     alignItems: 'center',
   },

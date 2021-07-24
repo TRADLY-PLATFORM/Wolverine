@@ -100,7 +100,12 @@ export default class AddVariant extends Component {
   /* Delegate */
   getVariant = data => {
     this.state.selectedVariantType = data[0];
-    this.setState({ updateUI: !this.state.updateUI, variantName: this.state.selectedVariantType['name'] })
+    let index = this.state.selectedVariantArray.findIndex(x => x['id'] == this.state.selectedVariantType['id'])
+    if (index == -1){
+      this.setState({ updateUI: !this.state.updateUI, variantName: this.state.selectedVariantType['name'] })
+    } else {
+      Alert.alert('Already Selected please choose another')
+    }
     this.setState({ disableAddBtn: true})
   }
   getVariantTypeValues = data => {
@@ -113,9 +118,9 @@ export default class AddVariant extends Component {
         console.log('obj',value[o]);
         nameAry.push(value[o]['name'])
       }
-      this.setState({ updateUI: !this.state.updateUI, variantTypeValues: nameAry.toString() })
-      let index = this.state.selectedVariantArray.findIndex(x => x['values']['id'] == this.state.selectedVariantTypeValues['id'])
+      let index = this.state.selectedVariantArray.findIndex(x => x['id'] == this.state.selectedVariantType['id'])
       if (index == -1){
+        this.setState({ updateUI: !this.state.updateUI, variantTypeValues: nameAry.toString() })
         this.setState({ disableAddBtn: false})
       } else {
         this.setState({ disableAddBtn: true})

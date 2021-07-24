@@ -11,8 +11,11 @@ target 'tradlyEvent' do
     # to enable hermes on iOS, change `false` to `true` and then install pods
     :hermes_enabled => false
   )
-
+  rn_maps_path = '../node_modules/react-native-maps'
+  pod 'react-native-google-maps', :path => rn_maps_path
   pod 'RNSearchBar', :path => '../node_modules/react-native-search-bar'
+
+  pod 'react-native-location', :path => '../node_modules/react-native-location'
 
   target 'tradlyEventTests' do
     inherit! :complete

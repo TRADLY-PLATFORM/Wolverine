@@ -27,9 +27,11 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
+import cancelIcon from '../../../../assets/cancel.png';
+import FastImage from 'react-native-fast-image'
 
-const windowWidth = Dimensions.get('window').width;
 
+const keyAry = ['title','description','list_price', 'stock','offer_percent'];
 
 // const windowWidth = Dimensions.get('window').width;
 
@@ -41,7 +43,7 @@ export default class AddVariantValue extends Component {
       updateUI: false,
       currencyArray: [],
       selectedCurrency: {},
-      photo: null,
+      imagesArray: [],
       name: '',
       description: '',
       offerPrice: '',
@@ -53,75 +55,18 @@ export default class AddVariantValue extends Component {
     let {currencyArray} = this.props.route.params;
     this.state.currencyArray = currencyArray;
     this.state.selectedCurrency = currencyArray[0];
-    this.setState({ updateUI: !this.state.updateUI })
-  }
-  uploadFilesAPI = async () => {
-    this.setState({ isVisible: true })
-    var imgParm = [];
-    var uploadBase64 = [];
-    if (this.state.photo != null) {
-      let fileName = this.state.photo.data;
-      if (fileName != null) {
-        var splashDict = {
-          name: this.state.photo['filename'],
-          type: this.state.photo['mime'],
-        };
-        uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.photo.data,
-        });
-        imgParm.push(splashDict);
-      }
-    }
-    console.log('imgParm',imgParm)
-    if (imgParm != 0) {
-      const responseJson = await networkService.networkCall(
-        APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );
-      if (responseJson['status'] == true) {
-        var result = responseJson['data']['result'];
-        console.log('result', result);
-        var uploadIncrement = 0;
-        for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(
-              result[i]['signedUrl'],
-              imgParm[i]['type'],
-              await res.blob(),
-            );           
-              this.addVariantTypeApi(result[i]['fileUri'])
-          });
-        }
-      } else {
-        this.setState({ isVisible: false })
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        Alert.alert(error)
-      }
-    } else {
-      this.addVariantTypeApi('')
-    }
-  };
-  addVariantTypeApi = async (imagePath) => {
-    var dict = {}
-    if (imagePath.length != 0) {
-      dict['images'] = imagePath;
+    let {variantData} = this.props.route.params;
+    if (variantData['variantType']) {
+      let uploadParm = variantData['uploadParm'];
+      this.state.imagesArray = uploadParm['images'];
+      this.state.name = uploadParm[keyAry[0]];
+      this.state.description = uploadParm[keyAry[1]];
+      this.state.price = uploadParm[keyAry[2]];
+      this.state.ticketLimit = uploadParm[keyAry[3]];
+      this.state.offerPrice = uploadParm[keyAry[4]];
+      this.state.selectedCurrency = variantData['currency'];
     } 
-    let valueray = [this.state.name,this.state.description, this.state.price,this.state.ticketLimit,this.state.offerPrice];
-    let keyAry = ['title','description','list_price', 'stock','offer_percent'];
-    for (let a = 0; a < keyAry.length; a++) {
-      if (valueray[a].length != 0) {
-        dict[keyAry[a]] = valueray[a];
-      }
-    }
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + '/77/variants', 'POST', JSON.stringify({variant: dict}),appConstant.bToken,appConstant.authKey)
-    console.log(" responseJson =  ", responseJson) 
-    if (responseJson) {
-      this.setState({ isVisible: false })
-      if (responseJson['status'] == true) {
-        Alert.alert('SuccessFully')
-      } else {
-        Alert.alert(responseJson)
-      }
-    }
+    this.setState({ updateUI: !this.state.updateUI })
   }
   /*  Buttons   */
   currecnyBtnAction() {
@@ -131,7 +76,30 @@ export default class AddVariantValue extends Component {
     });
   }
   submitBtnAction () {
-    this.uploadFilesAPI();
+    var dict = {}
+    if (this.state.imagesArray.length != 0) {
+      dict['images'] = this.state.imagesArray;
+    } 
+    dict['active'] = true;
+    let valueray = [this.state.name,this.state.description, this.state.price,this.state.ticketLimit,this.state.offerPrice];
+    let keyAry = ['title','description','list_price', 'stock','offer_percent'];
+    for (let a = 0; a < keyAry.length; a++) {
+      if (valueray[a].length != 0) {
+        dict[keyAry[a]] = valueray[a];
+      }
+    }
+    let {index,variantData} = this.props.route.params;
+    let uploadDic = {
+      uploadParm: dict,
+      currency:this.state.selectedCurrency,
+    }
+    if (variantData['variantType']) {
+      uploadDic['variantType'] = variantData['variantType'];
+    }else {
+      uploadDic['variantType'] = variantData;
+    }
+    this.props.route.params.getVariantTypeUploadValue(uploadDic,index)
+    this.props.navigation.goBack()
   }
   deleteBtnAction() {
     Alert.alert(
@@ -156,6 +124,10 @@ export default class AddVariantValue extends Component {
     console.log('data => ', data);
     this.setState({selectedCurrency: data[0]})
   }
+  deleteImageButtonAction(id) {
+    this.state.imagesArray.splice(id, 1)
+    this.setState({updateUI: !this.state.updateUI});
+  }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
@@ -164,40 +136,59 @@ export default class AddVariantValue extends Component {
       cropping: false,
       includeBase64: true,
     }).then(image => {
-      this.state.photo = image;
+      // this.state.photo = image;
+      this.state.imagesArray.push(image);
       this.setState({ updateUI: !this.state.updateUI })
     });
   }
   viewSelectedImages = () => {
     var views = [];
-    if (this.state.photo != null) {
-      views.push(
-        <View>
-          <View style={styles.imagePickerPlaceholderStyle}>
-            <TouchableOpacity onPress={() => this.imagePicker()}>
-                <Image source={{ uri: this.state.photo.sourceURL }}
-                  style={styles.SelectedImageStyle}
-                  resizeMode={'cover'}
-                />
-            </TouchableOpacity>
-          </View>
-        </View>,
-      );
-    } else {
-      views.push(
-        <View>
-          <View style={styles.imagePickerPlaceholderStyle}>
-            <TouchableOpacity onPress={() => this.imagePicker()}>
-              <View style={{ justifyContent: 'center' }}>
-                <Image
-                  source={cameraIcon}
-                  style={{ width: 30, height: 30, alignSelf: 'center' }}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>,
-      );
+    for (let i = 0; i < this.state.imagesArray.length + 1; i++) {
+      let photo =  this.state.imagesArray[i];
+      var photoPath = ''
+      if (photo) {
+        if (photo['sourceURL']) {
+           photoPath = photo.sourceURL;
+        }else {
+          photoPath = photo; 
+        }
+      }
+      if (this.state.imagesArray[i]) {
+        views.push(
+            <View style={styles.imageSelectedStyle}>
+              <TouchableOpacity onPress={() => this.imagePicker()}>
+                <View>
+                  <FastImage
+                    source={{ uri: photoPath}}
+                    style={styles.SelectedImageStyle}
+                    resizeMode={'cover'}
+                  />
+                  <TouchableOpacity
+                    style={styles.deleteViewStyle}
+                    onPress={() => this.deleteImageButtonAction(i)}>
+                    <Image resizeMode={'center'} style={{height:20, width:20}}
+                      source={cancelIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            </View>,
+        );
+      } else {
+        views.push(
+          <View>
+            <View style={styles.dottedViewStyle}>
+              <TouchableOpacity onPress={() => this.imagePicker()}>
+                <View style={{ justifyContent: 'center' }}>
+                  <Image source={cameraIcon}
+                    style={{ width: 30, height: 30, alignSelf: 'center' }}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>,
+        );
+      }
     }
     return views;
   };
@@ -208,6 +199,7 @@ export default class AddVariantValue extends Component {
           style={commonStyles.txtFieldWithImageStyle}
           placeholder={'Enter Price'}
           keyboardType={'number-pad'}
+          value={this.state.price.toString()}
           onChangeText={value => this.setState({ price: value })}
         />
         <TouchableOpacity style={{ width: 40, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}
@@ -222,22 +214,35 @@ export default class AddVariantValue extends Component {
   }
   render() {
     let {variantData} = this.props.route.params;
+    var title = ''
+    if (variantData['values']) {
+      title = variantData['values']['name'];
+    } else {
+      let value = variantData['variantType']
+      title = value['values']['name'];
+    }
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={variantData['values']['name']}
+        <HeaderView title={title}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}  showDoneBtn={true}
           doneBtnTitle={'Delete'} doneBtnAction={() => this.deleteBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ margin: 10, width: windowWidth - 20, height: imagePickerHeight }}>
-              <this.viewSelectedImages />
+            <View style={{ padding: 16 }}>
+              <ScrollView horizontal={true}>
+                <View style={{ width: '100%', height: 130, flexDirection: 'row-reverse', marginTop: 10, alignContent: 'center' }}>
+                  <this.viewSelectedImages />
+                </View>
+              </ScrollView>
+              <Text style={eventStyles.subTitleStyle}>Maximum 4 Images</Text>
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '80%', padding: 16 }}>
             <Text style={commonStyles.textLabelStyle}>Title</Text>
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={'Enter Name'}
+                value={this.state.name}
                 onChangeText={value => this.setState({name: value})}
                 />
               <View style={{ height: 20 }} />
@@ -245,6 +250,7 @@ export default class AddVariantValue extends Component {
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Description'}
+                value={this.state.description}
                 onChangeText={value => this.setState({description: value})}
                 multiline={true} />
               <View style={{ marginTop: 20 }}>
@@ -259,6 +265,7 @@ export default class AddVariantValue extends Component {
                   style={commonStyles.txtFieldWithImageStyle}
                   placeholder={'Enter Offer '}
                   keyboardType={'number-pad'}
+                  value={this.state.offerPrice.toString()}
                   onChangeText={value => this.setState({offerPrice: value})}
                   />
               </View>
@@ -268,6 +275,7 @@ export default class AddVariantValue extends Component {
                 style={commonStyles.txtViewStyle}
                 placeholder={'Enter Ticket Limit'}
                 keyboardType={'number-pad'}
+                value={this.state.ticketLimit.toString()}
                 onChangeText={value => this.setState({ticketLimit: value})}
                 />
               <View style={{ height: 20 }} />
@@ -288,49 +296,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
-  imagePickerPlaceholderStyle: {
-    height: imagePickerHeight,
-    width: '100%',
-    margin: 0,
+  imageSelectedStyle: {
+    height: 120,
+    width: 120,
+    margin: 10,
     justifyContent: 'center',
-    borderColor: colors.AppTheme,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderRadius: 10,
+  },
+  deleteViewStyle: {
+    height: 20,
+    width: 20,
+    marginLeft: 105,
+    top: -125,
   },
   SelectedImageStyle: {
-    height: imagePickerHeight,
-    width: windowWidth - 20,
+    height: 120,
+    width: 120,
     borderRadius: 10,
-    borderColor: colors.BorderColor,
-    borderWidth: 2,
   },
-  dropDownViewStyle: {
-    width: "100%",
-    backgroundColor: 'white',
-    marginTop: 70,
-    backgroundColor: 'white',
-    position: 'absolute',
-    borderRadius: 5,
-    borderColor: colors.BorderColor,
-    marginTop: 35,
-    zIndex: 90,
-    borderBottomWidth: 1,
-  },
-  shippingViewStyle: {
-    marginTop: 16,
-    flexDirection: 'row',
+  dottedViewStyle: {
+    borderRadius: 10,
     alignItems: 'center',
-  },
-  squareViewStyle: {
-    height: 30,
-    width: 30,
     justifyContent: 'center',
-  },
-  tickImageStyle: {
-    height: 24,
-    width: 24,
+    borderWidth: 2,
+    height: 120,
+    width: 120,
+    borderStyle: 'dashed',
+    borderColor: colors.BorderColor
   },
 });
