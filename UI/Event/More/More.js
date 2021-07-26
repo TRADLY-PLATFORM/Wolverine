@@ -13,7 +13,7 @@ import appConstant from '../../../Constants/AppConstants';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 
-const menuArray = ['My Store', 'Payment', 'My Sale', 'Feedback', 'Refer a Friend', 'Terms & Conditions', 'Support', 'Logout']
+import constantArrays from '../../../Constants/ConstantArrays';
 
 export default class More extends Component {
   constructor(props) {
@@ -26,6 +26,9 @@ export default class More extends Component {
   }
   componentDidMount() {
     this.getMyStoreApi();
+    this.props.navigation.addListener('focus', () => {
+      this.getMyStoreApi();
+    });
   }
   getMyStoreApi = async () => {
     this.setState({ isVisible: true })
@@ -61,7 +64,7 @@ export default class More extends Component {
     );
   }
   didSelectList = ({ index }) => {
-    if (index == menuArray.length - 1) {
+    if (index == constantArrays.menuArray.length - 1) {
       this.logoutBtnAction()
     } else if (index == 0) {
       this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId })
@@ -73,7 +76,7 @@ export default class More extends Component {
       <View style={{ width: '100%' }}>
         <FlatList
           style={{ margin: 10 }}
-          data={menuArray}
+          data={constantArrays.menuArray}
           renderItem={this.renderListCellItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index}
@@ -84,7 +87,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{ marginBottom: 10, top: 10 }} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{ fontSize: 12, fontWeight: '500', color: index != (menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   render() {

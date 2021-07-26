@@ -4,4 +4,5 @@ module.exports = {
   bToken: '',
   userId: '',
   accountID: '',
+  hideTabbar: true,
 }

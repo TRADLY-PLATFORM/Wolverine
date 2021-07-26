@@ -45,6 +45,8 @@ export default class MyStore extends Component {
       storeDetail: {},
       activeSatus: false,
       starRatingValue: 0,
+      pageNo: 1,
+      stopPagination: false,
     }
   }
 
@@ -55,12 +57,11 @@ export default class MyStore extends Component {
     });
   }
   apiCalls() {
+    this.state.stopPagination = false
+    this.state.pageNo = 1;
     this.setState({ updateUI: !this.state.updateUI })
     this.getMyStoreDetailApi();
     this.getEventsApi();
-  }
-  componentWillUnmount() {
-    console.log('Calling this');
   }
   getMyStoreDetailApi = async () => {
     this.setState({ isVisible: true })
@@ -78,11 +79,17 @@ export default class MyStore extends Component {
   getEventsApi = async () => {
     this.setState({ isVisible: true })
     const { accId } = this.props.route.params;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=1&per_page=30&type=events`,
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=${this.state.pageNo}&per_page=30&type=events`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
-      this.state.eventsArray = events;
+      if (events.length != 0) {
+        for(let objc of events){
+          this.state.eventsArray.push(objc);
+        }
+      }else {
+        this.state.stopPagination = true
+      }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
       this.setState({ isVisible: false })
@@ -129,7 +136,13 @@ export default class MyStore extends Component {
   ratingStarBtnAction(id) {
     this.setState({ starRatingValue: id + 1 })
   }
-
+  paginationMethod = () => {
+    console.log('pagination');
+    if (!this.state.stopPagination){
+     this.state.pageNo = this.state.pageNo + 1;
+     this.getEventsApi();
+    }
+   }
   /*  UI   */
 
   renderProfileView = () => {
@@ -363,15 +376,15 @@ export default class MyStore extends Component {
     return views;
   }
   renderEventView = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent }}>
+    return <View style={{ backgroundColor: colors.lightTransparent}}>
       <FlatList
         data={this.state.eventsArray}
-        horizontal={false}
         numColumns={2}
         renderItem={this.renderHorizontalCellItem}
-        extraData={this.state}
-        keyExtractor={(item, index) => index}
         showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+        onEndReachedThreshold={2}
+        onEndReached={this.paginationMethod}
       />
     </View>
   }
@@ -409,7 +422,10 @@ export default class MyStore extends Component {
       </View>)
     } else {
       return (<View>
-        {this.renderAboutView()}
+        <ScrollView>
+          {this.renderAboutView()}
+          <View style={{ height: 40 }} />
+        </ScrollView>
       </View>)
     }
   }
@@ -430,10 +446,9 @@ export default class MyStore extends Component {
               <this.renderSegmentBar />
               <this.renderFilterView />
               <View style={{ height: 10 }} />
-              <ScrollView>
+              <View style={{height: '45%'}}>
                 <this.renderTabActionView />
-                <View style={{ height: 300 }} />
-              </ScrollView>
+              </View>
             </View>
           </View>
         </View>

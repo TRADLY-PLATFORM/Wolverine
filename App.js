@@ -33,7 +33,7 @@ import AddVariant from './UI/Event/More/AddEvent/AddVariant';
 import VariantList from './UI/Event/More/AddEvent/VariantList';
 import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
 import Filter from './UI/Event/Explore/Filter';
-import Sort from './UI/Event/Explore/Sort';
+import Category from './UI/Event/Explore/Category';
 
 
 
@@ -63,22 +63,19 @@ export default class App extends Component {
             ...TransitionPresets.ModalSlideFromBottomIOS,
           }} />
          <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
-        <Stack.Screen name={NavigationRoots.SignUp}component={Signup} />
-        <Stack.Screen name={NavigationRoots.Verification}component={Verifications} />
-        <Stack.Screen name={NavigationRoots.ForgotPassword}component={ForgotPassword} />
-        <Stack.Screen name={NavigationRoots.Category}component={CategoryList} />
-        <Stack.Screen name={NavigationRoots.AttributeList}component={AttributesList} />
-        <Stack.Screen name={NavigationRoots.AddressList}component={AddressList} />
-        <Stack.Screen name={NavigationRoots.MyStore}component={MyStore} />
-        <Stack.Screen name={NavigationRoots.Currency}component={Currency} />
-        <Stack.Screen name={NavigationRoots.EventTiming}component={EventTimings} />
-        <Stack.Screen name={NavigationRoots.AddVariant}component={AddVariant} />
-        <Stack.Screen name={NavigationRoots.VariantList}component={VariantList} />
-        <Stack.Screen name={NavigationRoots.AddVariantValue}component={AddVariantValue} />
-        <Stack.Screen name={NavigationRoots.Sort}component={Sort} options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}/>
+        <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
+        <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
+        <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
+        <Stack.Screen name={NavigationRoots.Category} component={CategoryList} />
+        <Stack.Screen name={NavigationRoots.AttributeList} component={AttributesList} />
+        <Stack.Screen name={NavigationRoots.AddressList} component={AddressList} />
+        <Stack.Screen name={NavigationRoots.MyStore} component={MyStore} />
+        <Stack.Screen name={NavigationRoots.Currency} component={Currency} />
+        <Stack.Screen name={NavigationRoots.EventTiming} component={EventTimings} />
+        <Stack.Screen name={NavigationRoots.AddVariant} component={AddVariant} />
+        <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
+        <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
+        <Stack.Screen name={NavigationRoots.Sort} component={Category} />
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

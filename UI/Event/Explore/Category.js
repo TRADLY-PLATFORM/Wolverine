@@ -9,7 +9,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
@@ -17,26 +16,26 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import checkBox from '../../../assets/checkBox.png';
 import checkedBox from '../../../assets/checkedBox.png';
+import eventStyles from '../../../StyleSheet/EventStyleSheet';
 
 
-const windowWidth = Dimensions.get('window').width;
 
-export default class Sort extends Component {
+export default class Category extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selectedAttributes: [],
       attributeArray: [],
       updateUI: false,
+      selectIndex: 0,
     }
   }
 
   componentDidMount() {
   }
   /*  Buttons   */
-  didSelect = (item, itemData) => {
-    
-    this.setState({updateUI: !this.state.updateUI})
+  didSelect(index) {
+  this.setState({selectIndex: index})
   }
   doneBtnAction () {
     const {singleSelect} = this.props.route.params;
@@ -68,8 +67,8 @@ export default class Sort extends Component {
   }
   renderButtonView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16 }}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle}>
-        <View style={styles.applyBtnViewStyle}>
+      <TouchableOpacity style={eventStyles.bottomBtnViewStyle}>
+        <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
         </View>
       </TouchableOpacity>
@@ -78,7 +77,7 @@ export default class Sort extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Sort'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={'Category'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
           <this.renderListView />
           <this.renderButtonView />
@@ -103,18 +102,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 10,
   },
-  bottomBtnViewStyle: {
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    margin: 10,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 2,
-    borderRadius: 20,
-  },
   clearBtnViewStyle: {
     borderRadius: 4,
     borderColor: colors.AppTheme,
@@ -126,14 +113,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.AppWhite,
   },
-  applyBtnViewStyle: {
-    borderRadius: 4,
-    margin: 5,
-    width: '100%',
-    height: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.AppTheme,
-  }
+
 });
 

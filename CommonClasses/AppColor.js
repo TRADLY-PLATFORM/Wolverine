@@ -3,7 +3,7 @@ export default {
   Lightgray:'rgba(167, 167, 167, 1)',
   LightUltraGray: '#EEEEEE',
   lightTransparent:'rgba(1, 1, 1, 0)',
-  blackTransparent:'rgba(1, 1, 1, 0.3)',
+  blackTransparent:'rgba(1, 1, 1, 0.7)',
   AppOrange:'rgba(255, 168, 0, 1)',
   AppYellow:'rgba(222, 163, 6, 1)',
   AppRed:'rgba(238, 90, 85, 1)',

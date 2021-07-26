@@ -52,5 +52,26 @@ module.exports = StyleSheet.create({
     paddingLeft:16,
     paddingRight: 16,
   },
+  bottomBtnViewStyle: {
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    margin: 10,
+    shadowColor: 'gray',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 2,
+    borderRadius: 20,
+  },
+  applyBtnViewStyle: {
+    borderRadius: 4,
+    margin: 5,
+    width: '100%',
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.AppTheme,
+  }
 });
 

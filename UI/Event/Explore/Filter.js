@@ -17,6 +17,7 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
+import constantArrays from '../../../Constants/ConstantArrays';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -35,8 +36,9 @@ export default class Filter extends Component {
   }
   /*  Buttons   */
   didSelect = (item, itemData) => {
-    
-    this.setState({updateUI: !this.state.updateUI})
+    console.log('polop');
+    this.props.navigation.navigate(NavigationRoots.Sort);    
+    // this.setState({updateUI: !this.state.updateUI})
   }
   doneBtnAction () {
     const {singleSelect} = this.props.route.params;
@@ -48,7 +50,7 @@ export default class Filter extends Component {
   renderListView = () => {
     return (<View style={{margin: 5, height: '84%'}}>
       <FlatList
-        data={[1,1,1,1,1,1,1,1,1,1,1,1]}
+        data={constantArrays.filterArray}
         renderItem={this.renderListViewCellItem}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index}
@@ -58,9 +60,9 @@ export default class Filter extends Component {
   renderListViewCellItem = ({item, index}) => {
     let check = item == 4 ? false : true
     return (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => this.didSelect()}>
         <View style={styles.listViewStyle}>
-          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {'Distance'} </Text>
+          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
           <Image style={commonStyles.nextIconStyle} source={check ? emptyIcon : tickIcon} />
         </View>
       </TouchableOpacity>

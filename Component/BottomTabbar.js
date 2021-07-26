@@ -12,14 +12,17 @@ import appConstant from '../Constants/AppConstants';
 const Tab = createBottomTabNavigator();
 
 function AppTabbar() {
+
+ 
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{
       activeTintColor: colors.AppTheme,
       inactiveTintColor: '#c3d5fa',
       labelStyle: { fontSize: 12, color: 'black' }
       
-    }} screenOptions={({ route }) => ({
+    }} screenOptions={({ route}) => ({
       tabBarIcon: ({ focused, color, size }) => {
+        console.log('hideTabbar==', appConstant.hideTabbar)
         let iconName;
         if (route.name === 'Home') {
           iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
@@ -36,7 +39,7 @@ function AppTabbar() {
       },
     })}>
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={explore} />
+      <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={Home} />
       <Tab.Screen name="More" component={More} />
