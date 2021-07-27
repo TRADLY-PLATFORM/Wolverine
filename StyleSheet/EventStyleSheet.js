@@ -24,6 +24,11 @@ module.exports = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
   },
+  commonTxtStyle:{
+    fontSize: 16, 
+    fontWeight: '500', 
+    color: colors.AppGray
+  },
   clickAbleFieldStyle: {
     flexDirection: 'row',
     width: '100%',
@@ -44,11 +49,20 @@ module.exports = StyleSheet.create({
   addBntViewStyle: {
     backgroundColor: colors.AppWhite,
     height: 30,
-    borderRadius: 3,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: colors.AppTheme,
     borderWidth: 1,
+    paddingLeft:16,
+    paddingRight: 16,
+  },
+  selectedBntViewStyle: {
+    backgroundColor: colors.AppTheme,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingLeft:16,
     paddingRight: 16,
   },
@@ -72,6 +86,16 @@ module.exports = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.AppTheme,
-  }
+  },
+  selectedBtnTxtStyle:{ 
+    fontSize: 12, 
+    fontWeight: '500', 
+    color: colors.AppWhite
+  },
+  btnTxtStyle:{ 
+    fontSize: 12, 
+    fontWeight: '500', 
+    color: colors.AppGray
+  },
 });
 

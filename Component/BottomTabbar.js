@@ -22,7 +22,7 @@ function AppTabbar() {
       
     }} screenOptions={({ route}) => ({
       tabBarIcon: ({ focused, color, size }) => {
-        console.log('hideTabbar==', appConstant.hideTabbar)
+        // console.log('hideTabbar==', appConstant.hideTabbar)
         let iconName;
         if (route.name === 'Home') {
           iconName = focused ? require('../assets/home.png') : require('../assets/home.png');

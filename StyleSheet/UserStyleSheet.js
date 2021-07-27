@@ -17,14 +17,14 @@ module.exports = StyleSheet.create({
     fontSize: 24,
     fontWeight: '500',
     alignSelf: 'center',
-    color: '#FFFFFF',
+    color: colors.AppWhite,
     textAlign: 'center',
   },
   subTitleStyle:{
     marginTop: 40,
     fontSize: 16,
     alignSelf: 'center',
-    color: '#FFFFFF',
+    color: colors.AppWhite,
     textAlign: 'center',
   },
   roundView: {
@@ -66,7 +66,7 @@ module.exports = StyleSheet.create({
     marginTop: 30,
     fontSize: 18,
     alignSelf: 'center',
-    color: '#FFFFFF',
+    color: colors.AppWhite,
     textAlign: 'center',
   },
   backBtnStyle: {
@@ -84,7 +84,7 @@ module.exports = StyleSheet.create({
   headerTitleStyle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.AppWhite,
   },
   themeBtnStyle: {
     backgroundColor: colors.AppTheme,

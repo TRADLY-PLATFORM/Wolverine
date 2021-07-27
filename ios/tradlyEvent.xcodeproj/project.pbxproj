@@ -38,10 +38,12 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tradlyEvent/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tradlyEvent/main.m; sourceTree = "<group>"; };
 		3A3C2AF8C235A13114FE082C /* Pods-tradlyEvent-tradlyEventTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tradlyEvent-tradlyEventTests.release.xcconfig"; path = "Target Support Files/Pods-tradlyEvent-tradlyEventTests/Pods-tradlyEvent-tradlyEventTests.release.xcconfig"; sourceTree = "<group>"; };
+		3CF86DA7B29E40F3A6A28B7E /* libRangeSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRangeSlider.a; sourceTree = "<group>"; };
 		405F5C142CCEEB03C108AA1D /* Pods-tradlyEvent.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tradlyEvent.release.xcconfig"; path = "Target Support Files/Pods-tradlyEvent/Pods-tradlyEvent.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = tradlyEvent/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A7BD7DFDBA5A7591D34C9FB2 /* Pods-tradlyEvent.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tradlyEvent.debug.xcconfig"; path = "Target Support Files/Pods-tradlyEvent/Pods-tradlyEvent.debug.xcconfig"; sourceTree = "<group>"; };
 		B31AAB7B79DCA00EC3942829 /* libPods-tradlyEvent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tradlyEvent.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC3E9EAB688B4FA786E72748 /* RangeSlider.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RangeSlider.xcodeproj; path = "../node_modules/react-native-range-slider/ios/RangeSlider.xcodeproj"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1F5396CFCFC5D2A9FCB027D /* libPods-tradlyEvent-tradlyEventTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tradlyEvent-tradlyEventTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -109,6 +111,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				CC3E9EAB688B4FA786E72748 /* RangeSlider.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -122,6 +125,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E0E039F1B393FA02D31C926D /* Pods */,
+				B35096A626AFE25D006977DD /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -137,6 +141,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B35096A626AFE25D006977DD /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				3CF86DA7B29E40F3A6A28B7E /* libRangeSlider.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		E0E039F1B393FA02D31C926D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -145,7 +157,6 @@
 				02184037AA68021D5228AEF8 /* Pods-tradlyEvent-tradlyEventTests.debug.xcconfig */,
 				3A3C2AF8C235A13114FE082C /* Pods-tradlyEvent-tradlyEventTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -436,12 +447,20 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",
+				);
 				INFOPLIST_FILE = tradlyEventTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -460,12 +479,20 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",
+				);
 				INFOPLIST_FILE = tradlyEventTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -486,6 +513,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",
+				);
 				INFOPLIST_FILE = tradlyEvent/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -511,6 +542,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",
+				);
 				INFOPLIST_FILE = tradlyEvent/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

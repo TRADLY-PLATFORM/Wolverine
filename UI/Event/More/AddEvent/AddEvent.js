@@ -32,7 +32,7 @@ import editGreen from '../../../../assets/editGreen.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-import {changeDateFormat} from '../../../../HelperClasses/SingleTon'
+import {changeDateFormat,getTimeFormat} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 
 export default class AddEvent extends Component {
@@ -101,10 +101,8 @@ export default class AddEvent extends Component {
       this.state.categoryName = listData['categories'][0]['name'];
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
-      var eventStart = new Date(listData['start_at'] * 1000);
-      var eventEnd = new Date(listData['end_at'] * 1000);
-      let sTime = eventStart.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
-      let eTime = eventEnd.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
+      let sTime = getTimeFormat(listData['start_at']);
+      let eTime = getTimeFormat(listData['end_at']);
       let eventdate = changeDateFormat(eventStart,'ddd, D MMM yy')
       let dict = {
         date: eventdate,

@@ -31,6 +31,9 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import checkBox from '../../../assets/checkBox.png';
 import checkedBox from '../../../assets/checkedBox.png';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/selectedradio.png';
+import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
 
 import constantArrays from '../../../Constants/ConstantArrays';
 
@@ -58,24 +61,34 @@ export default class Explore extends Component {
       eventsArray:[],
       pageNo: 1,
       stopPagination: false,
-      sortSelectedIndex :0,
+      sortSelectedIndex :-1,
+      params: '',
+      selectedDateIndex: -1,
+      datesArray: [],
     }
   }
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
     });
+    this.state.datesArray = getDatesArray();
     this.callApi();
 
   }
   callApi() {
+    this.state.eventsArray = [];
     this.state.stopPagination = false
     this.state.pageNo = 1;
-    this.getEventsApi();
+    this.getEventsApi('');
   }
-  getEventsApi = async () => {
+  getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}&per_page=30&type=events&max_distance=50000&latitude=30.70&longitude=76.62`,
+    sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
+    var path = `&per_page=30&type=events&latitude=30.70&longitude=76.62` + param;
+    if (this.state.sortSelectedIndex != -1) {
+      path = `${path}&sort=${sortKey[this.state.sortSelectedIndex]}`
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}${path}`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
@@ -94,20 +107,70 @@ export default class Explore extends Component {
   /*  Buttons   */
 
   filterBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.Filter);
+    this.props.navigation.navigate(NavigationRoots.Filter, {
+      getFilterData: this.getFilterData,
+    });
   }
-  sortBtnAction() {
+  sortBtnAction(done) {
     appConstant.hideTabbar = this.state.showSortView
     this.props.navigation.setParams({tabBarVisible: false});
     this.setState({showSortView: !this.state.showSortView})
-    // this.props.navigation.navigate(NavigationRoots.Sort);
+    if (done){
+      this.callApi();
+    }
+  }
+  didSelectDate(index) {
+    this.state.selectedDateIndex = index
+    this.setState({ updateUI: !this.state.updateUI})
   }
   paginationMethod = () => {
-    console.log('pagination explore');
-   if (!this.state.stopPagination){
-    this.state.pageNo = this.state.pageNo + 1;
-    this.getEventsApi();
-   }
+    if (!this.state.stopPagination) {
+      this.state.pageNo = this.state.pageNo + 1;
+      this.getEventsApi(this.state.params);
+    }
+  }
+  /*  Delegate   */
+  getFilterData = data => {
+    console.log('data =>', data);
+    var queryParams = '';
+    for (let objc of data) {
+      if (objc['time']) {
+        let timeD = objc['time'];
+        let startDate = ` ${this.convert12HoursFormat(`${timeD['start']}`)}`
+        let endDate = ` ${this.convert12HoursFormat(`${timeD['end']}`)}`
+        queryParams = `&start_at=${startDate}&end_at=${endDate}`;
+      }
+      if (objc['date']) {
+        let dData = objc['date'];
+        let cf = changeDateFormat(dData['created_from'], 'YYYY-MM-DDThh:mm:ss')
+        let ct = changeDateFormat(dData['created_to'], 'YYYY-MM-DDThh:mm:ss')
+        queryParams = queryParams + `&created_from=${cf}Z&created_to=${ct}Z`;
+      } 
+      if (objc['rating']) {
+        let rObjc = objc['rating']
+        queryParams = queryParams + `&rating=${rObjc['rating']}`;
+      }
+      if (objc['distance']) {
+        let dObjc = objc['distance']
+        queryParams = queryParams + `&max_distance=${dObjc['distance']}`;
+      }
+      if (objc['category']) {
+        let dObjc = objc['category']
+        queryParams = queryParams + `&category_id=${dObjc['id']}`;
+      }
+    }
+    this.state.eventsArray = [];
+    this.state.params = queryParams;
+    this.getEventsApi(this.state.params);
+
+  }
+  convert12HoursFormat(time) {
+    var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
+    const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
+    timeString12hr;
+    let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
+    let startTimestamp = new Date(startDate).getTime() / 1000;
+    return startTimestamp
   }
   /*  UI   */
   renderSortItemCell = ({item, index }) => {
@@ -116,7 +179,7 @@ export default class Explore extends Component {
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
         <View style={styles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? checkedBox : checkBox} />
+          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
         </View>
       </TouchableOpacity>
     )
@@ -129,7 +192,6 @@ export default class Explore extends Component {
         renderItem={this.renderSortItemCell}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index}
-        key={(this.state.showMap ? 'h' : 'v')}
       />
     </View>)
   }
@@ -153,8 +215,8 @@ export default class Explore extends Component {
                 <View style={{height: '58%', marginTop: 10}}>
                   {this.renderSortListView()}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: 10 }}>
-                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction()}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
+                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
                       <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
                     </View>
@@ -172,28 +234,35 @@ export default class Explore extends Component {
     }
   }
   renderListView = () => {
-    return (<View style={{ margin: 5, height: '90%' }}>
-      <FlatList
-        data={this.state.eventsArray}
-        numColumns={1}
-        renderItem={this.renderListCellItem}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => item.id}
-        key={(this.state.showMap ? 'h' : 'v')}
-        horizontal={this.state.showMap ? true : false}
-        onEndReachedThreshold={0}
-        onEndReached={this.paginationMethod}
-      />
-    </View>)
+    if (this.state.eventsArray.length != 0) {
+      return (<View style={{ margin: 5, height: '90%' }}>
+        <FlatList
+          data={this.state.eventsArray}
+          numColumns={1}
+          renderItem={this.renderListCellItem}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => index}
+          horizontal={this.state.showMap ? true : false}
+          onEndReachedThreshold={0}
+          onEndReached={this.paginationMethod}
+        />
+      </View>)
+    } else {
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
+      </View>
+    }
   }
   renderListCellItem = ({ item, index }) => {
     var title = '';
     var rattingAvg = '';
     var price = '';
+    var time = '';
     if(item['title']){
       title = item['title'];
       rattingAvg =item['rating_data']['rating_average']
       price =item['list_price']['formatted']
+      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     var photo = item['images'] ? item['images'] : [];
 
@@ -204,7 +273,7 @@ export default class Explore extends Component {
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
           <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} />
           <View style={{ width: 5 }} />
-          <Text style={eventStyles.titleStyle}>{`10:30 AM to 10:30 PM`}</Text>
+          <Text style={eventStyles.titleStyle}>{time}</Text>
         </View>
         <View style={{ margin: 5}}>
           <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
@@ -238,6 +307,36 @@ export default class Explore extends Component {
       </TouchableOpacity>
     </View>)
   }
+  renderDateListView = () => {
+    return (<View style={{ margin: 5, height: 35 }}>
+      <FlatList
+        data={this.state.datesArray}
+        numColumns={1}
+        renderItem={this.renderDateListViewCellItem}
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+        horizontal={true}
+      />
+    </View>)
+  }
+  renderDateListViewCellItem = ({item, index}) => {
+    let dt = index == 0 ? 'Today' : changeDateFormat(item, 'ddd D')
+    if (this.state.selectedDateIndex == index) {
+      return(<View style={{margin: 5,marginLeft: 10, borderRadius: 15}}>
+        <TouchableOpacity style={eventStyles.selectedBntViewStyle} onPress={() => this.didSelectDate(index)}>
+          <Text style={eventStyles.selectedBtnTxtStyle}>{dt}</Text>
+        </TouchableOpacity>
+      </View>
+      )
+    }else {
+      return (<View style={{margin: 5,marginLeft: 10,  borderRadius: 15}}>
+        <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.didSelectDate(index)}>
+          <Text style={eventStyles.btnTxtStyle}>{dt}</Text>
+        </TouchableOpacity>
+      </View>
+      )
+    }
+  }
   renderViewMaBtnView = () => {
     return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? 5 : -120, zIndex: 100}}
        onPress={() => this.setState({showMap: !this.state.showMap})}>
@@ -252,11 +351,12 @@ export default class Explore extends Component {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
       // let objc = this.state.eventsArray[0];
-      console.log('objc', objc['coordinates'])
-      let coordinate =  {
-        "latitude": 30.6892,
-        "longitude":76.6907,
-      }
+      let coordinate = objc['coordinates'];
+      // console.log('objc', objc['coordinates'])
+      // let coordinate =  {
+      //   "latitude": 30.6892,
+      //   "longitude":76.6907,
+      // }
       markerView.push(<Marker
         coordinate={coordinate}
         image = {require('../../../assets/mapPin.png')} 
@@ -291,6 +391,7 @@ export default class Explore extends Component {
       return (<View style={{ height: '100%'}}>
         <View>
           {this.renderHeaderView()}
+          {this.renderDateListView()}
         </View>
         <View style={{height: windowHeight - 180}}>
           {this.renderListView()}
