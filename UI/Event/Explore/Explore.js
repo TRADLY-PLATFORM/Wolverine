@@ -29,8 +29,6 @@ import appConstant from '../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import checkBox from '../../../assets/checkBox.png';
-import checkedBox from '../../../assets/checkedBox.png';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
@@ -63,8 +61,10 @@ export default class Explore extends Component {
       stopPagination: false,
       sortSelectedIndex :-1,
       params: '',
-      selectedDateIndex: -1,
+      selectedDateIndex: 0,
       datesArray: [],
+      selectedDate:'',
+      filterArray: [],
     }
   }
   componentDidMount() {
@@ -72,22 +72,19 @@ export default class Explore extends Component {
       appConstant.hideTabbar = true
     });
     this.state.datesArray = getDatesArray();
-    this.callApi();
+    this.state.selectedDate = this.state.datesArray[0];
+    this.callApi(this.state.params);
 
   }
-  callApi() {
+  callApi(param) {
     this.state.eventsArray = [];
     this.state.stopPagination = false
     this.state.pageNo = 1;
-    this.getEventsApi('');
+    this.getEventsApi(param);
   }
   getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
     var path = `&per_page=30&type=events&latitude=30.70&longitude=76.62` + param;
-    if (this.state.sortSelectedIndex != -1) {
-      path = `${path}&sort=${sortKey[this.state.sortSelectedIndex]}`
-    }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}${path}`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
@@ -105,9 +102,14 @@ export default class Explore extends Component {
     }
   }
   /*  Buttons   */
-
+  didSelectEventList(item, index) {
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id :item['id'],
+    });
+  }
   filterBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Filter, {
+      filterArray :this.state.filterArray,
       getFilterData: this.getFilterData,
     });
   }
@@ -116,13 +118,19 @@ export default class Explore extends Component {
     this.props.navigation.setParams({tabBarVisible: false});
     this.setState({showSortView: !this.state.showSortView})
     if (done){
+      if (this.state.sortSelectedIndex != -1) {
+        let sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
+        this.state.params = `${path}&sort=${sortKey[this.state.sortSelectedIndex]}`
+      }
       this.callApi();
     }
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
+    this.state.selectedDate = this.state.datesArray[index];
     this.setState({ updateUI: !this.state.updateUI})
   }
+  
   paginationMethod = () => {
     if (!this.state.stopPagination) {
       this.state.pageNo = this.state.pageNo + 1;
@@ -131,14 +139,13 @@ export default class Explore extends Component {
   }
   /*  Delegate   */
   getFilterData = data => {
-    console.log('data =>', data);
     var queryParams = '';
     for (let objc of data) {
       if (objc['time']) {
         let timeD = objc['time'];
-        let startDate = ` ${this.convert12HoursFormat(`${timeD['start']}`)}`
-        let endDate = ` ${this.convert12HoursFormat(`${timeD['end']}`)}`
-        queryParams = `&start_at=${startDate}&end_at=${endDate}`;
+        let strtD = `${this.state.selectedDate}T${this.convert12HoursFormat(timeD['start'])}Z`
+        let endD = `${this.state.selectedDate}T${this.convert12HoursFormat(timeD['end'])}Z`;
+        queryParams = `&start_at=${strtD}&end_at=${endD}`;
       }
       if (objc['date']) {
         let dData = objc['date'];
@@ -159,18 +166,18 @@ export default class Explore extends Component {
         queryParams = queryParams + `&category_id=${dObjc['id']}`;
       }
     }
-    this.state.eventsArray = [];
+    this.state.filterArray = data
     this.state.params = queryParams;
-    this.getEventsApi(this.state.params);
+    this.callApi(this.state.params);
 
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    timeString12hr;
-    let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    let startTimestamp = new Date(startDate).getTime() / 1000;
-    return startTimestamp
+    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
+    // timeString12hr;
+    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
+    // let startTimestamp = new Date(startDate).getTime() / 1000;
+    return timeString
   }
   /*  UI   */
   renderSortItemCell = ({item, index }) => {
@@ -266,7 +273,7 @@ export default class Explore extends Component {
     }
     var photo = item['images'] ? item['images'] : [];
 
-    return <TouchableOpacity style={styles.variantCellViewStyle}>
+    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
     <View style={{ flexDirection: 'row' }}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ margin: 5 }}>

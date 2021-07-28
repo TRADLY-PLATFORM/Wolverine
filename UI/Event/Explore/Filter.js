@@ -37,7 +37,7 @@ export default class Filter extends Component {
       updateUI: false,
       showFilterView:false,
       selectedFilterIndex: -1,
-      timeValue: [0,24.00],
+      timeValue: [0,24.0],
       distanceValue: [0],
       selectedDatePostedIndex: -1,
       selectedRatingIndex: -1,
@@ -48,6 +48,34 @@ export default class Filter extends Component {
 
   componentDidMount() {
     this.loadCategoryApi()
+    let {filterArray} = this.props.route.params;
+    if (filterArray) {
+      this.state.filterValueArray = filterArray;
+      for (let objc of filterArray) {
+        if (objc['time']) {
+          let timeD = objc['time'];
+          this.state.timeValue[0] = Number(`${timeD['start']}.0`);
+          this.state.timeValue[1] = Number(`${timeD['end']}.0`);
+          console.log('coming',this.state.timeValue);
+        }
+        if (objc['date']) {
+          let dData = objc['date'];
+          this.state.selectedDatePostedIndex = dData['index'];
+        } 
+        if (objc['rating']) {
+          let rObjc = objc['rating']
+          this.state.selectedRatingIndex = rObjc['rating'];
+        }
+        if (objc['distance']) {
+          let dObjc = objc['distance']
+          this.state.distanceValue[0] = Number(`${dObjc['distance']}.0`);
+        }
+        if (objc['category']) {
+          let dObjc = objc['category'];
+          this.state.selectedCategoryIndex = dObjc['index'];
+        }
+      }
+    }
   }
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
@@ -142,6 +170,7 @@ export default class Filter extends Component {
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
+        'index':this.state.selectedCategoryIndex,
       }
       this.state.filterValueArray.push({ category: cDict })
     }
@@ -186,18 +215,20 @@ export default class Filter extends Component {
   renderButtonView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16 }}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() =>  this.clearBtnAction()}>
-        <View style={styles.clearBtnViewStyle}>
+        <View style={eventStyles.clearBtnViewStyle}>
           <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Clear Filters</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.applyBtnAction()}>
-        <View style={styles.applyBtnViewStyle}>
+        <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Apply</Text>
         </View>
       </TouchableOpacity>
     </View>)
   }
   renderTimeView = () => {
+    console.log('this.state.timeValue', this.state.timeValue);
+    var strt = '';
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={{ padding: 20 }}>
         <Text style={eventStyles.commonTxtStyle}>12:00 AM - 12:00 PM</Text>
@@ -434,26 +465,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
     borderRadius: 20,
-  },
-  clearBtnViewStyle: {
-    borderRadius: 4,
-    borderColor: colors.AppTheme,
-    borderWidth: 1,
-    margin: 5,
-    width: '100%',
-    height: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.AppWhite,
-  },
-  applyBtnViewStyle: {
-    borderRadius: 4,
-    margin: 5,
-    width: '100%',
-    height: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.AppTheme,
   },
   contentContainerStyle: {
     padding: 16,

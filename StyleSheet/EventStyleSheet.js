@@ -25,7 +25,7 @@ module.exports = StyleSheet.create({
     fontWeight: '400',
   },
   commonTxtStyle:{
-    fontSize: 16, 
+    fontSize: 14, 
     fontWeight: '500', 
     color: colors.AppGray
   },
@@ -97,5 +97,16 @@ module.exports = StyleSheet.create({
     fontWeight: '500', 
     color: colors.AppGray
   },
+  clearBtnViewStyle : {
+    borderRadius: 4,
+    borderColor: colors.AppTheme,
+    borderWidth: 1,
+    margin: 5,
+    width: '100%',
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.AppWhite,
+  }
 });
 

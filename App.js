@@ -34,7 +34,7 @@ import VariantList from './UI/Event/More/AddEvent/VariantList';
 import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
 import Filter from './UI/Event/Explore/Filter';
 import Category from './UI/Event/Explore/Category';
-
+import EventDetail from './UI/Event/EventDetail/EventDetail';
 
 
 const Stack = createStackNavigator();
@@ -76,6 +76,8 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
         <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
         <Stack.Screen name={NavigationRoots.Sort} component={Category} />
+        <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
+
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

@@ -51,7 +51,7 @@ export default class MyStore extends Component {
   }
 
   componentDidMount() {
-    this.apiCalls();
+    // this.apiCalls();
     this.props.navigation.addListener('focus', () => {
       this.apiCalls();
     });
@@ -71,7 +71,7 @@ export default class MyStore extends Component {
       let acctData = responseJson['data']['account'];
       this.state.storeDetail = acctData;
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI})
     } else {
       this.setState({ isVisible: false })
     }
@@ -143,6 +143,11 @@ export default class MyStore extends Component {
      this.getEventsApi();
     }
    }
+   didSelectEventList(item, index) {
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id :item['id'],
+    });
+  }
   /*  UI   */
 
   renderProfileView = () => {
@@ -364,16 +369,50 @@ export default class MyStore extends Component {
     return views;
   }
   renderReviewView = () => {
+    return (<View>
+        <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
+        <View style={{height: 10}}/>
+        {this.renderReviewListView()}
+      </View>)
+  }
+  renderReviewListView = () => {
+    return (<View> 
+      <FlatList 
+        data={[1,1]}
+        renderItem={this.renderReviewListViewCellItem}
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+        key={'R'}
+      />
+    </View>)
+  }
+  renderReviewListViewCellItem = ({ item, index }) => {
     var views = [];
-    views.push(
-      <Text style={eventStyles.titleStyle}>{`Reviews`}</Text>
-    )
     for (let a = 0; a < 5; a++) {
-      views.push(<View style={{ backgroundColor: colors.AppWhite, padding: 30, margin: 5, marginTop: 30 }}>
-        <Image source={sample} style={{ height: 30, width: 30, borderRadius: 15, marginLeft: -35, marginTop: -50 }} />
+      views.push(<View>
+        <Image  style={{height: 10, width: 10}} source={a != 4 ? starIcon : emptyStar}/>
       </View>)
     }
-    return views;
+    return (<View style={{marginTop: 20}}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={ sample} />
+        <View style={{ width: 10 }} />
+        <Text style={eventStyles.commonTxtStyle}>{'Saini'}</Text>
+      </View>
+      <View style={{flexDirection: 'row',marginTop: 7, alignItems: 'center'}}>
+        {views}
+        <Text style={{marginLeft: 10, fontWeight: '400', fontSize: 11, color: colors.Lightgray }}>
+          June 15 2021
+        </Text>
+      </View>
+      <View>
+        <Text style={{marginTop: 10, fontWeight: '400', fontSize: 12, color: colors.Lightgray}}>
+          It's very nice . Soft fabric . Light weight .
+          Not transparent. Colour looks elegant . I haven't washed yet .
+          Very nice fit Neck is perfect not very deep . Only minus.
+        </Text>
+      </View>
+    </View>)
   }
   renderEventView = () => {
     return <View style={{ backgroundColor: colors.lightTransparent}}>

@@ -33,6 +33,7 @@
     "react-native-modal-datetime-picker": "^10.2.0",
     "react-native-onboarding-swiper": "^1.1.4",
     "react-native-otp-textinput": "0.0.8",
+    "react-native-pages": "^0.9.0",
     "react-native-reanimated": "^2.2.0",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.4.0",

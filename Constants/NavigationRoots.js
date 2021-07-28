@@ -21,5 +21,5 @@ module.exports  = {
   AddVariantValue: 'AddVariantValue',
   Filter: 'Filter',
   Sort: 'Sort',
-  
+  EventDetail: 'EventDetail',
 }
