@@ -168,16 +168,16 @@ export default class EventDetail extends Component {
             <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
             <View style={{ width: 10 }} />
             <View>
-              <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text>
-              <View style={{ height: 5 }} />
-              <Text style={eventStyles.subTitleStyle}>{location['formatted_address']}</Text>
+              {/* <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text> */}
+              {/* <View style={{ height: 5 }} /> */}
+              <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
             </View>
           </View>
         </View>
         <View>
-          <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, marginTop:10}}>
+          {/* <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, marginTop:10}}>
             {'View Schedules'}
-          </Text>
+          </Text> */}
         </View>
       </View>)
     } else {
@@ -188,8 +188,8 @@ export default class EventDetail extends Component {
     let variants = this.state.eventDetailData['variants'];
     console.log('variants', variants)
     if (variants != undefined && variants.length != 0) {
-      return (<View>
-        <View style={styles.commonViewStyle}>
+      return (<View style={{backgroundColor: colors.LightBlueColor}}>
+        <View>
           <FlatList
             data={variants}
             renderItem={this.renderVariantListViewCellItem}
@@ -206,8 +206,8 @@ export default class EventDetail extends Component {
   }
   renderVariantListViewCellItem = ({item,index}) => {
     let check = index == this.state.selectedVariantIndex;
-    return (<View>
-      <View style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(index)}>
+    return (<View style={styles.variantListViewStyle}>
+      <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(index)}>
         <View style={{ width: '90%' }}>
           <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
             {`${item['stock']} tickets left`}
@@ -222,7 +222,7 @@ export default class EventDetail extends Component {
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
           <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
         </View>
-      </View>
+      </TouchableOpacity>
     </View>)
   }
   renderShareView = () => {
@@ -336,12 +336,12 @@ export default class EventDetail extends Component {
   }
   renderBottomBtnView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() =>  this.clearBtnAction()}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle}>
         <View style={eventStyles.clearBtnViewStyle}>
           <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Book Now</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.applyBtnAction()}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} >
         <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
         </View>
@@ -357,10 +357,10 @@ export default class EventDetail extends Component {
         <View style={styles.commonViewStyle}>
           {this.renderEventDetail()}
         </View>
-        <View style={{ height: 10 }} />
+        {/* <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderUserDetail()}
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <View>
           {this.renderVariantListView()}
@@ -368,23 +368,23 @@ export default class EventDetail extends Component {
         <View style={styles.commonViewStyle}>
           {this.renderTimeAddressDetail()}
         </View>
-        <View style={{ height: 10 }} />
+        {/* <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderShareView()}
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderEventDescriptionView()}
         </View>
-        <View style={styles.clearViewStyle}>
+        {/* <View style={styles.clearViewStyle}>
           {this.renderOtherEventView()}
-        </View>
-        <View style={styles.clearViewStyle}>
+        </View> */}
+        {/* <View style={styles.clearViewStyle}>
           <RatingReview />
-        </View>
-        <View style={styles.clearViewStyle}>
+        </View> */}
+        {/* <View style={styles.clearViewStyle}>
           {this.renderReviewView()}
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderBottomBtnView()}
@@ -458,6 +458,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+  },
+  variantListViewStyle: {
+    backgroundColor: colors.AppWhite,
+    padding: 16,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: colors.BorderColor,
   },
   selectedImageStyle: {
     width: 140,

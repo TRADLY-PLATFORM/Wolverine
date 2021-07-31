@@ -75,8 +75,8 @@ export default class CreateShop extends Component {
       this.loadShippingApi()
     }.bind(this))
 
-    let {storeDetail} = this.props.route.params;
-    if(storeDetail) {
+    if(this.props.route.params) {
+      let {storeDetail} = this.props.route.params;
       console.log('storeDetail == >', storeDetail)
       this.state.photo = storeDetail['images'].length != 0 ? storeDetail['images'][0] : null ;
       this.state.photoURLPath = storeDetail['images'].length != 0 ? storeDetail['images'][0] : '' ;

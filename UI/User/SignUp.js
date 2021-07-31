@@ -54,8 +54,8 @@ export default class SignUp extends Component {
               bToken: this.state.bToken,
             });
         } else {
-            let error = errorHandler.errorHandle(responseJson['error']['code'])
-            setTimeout(() => {Alert.alert(error)}, 50)
+          // let error = errorHandler.errorHandle(responseJson)
+          Alert.alert(responseJson)
         }
     }
 }
@@ -77,10 +77,10 @@ export default class SignUp extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
         <SafeAreaView style={styles.Container}>
-          <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <ScrollView>
-            <Text style={commonStyle.titleStyle}>Welcome to{`\n`}Community Marketplace</Text>
-            <Text style={commonStyle.subTitleStyle}>Login to your account</Text>
+            <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
+            <Text style={commonStyle.subTitleStyle}>Sign Up your account</Text>
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}

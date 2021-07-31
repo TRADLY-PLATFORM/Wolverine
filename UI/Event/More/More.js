@@ -67,7 +67,11 @@ export default class More extends Component {
     if (index == constantArrays.menuArray.length - 1) {
       this.logoutBtnAction()
     } else if (index == 0) {
-      this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId })
+      if (this.state.accountId != 0) {
+        this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
+      } else {
+        this.props.navigation.navigate(NavigationRoots.CreateStore);
+      }
     }
   }
   /*  UI   */
@@ -104,9 +108,9 @@ export default class More extends Component {
                     <Text style={styles.subTitleStyle}>eventdev@gmail.com</Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => this.settingBtnAction()}>
+                {/* <TouchableOpacity onPress={() => this.settingBtnAction()}>
                   <Image source={settingIcon} style={{ width: 20, height: 20 }} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '70%', }}>

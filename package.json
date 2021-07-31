@@ -15,6 +15,7 @@
     "@react-navigation/bottom-tabs": "^5.11.11",
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.5",
+    "@twotalltotems/react-native-otp-input": "^1.3.11",
     "await-to-js": "^3.0.0",
     "moment": "^2.29.1",
     "react": "17.0.1",

@@ -31,6 +31,7 @@ import plusIcon from '../../../../assets/plusIcon.png';
 import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
+import RatingReview from '../../../../Component/RatingReview';
 
 // const windowWidth = Dimensions.get('window').width;
 
@@ -261,9 +262,10 @@ export default class MyStore extends Component {
       <View style={{ height: 20 }} />
       {this.renderRateStoreView()}
       <View style={{ height: 20 }} />
-      {this.renderRatingReviewView()}
-      <View style={{ height: 20 }} />
-      {this.renderReviewView()}
+      <RatingReview />
+      {/* {this.renderRatingReviewView()} */}
+      {/* <View style={{ height: 20 }} />
+      {this.renderReviewView()} */}
     </View>)
   }
   renderArrtibutes = () => {

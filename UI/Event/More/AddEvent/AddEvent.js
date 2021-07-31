@@ -73,9 +73,7 @@ export default class AddEvent extends Component {
     this.state.accountId = appConstant.accountID;
     this.loadCategoryApi()
     this.getCurrencyApi();
-    let {listingID} = this.props.route.params;
-    // console.log('listingID', listingID);
-    if (listingID) {
+    if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       this.state.listingID = listingID
       this.setState({isEditing: true})

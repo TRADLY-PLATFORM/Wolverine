@@ -35,7 +35,7 @@ import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
 import Filter from './UI/Event/Explore/Filter';
 import Category from './UI/Event/Explore/Category';
 import EventDetail from './UI/Event/EventDetail/EventDetail';
-
+import ChatScreen from './UI/Event/Chat/ChatScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,7 +54,7 @@ export default class App extends Component {
   }
   navigationReturn = () => {
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
+      <Stack.Navigator initialRouteName={NavigationRoots.OnBoardings} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
@@ -77,6 +77,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
         <Stack.Screen name={NavigationRoots.Sort} component={Category} />
         <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
+        <Stack.Screen name={NavigationRoots.ChatScreen} component={ChatScreen} />
 
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',
@@ -94,18 +95,6 @@ export default class App extends Component {
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }} />
-        {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
-        <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
-        <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
-        <Stack.Screen name={NavigationRoots.Target}component={Target} />
-        <Stack.Screen name={NavigationRoots.SetTarget}component={SetTarget} />
-        <Stack.Screen name={NavigationRoots.CollectionHistory}component={CollectionHistory} />
-        <Stack.Screen name={NavigationRoots.AddRecycleItem}component={AddRecycleItems} />
-        <Stack.Screen name={NavigationRoots.RecycleGuide}component={RecycleGuides} />
-        <Stack.Screen name={NavigationRoots.ApplyGroup}component={ApplyGroups} />
-        <Stack.Screen name={NavigationRoots.InviteFriends}component={InviteFriends} />
-        <Stack.Screen name={NavigationRoots.AddBinMap}component={AddBinMaps} />
-        <Stack.Screen name={NavigationRoots.Notifications}component={Notifications} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   }

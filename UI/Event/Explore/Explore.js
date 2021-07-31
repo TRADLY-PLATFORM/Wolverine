@@ -345,7 +345,7 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? 5 : -120, zIndex: 100}}
+    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -70, zIndex: 100}}
        onPress={() => this.setState({showMap: !this.state.showMap})}>
       <View style={styles.viewOnMapBtnStyle}>
       <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
@@ -374,10 +374,10 @@ export default class Explore extends Component {
    }
   renderMainView = () => {
     if (this.state.showMap) {
-      return (<View style={{height: windowHeight - 180,width: windowWidth}}>
+      return (<View style={{height: windowHeight/1.25,width: windowWidth}}>
         <View style={styles.containerMapStyle}>
           <MapView
-            provider={PROVIDER_GOOGLE}
+            // provider={PROVIDER_GOOGLE}
             style={styles.mapStyle}
             initialRegion={{
               latitude: 30.68825,
@@ -389,7 +389,7 @@ export default class Explore extends Component {
             {this.renderMarker()}
           </MapView>
         </View>
-        <View style={{marginTop: -220, flex: 1, zIndex: 12} }>
+        <View style={{marginTop: - 200, flex: 1, zIndex: 12} }>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
@@ -400,10 +400,10 @@ export default class Explore extends Component {
           {this.renderHeaderView()}
           {this.renderDateListView()}
         </View>
-        <View style={{height: windowHeight - 180}}>
+        <View style={{height: windowHeight/1.32}}>
           {this.renderListView()}
+          {this.renderViewMaBtnView()}
         </View>
-        {this.renderViewMaBtnView()}
       </View>)
     }
   }
@@ -413,7 +413,7 @@ export default class Explore extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Explore'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '92%', backgroundColor: colors.AppWhite }}>
+        <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
           <View style={{zIndex: 5, position: 'absolute'}}>
             <this.renderMainView />
           </View>

@@ -8,12 +8,11 @@ import explore from '../UI/Event/Explore/Explore'
 import colors from '../CommonClasses/AppColor';
 import More from '../UI/Event/More/More';
 import appConstant from '../Constants/AppConstants';
+import ChatScreen from '../UI/Event/Chat/ChatScreen';
 
 const Tab = createBottomTabNavigator();
 
 function AppTabbar() {
-
- 
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{
       activeTintColor: colors.AppTheme,
@@ -41,7 +40,7 @@ function AppTabbar() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
-      <Tab.Screen name="Chat" component={Home} />
+      <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>
   );

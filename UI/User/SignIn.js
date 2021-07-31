@@ -18,8 +18,8 @@ export default class SignIn extends Component {
     super(props);
     this.state = {
       isVisible: true,
-      email: 'event@test.com',
-      password: '123456',
+      email: '',
+      password: '',
       authType: 2,
       bToken: '',
       authType: '',
@@ -27,6 +27,8 @@ export default class SignIn extends Component {
     }
   }
   componentDidMount() {
+    // email: 'event@test.com',
+    // password: '123456',
       this.configApi()
   }
   configApi = async () => {
@@ -63,9 +65,9 @@ export default class SignIn extends Component {
         this.props.navigation.navigate(NavigationRoots.BottomTabbar)
       } else {
         console.log(" error ", responseJson)
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        setTimeout(() => {Alert.alert(error) }, 50)
+        // let error = errorHandler.errorHandle(responseJson)
+        // console.log('error',responseJson)
+        Alert.alert(responseJson)
       }
     }
   }
@@ -88,9 +90,9 @@ export default class SignIn extends Component {
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
       <SafeAreaView style={styles.Container}>
         <ScrollView>
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <View style={{height: 60}}/>
-          <Text style={commonStyle.titleStyle}>Welcome to{`\n`}Community Marketplace</Text>
+          <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
           <Text style={commonStyle.subTitleStyle}>Login to your account</Text>
           <View style={commonStyle.roundView}>
             <TextInput

@@ -226,7 +226,7 @@ export default class AddVariantValue extends Component {
         <HeaderView title={title}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}  showDoneBtn={true}
           doneBtnTitle={'Delete'} doneBtnAction={() => this.deleteBtnAction()}/>
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ padding: 16 }}>

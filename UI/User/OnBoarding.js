@@ -7,6 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../CommonClasses/AppColor';
 import pic1 from '../../assets/obBoarding1.png';
 import pic2 from '../../assets/obBoarding2.png';
+import pic3 from '../../assets/obBoarding3.png';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import Onboarding from 'react-native-onboarding-swiper';
 
@@ -40,22 +41,21 @@ export default class OnBoardings extends Component {
                   {
                     backgroundColor: colors.lightTransparent,
                     image: <Image source={pic1} />,
-                    title: '',
-                    subtitle: 'Empowering Artisans, Farmers & Micro Business',
-                    titleStyles: { color: 'red' }
+                    title: 'Find classes for your kids',
+                    titleStyles: { color: colors.AppWhite }
                   },
                   {
                     backgroundColor: colors.lightTransparent,
                     image: <Image source={pic2} />,
-                    title: '',
-                    subtitle: 'Connecting NGOs, Social Enterprises with Communities',
+                    title: 'Select and pay for classes',
+                    titleStyles: { color: colors.AppWhite }
 
                   },
                   {
                     backgroundColor: colors.lightTransparent,
-                    image: <Image source={pic1} />,
-                    title: '',
-                    subtitle: "Trade, Donate, Recycle & Support",
+                    image: <Image source={pic3} />,
+                    title: "Give ratings and feedback on the classes",
+                    titleStyles: { color: colors.AppWhite }
         
                   },
                 ]}

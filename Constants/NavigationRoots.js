@@ -22,4 +22,5 @@ module.exports  = {
   Filter: 'Filter',
   Sort: 'Sort',
   EventDetail: 'EventDetail',
+  ChatScreen: 'ChatScreen',
 }

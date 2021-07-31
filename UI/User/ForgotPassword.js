@@ -35,11 +35,10 @@ export default class ForgotPassword extends Component {
     if (responseJson) {
         this.setState({ isVisible: false })
         if (responseJson['status'] == true) {
-          setTimeout(() => {Alert.alert('Sent!')}, 50)
+          Alert.alert('Sent!')
         } else {
-            let error = errorHandler.errorHandle(responseJson['error']['code'])
-            setTimeout(() => {Alert.alert(error)}, 50)
-        }
+          Alert.alert(responseJson)
+          }
     }
 }
   /*  Buttons   */
@@ -55,7 +54,7 @@ export default class ForgotPassword extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
         <SafeAreaView style={styles.Container}>
-          <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <ScrollView>
             <TouchableOpacity style={{ left: 20 }} onPress={() => this.props.navigation.goBack()}>
               <Image style={commonStyle.backBtnStyle} resizeMode="contain" source={require('../../assets/back.png')}>
