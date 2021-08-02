@@ -1,11 +1,12 @@
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.tradly.app/app/',
+    BaseURL: 'https://api.dev.tradly.app/app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/classbubs/configs',
+    config: 'v1/tenants/tradlysocial/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',
+    users: 'v1/users/',
     forgotpassword: 'v1/users/password/recovery',
     category:'v1/categories?parent=0&type=',
     attribute:'v1/attributes/?category_id=',
@@ -19,3 +20,6 @@ module.exports = {
     home: 'products/v1/home',
   }
 }
+// BaseURL: 'https://api.tradly.app/app/',
+// token: 'v1/users/token/refresh',
+// config: 'v1/tenants/classbubs/configs',

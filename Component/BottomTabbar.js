@@ -24,22 +24,22 @@ function AppTabbar() {
         // console.log('hideTabbar==', appConstant.hideTabbar)
         let iconName;
         if (route.name === 'Home') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
+          iconName = focused ? require('../assets/activehome.png') : require('../assets/home.png');
         } else if (route.name === 'Explore') {
-          iconName = focused ? require('../assets/feed.png') : require('../assets/feed.png');
-        } else if (route.name === 'Sell') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
+          iconName = focused ? require('../assets/activefeed.png') : require('../assets/feed.png');
+        } else if (route.name === 'List') {
+          iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
         } else if (route.name === 'Chat') {
-          iconName = focused ? require('../assets/chat.png') : require('../assets/chat.png');
+          iconName = focused ? require('../assets/activechat.png') : require('../assets/chat.png');
         } else if (route.name === 'More') {
-          iconName = focused ? require('../assets/profile.png') : require('../assets/profile.png');
+          iconName = focused ? require('../assets/more.png') : require('../assets/profile.png');
         }
         return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
       },
     })}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
-      <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
+      <Tab.Screen name="List" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>

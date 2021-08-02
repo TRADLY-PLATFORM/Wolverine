@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   listContainerView: {
-    height: '120%',
+    height: '150%',
     marginTop: '-32%',
     backgroundColor: colors.AppWhite,
     margin: 20,

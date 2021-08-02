@@ -331,7 +331,7 @@ export default class CreateShop extends Component {
     this.uploadFilesAPI()
   }
   categoryBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.Category, {
+    this.props.navigation.navigate(NavigationRoots.CategoryList, {
       categoryArray: this.state.categoryArray,
       getCatID: this.getSelectedCategoryID,
     });

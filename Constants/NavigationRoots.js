@@ -6,7 +6,7 @@ module.exports  = {
   ForgotPassword: 'ForgotPassword',
   BottomTabbar: 'BottomTabbar',
   Home:'Home',
-  Category: 'Category',
+  CategoryList: 'CategoryList',
   AttributeList: 'AttributeList',
   AddressList: 'AddressList',
   More:'More',
@@ -20,7 +20,7 @@ module.exports  = {
   VariantList: 'VariantList',
   AddVariantValue: 'AddVariantValue',
   Filter: 'Filter',
-  Sort: 'Sort',
+  Category: 'Category',
   EventDetail: 'EventDetail',
   ChatScreen: 'ChatScreen',
 }

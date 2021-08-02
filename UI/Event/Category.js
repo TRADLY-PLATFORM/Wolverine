@@ -10,13 +10,14 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
-import HeaderView from '../../../Component/Header'
-import colors from '../../../CommonClasses/AppColor';
-import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import checkBox from '../../../assets/checkBox.png';
-import checkedBox from '../../../assets/checkedBox.png';
-import eventStyles from '../../../StyleSheet/EventStyleSheet';
+import NavigationRoots from '../../Constants/NavigationRoots';
+import HeaderView from '../../Component/Header'
+import colors from '../../CommonClasses/AppColor';
+import commonStyles from '../../StyleSheet/UserStyleSheet';
+import checkBox from '../../assets/checkBox.png';
+import checkedBox from '../../assets/checkedBox.png';
+import eventStyles from '../../StyleSheet/EventStyleSheet';
+import FastImage from 'react-native-fast-image'
 
 
 
@@ -27,7 +28,7 @@ export default class Category extends Component {
       selectedAttributes: [],
       attributeArray: [],
       updateUI: false,
-      selectIndex: 0,
+      selectIndex: -1,
     }
   }
 
@@ -38,16 +39,15 @@ export default class Category extends Component {
   this.setState({selectIndex: index})
   }
   doneBtnAction () {
-    const {singleSelect} = this.props.route.params;
-    this.props.route.params.getAtriValue(this.state.selectedAttributes,singleSelect);
     this.props.navigation.goBack();
   }
   /*  UI   */
  
   renderListView = () => {
+    let {categoryList} = this.props.route.params;
     return (<View style={{margin: 5, height: '84%'}}>
       <FlatList
-        data={[1,1,1,1,1,1,1,1,1,1,1,1]}
+        data={categoryList}
         renderItem={this.renderListViewCellItem}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index}
@@ -55,19 +55,22 @@ export default class Category extends Component {
     </View>)
   }
   renderListViewCellItem = ({item, index}) => {
-    let check = index == 4 ? true : false
+    let check = index == this.state.selectIndex ? true : false
     return (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => this.didSelect(index)}>
         <View style={styles.listViewStyle}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image style={styles.imageThumbnail} source={{url: item['image_path']}}/>
+            <Text style={{marginLeft: 10, textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
+          </View>
           <Image style={commonStyles.nextIconStyle} source={check ? checkedBox : checkBox} />
-          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {'Distance'} </Text>
         </View>
       </TouchableOpacity>
     )
   }
   renderButtonView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16 }}>
-      <TouchableOpacity style={eventStyles.bottomBtnViewStyle}>
+      <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.doneBtnAction()}>
         <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
         </View>
@@ -93,7 +96,7 @@ const styles = StyleSheet.create({
   },
   listViewStyle: {
     width: "97%",
-    margin: 5,
+    margin: 10,
     marginLeft: 16,
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
@@ -101,18 +104,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 10,
+    justifyContent: 'space-between',
   },
-  clearBtnViewStyle: {
-    borderRadius: 4,
-    borderColor: colors.AppTheme,
-    borderWidth: 1,
-    margin: 5,
-    width: '100%',
-    height: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.AppWhite,
+  imageThumbnail : {
+    width: 30,
+    height: 30,
   },
-
 });
 

@@ -33,7 +33,7 @@ import AddVariant from './UI/Event/More/AddEvent/AddVariant';
 import VariantList from './UI/Event/More/AddEvent/VariantList';
 import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
 import Filter from './UI/Event/Explore/Filter';
-import Category from './UI/Event/Explore/Category';
+import Category from './UI/Event/Category';
 import EventDetail from './UI/Event/EventDetail/EventDetail';
 import ChatScreen from './UI/Event/Chat/ChatScreen';
 
@@ -54,7 +54,7 @@ export default class App extends Component {
   }
   navigationReturn = () => {
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.OnBoardings} screenOptions={{
+      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
@@ -66,7 +66,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
-        <Stack.Screen name={NavigationRoots.Category} component={CategoryList} />
+        <Stack.Screen name={NavigationRoots.CategoryList} component={CategoryList} />
         <Stack.Screen name={NavigationRoots.AttributeList} component={AttributesList} />
         <Stack.Screen name={NavigationRoots.AddressList} component={AddressList} />
         <Stack.Screen name={NavigationRoots.MyStore} component={MyStore} />
@@ -75,7 +75,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AddVariant} component={AddVariant} />
         <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
         <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
-        <Stack.Screen name={NavigationRoots.Sort} component={Category} />
+        <Stack.Screen name={NavigationRoots.Category} component={Category} />
         <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
         <Stack.Screen name={NavigationRoots.ChatScreen} component={ChatScreen} />
 

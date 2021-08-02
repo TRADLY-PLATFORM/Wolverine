@@ -38,6 +38,7 @@ import constantArrays from '../../../Constants/ConstantArrays';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
+import { color } from 'react-native-reanimated';
 const origin = { latitude: 30.6225, longitude: 76.6224 };
 const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -255,7 +256,7 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center'}}>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
         <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
       </View>
     }

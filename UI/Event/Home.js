@@ -20,6 +20,7 @@ import HeaderView from '../../Component/Header'
 import FastImage from 'react-native-fast-image'
 import moreIcon from './../../assets/more.png';
 import Spinner from 'react-native-loading-spinner-overlay';
+import NavigationRoots from '../../Constants/NavigationRoots';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -72,13 +73,18 @@ export default class Home extends Component {
       this.state.categoryArray = hData['categories'];
       this.state.collectionsArray = hData['collections'];
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
-
     }else {
       this.setState({ isVisible: false })
     }
   }
   /*  Buttons   */
-
+  didSelectCategory(index) {
+    if (index == 7) {
+      this.props.navigation.navigate(NavigationRoots.Category,{
+        categoryList: this.state.categoryArray,
+      });
+    }
+  }
   /*  UI   */
   renderGridView = () => {
     return (<View style={{backgroundColor:colors.AppWhite}}>
@@ -94,11 +100,11 @@ export default class Home extends Component {
     if (index < 8) {
       if (this.state.categoryArray[index]){
         let dic = this.state.categoryArray[index];
-        return (<View style={styles.gridViewStyle}>
+        return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(index)}>
           <Image style={styles.imageThumbnail} source={ index == 7 ? moreIcon : {url: dic['image_path']}} resizeMode={'contain'}/>
           <View style={{height: 5}}/>
           <Text style={{textAlign: 'center', fontSize: 12}}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
-        </View>)
+        </TouchableOpacity>)
       } else {
         return <View />
       }
@@ -107,7 +113,9 @@ export default class Home extends Component {
     }
   }
   renderPromoView = () => {
+    if (this.state.promoBannerArray != 0) {
     return <View style={{ backgroundColor: colors.lightTransparent}}>
+        <View style={{height: 10}} />
       <FlatList
         data={this.state.promoBannerArray}
         horizontal={true}
@@ -117,6 +125,9 @@ export default class Home extends Component {
         showsVerticalScrollIndicator={false}
       />
     </View>
+    } else {
+      return <View />
+    }
   }
   renderPromoCellItem = ({item, index}) => {
     var photo = item['image_path']
@@ -125,16 +136,21 @@ export default class Home extends Component {
       </View>)
    }
   renderEventView = () => {
-    return <View style={{backgroundColor: colors.AppRed, margin: 0}}>
-      <FlatList
-        data={this.state.collectionsArray}
-        horizontal={false}
-        renderItem={this.renderEventItemCell}
-        extraData={this.state}
-        keyExtractor={(item, index) => index}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    if (this.state.collectionsArray != 0) {
+      return <View>
+        <View style={{height: 10}} />
+        <FlatList
+          data={this.state.collectionsArray}
+          horizontal={false}
+          renderItem={this.renderEventItemCell}
+          extraData={this.state}
+          keyExtractor={(item, index) => index}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+    } else {
+      return <View />
+    }
   }
   renderEventItemCell = ({item, index}) => {
     if (item['scope_type'] == 1 || item['scope_type'] == 4) {
@@ -225,9 +241,7 @@ export default class Home extends Component {
           <View style={{backgroundColor: colors.LightBlueColor, height: '100%'}}>
             <View style={{ height: 10,backgroundColor: 'white'}} />
             <this.renderGridView />
-            <View style={{height: 10}} />
             <this.renderPromoView />
-            <View style={{height: 10}} />
             <this.renderEventView />
           </View>
         </ScrollView>
@@ -317,14 +331,3 @@ import paper from './../../assets/book.png';
 import tenis from './../../assets/tabletennis.png';
 import game from './../../assets/game.png';
 import notebookmousecursor from './../../assets/notebook.png';
-
-var Items = [
-  {name:'Bags',image: bag},
-  {name:'Clothes',image: dress},
-  {name:'Books',image: books},
-  {name:'Other Papers',image: paper},
-  {name:'Sports Equipments',image: tenis},
-  {name:'Electronics',image: notebookmousecursor},
-  {name:'Game & Toys',image: game},
-  {name:'More',image: bag},
-]
