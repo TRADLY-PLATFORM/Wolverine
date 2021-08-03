@@ -133,7 +133,7 @@ export default class AddEvent extends Component {
             if (item['values'].length != 0) {
               var valueDic = {};
               valueDic['valueId'] = item['id'];
-              valueDic['data'] = item['values'][0];
+              valueDic['text'] = item['values'][0];
               this.state.singleValueArray.push(valueDic);
               // this.state.singleValue = item['values'][0];
             }
@@ -388,11 +388,16 @@ export default class AddEvent extends Component {
       }
       if (fieldType == 4) {
         if (this.state.tagsArray.length != 0) {
-          let atrDic = {
-            values: this.state.tagsArray,
-            id: objc['id'],
+
+          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.tagsArray[obj]['data']
+            let atrDic = {
+              values:[this.state.tagsArray[0]['id']],
+              id: data[0]['id'],
+            }
+            attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 5) {
@@ -656,7 +661,7 @@ export default class AddEvent extends Component {
     // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
-  onChangeText(text, id){
+  onChangeTextValue(text, id){
     let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
     var valueDic = {};
     valueDic['valueId'] = id;
@@ -847,7 +852,7 @@ export default class AddEvent extends Component {
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
               value={value}
-              onChangeText={value => this.setState({ singleValue: value })}
+              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
             />
           </View>)
         } else if (fieldType == 4) {
