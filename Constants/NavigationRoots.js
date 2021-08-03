@@ -23,4 +23,6 @@ module.exports  = {
   Category: 'Category',
   EventDetail: 'EventDetail',
   ChatScreen: 'ChatScreen',
+  Explore: 'Explore',
+  EventList: 'EventList',
 }

@@ -112,12 +112,20 @@ export default class AddEvent extends Component {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
-            this.state.singleSelectedArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.singleSelectedArray.push(valueDic);
+            // this.state.singleSelectedArray = item['values'];
           }
         }
         if (fieldType == 2) {
           if (item['values'].length != 0) {
-            this.state.multipleSelectedsArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.multipleSelectedsArray.push(valueDic);
+            // this.state.multipleSelectedsArray = item['values'];
           }
         }
         if (fieldType == 3) {
@@ -328,22 +336,32 @@ export default class AddEvent extends Component {
       let fieldType = objc['field_type'];
       if (fieldType == 1) {
         if (this.state.singleSelectedArray.length != 0) {
-          let atrDic = {
-            values: [this.state.singleSelectedArray[0]['id']],
-            id: objc['id'],
+          let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleSelectedArray[obj]['data']
+            let atrDic = {
+              values:[this.state.singleSelectedArray[0]['id']],
+              id: data[0]['id'],
+            }
+            attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 2) {
         if (this.state.multipleSelectedsArray.length != 0) {
-          var idAry = [];
-          for (let obj of this.state.multipleSelectedsArray) {
-            idAry.push(obj['id'])
-          }
-          let atrDic = {
-            values: idAry,
-            id: objc['id'],
+          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+          if (obj != -1) {
+            let data = this.state.multipleSelectedsArray[obj]['data']
+            var idAry = [];
+            for (let ob of data) {
+              idAry.push(ob['id'])
+            }
+            value = nameAry.join()
+            let atrDic = {
+              values:idAry,
+              id: objc['id'],
+            }
+            attributeAry.push(atrDic)
           }
           attributeAry.push(atrDic)
         }
@@ -614,17 +632,33 @@ export default class AddEvent extends Component {
     // console.log('data => ', data);
     this.setState({ selectedCurrency: data })
   }
-  onTagChanges(data) {
+  onTagChanges(data, id) {
+    // let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    // if (index != -1) {
+    //   this.state.tagsArray[index] = data[0];
+    // } else {
+    //   this.state.tagsArray[index] = data[0];
+    // }
     this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAttributeSelectedValues = (data, singleSelect) => {
     if (singleSelect) {
-      this.state.singleSelectedArray = data
+      let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.singleSelectedArray[obj] = data[0];
+      }else {
+        this.state.singleSelectedArray.push(data[0]);
+      }
     } else {
-      this.state.multipleSelectedsArray = data
+      let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.multipleSelectedsArray[obj] = data[0];
+      }else {
+        this.state.multipleSelectedsArray.push(data[0]);
+      }
+      // this.state.multipleSelectedsArray = data
     }
-    this.setState({ updateUI: !this.state.updateUI })
   }
   /*  UI   */
   imagePicker(id) {
@@ -742,15 +776,23 @@ export default class AddEvent extends Component {
           var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
-              value = this.state.singleSelectedArray[0]['name']
+              let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
+              if (obj != -1) {
+                let data = this.state.singleSelectedArray[obj]['data']
+                value = data[0]['name']
+              }
             }
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
-              var nameAry = [];
-              for (let obj of this.state.multipleSelectedsArray) {
-                nameAry.push(obj['name'])
+              let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+              if (obj != -1) {
+                let data = this.state.multipleSelectedsArray[obj]['data']
+                var nameAry = [];
+                for (let obj of data) {
+                  nameAry.push(obj['name'])
+                }
+                value = nameAry.join()
               }
-              value = nameAry.join()
             }
           }
           views.push(<View>
@@ -782,7 +824,7 @@ export default class AddEvent extends Component {
               tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
               inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
               initialTags={this.state.tagsArray}
-              onChangeTags={tags => this.onTagChanges(tags)}
+              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
             />
           </View>)
         } else if (fieldType == 5) {

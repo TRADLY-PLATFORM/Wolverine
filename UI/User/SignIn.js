@@ -98,7 +98,7 @@ export default class SignIn extends Component {
             <TextInput
               style={commonStyle.txtFieldStyle}
               placeholder="Email"
-              keyboardType='phone-pad'
+              keyboardType='email-address'
               placeholderTextColor={colors.AppWhite}
               onChangeText={email => this.setState({ email: email })}
             />

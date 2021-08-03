@@ -11,51 +11,42 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
-import HeaderView from '../../../Component/Header'
-import colors from '../../../CommonClasses/AppColor';
-import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import sample from '../../../assets/dummy.png';
-import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import timeIcon from '../../../assets/timeIcon.png';
-import starIcon from '../../../assets/star.png';
-import heartIcon from '../../../assets/heartIcon.png';
-import filterGrayIcon from '../../../assets/filterGrayIcon.png';
-import sortIcon from '../../../assets/sortIcon.png';
-import viewMapIcon from '../../../assets/viewMapIcon.png';
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
-import appConstant from '../../../Constants/AppConstants';
+import NavigationRoots from '../../Constants/NavigationRoots';
+import HeaderView from '../../Component/Header'
+import colors from '../../CommonClasses/AppColor';
+import commonStyles from '../../StyleSheet/UserStyleSheet';
+import sample from '../../assets/dummy.png';
+import eventStyles from '../../StyleSheet/EventStyleSheet';
+import timeIcon from '../../assets/timeIcon.png';
+import starIcon from '../../assets/star.png';
+import heartIcon from '../../assets/heartIcon.png';
+import filterGrayIcon from '../../assets/filterGrayIcon.png';
+import sortIcon from '../../assets/sortIcon.png';
+import viewMapIcon from '../../assets/viewMapIcon.png';
+import APPURL from '../../Constants/URLConstants';
+import networkService from '../../NetworkManager/NetworkManager';
+import appConstant from '../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
-import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
+import radio from '../../assets/radio.png';
+import selectedradio from '../../assets/selectedradio.png';
+import {getTimeFormat,changeDateFormat,getDatesArray} from '../../HelperClasses/SingleTon'
 
-import constantArrays from '../../../Constants/ConstantArrays';
+import constantArrays from '../../Constants/ConstantArrays';
 
 const windowHeight = Dimensions.get('window').height;
-
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
-import { color } from 'react-native-reanimated';
-const origin = { latitude: 30.6225, longitude: 76.6224 };
-const destination = { latitude: 30.7051, longitude: 76.68154 };
-const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
 const windowWidth = Dimensions.get('window').width;
 
 
-export default class Explore extends Component {
+export default class EventList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedGroup: 0,
-      photo: null,
       updateUI: false,
       showSortView: false,
       showDropDown: false,
       categoryID: -1,
-      categoryName: 'Select Category',
       showMap:false,
       eventsArray:[],
       pageNo: 1,
@@ -69,11 +60,13 @@ export default class Explore extends Component {
     }
   }
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      appConstant.hideTabbar = true
-    });
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
+    if (this.props.route.params) {
+      appConstant.hideTabbar = false
+      let {categoryID} = this.props.route.params
+      this.state.params = '&category_id=' + categoryID;
+    }
     this.callApi(this.state.params);
 
   }
@@ -277,7 +270,7 @@ export default class Explore extends Component {
     }
     var photo = item['images'] ? item['images'] : [];
 
-    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
+    return <TouchableOpacity style={eventStyles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
     <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ margin: 5 }}>
@@ -348,74 +341,23 @@ export default class Explore extends Component {
       )
     }
   }
-  renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -70, zIndex: 100}}
-       onPress={() => this.setState({showMap: !this.state.showMap})}>
-      <View style={eventStyles.viewOnMapBtnStyle}>
-      <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
-      <View style={{width: 5}}/>
-      <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
-      </View>
-  </TouchableOpacity>)
-  }
-   renderMarker = () => {
-     var markerView = [];
-    for (let objc of this.state.eventsArray) {
-      // let objc = this.state.eventsArray[0];
-      let coordinate = objc['coordinates'];
-      // console.log('objc', objc['coordinates'])
-      // let coordinate =  {
-      //   "latitude": 30.6892,
-      //   "longitude":76.6907,
-      // }
-      markerView.push(<Marker
-        coordinate={coordinate}
-        image = {require('../../../assets/mapPin.png')} 
-        title={objc['title']}
-      />);
-    }
-    return markerView;
-   }
   renderMainView = () => {
-      if (this.state.showMap) {
-        return (<View style={{ height: windowHeight / 1.25, width: windowWidth }}>
-          <View style={eventStyles.containerMapStyle}>
-            <MapView
-              // provider={PROVIDER_GOOGLE}
-              style={eventStyles.mapStyle}
-              initialRegion={{
-                latitude: 30.68825,
-                longitude: 76.6924,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
-              }}
-            >
-              {this.renderMarker()}
-            </MapView>
-          </View>
-          <View style={{ marginTop: - 200, flex: 1, zIndex: 12 }}>
-            {this.renderViewMaBtnView()}
-            {this.renderListView()}
-          </View>
-        </View>)
-      } else {
-        return (<View style={{ height: '100%' }}>
-          <View>
-            {this.renderHeaderView()}
-            {this.renderDateListView()}
-          </View>
-          <View style={{ height: windowHeight / 1.32 }}>
-            {this.renderListView()}
-            {this.renderViewMaBtnView()}
-          </View>
-        </View>)
-      }
+    return (<View style={{ height: '100%' }}>
+      <View>
+        {this.renderHeaderView()}
+        {this.renderDateListView()}
+      </View>
+      <View style={{ height: windowHeight - 170 }}>
+        {this.renderListView()}
+      </View>
+    </View>)
   }
 
   render() {
+    let {categoryName} = this.props.route.params;
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Explore'} showBackBtn={false} />
+        <HeaderView title={categoryName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
           <View style={{ zIndex: 5, position: 'absolute' }}>
@@ -434,88 +376,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
-  variantCellViewStyle: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    borderRadius: 5,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-    backgroundColor: colors.AppWhite,
-  },
-  headerViewStyle: {
-    width: '50%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.BorderColor,
-  },
-  viewOnMapBtnStyle: {
-    height: 40,
-    backgroundColor: colors.AppWhite,
-    flexDirection: 'row',
-    width: 130,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'gray',
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 5,
-    borderRadius: 20,
-  },
-  containerMapStyle: {
-    margin:0,
-    height: "100%",
-    width: "100%",
-  },
-  mapStyle: {
-    position: 'absolute',
-    marginTop: 0,
-    height: "100%",
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 5
-  },
-  contentContainerStyle: {
-    padding: 16,
-    backgroundColor: colors.AppWhite,
-  },
-  header: {
-    alignItems: 'center',
-    backgroundColor: colors.AppWhite,
-    paddingVertical: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20
-  },
-  panelHandle: {
-    width: 40,
-    height: 2,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 4
-  },
-  item: {
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: 'red',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  listViewStyle: {
-    flex:1,
-    margin: 5,
-    marginLeft: 16,
-    marginRight: 16,
-    borderBottomWidth: 1,
-    borderColor: colors.BorderColor,
-    height: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
+ 
 
 });
 

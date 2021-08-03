@@ -78,10 +78,16 @@ export default class Home extends Component {
     }
   }
   /*  Buttons   */
-  didSelectCategory(index) {
+  didSelectCategory(item,index) {
     if (index == 7) {
       this.props.navigation.navigate(NavigationRoots.Category,{
         categoryList: this.state.categoryArray,
+      });
+    } else {
+      // console.log('item', item['id'])
+      this.props.navigation.navigate(NavigationRoots.EventList,{
+        categoryID:item['id'],
+        categoryName: item['name'],
       });
     }
   }
@@ -100,7 +106,7 @@ export default class Home extends Component {
     if (index < 8) {
       if (this.state.categoryArray[index]){
         let dic = this.state.categoryArray[index];
-        return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(index)}>
+        return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(dic,index)}>
           <Image style={styles.imageThumbnail} source={ index == 7 ? moreIcon : {url: dic['image_path']}} resizeMode={'contain'}/>
           <View style={{height: 5}}/>
           <Text style={{textAlign: 'center', fontSize: 12}}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
@@ -115,7 +121,7 @@ export default class Home extends Component {
   renderPromoView = () => {
     if (this.state.promoBannerArray != 0) {
     return <View style={{ backgroundColor: colors.lightTransparent}}>
-        <View style={{height: 10}} />
+        {/* <View style={{height: 10}} /> */}
       <FlatList
         data={this.state.promoBannerArray}
         horizontal={true}
@@ -138,10 +144,11 @@ export default class Home extends Component {
   renderEventView = () => {
     if (this.state.collectionsArray != 0) {
       return <View>
-        <View style={{height: 10}} />
+        {/* <View style={{height: 10}} /> */}
         <FlatList
           data={this.state.collectionsArray}
           horizontal={false}
+          initialNumToRender={7}
           renderItem={this.renderEventItemCell}
           extraData={this.state}
           keyExtractor={(item, index) => index}

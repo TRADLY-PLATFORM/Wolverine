@@ -36,6 +36,7 @@ import Filter from './UI/Event/Explore/Filter';
 import Category from './UI/Event/Category';
 import EventDetail from './UI/Event/EventDetail/EventDetail';
 import ChatScreen from './UI/Event/Chat/ChatScreen';
+import EventList from './UI/Event/EventList';
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.Category} component={Category} />
         <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
         <Stack.Screen name={NavigationRoots.ChatScreen} component={ChatScreen} />
+        <Stack.Screen name={NavigationRoots.EventList} component={EventList} />
 
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',

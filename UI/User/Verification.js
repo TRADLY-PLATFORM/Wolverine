@@ -33,6 +33,13 @@ export default class Verification extends Component {
     console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
+        const auth_key = responseJson['data']['user']['key']['auth_key'];
+        const refresh_key = responseJson['data']['user']['key']['refresh_key'];
+        const id = responseJson['data']['user']['id'];
+        DefaultPreference.set('refreshKey', refresh_key).then();
+        DefaultPreference.set('authKey', auth_key).then();
+        DefaultPreference.set('userId', id).then();
+        DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
         this.props.navigation.navigate(NavigationRoots.BottomTabbar)
       } else {
         // let error = errorHandler.errorHandle(responseJson)

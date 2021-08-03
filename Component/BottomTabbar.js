@@ -39,7 +39,7 @@ function AppTabbar() {
     })}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
-      <Tab.Screen name="List" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
+      <Tab.Screen name="List" component={appConstant.accountID.length == 0 ? shop : shop} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>

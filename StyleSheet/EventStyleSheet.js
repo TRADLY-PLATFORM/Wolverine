@@ -107,6 +107,81 @@ module.exports = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.AppWhite,
-  }
+  },
+  variantCellViewStyle: {
+    flexDirection: 'row',
+    margin: 5,
+    justifyContent: 'space-between',
+    alignContent: 'center',
+    borderRadius: 5,
+    shadowColor: 'gray',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 2,
+    backgroundColor: colors.AppWhite,
+  },
+  headerViewStyle: {
+    width: '50%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.BorderColor,
+  },
+  contentContainerStyle: {
+    padding: 16,
+    backgroundColor: colors.AppWhite,
+  },
+  header: {
+    alignItems: 'center',
+    backgroundColor: colors.AppWhite,
+    paddingVertical: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  panelHandle: {
+    width: 40,
+    height: 2,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 4
+  },
+  listViewStyle: {
+    flex:1,
+    margin: 5,
+    marginLeft: 16,
+    marginRight: 16,
+    borderBottomWidth: 1,
+    borderColor: colors.BorderColor,
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  viewOnMapBtnStyle: {
+    height: 40,
+    backgroundColor: colors.AppWhite,
+    flexDirection: 'row',
+    width: 130,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'gray',
+    shadowOpacity: 0.5,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 5,
+    borderRadius: 20,
+  },
+  containerMapStyle: {
+    margin:0,
+    height: "100%",
+    width: "100%",
+  },
+  mapStyle: {
+    position: 'absolute',
+    marginTop: 0,
+    height: "100%",
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 5
+  },
 });
 
