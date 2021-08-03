@@ -385,10 +385,6 @@ export default class EventDetail extends Component {
         {/* <View style={styles.clearViewStyle}>
           {this.renderReviewView()}
         </View> */}
-        <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
-          {this.renderBottomBtnView()}
-        </View>
         <View style={{ height: 40 }} />
       </View>)
     } else {
@@ -400,12 +396,17 @@ export default class EventDetail extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
             <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
              {this.renderMainView()}
             </View>
           </ScrollView>
+          <View style={styles.commonViewStyle}>
+            <View style={{ height: 10 }} />
+            {this.renderBottomBtnView()}
+            <View style={{ height: 40 }} />
+          </View>
         </View>
       </SafeAreaView>
     );

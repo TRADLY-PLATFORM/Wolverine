@@ -58,6 +58,7 @@ export default class MyStore extends Component {
     });
   }
   apiCalls() {
+    this.state.eventsArray = []
     this.state.stopPagination = false
     this.state.pageNo = 1;
     this.setState({ updateUI: !this.state.updateUI })
@@ -113,12 +114,19 @@ export default class MyStore extends Component {
   }
 
   /*  Buttons   */
-  didSelect = item => {
+  didSelectEvent = item => {
     const { accId } = this.props.route.params;
-    this.props.navigation.navigate(NavigationRoots.AddEvent, {
-      accountId: accId,
-      listingID: item['id'],
-    })
+    if (accId == appConstant.accountID) {
+      this.props.navigation.navigate(NavigationRoots.AddEvent, {
+        accountId: accId,
+        listingID: item['id'],
+      })
+    } else {
+      this.props.navigation.navigate(NavigationRoots.EventDetail, {
+        id :item['id'],
+      });
+    }
+    
   }
   doneBtnAction() {
   }
@@ -126,7 +134,10 @@ export default class MyStore extends Component {
     this.updateStatusAPI()
   }
   editBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.CreateStore, { storeDetail: this.state.storeDetail })
+    const { accId } = this.props.route.params;
+    if (accId == appConstant.accountID) {
+      this.props.navigation.navigate(NavigationRoots.CreateStore, { storeDetail: this.state.storeDetail })
+    }
   }
   addEventBtnAction() {
     const { accId } = this.props.route.params;
@@ -152,6 +163,7 @@ export default class MyStore extends Component {
   /*  UI   */
 
   renderProfileView = () => {
+    const { accId } = this.props.route.params;
     var address = ''
     var review = ''
     if (this.state.storeDetail['location']) {
@@ -211,7 +223,9 @@ export default class MyStore extends Component {
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>Edit Store</Text>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
+              {accId == appConstant.accountID ? 'Edit Store' : 'Follow'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -239,19 +253,20 @@ export default class MyStore extends Component {
     </View>)
   }
   renderFilterView = () => {
-    return (<View style={{ height: 40, justifyContent: 'space-between', flexDirection: 'row', padding: 16 }}>
-      <View style={{ height: 20 }}>
-        {/* <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ color: colors.AppGray }}>All</Text>
-          <Image source={dropdownIcon} style={{ marginLeft: 10, height: 12, width: 12 }} resizeMode={'center'} />
-        </TouchableOpacity> */}
-      </View>
-      <View style={{ height: 20, flexDirection: 'row' }}>
-        <TouchableOpacity onPress={() => this.addEventBtnAction()}>
-          <Image source={plusIcon} style={{ height: 30, width: 30 }} resizeMode={'center'} />
-        </TouchableOpacity>
-      </View>
-    </View>)
+    const { accId } = this.props.route.params;
+    if (accId == appConstant.accountID) {
+      return (<View style={{ height: 40, justifyContent: 'space-between', flexDirection: 'row', padding: 16 }}>
+        <View style={{ height: 20 }}>
+        </View>
+        <View style={{ height: 20, flexDirection: 'row' }}>
+          <TouchableOpacity onPress={() => this.addEventBtnAction()}>
+            <Image source={plusIcon} style={{ height: 30, width: 30 }} resizeMode={'center'} />
+          </TouchableOpacity>
+        </View>
+      </View>)
+    } else {
+      return <View />
+    }
   }
   renderAboutView = () => {
     return (<View style={{ margin: 16, marginTop: 5 }}>
@@ -432,18 +447,15 @@ export default class MyStore extends Component {
   renderHorizontalCellItem = ({ item, index }) => {
     let price = item['list_price'];
     var photo = item['images'] ? item['images'] : [];
-    return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelect(item)}>
+    return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectEvent(item)}>
       <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ padding: 2 }}>
         <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }}>{item['title']}</Text>
-        {/* <Text style={{fontWeight: '500',fontSize: 12,padding: 3}}>{price['formatted']}</Text>
-        <Text style={styles.cellItemTextStyle}>Start Date: {startDate}</Text>
-        <Text style={styles.cellItemTextStyle}>End Date: {endDate}</Text> */}
         <View style={{ height: 5 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
             <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
-            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{item['account']['name']}</Text>
+            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%'}}>{item['account']['name']}</Text>
           </View>
           <View>
             <View style={eventStyles.followContainerStyle}>

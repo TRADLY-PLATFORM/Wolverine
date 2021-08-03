@@ -63,7 +63,6 @@ export default class EventList extends Component {
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
     if (this.props.route.params) {
-      appConstant.hideTabbar = false
       let {categoryID} = this.props.route.params
       this.state.params = '&category_id=' + categoryID;
     }
@@ -108,7 +107,6 @@ export default class EventList extends Component {
     });
   }
   sortBtnAction(done) {
-    appConstant.hideTabbar = this.state.showSortView
     this.props.navigation.setParams({tabBarVisible: false});
     this.setState({showSortView: !this.state.showSortView})
     if (done){

@@ -91,6 +91,16 @@ export default class Home extends Component {
       });
     }
   }
+  didSelectEvent(item,index) {
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id :item['id'],
+    });
+  }
+  didSelectAccount(item,index) {
+    this.props.navigation.navigate(NavigationRoots.MyStore, {
+      accId :item['id'],
+    });
+  }
   /*  UI   */
   renderGridView = () => {
     return (<View style={{backgroundColor:colors.AppWhite}}>
@@ -120,8 +130,7 @@ export default class Home extends Component {
   }
   renderPromoView = () => {
     if (this.state.promoBannerArray != 0) {
-    return <View style={{ backgroundColor: colors.lightTransparent}}>
-        {/* <View style={{height: 10}} /> */}
+    return <View style={{ backgroundColor: colors.LightBlueColor, marginBottom: -10}}>
       <FlatList
         data={this.state.promoBannerArray}
         horizontal={true}
@@ -129,6 +138,7 @@ export default class Home extends Component {
         extraData={this.state}
         keyExtractor={(item, index) => index}
         showsVerticalScrollIndicator={false}
+        style={{aspectRatio: 16/9}}
       />
     </View>
     } else {
@@ -138,7 +148,7 @@ export default class Home extends Component {
   renderPromoCellItem = ({item, index}) => {
     var photo = item['image_path']
     return (<View style={styles.promoCellStyle}>
-      <FastImage style={{ width: windowWidth - 50, height: 120, borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
+      <FastImage style={{ aspectRatio: 16/9, borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
       </View>)
    }
   renderEventView = () => {
@@ -202,7 +212,7 @@ export default class Home extends Component {
     var photo = item['images'] ? item['images'] : [];
 
     if(item['user']) {
-      return (<View style={styles.horizontalCellItemStyle}>
+      return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
         <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
         <Text style={{ fontWeight: '400', fontSize: 14}}>{item['name']}</Text>
@@ -211,16 +221,15 @@ export default class Home extends Component {
           <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
         </View>
         </View>
-      </View>)
+      </TouchableOpacity>)
     } else {
       if(item['list_price']) {
         let userItem = item['account'];
-        return (<View style={styles.horizontalCellItemStyle}>
+        return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectEvent(item, index)}>
           <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
           <View style={{ paddingLeft: 10,paddingTop: 10}}>
             <Text style={{ fontWeight: '500', fontSize: 14 }}>{item['title']}</Text>
             <View style={{ height: 5 }} />
-            <Text style={{ fontWeight: '500', fontSize: 12 }}>{item['list_price']['formatted']}</Text>
             <View style={{flexDirection: 'row', marginTop: 10, alignItems: 'center', justifyContent: 'space-between'}}>
               <View style={{flexDirection: 'row', width: '50%'}}>
                 <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={{uri:userItem['user']['profile_pic']}} />
@@ -228,12 +237,12 @@ export default class Home extends Component {
               </View>
               <View style={{marginRight: 5}}>
                 <View style={styles.followContainerStyle}>
-                  <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppWhite, }}>Follow</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppWhite, }}>{item['list_price']['formatted']}</Text>
                 </View>
               </View>
             </View>
           </View>
-        </View>)
+        </TouchableOpacity>)
       }else {
         return <View />
       }
@@ -279,8 +288,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     backgroundColor: colors.AppWhite,
-    height: 120,
-    width: windowWidth - 50,
+    aspectRatio: 16/9,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },

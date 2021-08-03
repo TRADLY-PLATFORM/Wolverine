@@ -38,16 +38,24 @@ export default class Category extends Component {
   /*  Buttons   */
   didSelect(item,index) {
     this.setState({selectIndex: index})
-    if (item['sub_category'].length != 0) {
-      this.state.categoryArray = item['sub_category'];
-      this.setState({catIndex: this.state.catIndex + 1})
+    if (item['sub_category']) {
+      console.log('coming', this.state.catIndex);
+      console.log('second', item['sub_category'].length);
+      if (item['sub_category'].length != 0) {
+        this.state.categoryArray = item['sub_category'];
+        this.setState({ catIndex: this.state.catIndex + 1 })
+      } else {
+        this.props.navigation.navigate(NavigationRoots.EventList, {
+          categoryID: item['id'],
+          categoryName: item['name'],
+        });
+      }
     } else {
-      this.props.navigation.navigate(NavigationRoots.EventList,{
-        categoryID:item['id'],
+      this.props.navigation.navigate(NavigationRoots.EventList, {
+        categoryID: item['id'],
         categoryName: item['name'],
       });
     }
-   
   }
   doneBtnAction () {
     this.props.navigation.goBack();
@@ -74,7 +82,10 @@ export default class Category extends Component {
     </View>)
   }
   renderListViewCellItem = ({item, index}) => {
-    let check = index == item['sub_category'].length == 0 ? true : false;
+    var check = false
+    if (item['sub_category']) {
+       check = item['sub_category'].length == 0 ? true : false;
+    }
     return (
       <TouchableOpacity onPress={() => this.didSelect(item,index)}>
         <View style={styles.listViewStyle}>

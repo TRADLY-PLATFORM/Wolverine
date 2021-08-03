@@ -50,7 +50,7 @@ export default class AddEvent extends Component {
       attributeArray: [],
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValueArray: [],
       tagsArray: [],
       eventDateArray: [],
       selectAddress: {},
@@ -131,14 +131,21 @@ export default class AddEvent extends Component {
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.singleValue = item['values'][0];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'][0];
+              this.state.singleValueArray.push(valueDic);
+              // this.state.singleValue = item['values'][0];
             }
           }
         }
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.tagsArray = item['values'];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'];
+              this.state.tagsArray.push(valueDic);
             }
           }
         }
@@ -363,16 +370,20 @@ export default class AddEvent extends Component {
             }
             attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+          // attributeAry.push(atrDic)
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValue.length != 0) {
-          let atrDic = {
-            values: [this.state.singleValue],
-            id: objc['id'],
+        if (this.state.singleValueArray.length != 0) {
+          let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+          if (obj != -1) {
+            let data = this.state.singleValueArray[obj]['text']
+            let atrDic = {
+              values: [data],
+              id: objc['id'],
+            }
+            attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 4) {
@@ -633,13 +644,29 @@ export default class AddEvent extends Component {
     this.setState({ selectedCurrency: data })
   }
   onTagChanges(data, id) {
-    // let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
-    // if (index != -1) {
-    //   this.state.tagsArray[index] = data[0];
-    // } else {
-    //   this.state.tagsArray[index] = data[0];
-    // }
-    this.state.tagsArray = data
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['data'] = data;
+    if (index != -1) {
+      this.state.tagsArray[index] = valueDic;
+    } else {
+      this.state.tagsArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
+  onChangeText(text, id){
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['text'] = text;
+    if (index != -1) {
+      this.state.singleValueArray[index] = valueDic;
+    } else {
+      this.state.singleValueArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAttributeSelectedValues = (data, singleSelect) => {
@@ -806,24 +833,38 @@ export default class AddEvent extends Component {
             </View>
           </View>)
         } else if (fieldType == 3) {
+          var value = ''
+          if (this.state.singleValueArray.length !== 0) {
+            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              value = this.state.singleValueArray[obj]['text']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
-              value={this.state.singleValue}
+              value={value}
               onChangeText={value => this.setState({ singleValue: value })}
             />
           </View>)
         } else if (fieldType == 4) {
+          var tagAry = [];
+          if (this.state.tagsArray.length !== 0) {
+            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              tagAry = this.state.tagsArray[obj]['data']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
               tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
               inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
-              initialTags={this.state.tagsArray}
+              initialTags={tagAry}
               onChangeTags={tags => this.onTagChanges(tags, item['id'])}
             />
           </View>)

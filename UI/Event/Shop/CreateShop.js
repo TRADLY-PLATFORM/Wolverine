@@ -52,7 +52,7 @@ export default class CreateShop extends Component {
       shippingID: 0,
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValue: [],
       tagsArray: [],
       selectAddress: {},
       name: '',
@@ -119,7 +119,11 @@ export default class CreateShop extends Component {
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.tagsArray = item['values'];
+              var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.tagsArray.push(valueDic);
+              // this.state.tagsArray = item['values'];
             }
           }
         }
@@ -383,9 +387,16 @@ export default class CreateShop extends Component {
     });
   }
   /*  Delegates   */
-  onTagChanges(data) {
-    this.state.tagsArray = data
-    this.setState({ updateUI: !this.state.updateUI })
+  onTagChanges(data, id) {
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['data'] = data;
+    if (index != -1) {
+      this.state.tagsArray[index] = valueDic;
+    } else {
+      this.state.tagsArray.push(valueDic);
+    }
   }
   getSelectedCategoryID = data => {
     this.setState({selectedCatData: data, categoryName: data['name']})
@@ -544,14 +555,21 @@ export default class CreateShop extends Component {
               />
           </View>)
         } else if (fieldType == 4) {
+          var tagAry = [];
+          if (this.state.tagsArray.length !== 0) {
+            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              tagAry = this.state.tagsArray[obj]['data']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
               tagContainerStyle={{backgroundColor: colors.LightGreenColor}}
               inputContainerStyle={{backgroundColor: '#f5f5f5'}}
-              initialTags={this.state.tagsArray}
-              onChangeTags={tags => this.onTagChanges(tags)}
+              initialTags={tagAry}
+              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
             /> 
           </View>)
         } else if (fieldType == 5) {
