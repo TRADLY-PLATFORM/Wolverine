@@ -16,12 +16,12 @@ module.exports = StyleSheet.create({
   },
   titleStyle: {
     color: colors.AppBlack,
-    fontSize: 14,
-    fontWeight: '700'
+    fontSize: 16,
+    fontWeight: '600'
   },
   subTitleStyle: {
     color: colors.Lightgray,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '400',
   },
   commonTxtStyle:{
@@ -86,6 +86,15 @@ module.exports = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.AppTheme,
+  },
+  disableApplyBtnViewStyle: {
+    borderRadius: 4,
+    margin: 5,
+    width: '100%',
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.Lightgray,
   },
   selectedBtnTxtStyle:{ 
     fontSize: 12, 
@@ -182,6 +191,29 @@ module.exports = StyleSheet.create({
     height: "100%",
     ...StyleSheet.absoluteFillObject,
     borderRadius: 5
+  },
+  variantListViewStyle: {
+    backgroundColor: colors.AppWhite,
+    padding: 16,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: colors.BorderColor,
+  },
+  selectedSegmentViewStyle: {
+    flex: 1,
+    height: 60,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.AppTheme,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  segmentViewStyle: {
+    flex: 1,
+    height: 60,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.BorderColor,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

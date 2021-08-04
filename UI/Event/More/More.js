@@ -72,7 +72,9 @@ export default class More extends Component {
       } else {
         this.props.navigation.navigate(NavigationRoots.CreateStore);
       }
-    }
+    } else if (index == 1) {
+      this.props.navigation.navigate(NavigationRoots.MyOrders);
+     }
   }
   /*  UI   */
   renderListView = () => {

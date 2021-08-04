@@ -32,6 +32,7 @@ import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
+import EventView from '../../../../Component/EventView';
 
 // const windowWidth = Dimensions.get('window').width;
 
@@ -235,7 +236,7 @@ export default class MyStore extends Component {
   renderSegmentBar = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
-        style={this.state.segmentIndex == 0 ? styles.selectedSegmentViewStyle : styles.segmentViewStyle}>
+        style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
         <Image source={this.state.segmentIndex == 0 ? product : productGray} style={{ height: 20, width: 20 }} resizeMode={'center'} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
@@ -243,7 +244,7 @@ export default class MyStore extends Component {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
-        style={this.state.segmentIndex == 1 ? styles.selectedSegmentViewStyle : styles.segmentViewStyle}>
+        style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
         <Image source={this.state.segmentIndex == 0 ? info : infoGreen} style={{ height: 20, width: 20 }} resizeMode={'center'} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
@@ -432,40 +433,23 @@ export default class MyStore extends Component {
     </View>)
   }
   renderEventView = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent}}>
+    return <View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center'}}>
       <FlatList
         data={this.state.eventsArray}
         numColumns={2}
-        renderItem={this.renderHorizontalCellItem}
+        renderItem={this.renderEventCellItem}
         showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => index}
+        keyExtractor={(item, index) => index + 9287373}
+        key={'E'}
         onEndReachedThreshold={2}
         onEndReached={this.paginationMethod}
       />
     </View>
   }
-  renderHorizontalCellItem = ({ item, index }) => {
-    let price = item['list_price'];
-    var photo = item['images'] ? item['images'] : [];
-    return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectEvent(item)}>
-      <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{ padding: 2 }}>
-        <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }}>{item['title']}</Text>
-        <View style={{ height: 5 }} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
-            <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
-            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%'}}>{item['account']['name']}</Text>
-          </View>
-          <View>
-            <View style={eventStyles.followContainerStyle}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.AppWhite }}>{price['formatted']}</Text>
-            </View>
-          </View>
-        </View>
-        <View style={{ height: 5 }} />
-      </View>
-    </TouchableOpacity>)
+  renderEventCellItem = ({item, index}) => {
+    return (<TouchableOpacity  onPress={() => this.didSelectEvent(item)}>  
+      <EventView data={item}/>
+    </TouchableOpacity>) 
   }
 
   renderTabActionView = () => {
@@ -574,48 +558,10 @@ const styles = StyleSheet.create({
     borderColor: colors.AppYellow,
     borderWidth: 1
   },
-  selectedSegmentViewStyle: {
-    flex: 1,
-    height: 60,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.AppTheme,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  segmentViewStyle: {
-    flex: 1,
-    height: 60,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.BorderColor,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textStyle: {
     color: colors.AppGray,
     fontSize: 12,
     fontWeight: '400',
-  },
-  horizontalCellItemStyle: {
-    // height: 250,
-    width: '45%',
-    margin: 10,
-    backgroundColor: colors.AppWhite,
-    borderRadius: 10,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-  },
-  selectedImageStyle: {
-    height: 120,
-    width: '100%',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  cellItemTextStyle: {
-    fontWeight: '500',
-    fontSize: 10,
-    padding: 3
   },
 });
 

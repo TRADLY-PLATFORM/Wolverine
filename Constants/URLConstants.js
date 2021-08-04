@@ -2,7 +2,7 @@ module.exports = {
   URLPaths: {
     BaseURL: 'https://api.dev.tradly.app/app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/tradlysocial/configs',
+    config: 'v1/tenants/eventdev/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',
@@ -18,6 +18,10 @@ module.exports = {
     currencies: 'v1/currencies',
     variantType: 'products/v1/variant_types',
     home: 'products/v1/home',
+    paymentMethod: '/v1/tenants/payment_methods',
+    checkOut: '/checkout',
+    myOrders: 'products/v1/orders?type=events&page=',
+    orderDetail:'products/v1/orders/',
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

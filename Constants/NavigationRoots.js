@@ -25,4 +25,7 @@ module.exports  = {
   ChatScreen: 'ChatScreen',
   Explore: 'Explore',
   EventList: 'EventList',
+  ConfirmBooking: 'ConfirmBooking',
+  MyOrders: 'MyOrders',
+  OrderDetail:'OrderDetail',
 }

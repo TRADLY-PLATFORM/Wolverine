@@ -7,69 +7,71 @@ import {
   Image,
   StatusBar,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import starIcon from '../assets/star.png';
 import colors from '../CommonClasses/AppColor';
 import eventStyles from '../StyleSheet/EventStyleSheet';
+import FastImage from 'react-native-fast-image'
+import sample from '../assets/dummy.png';
 
-export default class RatingReview extends Component {
+const windowWidth = Dimensions.get('window').width;
+export default class EventView extends Component {
   static propTypes = {
     data: PropTypes.string,
   };
 
-  renderRatingReviewView = () => {
-    var views = []
-    var allStartView = [];
-    var valueView = [];
-    var progressView = [];
-    for (let a = 0; a < 5; a++) {
-      var starView = [];
-      for (let b = 0; b <= a; b++) {
-        starView.push(<View style={{ flexDirection: 'row', margin: 5 }}>
-          <Image source={starIcon} style={{ height: 15, width: 15 }} />
-        </View>)
-      }
-      allStartView.push(<View>
-        {starView}
-      </View>)
-      progressView.push(<View style={{ borderRadius: 5, backgroundColor: 'red', height: 10, width: 10 * a + 10, margin: 5, marginTop: 10 }} />)
-      valueView.push(<View style={{ margin: 5 }}>
-        <Text style={eventStyles.subTitleStyle}>{10 * a} </Text>
-      </View>)
-    }
-  
-    views.push(<View>
-      <Text style={eventStyles.titleStyle}>{`Ratings and reviews`}</Text>
-      <View style={{ flexDirection: 'row' }}>
-        <View style={{ width: '25%', marginTop: 10 }}>
-          <Text style={{ fontWeight: '600', fontSize: 44 }}>{'4.4'}</Text>
-          <Text style={eventStyles.subTitleStyle}>{`216 ratings`}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row' }}>
-            {allStartView}
-          </View>
-          <View style={{ width: '33%' }}>
-            {progressView}
+  renderEventView = () => {
+    let item = this.props.data;
+    let price = item['list_price'];
+    var photo = item['images'] ? item['images'] : [];
+    return (<View style={styles.horizontalCellItemStyle}>
+      <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
+      <View style={{ padding: 2 }}>
+        <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }}>{item['title']}</Text>
+        <View style={{ height: 5 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
+            <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
+            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%' }}>{item['account']['name']}</Text>
           </View>
           <View>
-            {valueView}
+            <View style={eventStyles.followContainerStyle}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.AppWhite }}>{price['formatted']}</Text>
+            </View>
           </View>
         </View>
+        <View style={{ height: 5 }} />
       </View>
     </View>)
-    return views;
   }
   render() {
       return (<View>
-        <this.renderRatingReviewView />
+        <this.renderEventView />
       </View>)
   }
 }
 const styles = StyleSheet.create({
-  crossStyle: {
-    height: 15,
-    width: 15,
+  horizontalCellItemStyle: {
+    // height: 250,
+    width: windowWidth/2 - 25,
+    margin: 10,
+    backgroundColor: colors.AppWhite,
+    borderRadius: 10,
+    shadowColor: 'gray',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 2,
+  },
+  selectedImageStyle: {
+    height: 120,
+    width: '100%',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  cellItemTextStyle: {
+    fontWeight: '500',
+    fontSize: 10,
+    padding: 3
   },
 });

@@ -6,23 +6,29 @@ import DefaultPreference from 'react-native-default-preference';
 
 
 class NetworkManager {
-  networkCall = async (path, method, param, token, auth) => {
+  networkCall = async (path, method, param, token, auth, currency) => {
     let url = APPURL.URLPaths.BaseURL + path;
     console.log('url == ', url)
     console.log('param == ', param)
     console.log('token == ', token)
     console.log('auth == ', auth)
     let err, response
+    let headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'x-agent': 1,
+    }
+    console.log(headers);
+    headers['Authorization'] = "Bearer " + token;
+    headers['x-auth-key'] = auth;
+    if (currency != undefined) {
+      headers['X-Currency'] = currency;
+      console.log('currency header ',headers);
+    }
     [err, response] = await to(fetch(url, {
       method: method,
       dataType: 'json',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer " + token,
-        'x-agent': 1,
-        'x-auth-key': auth
-      },
+      headers: headers,
       body: param,
     }))
     if (err) {
@@ -34,7 +40,7 @@ class NetworkManager {
       if(json["error"])
       {
         if(json["error"]['code'] == 401){
-          return  this.refreshKeyCall(path,method,param,token,auth)
+          return  this.refreshKeyCall(path,method,param,token,auth,currency)
         } else {
           console.log('error => errror json ', json)
           let error = errorHandler.errorHandle(json['error']['code']);
@@ -46,7 +52,7 @@ class NetworkManager {
       }
     }
   }
-  async refreshKeyCall(path, method, param,token,auth) {
+  async refreshKeyCall(path, method, param,token,auth,currency) {
     let url = APPURL.URLPaths.BaseURL + APPURL.URLPaths.token;
     console.log(' refreshKey url == ', url)
     console.log(' refreshKeyauth == ', auth)
@@ -83,7 +89,7 @@ class NetworkManager {
         appConstant.refreshKey = refresh_key;
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
-        return this.networkCall(path, method, param,token ,auth_key)
+        return this.networkCall(path, method, param,token ,auth_key,currency)
       }
     }
   }

@@ -34,7 +34,6 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../HelperClasses/SingleTon'
 
 const windowHeight = Dimensions.get('window').height;
@@ -46,7 +45,8 @@ export default class EventDetail extends Component {
     this.state = {
       updateUI: false,
       selectIndex: 0,
-      selectedVariantIndex: 0,
+      selectedVariantId:0,
+      selectedVariant:{},
       isVisible:false,
       imagesArray: [],
       eventDetailData: {},
@@ -73,11 +73,18 @@ export default class EventDetail extends Component {
   }
 
   /*  Buttons   */
-  didSelectVariant(index) {
-    this.setState({selectedVariantIndex: index})
+  didSelectVariant(item) {
+    this.state.selectedVariant = item,
+    this.setState({selectedVariantId: item['id']})
   }
   doneBtnAction () {
     this.props.navigation.goBack();
+  }
+  bookBtnAction () {
+    this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
+      eventData:this.state.eventDetailData,
+      variantData: this.state.selectedVariant,
+    });
   }
   /*  UI   */
 
@@ -186,7 +193,6 @@ export default class EventDetail extends Component {
   }
   renderVariantListView = () => {
     let variants = this.state.eventDetailData['variants'];
-    console.log('variants', variants)
     if (variants != undefined && variants.length != 0) {
       return (<View style={{backgroundColor: colors.LightBlueColor}}>
         <View>
@@ -205,9 +211,9 @@ export default class EventDetail extends Component {
     }
   }
   renderVariantListViewCellItem = ({item,index}) => {
-    let check = index == this.state.selectedVariantIndex;
-    return (<View style={styles.variantListViewStyle}>
-      <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(index)}>
+    let check = item['id'] == this.state.selectedVariantId;
+    return (<View style={eventStyles.variantListViewStyle}>
+      <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(item)}>
         <View style={{ width: '90%' }}>
           <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
             {`${item['stock']} tickets left`}
@@ -336,9 +342,12 @@ export default class EventDetail extends Component {
   }
   renderBottomBtnView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle}>
-        <View style={eventStyles.clearBtnViewStyle}>
-          <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Book Now</Text>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}
+       disabled={this.state.selectedVariantId == 0}>
+        <View style={this.state.selectedVariantId == 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.clearBtnViewStyle}>
+          <Text style={{ color: this.state.selectedVariantId == 0 ? colors.AppWhite : colors.AppTheme,fontWeight: '600'}}>
+            Book Now
+          </Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.bottomBtnViewStyle} >
@@ -459,13 +468,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
-  },
-  variantListViewStyle: {
-    backgroundColor: colors.AppWhite,
-    padding: 16,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: colors.BorderColor,
   },
   selectedImageStyle: {
     width: 140,

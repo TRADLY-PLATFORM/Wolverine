@@ -417,7 +417,7 @@ export default class Explore extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Explore'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{ zIndex: 5, position: 'absolute' }}>
             <this.renderMainView />
           </View>

@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import {
   Alert,
-  StatusBar,
   FlatList,
   Text,Image,View,
   StyleSheet, SafeAreaView,
@@ -21,6 +20,7 @@ import FastImage from 'react-native-fast-image'
 import moreIcon from './../../assets/more.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
+import EventView from '../../Component/EventView';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -223,27 +223,11 @@ export default class Home extends Component {
         </View>
       </TouchableOpacity>)
     } else {
-      if(item['list_price']) {
-        let userItem = item['account'];
-        return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectEvent(item, index)}>
-          <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
-          <View style={{ paddingLeft: 10,paddingTop: 10}}>
-            <Text style={{ fontWeight: '500', fontSize: 14 }}>{item['title']}</Text>
-            <View style={{ height: 5 }} />
-            <View style={{flexDirection: 'row', marginTop: 10, alignItems: 'center', justifyContent: 'space-between'}}>
-              <View style={{flexDirection: 'row', width: '50%'}}>
-                <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={{uri:userItem['user']['profile_pic']}} />
-                <Text style={{ color: colors.Lightgray, fontSize: 10, paddingLeft: 5 }}>{`${userItem['user']['first_name']} ${userItem['user']['last_name']}`}</Text>
-              </View>
-              <View style={{marginRight: 5}}>
-                <View style={styles.followContainerStyle}>
-                  <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppWhite, }}>{item['list_price']['formatted']}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+      if (item['list_price']) {
+        return (<TouchableOpacity onPress={() => this.didSelectEvent(item, index)}>
+          <EventView data={item} />
         </TouchableOpacity>)
-      }else {
+      } else {
         return <View />
       }
     }
@@ -296,7 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   horizontalCellItemStyle: {
-    width: 200,
+    width: windowWidth/2 - 25,
     margin: 10,
     backgroundColor: colors.AppWhite,
     borderRadius: 10,
@@ -307,7 +291,7 @@ const styles = StyleSheet.create({
   },
   selectedImageStyle: {
     height: 150,
-    width: 200,
+    width: '100%',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
@@ -319,24 +303,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  viewAllViewContainerStyle: {
-    backgroundColor: colors.AppWhite,
-    width: 75,
-    height: 25,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  followContainerStyle: {
-    backgroundColor: colors.AppTheme,
-    height: 25,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
 });
 
 import bag from './../../assets/handbag.png';

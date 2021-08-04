@@ -341,13 +341,25 @@ export default class CreateShop extends Component {
         this.setState({ isVisible: false })
         var result = responseJson['data']['account'];
         appConstant.accountID = result['id'];
+        this.successAlert();
       } else {
         this.setState({ isVisible: false })
         Alert.alert(responseJson)
       }
     }
   }
-
+  successAlert() {
+    Alert.alert(
+      "Successfull", "",
+      [
+        {
+          text: "OK", onPress: () => {
+            this.props.navigation.goBack();
+          }
+        }
+      ],
+    );
+  }
   /*  Buttons   */
   createBtnAction() {
     this.uploadFilesAPI()
