@@ -21,6 +21,7 @@ import moreIcon from './../../assets/more.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import EventView from '../../Component/EventView';
+import Deeplinking from '../../HelperClasses/Deeplinking';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -45,6 +46,7 @@ export default class Home extends Component {
           appConstant.refreshKey = refreshKey;
         }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {
+          console.log('userId', userId);
           appConstant.userId = userId;
           this.getMyStoreApi()
           this.getHomeDataApi()
@@ -59,6 +61,8 @@ export default class Home extends Component {
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
         appConstant.accountID = acctData[0]['id'];
+      }else{
+        appConstant.accountID = '';
       }
     }else {
       this.setState({ isVisible: false })
@@ -236,6 +240,7 @@ export default class Home extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'ClassBubs'} showBackBtn={false} />
+        <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView>
           <View style={{backgroundColor: colors.LightBlueColor, height: '100%'}}>
@@ -281,6 +286,7 @@ const styles = StyleSheet.create({
   },
   horizontalCellItemStyle: {
     width: windowWidth/2 - 25,
+    height: windowWidth/2 - 25,
     margin: 10,
     backgroundColor: colors.AppWhite,
     borderRadius: 10,
@@ -290,7 +296,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   selectedImageStyle: {
-    height: 150,
+    height: '60%',
     width: '100%',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,

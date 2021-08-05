@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Share
 } from 'react-native';
 import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
@@ -74,7 +75,7 @@ export default class MyStore extends Component {
       let acctData = responseJson['data']['account'];
       this.state.storeDetail = acctData;
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI})
+      this.setState({ updateUI: !this.state.updateUI })
     } else {
       this.setState({ isVisible: false })
     }
@@ -87,10 +88,10 @@ export default class MyStore extends Component {
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
       if (events.length != 0) {
-        for(let objc of events){
+        for (let objc of events) {
           this.state.eventsArray.push(objc);
         }
-      }else {
+      } else {
         this.state.stopPagination = true
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
@@ -124,10 +125,10 @@ export default class MyStore extends Component {
       })
     } else {
       this.props.navigation.navigate(NavigationRoots.EventDetail, {
-        id :item['id'],
+        id: item['id'],
       });
     }
-    
+
   }
   doneBtnAction() {
   }
@@ -149,16 +150,34 @@ export default class MyStore extends Component {
   ratingStarBtnAction(id) {
     this.setState({ starRatingValue: id + 1 })
   }
+  onShareBtnAction = async () => {
+    try {
+      const result = await Share.share({
+        message: appConstant.appSharePath,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
   paginationMethod = () => {
     console.log('pagination');
-    if (!this.state.stopPagination){
-     this.state.pageNo = this.state.pageNo + 1;
-     this.getEventsApi();
+    if (!this.state.stopPagination) {
+      this.state.pageNo = this.state.pageNo + 1;
+      this.getEventsApi();
     }
-   }
-   didSelectEventList(item, index) {
+  }
+  didSelectEventList(item, index) {
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
-      id :item['id'],
+      id: item['id'],
     });
   }
   /*  UI   */
@@ -218,9 +237,9 @@ export default class MyStore extends Component {
           </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
-          <View style={styles.activeBntViewStyle}>
+          <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
             <Image source={shareIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
@@ -388,15 +407,15 @@ export default class MyStore extends Component {
   }
   renderReviewView = () => {
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
-        <View style={{height: 10}}/>
-        {this.renderReviewListView()}
-      </View>)
+      <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
+      <View style={{ height: 10 }} />
+      {this.renderReviewListView()}
+    </View>)
   }
   renderReviewListView = () => {
-    return (<View> 
-      <FlatList 
-        data={[1,1]}
+    return (<View>
+      <FlatList
+        data={[1, 1]}
         renderItem={this.renderReviewListViewCellItem}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index}
@@ -408,23 +427,23 @@ export default class MyStore extends Component {
     var views = [];
     for (let a = 0; a < 5; a++) {
       views.push(<View>
-        <Image  style={{height: 10, width: 10}} source={a != 4 ? starIcon : emptyStar}/>
+        <Image style={{ height: 10, width: 10 }} source={a != 4 ? starIcon : emptyStar} />
       </View>)
     }
-    return (<View style={{marginTop: 20}}>
+    return (<View style={{ marginTop: 20 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={ sample} />
+        <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={sample} />
         <View style={{ width: 10 }} />
         <Text style={eventStyles.commonTxtStyle}>{'Saini'}</Text>
       </View>
-      <View style={{flexDirection: 'row',marginTop: 7, alignItems: 'center'}}>
+      <View style={{ flexDirection: 'row', marginTop: 7, alignItems: 'center' }}>
         {views}
-        <Text style={{marginLeft: 10, fontWeight: '400', fontSize: 11, color: colors.Lightgray }}>
+        <Text style={{ marginLeft: 10, fontWeight: '400', fontSize: 11, color: colors.Lightgray }}>
           June 15 2021
         </Text>
       </View>
       <View>
-        <Text style={{marginTop: 10, fontWeight: '400', fontSize: 12, color: colors.Lightgray}}>
+        <Text style={{ marginTop: 10, fontWeight: '400', fontSize: 12, color: colors.Lightgray }}>
           It's very nice . Soft fabric . Light weight .
           Not transparent. Colour looks elegant . I haven't washed yet .
           Very nice fit Neck is perfect not very deep . Only minus.
@@ -433,7 +452,7 @@ export default class MyStore extends Component {
     </View>)
   }
   renderEventView = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center'}}>
+    return <View style={{ backgroundColor: colors.lightTransparent,}}>
       <FlatList
         data={this.state.eventsArray}
         numColumns={2}
@@ -446,10 +465,10 @@ export default class MyStore extends Component {
       />
     </View>
   }
-  renderEventCellItem = ({item, index}) => {
-    return (<TouchableOpacity  onPress={() => this.didSelectEvent(item)}>  
-      <EventView data={item}/>
-    </TouchableOpacity>) 
+  renderEventCellItem = ({ item, index }) => {
+    return (<TouchableOpacity onPress={() => this.didSelectEvent(item)}>
+      <EventView data={item} />
+    </TouchableOpacity>)
   }
 
   renderTabActionView = () => {
@@ -483,7 +502,7 @@ export default class MyStore extends Component {
               <this.renderSegmentBar />
               <this.renderFilterView />
               <View style={{ height: 10 }} />
-              <View style={{height: '45%'}}>
+              <View style={{ height: '45%' }}>
                 <this.renderTabActionView />
               </View>
             </View>

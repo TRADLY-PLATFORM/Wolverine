@@ -2,7 +2,7 @@ module.exports = {
   URLPaths: {
     BaseURL: 'https://api.dev.tradly.app/app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/eventdev/configs',
+    config: 'v1/tenants/tradlysocial/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',
@@ -22,8 +22,17 @@ module.exports = {
     checkOut: '/checkout',
     myOrders: 'products/v1/orders?type=events&page=',
     orderDetail:'products/v1/orders/',
+    createAccountLink: 'v1/payments/stripe/connect/account_links',
+    createExpressLoginLink: 'v1/payments/stripe/connect/login_links',
+    stripeConnectAccount: 'v1/payments/stripe/connect/account?account_id=',
+    ephemeralKey:'/v1/payments/stripe/ephemeralKey',
+    paymentIntent:'v1/payments/stripe/paymentIntent'
+
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',
 // token: 'v1/users/token/refresh',
 // config: 'v1/tenants/classbubs/configs',
+
+
+//eventdev

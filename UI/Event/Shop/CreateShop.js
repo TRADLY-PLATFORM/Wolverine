@@ -52,7 +52,7 @@ export default class CreateShop extends Component {
       shippingID: 0,
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: [],
+      singleValue: '',
       tagsArray: [],
       selectAddress: {},
       name: '',
@@ -273,8 +273,8 @@ export default class CreateShop extends Component {
           if (obj != -1) {
             let data = this.state.singleSelectedArray[obj]['data']
             let atrDic = {
-              values:[this.state.singleSelectedArray[0]['id']],
-              id: data[0]['id'],
+              values:[data[0]['id']],
+              id: objc['id'],
             }
             attributeAry.push(atrDic)
           }
@@ -282,21 +282,19 @@ export default class CreateShop extends Component {
       }
       if (fieldType == 2) {
         if (this.state.multipleSelectedsArray.length != 0) {
-          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === objc['id'])
           if (obj != -1) {
             let data = this.state.multipleSelectedsArray[obj]['data']
             var idAry = [];
             for (let ob of data) {
               idAry.push(ob['id'])
             }
-            value = nameAry.join()
             let atrDic = {
               values:idAry,
               id: objc['id'],
             }
             attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 3) {
@@ -310,11 +308,15 @@ export default class CreateShop extends Component {
       }
       if (fieldType == 4) {
         if (this.state.tagsArray.length != 0) {
-          let atrDic = {
-            values:this.state.tagsArray,
-            id: objc['id'],
+          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.tagsArray[obj]['data']
+            let atrDic = {
+              values:data,
+              id: objc['id'],
+            }
+            attributeAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 5) {
@@ -441,7 +443,7 @@ export default class CreateShop extends Component {
     ImagePicker.openPicker({
       height: 200,
       width: 200,
-      cropping: false,
+      cropping: true,
       includeBase64: true,
     }).then(image => {
       // console.log('image', image);
@@ -586,10 +588,12 @@ export default class CreateShop extends Component {
           </View>)
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
-          if (this.state.documentFile['sourceURL']) {
-            value = this.state.documentFile['filename'];
-          } else {
-            value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
+          if (this.state.documentFile != null) {
+            if (this.state.documentFile['sourceURL']) {
+              value = this.state.documentFile['filename'];
+            } else {
+              value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
+            }
           }
           views.push(<View>
             <View style={{ height: 20 }} />

@@ -28,4 +28,5 @@ module.exports  = {
   ConfirmBooking: 'ConfirmBooking',
   MyOrders: 'MyOrders',
   OrderDetail:'OrderDetail',
+  PaymentScreen:'PaymentScreen'
 }

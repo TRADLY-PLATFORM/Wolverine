@@ -1,5 +1,5 @@
 export default {
-  AppTheme:'#60e4ad',
+  AppTheme:'#13B58C',
   Lightgray:'rgba(167, 167, 167, 1)',
   LightUltraGray: '#EEEEEE',
   lightTransparent:'rgba(1, 1, 1, 0)',
@@ -14,8 +14,10 @@ export default {
   LightGreenColor:'#B2E7DA',
   AppWhite:'white',
   LightGreen:'rgba(223, 251, 244, 1)',
-  GradientTop: '#60e4ad',
+  GradientTop: '#2BDBC0',
   GradientBottom: '#13B58C',
   AppBlack:'rgba(1, 1, 1, 1)',
 
 };
+
+//60e4ad client theme

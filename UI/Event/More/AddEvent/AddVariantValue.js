@@ -133,7 +133,7 @@ export default class AddVariantValue extends Component {
     ImagePicker.openPicker({
       height: 200,
       width: 200,
-      cropping: false,
+      cropping: true,
       includeBase64: true,
     }).then(image => {
       // this.state.photo = image;

@@ -18,7 +18,7 @@ import sample from '../assets/dummy.png';
 const windowWidth = Dimensions.get('window').width;
 export default class EventView extends Component {
   static propTypes = {
-    data: PropTypes.string,
+    data: PropTypes.any,
   };
 
   renderEventView = () => {

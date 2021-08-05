@@ -50,7 +50,7 @@ export default class AddEvent extends Component {
       attributeArray: [],
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValueArray: [],
+      singleValue: '',
       tagsArray: [],
       eventDateArray: [],
       selectAddress: {},
@@ -73,7 +73,9 @@ export default class AddEvent extends Component {
     this.state.accountId = appConstant.accountID;
     this.loadCategoryApi()
     this.getCurrencyApi();
-    if (this.props.route.params) {
+    let {listingID} = this.props.route.params;
+    // console.log('listingID', listingID);
+    if (listingID) {
       let {listingID} = this.props.route.params;
       this.state.listingID = listingID
       this.setState({isEditing: true})
@@ -112,40 +114,25 @@ export default class AddEvent extends Component {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
-            var valueDic = {};
-            valueDic['valueId'] = item['id'];
-            valueDic['data'] = item['values'];
-            this.state.singleSelectedArray.push(valueDic);
-            // this.state.singleSelectedArray = item['values'];
+            this.state.singleSelectedArray = item['values'];
           }
         }
         if (fieldType == 2) {
           if (item['values'].length != 0) {
-            var valueDic = {};
-            valueDic['valueId'] = item['id'];
-            valueDic['data'] = item['values'];
-            this.state.multipleSelectedsArray.push(valueDic);
-            // this.state.multipleSelectedsArray = item['values'];
+            this.state.multipleSelectedsArray = item['values'];
           }
         }
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              var valueDic = {};
-              valueDic['valueId'] = item['id'];
-              valueDic['text'] = item['values'][0];
-              this.state.singleValueArray.push(valueDic);
-              // this.state.singleValue = item['values'][0];
+              this.state.singleValue = item['values'][0];
             }
           }
         }
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              var valueDic = {};
-              valueDic['valueId'] = item['id'];
-              valueDic['data'] = item['values'];
-              this.state.tagsArray.push(valueDic);
+              this.state.tagsArray = item['values'];
             }
           }
         }
@@ -190,6 +177,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
+      console.log('vData', vData);
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -343,61 +331,42 @@ export default class AddEvent extends Component {
       let fieldType = objc['field_type'];
       if (fieldType == 1) {
         if (this.state.singleSelectedArray.length != 0) {
-          let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
-          if (obj != -1) {
-            let data = this.state.singleSelectedArray[obj]['data']
-            let atrDic = {
-              values:[this.state.singleSelectedArray[0]['id']],
-              id: data[0]['id'],
-            }
-            attributeAry.push(atrDic)
+          let atrDic = {
+            values: [this.state.singleSelectedArray[0]['id']],
+            id: objc['id'],
           }
+          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 2) {
         if (this.state.multipleSelectedsArray.length != 0) {
-          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
-          if (obj != -1) {
-            let data = this.state.multipleSelectedsArray[obj]['data']
-            var idAry = [];
-            for (let ob of data) {
-              idAry.push(ob['id'])
-            }
-            value = nameAry.join()
-            let atrDic = {
-              values:idAry,
-              id: objc['id'],
-            }
-            attributeAry.push(atrDic)
+          var idAry = [];
+          for (let obj of this.state.multipleSelectedsArray) {
+            idAry.push(obj['id'])
           }
-          // attributeAry.push(atrDic)
+          let atrDic = {
+            values: idAry,
+            id: objc['id'],
+          }
+          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValueArray.length != 0) {
-          let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
-          if (obj != -1) {
-            let data = this.state.singleValueArray[obj]['text']
-            let atrDic = {
-              values: [data],
-              id: objc['id'],
-            }
-            attributeAry.push(atrDic)
+        if (this.state.singleValue.length != 0) {
+          let atrDic = {
+            values: [this.state.singleValue],
+            id: objc['id'],
           }
+          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 4) {
         if (this.state.tagsArray.length != 0) {
-
-          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
-          if (obj != -1) {
-            let data = this.state.tagsArray[obj]['data']
-            let atrDic = {
-              values:[this.state.tagsArray[0]['id']],
-              id: data[0]['id'],
-            }
-            attributeAry.push(atrDic)
+          let atrDic = {
+            values: this.state.tagsArray,
+            id: objc['id'],
           }
+          attributeAry.push(atrDic)
         }
       }
       if (fieldType == 5) {
@@ -514,14 +483,15 @@ export default class AddEvent extends Component {
     var dict = dic['uploadParm'];
     dict['images'] = images;
     let item = dic['variantType']
+    console.log('item variantType', item)
     let variantvalues = [{variant_type_id: item['id'], variant_type_value_id:item['values']['id']}]
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(item['id']){
-       path = '/variants/' + item['id'];
-       reqMethod = 'PUT';
-    }
+    // if(item['id']){
+    //    path = '/variants/' + item['id'];
+    //    reqMethod = 'PUT';
+    // }
     console.log('path == >', path)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod, JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
@@ -648,58 +618,25 @@ export default class AddEvent extends Component {
     // console.log('data => ', data);
     this.setState({ selectedCurrency: data })
   }
-  onTagChanges(data, id) {
-    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
-    var valueDic = {};
-    valueDic['valueId'] = id;
-    valueDic['data'] = data;
-    if (index != -1) {
-      this.state.tagsArray[index] = valueDic;
-    } else {
-      this.state.tagsArray.push(valueDic);
-    }
-    // this.state.tagsArray = data
-    this.setState({ updateUI: !this.state.updateUI })
-  }
-  onChangeTextValue(text, id){
-    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
-    var valueDic = {};
-    valueDic['valueId'] = id;
-    valueDic['text'] = text;
-    if (index != -1) {
-      this.state.singleValueArray[index] = valueDic;
-    } else {
-      this.state.singleValueArray.push(valueDic);
-    }
-    // this.state.tagsArray = data
+  onTagChanges(data) {
+    this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAttributeSelectedValues = (data, singleSelect) => {
     if (singleSelect) {
-      let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
-      if (obj != -1) {
-        this.state.singleSelectedArray[obj] = data[0];
-      }else {
-        this.state.singleSelectedArray.push(data[0]);
-      }
+      this.state.singleSelectedArray = data
     } else {
-      let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === data[0]['valueId']) 
-      if (obj != -1) {
-        this.state.multipleSelectedsArray[obj] = data[0];
-      }else {
-        this.state.multipleSelectedsArray.push(data[0]);
-      }
-      // this.state.multipleSelectedsArray = data
+      this.state.multipleSelectedsArray = data
     }
+    this.setState({ updateUI: !this.state.updateUI })
   }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
       height: 200,
       width: 200,
-      cropping: false,
+      cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.2,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -808,23 +745,15 @@ export default class AddEvent extends Component {
           var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
-              let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
-              if (obj != -1) {
-                let data = this.state.singleSelectedArray[obj]['data']
-                value = data[0]['name']
-              }
+              value = this.state.singleSelectedArray[0]['name']
             }
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
-              let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
-              if (obj != -1) {
-                let data = this.state.multipleSelectedsArray[obj]['data']
-                var nameAry = [];
-                for (let obj of data) {
-                  nameAry.push(obj['name'])
-                }
-                value = nameAry.join()
+              var nameAry = [];
+              for (let obj of this.state.multipleSelectedsArray) {
+                nameAry.push(obj['name'])
               }
+              value = nameAry.join()
             }
           }
           views.push(<View>
@@ -838,39 +767,25 @@ export default class AddEvent extends Component {
             </View>
           </View>)
         } else if (fieldType == 3) {
-          var value = ''
-          if (this.state.singleValueArray.length !== 0) {
-            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
-            if (obj != -1) {
-              value = this.state.singleValueArray[obj]['text']
-            }
-          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
-              value={value}
-              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
+              value={this.state.singleValue}
+              onChangeText={value => this.setState({ singleValue: value })}
             />
           </View>)
         } else if (fieldType == 4) {
-          var tagAry = [];
-          if (this.state.tagsArray.length !== 0) {
-            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
-            if (obj != -1) {
-              tagAry = this.state.tagsArray[obj]['data']
-            }
-          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
               tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
               inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
-              initialTags={tagAry}
-              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
+              initialTags={this.state.tagsArray}
+              onChangeTags={tags => this.onTagChanges(tags)}
             />
           </View>)
         } else if (fieldType == 5) {
@@ -1019,7 +934,7 @@ export default class AddEvent extends Component {
       stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
-      if (photos['sourceURL']) { 
+      if (photos[0]['sourceURL']) { 
         photos = photos[0]['sourceURL'];
       } else {
         photos = photos[0];

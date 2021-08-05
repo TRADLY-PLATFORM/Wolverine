@@ -40,6 +40,8 @@ import EventList from './UI/Event/EventList';
 import ConfirmBooking from './UI/Event/EventDetail/ConfirmBooking';
 import MyOrders from './UI/Event/More/MyOrders/MyOrders';
 import OrderDetail from './UI/Event/More/MyOrders/OrderDetail';
+import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -54,8 +56,8 @@ export default class App extends Component {
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
-
   }
+  initialize
   navigationReturn = () => {
     return <NavigationContainer>
       <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
@@ -86,6 +88,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.ConfirmBooking} component={ConfirmBooking} />
         <Stack.Screen name={NavigationRoots.MyOrders} component={MyOrders} />
         <Stack.Screen name={NavigationRoots.OrderDetail} component={OrderDetail} />
+        <Stack.Screen name={NavigationRoots.PaymentScreen} component={PaymentScreen} />
 
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',

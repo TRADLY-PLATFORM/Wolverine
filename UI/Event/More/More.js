@@ -21,14 +21,28 @@ export default class More extends Component {
     this.state = {
       isVisible: false,
       accountId: 0,
-      updateUI: false
+      updateUI: false,
+      email: '',
+      name: '',
     }
   }
   componentDidMount() {
+    this.getUserDetailApi();
     this.getMyStoreApi();
     this.props.navigation.addListener('focus', () => {
       this.getMyStoreApi();
     });
+  }
+  getUserDetailApi = async () => {
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}/${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let uData = responseJson['data']['user'];
+      this.state.email = uData['email'];
+      this.state.name = `${uData['first_name']} ${uData['last_name']}`;
+      this.setState({updateUI: !this.state.updateUI, isVisible: false})
+    }else {
+      this.setState({ isVisible: false })
+    }
   }
   getMyStoreApi = async () => {
     this.setState({ isVisible: true })
@@ -38,7 +52,7 @@ export default class More extends Component {
       if (acctData.length != 0) {
         this.setState({ accountId: acctData[0]['id'] })
       }
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false})
     } else {
       this.setState({ isVisible: false })
     }
@@ -73,6 +87,12 @@ export default class More extends Component {
         this.props.navigation.navigate(NavigationRoots.CreateStore);
       }
     } else if (index == 1) {
+      if (this.state.accountId == 0) {
+        this.props.navigation.navigate(NavigationRoots.CreateStore);
+      } else {
+        this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+      }
+     } else if (index == 2) {
       this.props.navigation.navigate(NavigationRoots.MyOrders);
      }
   }
@@ -106,8 +126,8 @@ export default class More extends Component {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
                   <View style={{ marginLeft: 10 }}>
-                    <Text style={styles.titleStyle}>Developer</Text>
-                    <Text style={styles.subTitleStyle}>eventdev@gmail.com</Text>
+                    <Text style={styles.titleStyle}>{this.state.email}</Text>
+                    <Text style={styles.subTitleStyle}>{this.state.name}</Text>
                   </View>
                 </View>
                 {/* <TouchableOpacity onPress={() => this.settingBtnAction()}>
