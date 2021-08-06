@@ -43,7 +43,7 @@ export default class OnBoardings extends Component {
   }
   /*  Buttons   */
   _onDone = () => {
-    this.props.navigation.navigate(NavigationRoots.SignIn)
+    this.props.navigation.navigate(NavigationRoots.BottomTabbar)
   }
   _nextBtnAction(){
     this.state.index = this.state.index + 1;

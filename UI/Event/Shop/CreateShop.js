@@ -178,7 +178,6 @@ export default class CreateShop extends Component {
     var imgParm = [];
     var uploadBase64 = [];
     if (this.state.photo != null) {
-      console.log('calling.......here');
       let fileName = this.state.photo.data;
       if (fileName != null) {
         var splashDict = {
@@ -356,7 +355,11 @@ export default class CreateShop extends Component {
       [
         {
           text: "OK", onPress: () => {
-            this.props.navigation.goBack();
+            this.props.navigation.navigate(NavigationRoots.MyStore,{
+              createProfile:true,
+              accId: appConstant.accountID,
+            });
+            // this.props.navigation.goBack();
           }
         }
       ],
@@ -648,7 +651,7 @@ export default class CreateShop extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Create you store'}
+        <HeaderView title={'Create your profile '}
           showBackBtn={false} showDoneBtn={true}
           doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
@@ -679,10 +682,10 @@ export default class CreateShop extends Component {
               <View style={{ zIndex: 1,}}>
                 <this.renderAddressView />
                 <View style={{ height: 20 }} />
-                <this.renderTitleLbl title={'Preferred Shipment'} />
+                {/* <this.renderTitleLbl title={'Preferred Shipment'} />
                 <View>
                   <this.renderShipmentView />
-                </View>
+                </View> */}
                 <View style={{ height: 60 }} />
                 <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
                   <Text style={commonStyles.themeTitleStyle}>Create</Text>

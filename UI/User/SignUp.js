@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getUniqueId } from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
 import errorHandler from '../../NetworkManager/ErrorHandle'
+import closeIcon from './../../assets/close.png';
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -77,6 +78,9 @@ export default class SignUp extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
         <SafeAreaView style={styles.Container}>
+          <TouchableOpacity style={commonStyle.closeBtnStyle} onPress={() => this.props.navigation.goBack()}>
+            <Image source={closeIcon}/>
+          </TouchableOpacity>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <ScrollView>
             <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>

@@ -130,7 +130,13 @@ export default class MyStore extends Component {
     }
 
   }
-  doneBtnAction() {
+  backBtnAction() {
+    let { createProfile } = this.props.route.params;
+    if (createProfile) {
+      this.props.navigation.navigate(NavigationRoots.More);
+    } else {
+      this.props.navigation.goBack();
+    }
   }
   activeBtnAction() {
     this.updateStatusAPI()
@@ -190,7 +196,7 @@ export default class MyStore extends Component {
       let add = this.state.storeDetail['location']
       address = add['formatted_address'];
       let reRate = this.state.storeDetail['rating_data']
-      review = reRate['rating_average'];
+      review = reRate['rating_average'] || '0';
     }
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
@@ -209,7 +215,7 @@ export default class MyStore extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={styles.ratingViewStyle} >
             <View style={{ flexDirection: 'row' }}>
-              <Text>3.0</Text>
+              <Text>{review}</Text>
               <Image source={starIcon} style={{ height: 20, width: 20, marginTop: -2 }} resizeMode={'center'} />
             </View>
             <View style={{ height: 5 }} />
@@ -259,7 +265,7 @@ export default class MyStore extends Component {
         <Image source={this.state.segmentIndex == 0 ? product : productGray} style={{ height: 20, width: 20 }} resizeMode={'center'} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
-          Events(12)
+          Events
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
@@ -295,9 +301,9 @@ export default class MyStore extends Component {
         {this.renderArrtibutes()}
       </View>
       <View style={{ height: 20 }} />
-      {this.renderRateStoreView()}
+      {/* {this.renderRateStoreView()}
       <View style={{ height: 20 }} />
-      <RatingReview />
+      <RatingReview /> */}
       {/* {this.renderRatingReviewView()} */}
       {/* <View style={{ height: 20 }} />
       {this.renderReviewView()} */}
@@ -489,7 +495,7 @@ export default class MyStore extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'My Store'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={'My Store'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View>
           <View style={{ position: 'relative', flexDirection: 'column' }}>
@@ -502,7 +508,7 @@ export default class MyStore extends Component {
               <this.renderSegmentBar />
               <this.renderFilterView />
               <View style={{ height: 10 }} />
-              <View style={{ height: '45%' }}>
+              <View style={{ height: '50%' }}>
                 <this.renderTabActionView />
               </View>
             </View>

@@ -32,7 +32,7 @@ import editGreen from '../../../../assets/editGreen.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-import {changeDateFormat,getTimeFormat} from '../../../../HelperClasses/SingleTon'
+import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 
 export default class AddEvent extends Component {
@@ -64,7 +64,7 @@ export default class AddEvent extends Component {
       ticketLimit: '',
       accountId: 0,
       selectVariantArray: [],
-      listingID: 0,
+      listingID: '',
       isEditing: false,
       selectedVariantIndex: 0,
     }
@@ -73,14 +73,15 @@ export default class AddEvent extends Component {
     this.state.accountId = appConstant.accountID;
     this.loadCategoryApi()
     this.getCurrencyApi();
-    let {listingID} = this.props.route.params;
     // console.log('listingID', listingID);
-    if (listingID) {
+    if (this.props.route.params) {
       let {listingID} = this.props.route.params;
-      this.state.listingID = listingID
-      this.setState({isEditing: true})
-      this.loadEventDetailApi();
-      this.loadVariantTypeApi();
+      if (listingID != undefined) {
+        this.state.listingID = listingID;
+        this.setState({isEditing: true})
+        this.loadEventDetailApi();
+        this.loadVariantTypeApi();
+      }
     }
   }
 
@@ -101,6 +102,7 @@ export default class AddEvent extends Component {
       this.state.categoryName = listData['categories'][0]['name'];
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
+      let eventStart = dateConversionFromTimeStamp(listData['start_at']);
       let sTime = getTimeFormat(listData['start_at']);
       let eTime = getTimeFormat(listData['end_at']);
       let eventdate = changeDateFormat(eventStart,'ddd, D MMM yy')
@@ -403,7 +405,7 @@ export default class AddEvent extends Component {
         if (!this.state.isEditing){
           this.addVariantUploadServiceMethod(0);
         }else {
-        Alert.alert('Update SuccessFully')
+          this.successAlert()
         }
       } else {
         Alert.alert(responseJson)
@@ -420,11 +422,11 @@ export default class AddEvent extends Component {
         if (this.state.selectVariantArray.length > index) {
           this.addVariantUploadServiceMethod(index + 1)
         } else {
-          Alert.alert('SuccessFull');
+          this.successAlert()
         }
       }
     }else {
-      Alert.alert('SuccessFull');
+      this.successAlert()
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -503,6 +505,19 @@ export default class AddEvent extends Component {
         Alert.alert(responseJson)
       }
     }
+  }
+  successAlert() {
+    Alert.alert(
+      "Successfull", "",
+      [
+        {
+          text: "OK", onPress: () => {
+            this.props.navigation.goBack();
+            // this.props.navigation.goBack();
+          }
+        }
+      ],
+    );
   }
   /*  Buttons   */
   createBtnAction() {

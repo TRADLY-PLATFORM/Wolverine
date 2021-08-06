@@ -12,12 +12,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getUniqueId } from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
 import errorHandler from '../../NetworkManager/ErrorHandle'
+import closeIcon from './../../assets/close.png';
+import appConstant, { userId } from './../../Constants/AppConstants';
 
 export default class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isVisible: true,
+      isVisible: false,
       email: '',
       password: '',
       authType: 2,
@@ -29,17 +31,6 @@ export default class SignIn extends Component {
   componentDidMount() {
     // email: 'event@test.com',
     // password: '123456',
-      this.configApi()
-  }
-  configApi = async () => {
-    this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
-    console.log('get data of config', responseJson)
-    if (responseJson['status'] == true) {
-      let keyd = responseJson['data']['key']['app_key']
-      DefaultPreference.set('token', keyd).then(function (){console.log('done')});
-      this.setState({ bToken: keyd, isVisible: false })
-    }
   }
   loginApi = async () => {
     this.setState({ isVisible: true })
@@ -49,26 +40,45 @@ export default class SignIn extends Component {
     }
     dict['email'] = this.state.email
     dict['password'] = this.state.password
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.login, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.login, 'POST', JSON.stringify({ user: dict }), appConstant.bToken)
     console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        console.log('refresh_key => ', responseJson['data']['user']['key']);
+        // console.log('refresh_key => ', responseJson['data']['user']['key']);
         const auth_key = responseJson['data']['user']['key']['auth_key'];
         const refresh_key = responseJson['data']['user']['key']['refresh_key'];
         const id = responseJson['data']['user']['id'];
+        appConstant.loggedIn = true;
+        appConstant.refreshKey = refresh_key;
+        appConstant.authKey = auth_key;
+        appConstant.userId = id;
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
         DefaultPreference.set('userId', id).then();
         DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
-        this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        // this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        this.getMyStoreApi();
       } else {
         console.log(" error ", responseJson)
         // let error = errorHandler.errorHandle(responseJson)
         // console.log('error',responseJson)
         Alert.alert(responseJson)
       }
+    }
+  }
+  getMyStoreApi = async () => {
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let acctData = responseJson['data']['accounts'];
+      if (acctData.length != 0) {
+        appConstant.accountID = acctData[0]['id'];
+      }else{
+        appConstant.accountID = '';
+      }
+      this.props.navigation.goBack();
+    }else {
+      this.setState({ isVisible: false })
     }
   }
   /*  Buttons   */
@@ -89,6 +99,9 @@ export default class SignIn extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
       <SafeAreaView style={styles.Container}>
+        <TouchableOpacity style={commonStyle.closeBtnStyle} onPress={() => this.props.navigation.goBack()}>
+          <Image source={closeIcon} />
+        </TouchableOpacity>
         <ScrollView>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <View style={{height: 60}}/>

@@ -55,6 +55,9 @@ export default class EventDetail extends Component {
   }
 
   componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.setState({updateUI: !this.state.updateUI})
+    })
     this.getEventDetailApi();
   }
   /*  APIs   */
@@ -341,21 +344,30 @@ export default class EventDetail extends Component {
     </View>)
   }
   renderBottomBtnView = () => {
-    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}
-       disabled={this.state.selectedVariantId == 0}>
-        <View style={this.state.selectedVariantId == 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.clearBtnViewStyle}>
-          <Text style={{ color: this.state.selectedVariantId == 0 ? colors.AppWhite : colors.AppTheme,fontWeight: '600'}}>
-            Book Now
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} >
-        <View style={eventStyles.applyBtnViewStyle}>
-          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
-        </View>
-      </TouchableOpacity>
-    </View>)
+    if (appConstant.loggedIn) {
+      return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+        <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
+          <View style={eventStyles.clearBtnViewStyle}>
+            <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
+              Book Now
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomBtnViewStyle} >
+          <View style={eventStyles.applyBtnViewStyle}>
+            <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
+          </View>
+        </TouchableOpacity>
+      </View>)
+    } else {
+      return (<View>
+        <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.props.navigation.navigate(NavigationRoots.SignIn)}>
+          <View style={eventStyles.applyBtnViewStyle}>
+            <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Login</Text>
+          </View>
+        </TouchableOpacity>
+      </View>)
+    }
   }
   renderMainView = () => {
     if (this.state.loadData) {

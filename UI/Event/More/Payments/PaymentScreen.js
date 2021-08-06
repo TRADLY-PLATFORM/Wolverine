@@ -120,6 +120,7 @@ export default class ConfirmBooking extends Component {
       title = 'Stripe verification failed'
       subTitle = this.state.errorArray.toString();
       imageIcon = errorIcon
+      buttonTitle = 'View Dashboard';
     }
 
     if (this.state.loadData) {

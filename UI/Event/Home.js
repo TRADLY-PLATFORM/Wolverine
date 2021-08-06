@@ -38,12 +38,18 @@ export default class Home extends Component {
     }
   }
   componentDidMount() {
+    this.getSavedData();
+  }
+  getSavedData() {
     DefaultPreference.get('token').then(function (value) {
       appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
         appConstant.authKey = authKey;
         DefaultPreference.get('refreshKey').then(function (refreshKey) {
           appConstant.refreshKey = refreshKey;
+        }.bind(this))
+        DefaultPreference.get('loggedIn').then(function (val) {
+          appConstant.loggedIn = val == 'true' ? true : false;
         }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {
           console.log('userId', userId);
@@ -219,10 +225,10 @@ export default class Home extends Component {
       return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
         <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
-        <Text style={{ fontWeight: '400', fontSize: 14}}>{item['name']}</Text>
+        <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
         <View style={{flexDirection: 'row', marginTop: 15}}>
           <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={{uri:item['user']['profile_pic']}} />
-          <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
+          <Text numberOfLines={2} style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
         </View>
         </View>
       </TouchableOpacity>)
@@ -285,8 +291,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   horizontalCellItemStyle: {
-    width: windowWidth/2 - 25,
-    height: windowWidth/2 - 25,
+    width: windowWidth/2.5,
+    // height: windowWidth/2 - 25,
     margin: 10,
     backgroundColor: colors.AppWhite,
     borderRadius: 10,
@@ -296,8 +302,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   selectedImageStyle: {
-    height: '60%',
-    width: '100%',
+    height: windowWidth/2.5,
+    width: windowWidth/2.5,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },

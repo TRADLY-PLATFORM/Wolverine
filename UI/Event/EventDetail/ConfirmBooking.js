@@ -65,7 +65,9 @@ export default class ConfirmBooking extends Component {
       'payment_method_id': this.state.selectedPaymentId,
       'quantity': this.state.countPrice,
       'type': 'events',
-      'variant_id': variantData['id'],
+    }
+    if (variantData['id']) {
+      dict['variant_id'] = variantData['id'];
     }
     let id = this.state.eventDetailData['id']
     let currency = this.state.eventDetailData['list_price']['currency'];

@@ -11,11 +11,9 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import forwardIcon from '../../../assets/forward.png';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
 

@@ -36,6 +36,7 @@ export default class Verification extends Component {
         const auth_key = responseJson['data']['user']['key']['auth_key'];
         const refresh_key = responseJson['data']['user']['key']['refresh_key'];
         const id = responseJson['data']['user']['id'];
+        
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
         DefaultPreference.set('userId', id).then();

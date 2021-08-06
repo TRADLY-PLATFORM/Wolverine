@@ -8,7 +8,8 @@ import colors from '../CommonClasses/AppColor';
 module.exports = StyleSheet.create({
   followContainerStyle: {
     backgroundColor: colors.AppTheme,
-    width: 75,
+    paddingLeft: 10,
+    paddingRight: 10,
     height: 25,
     borderRadius: 3,
     justifyContent: 'center',

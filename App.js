@@ -13,6 +13,10 @@ import { createStackNavigator, TransitionPresets } from '@react-navigation/stack
 
 import colors from './CommonClasses/AppColor';
 import NavigationRoots from './Constants/NavigationRoots';
+import DefaultPreference from 'react-native-default-preference';
+import networkService from './NetworkManager/NetworkManager';
+import APPURL from './Constants/URLConstants';
+import appConstant from './Constants/AppConstants';
 
 import OnBoarding from './UI/User/OnBoarding';
 import Signin from './UI/User/SignIn';
@@ -41,6 +45,7 @@ import ConfirmBooking from './UI/Event/EventDetail/ConfirmBooking';
 import MyOrders from './UI/Event/More/MyOrders/MyOrders';
 import OrderDetail from './UI/Event/More/MyOrders/OrderDetail';
 import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
+import * as Sentry from "@sentry/react-native";
 
 
 const Stack = createStackNavigator();
@@ -51,16 +56,29 @@ export default class App extends Component {
     super(props);
     this.state = {
       loggedIn: 'false',
-      reload: true,
+      reload: false,
+      isVisible: false,
     }
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
+    Sentry.init({ dsn: appConstant.dsnSentry, enableNative: false});
+    this.configApi();
   }
-  initialize
+  configApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
+    console.log('get data of config', responseJson)
+    if (responseJson['status'] == true) {
+      let keyd = responseJson['data']['key']['app_key']
+      DefaultPreference.set('token', keyd).then(function (){console.log('done')});
+      appConstant.bToken = keyd;
+      this.setState({ reload: true, isVisible: false })
+    }
+  }
   navigationReturn = () => {
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
+      <Stack.Navigator initialRouteName={NavigationRoots.OnBoardings} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}

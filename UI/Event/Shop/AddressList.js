@@ -8,6 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  ActivityIndicator,
   ScrollView,
   Dimensions,
 } from 'react-native';
@@ -42,6 +43,8 @@ export default class AddressList extends Component {
       let sData = responseJson['data']['addresses'];
       this.state.searchArray = sData
       this.setState({ updateUI: !this.state.updateUI,isVisible: false })
+    }else {
+      this.setState({isVisible: false })
     }
   }
   onSearchChanges(text) {
@@ -75,6 +78,15 @@ export default class AddressList extends Component {
     }
     return views;
   }
+  renderActivityLoader = () => {
+    if (this.state.isVisible) {
+    return <View style={{marginTop: 10}}>
+      <ActivityIndicator size="small" />
+    </View>
+    }else {
+      return <View />
+    }
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
@@ -86,6 +98,7 @@ export default class AddressList extends Component {
               barTintColor={colors.AppWhite}
               searchBarStyle={'minimal'}
               tintColor={colors.AppWhite}
+              placeholderTextColor={colors.AppWhite}
               textFieldBackgroundColor={colors.AppGreen}
               style={{ borderColor: colors.Lightgray, height: 50 }}
               textColor={colors.AppWhite}
@@ -93,7 +106,10 @@ export default class AddressList extends Component {
               tintColor={colors.AppWhite}
             />
           </View>
-          <this.renderListView />
+          <this.renderActivityLoader />
+          <ScrollView>
+            <this.renderListView />
+          </ScrollView>
         </View>
       </SafeAreaView>
     );

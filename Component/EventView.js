@@ -28,12 +28,12 @@ export default class EventView extends Component {
     return (<View style={styles.horizontalCellItemStyle}>
       <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ padding: 2 }}>
-        <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }}>{item['title']}</Text>
+        <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }} numberOfLines={1}>{item['title']}</Text>
         <View style={{ height: 5 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
             <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
-            <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%' }}>{item['account']['name']}</Text>
+            <Text numberOfLines={1} style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%' }}>{item['account']['name']}</Text>
           </View>
           <View>
             <View style={eventStyles.followContainerStyle}>
@@ -54,7 +54,7 @@ export default class EventView extends Component {
 const styles = StyleSheet.create({
   horizontalCellItemStyle: {
     // height: 250,
-    width: windowWidth/2 - 25,
+    width: windowWidth/2.5,
     margin: 10,
     backgroundColor: colors.AppWhite,
     borderRadius: 10,
@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   selectedImageStyle: {
-    height: 120,
-    width: '100%',
+    height: windowWidth/2.5,
+    width: windowWidth/2.5,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },

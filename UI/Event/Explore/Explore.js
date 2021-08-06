@@ -247,10 +247,10 @@ export default class Explore extends Component {
       return (<View style={{ margin: 5, height: '90%' }}>
         <FlatList
           data={this.state.eventsArray}
-          numColumns={1}
-          initialNumToRender={7}
+          // numColumns={1}
+          // initialNumToRender={7}
           renderItem={this.renderListCellItem}
-          showsVerticalScrollIndicator={false}
+          // showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index + 3245}
           key={'L'}
           horizontal={this.state.showMap ? true : false}
@@ -445,6 +445,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
+    width: windowWidth - 20,
   },
   headerViewStyle: {
     width: '50%',

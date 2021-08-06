@@ -12,6 +12,9 @@ import settingIcon from '../../../assets/settingIcon.png';
 import appConstant from '../../../Constants/AppConstants';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
+import DefaultPreference from 'react-native-default-preference';
+import Spinner from 'react-native-loading-spinner-overlay';
+import commonStyles from '../../../StyleSheet/UserStyleSheet';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 
@@ -24,22 +27,30 @@ export default class More extends Component {
       updateUI: false,
       email: '',
       name: '',
+      loadData: false,
     }
   }
   componentDidMount() {
-    this.getUserDetailApi();
-    this.getMyStoreApi();
+    // this.getUserDetailApi();
+    // this.getMyStoreApi();
     this.props.navigation.addListener('focus', () => {
-      this.getMyStoreApi();
+      if (appConstant.loggedIn) {
+          console.log('calling');
+          this.setState({ isVisible: true })
+          this.state.loadData = true
+          this.getUserDetailApi();
+          this.getMyStoreApi();
+          // this.setState({updateUI: !this.state.updateUI})
+      }
     });
   }
   getUserDetailApi = async () => {
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}/${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let uData = responseJson['data']['user'];
       this.state.email = uData['email'];
       this.state.name = `${uData['first_name']} ${uData['last_name']}`;
-      this.setState({updateUI: !this.state.updateUI, isVisible: false})
+      this.setState({updateUI: !this.state.updateUI, loadData: true})
     }else {
       this.setState({ isVisible: false })
     }
@@ -71,38 +82,50 @@ export default class More extends Component {
         },
         {
           text: "OK", onPress: () => {
-            this.props.navigation.replace(NavigationRoots.SignIn)
+            DefaultPreference.set('loggedIn', 'false').then( () => { 
+              appConstant.loggedIn = false;
+              this.setState({ updateUI: !this.state.updateUI})
+              this.props.navigation.navigate(NavigationRoots.SignIn)
+            });  
           }
         }
       ],
     );
   }
   didSelectList = ({ index }) => {
-    if (index == constantArrays.menuArray.length - 1) {
-      this.logoutBtnAction()
-    } else if (index == 0) {
-      if (this.state.accountId != 0) {
-        this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
-      } else {
-        this.props.navigation.navigate(NavigationRoots.CreateStore);
+    if(appConstant.loggedIn) {
+      if (index == constantArrays.menuArray.length - 1) {
+        this.logoutBtnAction()
+      } else if (index == 0) {
+        if (this.state.accountId != 0) {
+          this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
+        } else {
+          this.props.navigation.navigate(NavigationRoots.CreateStore);
+        }
+      } else if (index == 1) {
+        if (this.state.accountId == 0) {
+          this.props.navigation.navigate(NavigationRoots.CreateStore);
+        } else {
+          this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+        }
+      } else if (index == 2) {
+        this.props.navigation.navigate(NavigationRoots.MyOrders);
       }
-    } else if (index == 1) {
-      if (this.state.accountId == 0) {
-        this.props.navigation.navigate(NavigationRoots.CreateStore);
-      } else {
-        this.props.navigation.navigate(NavigationRoots.PaymentScreen);
-      }
-     } else if (index == 2) {
-      this.props.navigation.navigate(NavigationRoots.MyOrders);
-     }
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
   }
   /*  UI   */
   renderListView = () => {
+    let  mArray = constantArrays.menuArray;
+    if (!appConstant.loggedIn) {
+      mArray = mArray.slice(0,-1)
+     }
     return (
       <View style={{ width: '100%' }}>
         <FlatList
           style={{ margin: 10 }}
-          data={constantArrays.menuArray}
+          data={mArray}
           renderItem={this.renderListCellItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index}
@@ -116,23 +139,33 @@ export default class More extends Component {
       <Text style={{ fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
+  renderUserInfo = () => {
+    console.log(appConstant.loggedIn);
+    if(appConstant.loggedIn) {
+      return (<View>
+        <View style={{ marginLeft: 10}}>
+          <Text style={styles.titleStyle}>{this.state.email}</Text>
+          <Text style={styles.subTitleStyle}>{this.state.name}</Text>
+        </View>
+      </View>)
+    }else {
+      return (<View>
+        <View style={{ marginLeft: 10}}>
+          <Text style={styles.titleStyle}>Sign in/Sign up</Text>
+        </View>
+      </View>)
+    }
+  }
   render() {
     return (
-      <SafeAreaView style={styles.Container}>
         <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
+          <SafeAreaView style={styles.Container}>
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
           <View style={{ position: 'relative', flexDirection: 'column' }}>
-            <View style={{ backgroundColor: colors.AppTheme, height: '32%' }}>
-              <View style={{ flexDirection: 'row', margin: 20, justifyContent: 'space-between' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
-                  <View style={{ marginLeft: 10 }}>
-                    <Text style={styles.titleStyle}>{this.state.email}</Text>
-                    <Text style={styles.subTitleStyle}>{this.state.name}</Text>
-                  </View>
-                </View>
-                {/* <TouchableOpacity onPress={() => this.settingBtnAction()}>
-                  <Image source={settingIcon} style={{ width: 20, height: 20 }} />
-                </TouchableOpacity> */}
+            <View style={{ height: '32%' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20, }}>
+                <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+                <this.renderUserInfo />
               </View>
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '70%', }}>
@@ -141,15 +174,14 @@ export default class More extends Component {
               </View>
             </View>
           </View>
+          </SafeAreaView>
         </LinearGradient>
-      </SafeAreaView>
     );
   }
 }
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    backgroundColor: colors.AppTheme
   },
   titleStyle: {
     color: colors.AppWhite,
