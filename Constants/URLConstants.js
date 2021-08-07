@@ -25,8 +25,10 @@ module.exports = {
     createAccountLink: 'v1/payments/stripe/connect/account_links',
     createExpressLoginLink: 'v1/payments/stripe/connect/login_links',
     stripeConnectAccount: 'v1/payments/stripe/connect/account?account_id=',
-    ephemeralKey:'/v1/payments/stripe/ephemeralKey',
-    paymentIntent:'v1/payments/stripe/paymentIntent'
+    ephemeralKey:'v1/payments/stripe/ephemeralKey',
+    paymentIntent:'v1/payments/stripe/paymentIntent',
+    earning: 'v1/earnings?account_id=',
+    transaction: 'v1/transactions?per_page=30&super_type=2&page=',
 
   }
 }

@@ -46,7 +46,8 @@ import MyOrders from './UI/Event/More/MyOrders/MyOrders';
 import OrderDetail from './UI/Event/More/MyOrders/OrderDetail';
 import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
 import * as Sentry from "@sentry/react-native";
-
+import MySale from './UI/Event/More/MySale/MySale';
+import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
 
 const Stack = createStackNavigator();
 
@@ -107,7 +108,8 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.MyOrders} component={MyOrders} />
         <Stack.Screen name={NavigationRoots.OrderDetail} component={OrderDetail} />
         <Stack.Screen name={NavigationRoots.PaymentScreen} component={PaymentScreen} />
-
+        <Stack.Screen name={NavigationRoots.MySale} component={MySale} />
+        <Stack.Screen name={NavigationRoots.PayoutsScreen} component={PayoutsScreen} />
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

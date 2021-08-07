@@ -110,6 +110,12 @@ export default class More extends Component {
         }
       } else if (index == 2) {
         this.props.navigation.navigate(NavigationRoots.MyOrders);
+      } else if (index == 3) {
+        if (this.state.accountId != 0) {
+          this.props.navigation.navigate(NavigationRoots.MySale);
+        } else {
+          this.props.navigation.navigate(NavigationRoots.CreateStore);
+        }
       }
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
