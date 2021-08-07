@@ -69,6 +69,13 @@ export default class EventDetail extends Component {
       let eData = responseJson['data']['listing'];
       this.state.eventDetailData = eData;
       this.state.imagesArray = eData['images'];
+      let variants = this.state.eventDetailData['variants'];
+      console.log('variants', variants);
+      if (variants.length != 0){
+        this.state.selectedVariantId = variants[0]['id'];
+        this.state.selectedVariant = variants[0];
+      }
+
       this.setState({updateUI: !this.state.updateUI, loadData: true,isVisible: false})
     } else {
       this.setState({ isVisible: false })
@@ -84,10 +91,14 @@ export default class EventDetail extends Component {
     this.props.navigation.goBack();
   }
   bookBtnAction () {
-    this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
-      eventData:this.state.eventDetailData,
-      variantData: this.state.selectedVariant,
-    });
+    if (appConstant.loggedIn){
+      this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
+        eventData:this.state.eventDetailData,
+        variantData: this.state.selectedVariant,
+      });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
   }
   /*  UI   */
 
@@ -112,17 +123,33 @@ export default class EventDetail extends Component {
     var ticket = '';
     var rattingAvg = '';
     var price = '';
+    var title = '';
+
     if (this.state.eventDetailData['title']) {
-      rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
-      price = this.state.eventDetailData['list_price']['formatted'];
-      ticket = `Only ${this.state.eventDetailData['stock']} tickets left`;
+      if (this.state.selectedVariantId != 0){
+        let item = this.state.selectedVariant;
+        let variant_values = item['variant_values'];
+        var vValue = [];
+        for (let obj of variant_values){
+          vValue.push(obj['variant_type_value']['name']);
+        }
+        title = vValue.join(' | ');
+        price = item['list_price']['formatted'];
+        ticket = `Only ${item['stock']} tickets left`;
+
+      } else {
+        rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
+        price = this.state.eventDetailData['list_price']['formatted'];
+        ticket = `Only ${this.state.eventDetailData['stock']} tickets left`;
+        title = this.state.eventDetailData['title']
+      }
       return (<View>
-        <Text style={eventStyles.titleStyle}>{this.state.eventDetailData['title']}</Text>
-        <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
+        <Text style={eventStyles.titleStyle}>{title}</Text>
+        {/* <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
           <Image style={{ width: 15, height: 15 }} source={starIcon} />
           <View style={{ width: 5 }} />
           <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <Text style={eventStyles.titleStyle}>{price}</Text>
         <View style={{ height: 10 }} />
@@ -184,11 +211,6 @@ export default class EventDetail extends Component {
             </View>
           </View>
         </View>
-        <View>
-          {/* <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, marginTop:10}}>
-            {'View Schedules'}
-          </Text> */}
-        </View>
       </View>)
     } else {
       return <View />
@@ -215,6 +237,13 @@ export default class EventDetail extends Component {
   }
   renderVariantListViewCellItem = ({item,index}) => {
     let check = item['id'] == this.state.selectedVariantId;
+    let variant_values = item['variant_values'];
+    var vValue = [];
+    for (let obj of variant_values){
+      vValue.push(obj['variant_type_value']['name']);
+    }
+    let title = vValue.join(' | ')
+    console.log('vValue', vValue);
     return (<View style={eventStyles.variantListViewStyle}>
       <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(item)}>
         <View style={{ width: '90%' }}>
@@ -222,7 +251,7 @@ export default class EventDetail extends Component {
             {`${item['stock']} tickets left`}
           </Text>
           <View style={{ height: 10 }} />
-          <Text style={eventStyles.commonTxtStyle}>{item['title']}</Text>
+          <Text style={eventStyles.commonTxtStyle}>{title}</Text>
           <View style={{ height: 10 }} />
           <Text style={{ fontWeight: '400', fontSize: 12 }}>{item['list_price']['formatted']}</Text>
           <View style={{ height: 10 }} />
@@ -252,11 +281,17 @@ export default class EventDetail extends Component {
       </View>)
   }
   renderEventDescriptionView = () => {
+    var description = '';
+    if (this.state.selectedVariantId != 0) {
+      description = this.state.selectedVariant['description'];
+    } else {
+      description = this.state.eventDetailData['description'];
+    }
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>Event description</Text>
-        <View style={{height: 10}}/>
-        <Text style={eventStyles.subTitleStyle}>{this.state.eventDetailData['description']}</Text>
-      </View>)
+      <Text style={eventStyles.commonTxtStyle}>Event description</Text>
+      <View style={{ height: 10 }} />
+      <Text style={eventStyles.subTitleStyle}>{description}</Text>
+    </View>)
   }
   renderOtherEventView = () => {
     return (<View>
@@ -344,30 +379,21 @@ export default class EventDetail extends Component {
     </View>)
   }
   renderBottomBtnView = () => {
-    if (appConstant.loggedIn) {
-      return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-        <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
-          <View style={eventStyles.clearBtnViewStyle}>
-            <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
-              Book Now
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomBtnViewStyle} >
-          <View style={eventStyles.applyBtnViewStyle}>
-            <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
-          </View>
-        </TouchableOpacity>
-      </View>)
-    } else {
-      return (<View>
-        <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.props.navigation.navigate(NavigationRoots.SignIn)}>
-          <View style={eventStyles.applyBtnViewStyle}>
-            <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Login</Text>
-          </View>
-        </TouchableOpacity>
-      </View>)
-    }
+    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
+        <View style={eventStyles.clearBtnViewStyle}>
+          <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
+            Book Now
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} >
+        <View style={eventStyles.applyBtnViewStyle}>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
+        </View>
+      </TouchableOpacity>
+    </View>)
+    
   }
   renderMainView = () => {
     if (this.state.loadData) {

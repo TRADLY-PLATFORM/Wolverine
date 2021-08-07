@@ -651,7 +651,7 @@ export default class CreateShop extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Create your profile '}
+        <HeaderView title={this.props.route.params ? 'Update your profile' : 'Create your profile '}
           showBackBtn={false} showDoneBtn={true}
           doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
@@ -688,7 +688,7 @@ export default class CreateShop extends Component {
                 </View> */}
                 <View style={{ height: 60 }} />
                 <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-                  <Text style={commonStyles.themeTitleStyle}>Create</Text>
+                  <Text style={commonStyles.themeTitleStyle}>{this.props.route.params ? 'Update' : 'Create'}</Text>
                 </TouchableOpacity>
                 <View style={{ height: 60 }} />
               </View>

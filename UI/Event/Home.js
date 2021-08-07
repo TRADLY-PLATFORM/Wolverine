@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   horizontalCellItemStyle: {
-    width: windowWidth/2.5,
+    width: windowWidth/2.25,
     // height: windowWidth/2 - 25,
     margin: 10,
     backgroundColor: colors.AppWhite,
@@ -302,8 +302,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   selectedImageStyle: {
-    height: windowWidth/2.5,
-    width: windowWidth/2.5,
+    height: windowWidth/2.25,
+    width: windowWidth/2.25,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },

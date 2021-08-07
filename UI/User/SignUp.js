@@ -96,7 +96,7 @@ export default class SignUp extends Component {
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}
-                placeholder="last Name"
+                placeholder="Last Name"
                 placeholderTextColor={colors.AppWhite}
                 onChangeText={name => this.setState({lastName: name })}
               />

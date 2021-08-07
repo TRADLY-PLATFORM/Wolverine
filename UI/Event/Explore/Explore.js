@@ -271,12 +271,11 @@ export default class Explore extends Component {
     var time = '';
     if(item['title']){
       title = item['title'];
-      rattingAvg =item['rating_data']['rating_average']
+      rattingAvg = item['rating_data']['rating_average']
       price =item['list_price']['formatted']
       time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     var photo = item['images'] ? item['images'] : [];
-
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
     <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
@@ -287,7 +286,7 @@ export default class Explore extends Component {
           <Text style={eventStyles.titleStyle}>{time}</Text>
         </View>
         <View style={{ margin: 5, width: '80%'}}>
-          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
+          <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
         </View>
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
           <Image style={{ width: 15, height: 15 }} source={starIcon} />
@@ -446,6 +445,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
+    height: 130,
   },
   headerViewStyle: {
     width: '50%',

@@ -11,6 +11,7 @@ import pic3 from '../../assets/obBoarding3.png';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
+import { CommonActions } from '@react-navigation/native';
 
 const slides = [{
   key: 1,
@@ -42,8 +43,11 @@ export default class OnBoardings extends Component {
   componentDidMount() {
   }
   /*  Buttons   */
-  _onDone = () => {
-    this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+  _onDone = () => {  
+    this.props.navigation.reset({
+      index: 0,
+      routes: [{ name: NavigationRoots.BottomTabbar }],
+    });
   }
   _nextBtnAction(){
     this.state.index = this.state.index + 1;

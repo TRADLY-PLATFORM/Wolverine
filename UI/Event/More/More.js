@@ -150,9 +150,9 @@ export default class More extends Component {
       </View>)
     }else {
       return (<View>
-        <View style={{ marginLeft: 10}}>
+        <TouchableOpacity style={{ marginLeft: 10}} onPress={() =>  this.props.navigation.navigate(NavigationRoots.SignIn)}>
           <Text style={styles.titleStyle}>Sign in/Sign up</Text>
-        </View>
+        </TouchableOpacity>
       </View>)
     }
   }

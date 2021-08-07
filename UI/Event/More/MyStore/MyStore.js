@@ -21,6 +21,7 @@ import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
+import messageIcon from '../../../../assets/message.png';
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
 import shareIcon from '../../../../assets/share.png';
@@ -191,12 +192,14 @@ export default class MyStore extends Component {
   renderProfileView = () => {
     const { accId } = this.props.route.params;
     var address = ''
+    var rating = ''
     var review = ''
     if (this.state.storeDetail['location']) {
       let add = this.state.storeDetail['location']
       address = add['formatted_address'];
       let reRate = this.state.storeDetail['rating_data']
-      review = reRate['rating_average'] || '0';
+      rating = reRate['rating_average'] || '0';
+      review = reRate['review_count'] || '0';
     }
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
@@ -215,11 +218,11 @@ export default class MyStore extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={styles.ratingViewStyle} >
             <View style={{ flexDirection: 'row' }}>
-              <Text>{review}</Text>
+              <Text>{rating}</Text>
               <Image source={starIcon} style={{ height: 20, width: 20, marginTop: -2 }} resizeMode={'center'} />
             </View>
             <View style={{ height: 5 }} />
-            <Text style={eventStyles.subTitleStyle}>0 review</Text>
+            <Text style={eventStyles.subTitleStyle}>{review} review</Text>
           </View>
           <View style={styles.totalProductViewStyle}>
             <Text>{this.state.storeDetail['total_listings']}</Text>
@@ -235,12 +238,7 @@ export default class MyStore extends Component {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 2 }}>
         <View style={styles.ratingViewStyle}>
-          <TouchableOpacity style={this.state.activeSatus ? styles.activeBntViewStyle : styles.inActiveBtnViewStyle}
-            onPress={() => this.activeBtnAction()}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color: this.state.activeSatus ? colors.AppTheme : colors.AppYellow }}>
-              {this.state.activeSatus ? 'Active' : 'In-Active'}
-            </Text>
-          </TouchableOpacity>
+         {this.renderActiveStatusView()}
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
@@ -257,7 +255,25 @@ export default class MyStore extends Component {
       </View>
     </View>)
   }
-
+  renderActiveStatusView = () => {
+    const { accId } = this.props.route.params;
+    if (accId == appConstant.accountID) {
+      return (<View>
+        <TouchableOpacity style={this.state.activeSatus ? styles.activeBntViewStyle : styles.inActiveBtnViewStyle}
+          onPress={() => this.activeBtnAction()}>
+          <Text style={{ fontSize: 12, fontWeight: '500', color: this.state.activeSatus ? colors.AppTheme : colors.AppYellow }}>
+            {this.state.activeSatus ? 'Active' : 'In-Active'}
+          </Text>
+        </TouchableOpacity>
+      </View>)
+    } else {
+      return (<View>
+        <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
+          <Image source={messageIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
+        </TouchableOpacity>
+      </View>)
+    }
+  }
   renderSegmentBar = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}

@@ -41,7 +41,7 @@ export default class Verification extends Component {
         DefaultPreference.set('authKey', auth_key).then();
         DefaultPreference.set('userId', id).then();
         DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
-        this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
       } else {
         // let error = errorHandler.errorHandle(responseJson)
         Alert.alert(responseJson)
