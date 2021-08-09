@@ -17,7 +17,7 @@ function AppTabbar() {
   var centerTab = Login;
   
   if (appConstant.loggedIn) {
-    centerTab = appConstant.accountID.length == 0 ? shop : shop
+    centerTab = appConstant.accountID.length == 0 ? shop : AddEvent
   }
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{

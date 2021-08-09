@@ -34,6 +34,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
 import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
+import SuccessView from '../../../../Component/SuccessView';
 
 export default class AddEvent extends Component {
   constructor(props) {
@@ -67,6 +68,7 @@ export default class AddEvent extends Component {
       listingID: '',
       isEditing: false,
       selectedVariantIndex: 0,
+      showCAlert: false,
     }
   }
   componentDidMount() {
@@ -405,7 +407,8 @@ export default class AddEvent extends Component {
         if (!this.state.isEditing){
           this.addVariantUploadServiceMethod(0);
         }else {
-          this.successAlert()
+          // this.successAlert()
+          this.setState({showCAlert: true});
         }
       } else {
         Alert.alert(responseJson)
@@ -422,11 +425,13 @@ export default class AddEvent extends Component {
         if (this.state.selectVariantArray.length > index) {
           this.addVariantUploadServiceMethod(index + 1)
         } else {
-          this.successAlert()
+          // this.successAlert()
+          this.setState({showCAlert: true});
         }
       }
     }else {
       this.successAlert()
+      this.setState({showCAlert: true});
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -507,17 +512,19 @@ export default class AddEvent extends Component {
     }
   }
   successAlert() {
-    Alert.alert(
-      "Successfull", "",
-      [
-        {
-          text: "OK", onPress: () => {
-            this.props.navigation.goBack();
-            // this.props.navigation.goBack();
-          }
-        }
-      ],
-    );
+    this.setState({showCAlert: false});
+    this.props.navigation.goBack();
+    // Alert.alert(
+    //   "Successfull", "",
+    //   [
+    //     {
+    //       text: "OK", onPress: () => {
+    //         this.props.navigation.goBack();
+    //         // this.props.navigation.goBack();
+    //       }
+    //     }
+    //   ],
+    // );
   }
   /*  Buttons   */
   createBtnAction() {
@@ -668,7 +675,7 @@ export default class AddEvent extends Component {
       var photoPath = ''
       if (photo) {
         if (photo['sourceURL']) {
-           photoPath = photo.sourceURL;
+           photoPath = photo.path;
         }else {
           photoPath = photo; 
         }
@@ -950,7 +957,7 @@ export default class AddEvent extends Component {
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
       if (photos[0]['sourceURL']) { 
-        photos = photos[0]['sourceURL'];
+        photos = photos[0]['path'];
       } else {
         photos = photos[0];
       }
@@ -1044,6 +1051,7 @@ export default class AddEvent extends Component {
               <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? 'Editing' : 'Create'}</Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
+            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
         </View>
       </SafeAreaView>

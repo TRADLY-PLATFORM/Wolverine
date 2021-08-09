@@ -22,7 +22,6 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import EventView from '../../Component/EventView';
 import Deeplinking from '../../HelperClasses/Deeplinking';
-
 const windowWidth = Dimensions.get('window').width;
 
 export default class Home extends Component {
@@ -35,6 +34,7 @@ export default class Home extends Component {
       categoryArray: [],
       categoryArray: [],
       collectionsArray: [],
+      showCAlert: false,
     }
   }
   componentDidMount() {
@@ -181,11 +181,11 @@ export default class Home extends Component {
   }
   renderEventItemCell = ({item, index}) => {
     if (item['scope_type'] == 1 || item['scope_type'] == 4) {
-      return (<View style={{ backgroundColor: colors.AppWhite }}>
+      return (<View style={{ backgroundColor: colors.AppWhite}}>
         <View style={styles.eventCellItemStyle}>
           <Text style={{fontSize: 18, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>{item['title']}</Text>
         </View>
-        <View style={{ backgroundColor: colors.AppWhite, width: windowWidth}}>
+        <View style={{ backgroundColor: colors.AppWhite, width: windowWidth, paddingBottom: 10,}}>
           <View style={{marginTop: -120}}>
             {this.renderHorizontalList(item)}
           </View>
@@ -316,11 +316,3 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-
-import bag from './../../assets/handbag.png';
-import dress from './../../assets/dress.png';
-import books from './../../assets/books.png';
-import paper from './../../assets/book.png';
-import tenis from './../../assets/tabletennis.png';
-import game from './../../assets/game.png';
-import notebookmousecursor from './../../assets/notebook.png';

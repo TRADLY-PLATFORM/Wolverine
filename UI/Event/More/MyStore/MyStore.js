@@ -36,7 +36,8 @@ import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
 
-// const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 
 export default class MyStore extends Component {
   constructor(props) {
@@ -514,19 +515,22 @@ export default class MyStore extends Component {
         <HeaderView title={'My Store'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View>
-          <View style={{ position: 'relative', flexDirection: 'column' }}>
-            <View style={{ backgroundColor: colors.AppTheme, height: '10%' }}>
+          <View style={{ position: 'relative', flexDirection: 'column', height:'100%'}}>
+            <View style={{ backgroundColor: colors.AppTheme, height: 100}}>
             </View>
-            <View style={{ backgroundColor: colors.LightBlueColor, height: '100%' }}>
+            <View style={{ backgroundColor: colors.LightBlueColor, height: windowHeight/ 1.36 }}>
               <View style={styles.headerContainerViewStyle} >
                 <this.renderProfileView />
               </View>
-              <this.renderSegmentBar />
-              <this.renderFilterView />
+              <View>
+                <this.renderSegmentBar />
+                <this.renderFilterView />
+              </View>
               <View style={{ height: 10 }} />
-              <View style={{ height: '50%' }}>
+              <View style={{height: '65%'}}>
                 <this.renderTabActionView />
               </View>
+              <View style={{ height: 100,backgroundColor: colors.LightBlueColor}} />
             </View>
           </View>
         </View>
@@ -540,7 +544,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppTheme
   },
   headerContainerViewStyle: {
-    marginTop: '-25%',
+    marginTop: -100,
     // backgroundColor: colors.AppWhite,
     flexDirection: 'row',
     margin: 20,

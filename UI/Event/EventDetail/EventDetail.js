@@ -452,7 +452,7 @@ export default class EventDetail extends Component {
           <View style={styles.commonViewStyle}>
             <View style={{ height: 10 }} />
             {this.renderBottomBtnView()}
-            <View style={{ height: 40 }} />
+            <View style={{ height: 50 }} />
           </View>
         </View>
       </SafeAreaView>

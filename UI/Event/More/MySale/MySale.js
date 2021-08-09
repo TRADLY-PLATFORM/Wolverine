@@ -86,7 +86,7 @@ export default class MySale extends Component {
   /*  UI   */
   renderTransactionListView = () => {
     if (this.state.myTransactionsArray != 0) {
-      return <View style={{ backgroundColor: colors.lightTransparent}}>
+      return <View style={{ backgroundColor: colors.lightTransparent }}>
         <FlatList
           data={this.state.myTransactionsArray}
           renderItem={this.renderTransactionListCellItem}
@@ -98,9 +98,9 @@ export default class MySale extends Component {
         />
       </View>
     } else {
-      return <View style={{justifyContent: 'center',alignItems: 'center', marginTop: '50%'}}>
+      return <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: '50%' }}>
         <Text style={eventStyles.titleStyle}> No Transactions found</Text>
-        </View>
+      </View>
     }
   }
   renderTransactionListCellItem= ({item, index}) => {

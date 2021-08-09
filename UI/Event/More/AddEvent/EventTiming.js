@@ -78,13 +78,17 @@ export default class EventTiming extends Component {
     this.setState({updateUI: !this.state.updateUI})
   }
   handleConfirmTime(time){
-    console.log('time', time);
     var event = new Date(time);
-    let sTime = event.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
+    let eTime = event.toLocaleTimeString('en-US',{hour12: true, hour: "numeric",minute: "numeric"});
+
     if (this.state.timeIndex == 2) {
+      let srttime = Date.parse(`1/1/1999 ${this.state.selectStartTime}`);
+      let edTime = Date.parse(`1/1/1999 ${eTime}`) ;
+      console.log('strt', srttime);
+      console.log('eTime', edTime);
       if (this.state.selectStartTime.length != 0) {
-        if (sTime > this.state.selectStartTime) {
-          this.state.selectEndTime = sTime
+        if (edTime > srttime) {
+          this.state.selectEndTime = eTime
         }else {
           Alert.alert('End time must be greater then start time')
         }
@@ -93,7 +97,7 @@ export default class EventTiming extends Component {
 
       }
     } else {
-      this.state.selectStartTime = sTime
+      this.state.selectStartTime = eTime
     }
 
     this.setState({showTimePicker: false})

@@ -31,6 +31,7 @@ import uncheck from '../../../assets/uncheck.png';
 import check from '../../../assets/check.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import FastImage from 'react-native-fast-image'
+import SuccessView from '../../../Component/SuccessView';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -64,6 +65,7 @@ export default class CreateShop extends Component {
       storeDetail: {},
       isEditing: false,
       accountId: '',
+      showCAlert: false,
     }
     this.renderAddressView = this.renderAddressView.bind(this);
   }
@@ -342,7 +344,7 @@ export default class CreateShop extends Component {
         this.setState({ isVisible: false })
         var result = responseJson['data']['account'];
         appConstant.accountID = result['id'];
-        this.successAlert();
+        this.setState({ showCAlert: true })
       } else {
         this.setState({ isVisible: false })
         Alert.alert(responseJson)
@@ -350,20 +352,11 @@ export default class CreateShop extends Component {
     }
   }
   successAlert() {
-    Alert.alert(
-      "Successfull", "",
-      [
-        {
-          text: "OK", onPress: () => {
-            this.props.navigation.navigate(NavigationRoots.MyStore,{
-              createProfile:true,
-              accId: appConstant.accountID,
-            });
-            // this.props.navigation.goBack();
-          }
-        }
-      ],
-    );
+    this.setState({ showCAlert: false })
+    this.props.navigation.navigate(NavigationRoots.MyStore,{
+      createProfile:true,
+      accId: appConstant.accountID,
+    });
   }
   /*  Buttons   */
   createBtnAction() {
@@ -443,13 +436,14 @@ export default class CreateShop extends Component {
   }
   /*  UI   */
   imagePicker(id) {
+    
     ImagePicker.openPicker({
       height: 200,
-      width: 200,
+      width: windowWidth,
       cropping: true,
       includeBase64: true,
     }).then(image => {
-      // console.log('image', image);
+      console.log('image', image);
       if (id == 2) {
         this.state.documentFile = image;
       }else {
@@ -463,7 +457,7 @@ export default class CreateShop extends Component {
     if (this.state.photo != null) {
       var photoPath = ''
       if (this.state.photo['sourceURL']) {
-        photoPath = this.state.photo.sourceURL;
+        photoPath = this.state.photo.path;
       }else {
         photoPath = this.state.photo; 
       }
@@ -592,7 +586,7 @@ export default class CreateShop extends Component {
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
           if (this.state.documentFile != null) {
-            if (this.state.documentFile['sourceURL']) {
+            if (this.state.documentFile['path']) {
               value = this.state.documentFile['filename'];
             } else {
               value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
@@ -693,6 +687,7 @@ export default class CreateShop extends Component {
                 <View style={{ height: 60 }} />
               </View>
             </View>
+            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView >
         </View>
       </SafeAreaView>

@@ -213,7 +213,7 @@ export default class Filter extends Component {
     )
   }
   renderButtonView = () => {
-    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16 }}>
+    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() =>  this.clearBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle}>
           <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Clear Filters</Text>
@@ -423,10 +423,11 @@ export default class Filter extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
-        <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
-          <View style={{zIndex: 5, position: 'absolute', height: '100%'}}>
+        <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
+          <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>
             <this.renderListView />
             <this.renderButtonView />
+            {/* <View style={{height: 20,backgroundColor: 'red', width: 200}} /> */}
           </View>
           <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height: this.state.showFilterView ? '100%' : 0}}>
             <this.renderSelectFilterView />

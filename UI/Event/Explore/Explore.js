@@ -260,7 +260,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
-        <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
+        <Text style={eventStyles.commonTxtStyle}> No events posted yet</Text>
       </View>
     }
   }

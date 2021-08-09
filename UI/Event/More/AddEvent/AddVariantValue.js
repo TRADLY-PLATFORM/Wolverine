@@ -148,7 +148,7 @@ export default class AddVariantValue extends Component {
       var photoPath = ''
       if (photo) {
         if (photo['sourceURL']) {
-           photoPath = photo.sourceURL;
+           photoPath = photo.path;
         }else {
           photoPath = photo; 
         }

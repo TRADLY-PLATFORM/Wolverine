@@ -105,11 +105,11 @@ export default class OnBoardings extends Component {
             <View style={{height: '100%'}}>
               <this.renderIntro />
             </View>
-            <View style={styles.skipBtnViewStyle}> 
-              <TouchableOpacity onPress ={() => this._onDone()}>
-                <Text style={{color: colors.AppWhite, fontSize: 20, fontWeight: '500'}}>Skip</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.skipBtnViewStyle}> 
+                <TouchableOpacity onPress ={() => this._onDone()}>
+                  <Text style={{color: colors.AppWhite, fontSize: 20, fontWeight: '500'}}>Skip</Text>
+                </TouchableOpacity>
+              </View>
           </View>
         </View>
       </LinearGradient>
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
+    height: '70%',
     borderRadius: 20,
   },
   text: {
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
   },
   skipBtnViewStyle: {
     width: '100%',
-    marginTop: 50 ,
+    marginTop: 20 ,
     position: 'absolute',
     alignItems: 'flex-end',
     justifyContent: 'center',

@@ -135,14 +135,14 @@ export default class More extends Component {
           renderItem={this.renderListCellItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index}
-          ItemSeparatorComponent={() => <View style={{ alignSelf: 'center', width: "100%", height: 1, marginTop: 10, backgroundColor: colors.LightUltraGray }} />}
+          ItemSeparatorComponent={() => <View style={{ alignSelf: 'center', width: "100%", height: 1, marginTop: 12, backgroundColor: colors.LightUltraGray }} />}
         />
       </View>
     )
   }
   renderListCellItem = ({ item, index }) => {
-    return <TouchableOpacity style={{ marginBottom: 10, top: 10 }} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{ fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? 'black' : colors.AppTheme }}>{item}</Text>
+    return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
+      <Text style={{ fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {
@@ -168,13 +168,13 @@ export default class More extends Component {
           <SafeAreaView style={styles.Container}>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
           <View style={{ position: 'relative', flexDirection: 'column' }}>
-            <View style={{ height: '32%' }}>
+            <View style={{ height: 200 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20, }}>
                 <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
                 <this.renderUserInfo />
               </View>
             </View>
-            <View style={{ backgroundColor: colors.AppWhite, height: '70%', }}>
+            <View style={{ backgroundColor: colors.AppWhite, height: '80%', }}>
               <View style={styles.listContainerView} >
                 <this.renderListView />
               </View>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   listContainerView: {
     height: '150%',
-    marginTop: '-32%',
+    marginTop: -100,
     backgroundColor: colors.AppWhite,
     margin: 20,
     shadowColor: 'gray',

@@ -18,7 +18,7 @@ import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../Hel
 import transactionEnum from '../Model/TransactionEnum';
 
 const windowWidth = Dimensions.get('window').width;
-export default class EventView extends Component {
+export default class TrasnactionList extends Component {
   static propTypes = {
     data: PropTypes.any,
   };
