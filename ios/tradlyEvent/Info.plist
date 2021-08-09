@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>tradlyEvent</string>
+	<string>ClassBubs</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -49,17 +49,17 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Give Access of Camera</string>
+	<string>Allow permission to access your camera to capture photos</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Give Access of Location</string>
+	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Give Access of Location</string>
+	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Give Access of Photos</string>
+	<string>Allow permission to your photo library to choose photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give Access of Photos</string>
+	<string>Allow permission to your photo library to choose photos</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -69,8 +69,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
