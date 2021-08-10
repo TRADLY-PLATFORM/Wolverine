@@ -62,10 +62,12 @@ export default class ConfirmBooking extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.stripeConnectAccount}${appConstant.accountID}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data'];
-      let sError = acctData['errors'];
       this.state.errorArray = [];
-      for (let obj of sError) {
-        this.state.errorArray.push(obj['reason']);
+      if (acctData['errors']) {
+        let sError = acctData['errors'];
+        for (let obj of sError) {
+          this.state.errorArray.push(obj['reason']);
+        }
       }
       this.state.payoutsEnabled = acctData['payouts_enabled'];
       this.setState({updateUI: !this.state.updateUI, isVisible: false,loadData: true })

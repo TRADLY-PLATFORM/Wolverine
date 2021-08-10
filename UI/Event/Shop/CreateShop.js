@@ -53,7 +53,7 @@ export default class CreateShop extends Component {
       shippingID: 0,
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValueArray: [],
       tagsArray: [],
       selectAddress: {},
       name: '',
@@ -78,7 +78,6 @@ export default class CreateShop extends Component {
 
     if(this.props.route.params) {
       let {storeDetail} = this.props.route.params;
-      console.log('storeDetail == >', storeDetail)
       this.state.photo = storeDetail['images'].length != 0 ? storeDetail['images'][0] : null ;
       this.state.photoURLPath = storeDetail['images'].length != 0 ? storeDetail['images'][0] : '' ;
       this.state.storeDetail = storeDetail;
@@ -87,11 +86,11 @@ export default class CreateShop extends Component {
       this.state.name = storeDetail['name'];
       this.state.categoryName = storeDetail['categories'][0]['name'];
       this.state.selectedCatData = storeDetail['categories'][0];
-      this.state.attributeArray = storeDetail['attributes'];
+      let attributeArray = storeDetail['attributes'];
       this.state.isEditing = true;
       this.state.accountId = storeDetail['id']
       // this.loadAttributeApi(this.state.selectedCatData['id'])
-      for (let item of this.state.attributeArray) {
+      for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
@@ -99,7 +98,6 @@ export default class CreateShop extends Component {
             valueDic['valueId'] = item['id'];
             valueDic['data'] = item['values'];
             this.state.singleSelectedArray.push(valueDic);
-            // this.state.singleSelectedArray = item['values'];
           }
         }
         if (fieldType == 2) {
@@ -108,13 +106,15 @@ export default class CreateShop extends Component {
             valueDic['valueId'] = item['id'];
             valueDic['data'] = item['values'];
             this.state.multipleSelectedsArray.push(valueDic);
-            // this.state.multipleSelectedsArray = item['values'];
           }
         }
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.singleValue = item['values'][0];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['text'] = item['values'][0];
+              this.state.singleValueArray.push(valueDic);
             }
           }
         }
@@ -122,10 +122,9 @@ export default class CreateShop extends Component {
           if (item['values']) {
             if (item['values'].length != 0) {
               var valueDic = {};
-            valueDic['valueId'] = item['id'];
-            valueDic['data'] = item['values'];
-            this.state.tagsArray.push(valueDic);
-              // this.state.tagsArray = item['values'];
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'];
+              this.state.tagsArray.push(valueDic);
             }
           }
         }
@@ -133,7 +132,7 @@ export default class CreateShop extends Component {
           if (item['values']) {
             if (item['values'].length != 0) {
               this.state.documentFile = item['values'][0];
-              this.state.documentURLPath = item['values'][0];
+              this.state.attributeFilePath = item['values'][0];
             }
           }
         }
@@ -267,21 +266,37 @@ export default class CreateShop extends Component {
     var attributeAry = [];
     for (let objc of this.state.attributeArray) {
       let fieldType = objc['field_type'];
-      console.log('fieldType',fieldType);
       if (fieldType == 1) {
+        var localAry = []
         if (this.state.singleSelectedArray.length != 0) {
           let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
           if (obj != -1) {
             let data = this.state.singleSelectedArray[obj]['data']
             let atrDic = {
               values:[data[0]['id']],
-              id: objc['id'],
+              id: data[0]['id'],
             }
-            attributeAry.push(atrDic)
+            localAry.push(atrDic)
+          }
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
         }
       }
       if (fieldType == 2) {
+        var localAry = []
         if (this.state.multipleSelectedsArray.length != 0) {
           let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === objc['id'])
           if (obj != -1) {
@@ -294,36 +309,87 @@ export default class CreateShop extends Component {
               values:idAry,
               id: objc['id'],
             }
-            attributeAry.push(atrDic)
+            localAry.push(atrDic)
+          }
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValue.length != 0) {
-          let atrDic = {
-            values:[this.state.singleValue],
-            id: objc['id'],
+        var localAry = [];
+        if (this.state.singleValueArray.length != 0) {
+          let obj = this.state.singleValueArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleValueArray[obj]['text']
+            let atrDic = {
+              values: [data],
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 4) {
+        var localAry = [];
         if (this.state.tagsArray.length != 0) {
           let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
           if (obj != -1) {
             let data = this.state.tagsArray[obj]['data']
             let atrDic = {
               values:data,
-              id: objc['id'],
+              id: data[0]['id'],
             }
-            attributeAry.push(atrDic)
+            localAry.push(atrDic)
+          }
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
         }
       }
       if (fieldType == 5) {
-        if (this.state.documentURLPath.length != 0) {
+        if (this.state.attributeFilePath.length != 0) {
           let atrDic = {
-            values:[this.state.documentURLPath],
+            values: [this.state.attributeFilePath],
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -360,11 +426,20 @@ export default class CreateShop extends Component {
   }
   /*  Buttons   */
   createBtnAction() {
-    this.uploadFilesAPI()
+    if (this.state.name.length == 0) {
+      Alert.alert('Name field should not be empty')
+    } else if (Object.keys(this.state.selectedCatData).length == 0) {
+      Alert.alert('Category field should not be empty')
+    } else {
+      this.uploadFilesAPI()
+    }
   }
   categoryBtnAction() {
     this.state.singleSelectedArray = [];
     this.state.multipleSelectedsArray = [];
+    this.state.singleValueArray = [];
+    this.state.tagsArray = [];
+    this.state.documentFile = null;
 
     this.props.navigation.navigate(NavigationRoots.CategoryList, {
       categoryArray: this.state.categoryArray,
@@ -383,13 +458,7 @@ export default class CreateShop extends Component {
   }
  
   cancelBtnAction() {
-
-    // if (this.props.route.params) {
-    //   const jumpToAction = TabActions.jumpTo("Home");
-    //   this.props.navigation.dispatch(jumpToAction);
-    // } else {
       this.props.navigation.goBack();
-    // }
   }
   addressBtnAction() {
     this.props.navigation.navigate(NavigationRoots.AddressList, {
@@ -407,6 +476,8 @@ export default class CreateShop extends Component {
     } else {
       this.state.tagsArray.push(valueDic);
     }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
   }
   getSelectedCategoryID = data => {
     this.setState({selectedCatData: data, categoryName: data['name']})
@@ -433,6 +504,19 @@ export default class CreateShop extends Component {
   }
   getAddress = data => {
     this.setState({selectAddress: data});
+  }
+  onChangeTextValue(text, id){
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['text'] = text;
+    if (index != -1) {
+      this.state.singleValueArray[index] = valueDic;
+    } else {
+      this.state.singleValueArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
   }
   /*  UI   */
   imagePicker(id) {
@@ -534,6 +618,7 @@ export default class CreateShop extends Component {
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
               let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+              // console.log('obj', obj);
               if (obj != -1) {
                 let data = this.state.multipleSelectedsArray[obj]['data']
                 var nameAry = [];
@@ -544,17 +629,37 @@ export default class CreateShop extends Component {
               }
             }
           }
+
+          let titleAray = [];
+          if (item['optional'] == false) {
+            titleAray.push(
+              <View>
+              {this.renderTitleLbl({title:item['name']})}
+              </View>
+            )
+          } else {
+            titleAray.push(
+              <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+              )
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
-            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            {titleAray}
             <View style={{ width: '100%', zIndex: 10 }}>
-              <TouchableOpacity style={eventStyles.clickAbleFieldStyle}  onPress={() => this.valueBtnAction(a)}>
+              <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
-                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon}/>
+                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
               </TouchableOpacity>
             </View>
           </View>)
         } else if (fieldType == 3) {
+          var value = ''
+          if (this.state.singleValueArray.length !== 0) {
+            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              value = this.state.singleValueArray[obj]['text']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
@@ -562,7 +667,7 @@ export default class CreateShop extends Component {
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
               value={this.state.singleValue}
-              onChangeText={value => this.setState({singleValue: value})}
+              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
               />
           </View>)
         } else if (fieldType == 4) {
@@ -577,11 +682,11 @@ export default class CreateShop extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
-              tagContainerStyle={{backgroundColor: colors.LightGreenColor}}
-              inputContainerStyle={{backgroundColor: '#f5f5f5'}}
+              tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
+              inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
               initialTags={tagAry}
               onChangeTags={tags => this.onTagChanges(tags, item['id'])}
-            /> 
+            />
           </View>)
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';

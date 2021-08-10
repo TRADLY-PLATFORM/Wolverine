@@ -51,7 +51,7 @@ export default class AddEvent extends Component {
       attributeArray: [],
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValueArray: [],
       tagsArray: [],
       eventDateArray: [],
       selectAddress: {},
@@ -65,21 +65,20 @@ export default class AddEvent extends Component {
       ticketLimit: '',
       accountId: 0,
       selectVariantArray: [],
-      listingID: '',
+      listingID: 0,
       isEditing: false,
       selectedVariantIndex: 0,
-      showCAlert: false,
+      showCAlert:false,
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
     this.loadCategoryApi()
     this.getCurrencyApi();
-    // console.log('listingID', listingID);
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
-        this.state.listingID = listingID;
+        this.state.listingID = listingID
         this.setState({isEditing: true})
         this.loadEventDetailApi();
         this.loadVariantTypeApi();
@@ -96,47 +95,65 @@ export default class AddEvent extends Component {
       let listData = responseJson['data']['listing'];
       this.state.name = listData['title'];
       this.state.description = listData['description'];
+      console.log('description ==> ',this.state.description);
       this.state.selectAddress = listData['location'];
       this.state.eventPrice = listData['list_price']['amount'];
       this.state.offerPrice = listData['offer_percent'];
       this.state.ticketLimit = listData['stock'];
-      this.state.attributeArray =  listData['attributes'];
+      let attributeArray =  listData['attributes'];
       this.state.categoryName = listData['categories'][0]['name'];
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
+      this.loadAttributeApi(this.state.selectedCatData['id'])
       let eventStart = dateConversionFromTimeStamp(listData['start_at']);
       let sTime = getTimeFormat(listData['start_at']);
       let eTime = getTimeFormat(listData['end_at']);
-      let eventdate = changeDateFormat(eventStart,'ddd, D MMM yy')
+      let dd = (listData['start_at'] * 1000);
+      let eventdate = changeDateFormat(dd,'ddd, D MMM yy')
       let dict = {
         date: eventdate,
         startTime: sTime,
         endTime: eTime,
       }
       this.state.eventDateArray.push(dict);
-      for (let item of this.state.attributeArray) {
+      for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
-            this.state.singleSelectedArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.singleSelectedArray.push(valueDic);
+            // this.state.singleSelectedArray = item['values'];
           }
         }
         if (fieldType == 2) {
           if (item['values'].length != 0) {
-            this.state.multipleSelectedsArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.multipleSelectedsArray.push(valueDic);
+            // this.state.multipleSelectedsArray = item['values'];
           }
         }
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.singleValue = item['values'][0];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['text'] = item['values'][0];
+              this.state.singleValueArray.push(valueDic);
+              // this.state.singleValue = item['values'][0];
             }
           }
         }
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.tagsArray = item['values'];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'];
+              this.state.tagsArray.push(valueDic);
             }
           }
         }
@@ -181,7 +198,6 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
-      console.log('vData', vData);
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -209,7 +225,7 @@ export default class AddEvent extends Component {
         this.state.selectVariantArray.push(fDict)
         let vvv = this.state.selectVariantArray[0];
         let dc = vvv['variantType'];
-        console.log('dc == ', dc['values']);
+        // console.log('dc == ', dc['values']);
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -285,9 +301,13 @@ export default class AddEvent extends Component {
               if (this.state.documentFile != null) {
                 this.setState({ attributeFilePath: imageP[imageP.length - 1] })
                 imageP.splice(imageP.length - 1, 1)
-                this.state.uploadImageURL = imageP;
+                for (let a = 0; a < imageP.length; a++){
+                  this.state.uploadImageURL.push(imageP[a]);
+                }
               } else {
-                this.state.uploadImageURL = imageP;
+                for (let a = 0; a < imageP.length; a++){
+                  this.state.uploadImageURL.push(imageP[a]);
+                }
               }
               this.createEventApi()
             }
@@ -312,8 +332,8 @@ export default class AddEvent extends Component {
     if (this.state.imagesArray.length != 0) {
       dict['images'] = this.state.uploadImageURL;;
     }
-    if (this.state.description.length != 0) {
-      dict['description'] = this.state.description;
+    if (this.state.imagesArray.length != 0) {
+      dict['images'] = this.state.uploadImageURL;;
     }
     if (this.state.eventPrice.length != 0) {
       dict['list_price'] = this.state.eventPrice;
@@ -323,6 +343,9 @@ export default class AddEvent extends Component {
     }
     if (this.state.ticketLimit.length != 0) {
       dict['stock'] = this.state.ticketLimit;
+    }
+    if (this.state.description.length != 0) {
+      dict['description'] = this.state.description;
     }
     if (this.state.selectAddress['formatted_address'] !== undefined) {
       latitude = this.state.selectAddress['latitude'];
@@ -334,43 +357,123 @@ export default class AddEvent extends Component {
     for (let objc of this.state.attributeArray) {
       let fieldType = objc['field_type'];
       if (fieldType == 1) {
+        var localAry = []
         if (this.state.singleSelectedArray.length != 0) {
-          let atrDic = {
-            values: [this.state.singleSelectedArray[0]['id']],
-            id: objc['id'],
+          let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleSelectedArray[obj]['data']
+            let atrDic = {
+              values:[data[0]['id']],
+              id: data[0]['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 2) {
+        var localAry = []
         if (this.state.multipleSelectedsArray.length != 0) {
-          var idAry = [];
-          for (let obj of this.state.multipleSelectedsArray) {
-            idAry.push(obj['id'])
+          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.multipleSelectedsArray[obj]['data']
+            var idAry = [];
+            for (let ob of data) {
+              idAry.push(ob['id'])
+            }
+            let atrDic = {
+              values:idAry,
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          let atrDic = {
-            values: idAry,
-            id: objc['id'],
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
-          attributeAry.push(atrDic)
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValue.length != 0) {
-          let atrDic = {
-            values: [this.state.singleValue],
-            id: objc['id'],
+        var localAry = [];
+        if (this.state.singleValueArray.length != 0) {
+          let obj = this.state.singleValueArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleValueArray[obj]['text']
+            let atrDic = {
+              values: [data],
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 4) {
+        var localAry = [];
         if (this.state.tagsArray.length != 0) {
-          let atrDic = {
-            values: this.state.tagsArray,
-            id: objc['id'],
+          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.tagsArray[obj]['data']
+            let atrDic = {
+              values:data,
+              id: data[0]['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 5) {
@@ -395,9 +498,10 @@ export default class AddEvent extends Component {
       dict['start_at'] = startTimestamp;
       dict['end_at'] = endTimestamp;
     }
+    console.log('dict', dict);
     let path = this.state.isEditing ? `/${this.state.listingID}` : ''
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
-      this.state.isEditing ? 'put' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
+      this.state.isEditing ? 'patch' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
@@ -407,8 +511,8 @@ export default class AddEvent extends Component {
         if (!this.state.isEditing){
           this.addVariantUploadServiceMethod(0);
         }else {
-          // this.successAlert()
-          this.setState({showCAlert: true});
+        // Alert.alert('Update SuccessFully')
+        this.setState({ showCAlert: true })
         }
       } else {
         Alert.alert(responseJson)
@@ -425,13 +529,13 @@ export default class AddEvent extends Component {
         if (this.state.selectVariantArray.length > index) {
           this.addVariantUploadServiceMethod(index + 1)
         } else {
-          // this.successAlert()
-          this.setState({showCAlert: true});
+          this.setState({ showCAlert: true })
+          // Alert.alert('SuccessFull');
         }
       }
     }else {
-      this.successAlert()
-      this.setState({showCAlert: true});
+      this.setState({ showCAlert: true })
+      // Alert.alert('SuccessFull');
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -490,15 +594,14 @@ export default class AddEvent extends Component {
     var dict = dic['uploadParm'];
     dict['images'] = images;
     let item = dic['variantType']
-    console.log('item variantType', item)
     let variantvalues = [{variant_type_id: item['id'], variant_type_value_id:item['values']['id']}]
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    // if(item['id']){
-    //    path = '/variants/' + item['id'];
-    //    reqMethod = 'PUT';
-    // }
+    if(item['id']){
+       path = '/variants/' + item['id'];
+       reqMethod = 'patch';
+    }
     console.log('path == >', path)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod, JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
@@ -514,21 +617,22 @@ export default class AddEvent extends Component {
   successAlert() {
     this.setState({showCAlert: false});
     this.props.navigation.goBack();
-    // Alert.alert(
-    //   "Successfull", "",
-    //   [
-    //     {
-    //       text: "OK", onPress: () => {
-    //         this.props.navigation.goBack();
-    //         // this.props.navigation.goBack();
-    //       }
-    //     }
-    //   ],
-    // );
   }
   /*  Buttons   */
   createBtnAction() {
-    this.uploadFilesAPI()
+    if (this.state.name.length == 0) {
+      Alert.alert('Name field should not be empty')
+    } else if (this.state.eventPrice.length == 0) {
+      Alert.alert('Price field should not be empty')
+    } else if (this.state.ticketLimit.length == 0) {
+      Alert.alert('Ticket Limits field should not be empty')
+    } else if (Object.keys(this.state.selectedCatData).length == 0) {
+      Alert.alert('Category field should not be empty')
+    } else {
+      this.uploadFilesAPI()
+    }
+    // this.uploadFilesAPI()
+    // this.createEventApi();
   }
   selectDateTimeBtnAction(isEdit) {
     if (isEdit) {
@@ -555,6 +659,12 @@ export default class AddEvent extends Component {
     });
   }
   categoryBtnAction() {
+    this.state.singleSelectedArray = [];
+    this.state.multipleSelectedsArray = [];
+    this.state.singleValueArray = [];
+    this.state.tagsArray = [];
+    this.state.documentFile = null;
+
     this.props.navigation.navigate(NavigationRoots.CategoryList, {
       categoryArray: this.state.categoryArray,
       getCatID: this.getSelectedCategoryID,
@@ -565,6 +675,7 @@ export default class AddEvent extends Component {
     let singleSelect = item['field_type'] == 1 ? true : false
     this.props.navigation.navigate(NavigationRoots.AttributeList, {
       attributeArray: item['values'],
+      valueId:item['id'],
       getAtriValue: this.getAttributeSelectedValues,
       singleSelect: singleSelect,
     });
@@ -640,15 +751,49 @@ export default class AddEvent extends Component {
     // console.log('data => ', data);
     this.setState({ selectedCurrency: data })
   }
-  onTagChanges(data) {
-    this.state.tagsArray = data
+  onTagChanges(data, id) {
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['data'] = data;
+    if (index != -1) {
+      this.state.tagsArray[index] = valueDic;
+    } else {
+      this.state.tagsArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
+  onChangeTextValue(text, id){
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['text'] = text;
+    if (index != -1) {
+      this.state.singleValueArray[index] = valueDic;
+    } else {
+      this.state.singleValueArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAttributeSelectedValues = (data, singleSelect) => {
     if (singleSelect) {
-      this.state.singleSelectedArray = data
+      let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.singleSelectedArray[obj] = data[0];
+      }else {
+        this.state.singleSelectedArray.push(data[0]);
+      }
     } else {
-      this.state.multipleSelectedsArray = data
+      let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.multipleSelectedsArray[obj] = data[0];
+      }else {
+        this.state.multipleSelectedsArray.push(data[0]);
+      }
+      // this.state.multipleSelectedsArray = data
+      // console.log('this.state.multipleSelectedsArray',this.state.multipleSelectedsArray);
     }
     this.setState({ updateUI: !this.state.updateUI })
   }
@@ -659,6 +804,7 @@ export default class AddEvent extends Component {
       width: 200,
       cropping: true,
       includeBase64: true,
+      compressImageQuality: 0.2,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -767,20 +913,43 @@ export default class AddEvent extends Component {
           var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
-              value = this.state.singleSelectedArray[0]['name']
+              let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
+              if (obj != -1) {
+                let data = this.state.singleSelectedArray[obj]['data']
+                value = data[0]['name']
+              }
             }
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
-              var nameAry = [];
-              for (let obj of this.state.multipleSelectedsArray) {
-                nameAry.push(obj['name'])
+              let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+              // console.log('obj', obj);
+              if (obj != -1) {
+                let data = this.state.multipleSelectedsArray[obj]['data']
+                var nameAry = [];
+                for (let obj of data) {
+                  nameAry.push(obj['name'])
+                }
+                value = nameAry.join()
               }
-              value = nameAry.join()
             }
           }
+
+          let titleAray = [];
+          if (item['optional'] == false) {
+            titleAray.push(
+              <View>
+              {this.renderTitleLbl({title:item['name']})}
+              </View>
+            )
+          } else {
+            titleAray.push(
+              <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+              )
+          }
+
           views.push(<View>
             <View style={{ height: 20 }} />
-            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            {titleAray}
             <View style={{ width: '100%', zIndex: 10 }}>
               <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
@@ -789,25 +958,39 @@ export default class AddEvent extends Component {
             </View>
           </View>)
         } else if (fieldType == 3) {
+          var value = ''
+          if (this.state.singleValueArray.length !== 0) {
+            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              value = this.state.singleValueArray[obj]['text']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
-              value={this.state.singleValue}
-              onChangeText={value => this.setState({ singleValue: value })}
+              value={value}
+              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
             />
           </View>)
         } else if (fieldType == 4) {
+          var tagAry = [];
+          if (this.state.tagsArray.length !== 0) {
+            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              tagAry = this.state.tagsArray[obj]['data']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
               tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
               inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
-              initialTags={this.state.tagsArray}
-              onChangeTags={tags => this.onTagChanges(tags)}
+              initialTags={tagAry}
+              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
             />
           </View>)
         } else if (fieldType == 5) {
@@ -947,7 +1130,6 @@ export default class AddEvent extends Component {
       }
       let pp = item['uploadParm']['list_price'];
         let curency = item['currency']['format']
-        console.log('curency = > ', curency);
       if(curency != undefined) {
         price = curency.replace('{amount}', ` ${pp}`)
       } else {
@@ -956,7 +1138,7 @@ export default class AddEvent extends Component {
       stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
-      if (photos[0]['sourceURL']) { 
+      if (photos['sourceURL']) { 
         photos = photos[0]['path'];
       } else {
         photos = photos[0];
@@ -981,7 +1163,7 @@ export default class AddEvent extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={this.state.isEditing ? 'Edit Event' : 'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
+        <HeaderView title= {this.state.isEditing ? 'Update Event' : 'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -1014,10 +1196,10 @@ export default class AddEvent extends Component {
                 <this.renderPriceView />
               </View>
               <View style={{ marginTop: 20 }}>
-                <Text style={commonStyles.textLabelStyle}>Offer Price</Text>
+                <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
                 <TextInput
                   style={commonStyles.addTxtFieldStyle}
-                  placeholder={'Enter Offer Price'}
+                  placeholder={'Enter Offer Percentage'}
                   value={this.state.offerPrice.toString()}
                   keyboardType={'number-pad'}
                   onChangeText={value => this.setState({ offerPrice: value })}
@@ -1048,7 +1230,7 @@ export default class AddEvent extends Component {
             <this.renderVariantsView />
             <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? 'Editing' : 'Create'}</Text>
+              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? 'Update' : 'Create'}</Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
             <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
@@ -1109,4 +1291,5 @@ const styles = StyleSheet.create({
     height: 70,
   }
 });
+
 

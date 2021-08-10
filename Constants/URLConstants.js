@@ -1,8 +1,8 @@
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.dev.tradly.app/app/',
+    BaseURL: 'https://api.tradly.app/app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/tradlysocial/configs',
+    config: 'v1/tenants/classbubs/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',

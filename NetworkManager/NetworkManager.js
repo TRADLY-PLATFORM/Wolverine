@@ -47,7 +47,7 @@ class NetworkManager {
           return error
         }
       }else {
-        console.log('response actual', json)
+        console.log('response actual', JSON.stringify(json));
         return json
       }
     }
@@ -80,6 +80,10 @@ class NetworkManager {
       console.log('response actual', json)
       if(json["error"])
       {        
+        if(json["error"]['code'] == 401){
+          appConstant.loggedIn = false
+          DefaultPreference.set('loggedIn', 'false').then(function () { console.log('done loggedIn') });
+        }
         let error = errorHandler.errorHandle(json['error']['code']);
         return json
       }else {
