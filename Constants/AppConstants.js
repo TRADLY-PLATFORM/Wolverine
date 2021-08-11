@@ -4,6 +4,7 @@ module.exports = {
   refreshKey: '',
   bToken: '',
   userId: '',
+  firebaseToken: '',
   accountID: '',
   hideTabbar: true,
   appSharePath: 'classbubs://',

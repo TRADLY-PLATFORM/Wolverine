@@ -27,7 +27,7 @@ import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
-import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
+// import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
 
 export default class ConfirmBooking extends Component {
   constructor(props) {
@@ -142,7 +142,6 @@ export default class ConfirmBooking extends Component {
   /*  Buttons   */
   confirmBookingBtnAction() {
     this.checkoutApiMethod();
-    
   }
   incrementDecrementBtnAction(id) {
     if (id == 1) {

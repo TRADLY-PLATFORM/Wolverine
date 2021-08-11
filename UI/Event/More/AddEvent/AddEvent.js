@@ -1138,8 +1138,7 @@ export default class AddEvent extends Component {
       stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
-      console.log('photos',photos);
-      if (photos['sourceURL']) { 
+      if (photos[0]['sourceURL']) { 
         photos = photos[0]['path'];
       } else {
         photos = photos[0];

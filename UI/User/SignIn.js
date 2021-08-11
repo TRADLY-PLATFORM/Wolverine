@@ -48,14 +48,17 @@ export default class SignIn extends Component {
         // console.log('refresh_key => ', responseJson['data']['user']['key']);
         const auth_key = responseJson['data']['user']['key']['auth_key'];
         const refresh_key = responseJson['data']['user']['key']['refresh_key'];
+        const firebase_Token = responseJson['data']['user']['key']['firebase_token'];
         const id = responseJson['data']['user']['id'];
         appConstant.loggedIn = true;
         appConstant.refreshKey = refresh_key;
         appConstant.authKey = auth_key;
         appConstant.userId = id;
+        appConstant.firebaseToken = firebase_Token;
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
         DefaultPreference.set('userId', id).then();
+        DefaultPreference.set('firebaseToken', firebase_Token).then();
         DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
         // this.props.navigation.navigate(NavigationRoots.BottomTabbar)
         this.getMyStoreApi();

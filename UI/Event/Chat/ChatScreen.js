@@ -32,8 +32,10 @@ import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
-
 import constantArrays from '../../../Constants/ConstantArrays';
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
+
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -49,6 +51,25 @@ export default class ChatScreen extends Component {
     }
   }
   componentDidMount() {
+    console.log('appConstant.token', appConstant.firebaseToken)
+    auth()
+    .signInWithCustomToken(appConstant.firebaseToken)
+    .then(() => {
+      console.log('User signed in anonymously');
+      this.getChatThread()
+    })
+    .catch(error => {
+      if (error.code === 'auth/operation-not-allowed') {
+        console.log('Enable anonymous in your firebase console.');
+      }
+      console.error('auth error==> ',error);
+    });
+  }
+  getChatThread() {
+    console.log('calling chat api');
+    database().ref('tradly_dev/').once('value').then(snapshot => {
+      console.log('User data: ', snapshot.val());
+    });
   }
  
   /*  UI   */
