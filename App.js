@@ -12,7 +12,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
 import colors from './CommonClasses/AppColor';
-import NavigationRoots from './Constants/NavigationRoots';
+import NavigationRoots, { BottomTabbar } from './Constants/NavigationRoots';
 import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
@@ -48,6 +48,7 @@ import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
 import * as Sentry from "@sentry/react-native";
 import MySale from './UI/Event/More/MySale/MySale';
 import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 const Stack = createStackNavigator();
 
@@ -59,10 +60,20 @@ export default class App extends Component {
       loggedIn: 'false',
       reload: false,
       isVisible: false,
+      appInstalled: false,
     }
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
+    DefaultPreference.get('installed').then(function (val) {
+      console.log('installed app', val);
+      if (val == undefined) {
+        DefaultPreference.set('installed', 'true').then(function (){console.log('installed')});
+        this.setState({appInstalled: false})
+      }else {
+        this.setState({appInstalled: true})
+      }
+    }.bind(this))
     Sentry.init({ dsn: appConstant.dsnSentry, enableNative: false});
     this.configApi();
   }
@@ -78,8 +89,9 @@ export default class App extends Component {
     }
   }
   navigationReturn = () => {
+    let root = this.state.appInstalled ? NavigationRoots.BottomTabbar : NavigationRoots.OnBoardings
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.OnBoardings} screenOptions={{
+      <Stack.Navigator initialRouteName={root} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
@@ -131,7 +143,11 @@ export default class App extends Component {
   }
   render() {
     if (this.state.reload == false) {
-      return <SafeAreaView style={styles.container}></SafeAreaView>
+      return <SafeAreaView style={styles.container}>
+        <View>
+        <StripeProvider publishableKey={appConstant.stripePublishKey} />
+        </View>
+      </SafeAreaView>
     } else {
       return (<View style={styles.navigationContainer}>
         <this.navigationReturn />

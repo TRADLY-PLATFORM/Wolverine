@@ -247,10 +247,8 @@ export default class Explore extends Component {
       return (<View style={{ margin: 5, height: '90%' }}>
         <FlatList
           data={this.state.eventsArray}
-          // numColumns={1}
           // initialNumToRender={7}
           renderItem={this.renderListCellItem}
-          // showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index + 3245}
           key={'L'}
           horizontal={this.state.showMap ? true : false}
@@ -348,7 +346,7 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -70, zIndex: 100}}
+    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}
        onPress={() => this.setState({showMap: !this.state.showMap})}>
       <View style={eventStyles.viewOnMapBtnStyle}>
       <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />

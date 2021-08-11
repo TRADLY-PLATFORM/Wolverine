@@ -24,10 +24,9 @@ import paymentIcon from '../../../../assets/paymentIcon.png';
 import waitingIcon from '../../../../assets/waiting.png';
 import connectedIcon from '../../../../assets/connected.png';
 import errorIcon from '../../../../assets/error.png';
-
-
 import Spinner from 'react-native-loading-spinner-overlay';
-import StripConnectAccount from './StripConnectAccount';
+
+
 export default class ConfirmBooking extends Component {
   constructor(props) {
     super(props);

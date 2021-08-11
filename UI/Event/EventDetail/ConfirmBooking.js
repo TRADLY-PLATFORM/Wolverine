@@ -26,6 +26,8 @@ import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
+import SuccessView from '../../../Component/SuccessView';
+import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
 
 export default class ConfirmBooking extends Component {
   constructor(props) {
@@ -38,6 +40,10 @@ export default class ConfirmBooking extends Component {
       countPrice: 1,
       paymentArray: [],
       selectedPaymentId: 0,
+      ephemeralKey: '',
+      customerId: '',
+      clientSecretkey: '',
+      showCAlert: false,
     }
   }
 
@@ -47,12 +53,25 @@ export default class ConfirmBooking extends Component {
     this.state.listPrice = this.state.eventDetailData['list_price']['amount'];
     this.setState({updateUI: !this.state.updateUI})
     this.getPaymentMethodsApi();
+    this.getphemeralKeyApi();
   }
   getPaymentMethodsApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['payment_methods'];
       this.state.paymentArray = pData
+      this.setState({updateUI: !this.state.updateUI, isVisible: false})
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
+  getphemeralKeyApi = async () => {
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.ephemeralKey}`, 'post',JSON.stringify({api_version:appConstant.apiVersion}),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let kData = responseJson['data'];
+      console.log('kData',kData);
+      this.state.customerId = kData['customer_id'];
+      this.state.ephemeralKey = kData['ephemeral_key']['secret'];
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
       this.setState({ isVisible: false })
@@ -71,30 +90,53 @@ export default class ConfirmBooking extends Component {
     }
     let id = this.state.eventDetailData['id']
     let currency = this.state.eventDetailData['list_price']['currency'];
-
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}${APPURL.URLPaths.checkOut}`,
     'POST',JSON.stringify({ order:dict}),appConstant.bToken,appConstant.authKey,currency);
     if (responseJson['status'] == true) {
-      // let cData = responseJson['data'];
-      this.successAlert();
-      this.setState({updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      let cData = responseJson['data'];
+      console.log('cData', cData);
+      this.getpaymentIntentApi(cData['order_reference']);
+      // this.successAlert();
+      // this.setState({updateUI: !this.state.updateUI,isVisible: false })
+    } else {
       Alert.alert(responseJson)
       this.setState({ isVisible: false })
     }
   }
-  successAlert() {
-    Alert.alert(
-      "Successfull", "",
-      [
-        {
-          text: "OK", onPress: () => {
-            this.props.navigation.popToTop();
-          }
-        }
-      ],
-    );
+  getpaymentIntentApi = async (orderId) => {
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentIntent}`, 'post',JSON.stringify({order_reference:orderId}),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let pData = responseJson['data'];
+      this.state.clientSecretkey = pData['client_secret'];
+    }else {
+      this.setState({ isVisible: false })
+    }
   }
+  successAlert() {
+    this.setState({ showCAlert: false })
+    this.props.navigation.popToTop();
+  }
+  /*  Stripe Payment Gateway */
+  initializePaymentSheet = async () => {
+    const { error } = await initPaymentSheet({
+      customerId: this.state.customerId,
+      customerEphemeralKeySecret: this.state.ephemeralKey,
+      paymentIntentClientSecret: this.state.clientSecretkey,
+    });
+    if (!error) {
+      setLoading(true);
+    }
+  };
+  openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet({clientSecret: this.state.clientSecretkey});
+    if (error) {
+      Alert.alert(`Error code: ${error.code}`, error.message);
+    } else {
+      this.successAlert();
+    }
+  };
+
+
   /*  Buttons   */
   confirmBookingBtnAction() {
     this.checkoutApiMethod();
@@ -259,6 +301,7 @@ export default class ConfirmBooking extends Component {
               {this.renderTotalView()}
             </View>
             </View>
+            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
           <View style={{padding: 16}}>
             <View style={{ height: 10 }} />

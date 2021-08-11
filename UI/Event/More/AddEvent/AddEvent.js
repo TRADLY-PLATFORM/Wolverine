@@ -748,8 +748,8 @@ export default class AddEvent extends Component {
     this.loadAttributeApi(data['id'])
   }
   getCurrencyData = (data) => {
-    // console.log('data => ', data);
-    this.setState({ selectedCurrency: data })
+    console.log('data => ', data);
+    this.setState({ selectedCurrency: data[0]})
   }
   onTagChanges(data, id) {
     let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
@@ -1138,6 +1138,7 @@ export default class AddEvent extends Component {
       stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
+      console.log('photos',photos);
       if (photos['sourceURL']) { 
         photos = photos[0]['path'];
       } else {
