@@ -108,12 +108,13 @@ export default class ConfirmBooking extends Component {
     if (responseJson['status'] == true) {
       let pData = responseJson['data'];
       this.state.clientSecretkey = pData['client_secret'];
+      this.initializePaymentSheet();
     }else {
       this.setState({ isVisible: false })
     }
   }
   successAlert() {
-    this.setState({ showCAlert: false })
+    this.setState({ showCAlert: false,isVisible: false })
     this.props.navigation.popToTop();
   }
   /*  Stripe Payment Gateway */
@@ -130,6 +131,7 @@ export default class ConfirmBooking extends Component {
   openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet({clientSecret: this.state.clientSecretkey});
     if (error) {
+      this.setState({ isVisible: false })
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
       this.successAlert();
