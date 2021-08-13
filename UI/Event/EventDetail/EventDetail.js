@@ -145,11 +145,6 @@ export default class EventDetail extends Component {
       }
       return (<View>
         <Text style={eventStyles.titleStyle}>{title}</Text>
-        {/* <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View> */}
         <View style={{ height: 10 }} />
         <Text style={eventStyles.titleStyle}>{price}</Text>
         <View style={{ height: 10 }} />

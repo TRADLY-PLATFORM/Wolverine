@@ -8,7 +8,7 @@ import explore from '../UI/Event/Explore/Explore'
 import colors from '../CommonClasses/AppColor';
 import More from '../UI/Event/More/More';
 import appConstant from '../Constants/AppConstants';
-import ChatScreen from '../UI/Event/Chat/ChatScreen';
+import ConversationList from '../UI/Event/Chat/ConversationList';
 import Login from '../UI/User/SignIn';
 
 const Tab = createBottomTabNavigator();
@@ -46,7 +46,7 @@ function AppTabbar() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="List" component={centerTab} options={{tabBarVisible: false}}/>
-      <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen name="Chat" component={ConversationList} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>
   );

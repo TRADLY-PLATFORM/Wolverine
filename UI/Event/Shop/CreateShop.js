@@ -520,7 +520,6 @@ export default class CreateShop extends Component {
   }
   /*  UI   */
   imagePicker(id) {
-    
     ImagePicker.openPicker({
       height: 200,
       width: windowWidth,

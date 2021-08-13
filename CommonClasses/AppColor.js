@@ -13,7 +13,7 @@ export default {
   LightBlueColor:'rgba(246, 249, 255, 1)',
   LightGreenColor:'#B2E7DA',
   AppWhite:'white',
-  LightGreen:'rgba(223, 251, 244, 1)',
+  LightGreen:'#EAF7F4',
   GradientTop: '#2BDBC0',
   GradientBottom: '#13B58C',
   AppBlack:'rgba(1, 1, 1, 1)',
