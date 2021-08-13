@@ -12,6 +12,7 @@ module.exports = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
   },
+  closeBtnStyle:{height: 20, alignItems: 'flex-end', padding: 20},
   titleStyle: {
     marginTop: 40,
     fontSize: 24,

@@ -17,7 +17,6 @@ import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import cameraIcon from '../../../assets/camera.png';
 import upload from '../../../assets/upload.png';
-import dropdownIcon from '../../../assets/dropdown.png';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
 import errorHandler from '../../../NetworkManager/ErrorHandle'
@@ -32,6 +31,7 @@ import uncheck from '../../../assets/uncheck.png';
 import check from '../../../assets/check.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import FastImage from 'react-native-fast-image'
+import SuccessView from '../../../Component/SuccessView';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -53,7 +53,7 @@ export default class CreateShop extends Component {
       shippingID: 0,
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValueArray: [],
       tagsArray: [],
       selectAddress: {},
       name: '',
@@ -65,6 +65,7 @@ export default class CreateShop extends Component {
       storeDetail: {},
       isEditing: false,
       accountId: '',
+      showCAlert: false,
     }
     this.renderAddressView = this.renderAddressView.bind(this);
   }
@@ -75,9 +76,8 @@ export default class CreateShop extends Component {
       this.loadShippingApi()
     }.bind(this))
 
-    let {storeDetail} = this.props.route.params;
-    if(storeDetail) {
-      console.log('storeDetail == >', storeDetail)
+    if(this.props.route.params) {
+      let {storeDetail} = this.props.route.params;
       this.state.photo = storeDetail['images'].length != 0 ? storeDetail['images'][0] : null ;
       this.state.photoURLPath = storeDetail['images'].length != 0 ? storeDetail['images'][0] : '' ;
       this.state.storeDetail = storeDetail;
@@ -86,33 +86,45 @@ export default class CreateShop extends Component {
       this.state.name = storeDetail['name'];
       this.state.categoryName = storeDetail['categories'][0]['name'];
       this.state.selectedCatData = storeDetail['categories'][0];
-      this.state.attributeArray = storeDetail['attributes'];
+      let attributeArray = storeDetail['attributes'];
       this.state.isEditing = true;
       this.state.accountId = storeDetail['id']
       // this.loadAttributeApi(this.state.selectedCatData['id'])
-      for (let item of this.state.attributeArray) {
+      for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
-            this.state.singleSelectedArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.singleSelectedArray.push(valueDic);
           }
         }
         if (fieldType == 2) {
           if (item['values'].length != 0) {
-            this.state.multipleSelectedsArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.multipleSelectedsArray.push(valueDic);
           }
         }
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.singleValue = item['values'][0];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['text'] = item['values'][0];
+              this.state.singleValueArray.push(valueDic);
             }
           }
         }
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.tagsArray = item['values'];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'];
+              this.state.tagsArray.push(valueDic);
             }
           }
         }
@@ -120,7 +132,7 @@ export default class CreateShop extends Component {
           if (item['values']) {
             if (item['values'].length != 0) {
               this.state.documentFile = item['values'][0];
-              this.state.documentURLPath = item['values'][0];
+              this.state.attributeFilePath = item['values'][0];
             }
           }
         }
@@ -167,7 +179,6 @@ export default class CreateShop extends Component {
     var imgParm = [];
     var uploadBase64 = [];
     if (this.state.photo != null) {
-      console.log('calling.......here');
       let fileName = this.state.photo.data;
       if (fileName != null) {
         var splashDict = {
@@ -255,51 +266,130 @@ export default class CreateShop extends Component {
     var attributeAry = [];
     for (let objc of this.state.attributeArray) {
       let fieldType = objc['field_type'];
-      console.log('fieldType',fieldType);
       if (fieldType == 1) {
+        var localAry = []
         if (this.state.singleSelectedArray.length != 0) {
-          let atrDic = {
-            values:[this.state.singleSelectedArray[0]['id']],
-            id: objc['id'],
+          let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleSelectedArray[obj]['data']
+            let atrDic = {
+              values:[data[0]['id']],
+              id: data[0]['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 2) {
+        var localAry = []
         if (this.state.multipleSelectedsArray.length != 0) {
-          var idAry = [];
-          for (let obj of this.state.multipleSelectedsArray) {
-            idAry.push(obj['id'])
+          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.multipleSelectedsArray[obj]['data']
+            var idAry = [];
+            for (let ob of data) {
+              idAry.push(ob['id'])
+            }
+            let atrDic = {
+              values:idAry,
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          let atrDic = {
-            values:idAry,
-            id: objc['id'],
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
-          attributeAry.push(atrDic)
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValue.length != 0) {
-          let atrDic = {
-            values:[this.state.singleValue],
-            id: objc['id'],
+        var localAry = [];
+        if (this.state.singleValueArray.length != 0) {
+          let obj = this.state.singleValueArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleValueArray[obj]['text']
+            let atrDic = {
+              values: [data],
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 4) {
+        var localAry = [];
         if (this.state.tagsArray.length != 0) {
-          let atrDic = {
-            values:this.state.tagsArray,
-            id: objc['id'],
+          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.tagsArray[obj]['data']
+            let atrDic = {
+              values:data,
+              id: data[0]['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            Alert.alert(`Please select ${objc['name']}`);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 5) {
-        if (this.state.documentURLPath.length != 0) {
+        if (this.state.attributeFilePath.length != 0) {
           let atrDic = {
-            values:[this.state.documentURLPath],
+            values: [this.state.attributeFilePath],
             id: objc['id'],
           }
           attributeAry.push(atrDic)
@@ -318,20 +408,40 @@ export default class CreateShop extends Component {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
         this.setState({ isVisible: false })
-        Alert.alert('SuccessFully')
+        var result = responseJson['data']['account'];
+        appConstant.accountID = result['id'];
+        this.setState({ showCAlert: true })
       } else {
         this.setState({ isVisible: false })
         Alert.alert(responseJson)
       }
     }
   }
-
+  successAlert() {
+    this.setState({ showCAlert: false })
+    this.props.navigation.navigate(NavigationRoots.MyStore,{
+      createProfile:true,
+      accId: appConstant.accountID,
+    });
+  }
   /*  Buttons   */
   createBtnAction() {
-    this.uploadFilesAPI()
+    if (this.state.name.length == 0) {
+      Alert.alert('Name field should not be empty')
+    } else if (Object.keys(this.state.selectedCatData).length == 0) {
+      Alert.alert('Category field should not be empty')
+    } else {
+      this.uploadFilesAPI()
+    }
   }
   categoryBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.Category, {
+    this.state.singleSelectedArray = [];
+    this.state.multipleSelectedsArray = [];
+    this.state.singleValueArray = [];
+    this.state.tagsArray = [];
+    this.state.documentFile = null;
+
+    this.props.navigation.navigate(NavigationRoots.CategoryList, {
       categoryArray: this.state.categoryArray,
       getCatID: this.getSelectedCategoryID,
     });
@@ -341,19 +451,14 @@ export default class CreateShop extends Component {
     let singleSelect = item['field_type'] == 1 ? true : false
     this.props.navigation.navigate(NavigationRoots.AttributeList, {
       attributeArray: item['values'],
+      valueId: item['id'],
       getAtriValue: this.getAttributeSelectedValues,
       singleSelect: singleSelect,
     });
   }
  
   cancelBtnAction() {
-
-    // if (this.props.route.params) {
-    //   const jumpToAction = TabActions.jumpTo("Home");
-    //   this.props.navigation.dispatch(jumpToAction);
-    // } else {
       this.props.navigation.goBack();
-    // }
   }
   addressBtnAction() {
     this.props.navigation.navigate(NavigationRoots.AddressList, {
@@ -361,8 +466,17 @@ export default class CreateShop extends Component {
     });
   }
   /*  Delegates   */
-  onTagChanges(data) {
-    this.state.tagsArray = data
+  onTagChanges(data, id) {
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['data'] = data;
+    if (index != -1) {
+      this.state.tagsArray[index] = valueDic;
+    } else {
+      this.state.tagsArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getSelectedCategoryID = data => {
@@ -371,24 +485,48 @@ export default class CreateShop extends Component {
   }
   getAttributeSelectedValues = (data, singleSelect) => {
     if (singleSelect) {
-      this.state.singleSelectedArray = data
+      let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.singleSelectedArray[obj] = data[0];
+      }else {
+        this.state.singleSelectedArray.push(data[0]);
+      }
     } else {
-      this.state.multipleSelectedsArray = data
+      let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.multipleSelectedsArray[obj] = data[0];
+      }else {
+        this.state.multipleSelectedsArray.push(data[0]);
+      }
+      // this.state.multipleSelectedsArray = data
     }
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAddress = data => {
     this.setState({selectAddress: data});
   }
+  onChangeTextValue(text, id){
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['text'] = text;
+    if (index != -1) {
+      this.state.singleValueArray[index] = valueDic;
+    } else {
+      this.state.singleValueArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
       height: 200,
-      width: 200,
-      cropping: false,
+      width: windowWidth,
+      cropping: true,
       includeBase64: true,
     }).then(image => {
-      // console.log('image', image);
+      console.log('image', image);
       if (id == 2) {
         this.state.documentFile = image;
       }else {
@@ -402,7 +540,7 @@ export default class CreateShop extends Component {
     if (this.state.photo != null) {
       var photoPath = ''
       if (this.state.photo['sourceURL']) {
-        photoPath = this.state.photo.sourceURL;
+        photoPath = this.state.photo.path;
       }else {
         photoPath = this.state.photo; 
       }
@@ -470,28 +608,57 @@ export default class CreateShop extends Component {
           var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
-              value = this.state.singleSelectedArray[0]['name']
+              let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
+              if (obj != -1) {
+                let data = this.state.singleSelectedArray[obj]['data']
+                value = data[0]['name']
+              }
             }
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
-              var nameAry = [];
-              for (let obj of this.state.multipleSelectedsArray) {
-                nameAry.push(obj['name'])
+              let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+              // console.log('obj', obj);
+              if (obj != -1) {
+                let data = this.state.multipleSelectedsArray[obj]['data']
+                var nameAry = [];
+                for (let obj of data) {
+                  nameAry.push(obj['name'])
+                }
+                value = nameAry.join()
               }
-              value = nameAry.join()
             }
+          }
+
+          let titleAray = [];
+          if (item['optional'] == false) {
+            titleAray.push(
+              <View>
+              {this.renderTitleLbl({title:item['name']})}
+              </View>
+            )
+          } else {
+            titleAray.push(
+              <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+              )
           }
           views.push(<View>
             <View style={{ height: 20 }} />
-            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            {titleAray}
             <View style={{ width: '100%', zIndex: 10 }}>
-              <TouchableOpacity style={eventStyles.clickAbleFieldStyle}  onPress={() => this.valueBtnAction(a)}>
+              <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
-                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon}/>
+                <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
               </TouchableOpacity>
             </View>
           </View>)
         } else if (fieldType == 3) {
+          var value = ''
+          if (this.state.singleValueArray.length !== 0) {
+            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              value = this.state.singleValueArray[obj]['text']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
@@ -499,26 +666,35 @@ export default class CreateShop extends Component {
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
               value={this.state.singleValue}
-              onChangeText={value => this.setState({singleValue: value})}
+              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
               />
           </View>)
         } else if (fieldType == 4) {
+          var tagAry = [];
+          if (this.state.tagsArray.length !== 0) {
+            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              tagAry = this.state.tagsArray[obj]['data']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
-              tagContainerStyle={{backgroundColor: colors.LightGreenColor}}
-              inputContainerStyle={{backgroundColor: '#f5f5f5'}}
-              initialTags={this.state.tagsArray}
-              onChangeTags={tags => this.onTagChanges(tags)}
-            /> 
+              tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
+              inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
+              initialTags={tagAry}
+              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
+            />
           </View>)
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
-          if (this.state.documentFile['sourceURL']) {
-            value = this.state.documentFile['filename'];
-          } else {
-            value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
+          if (this.state.documentFile != null) {
+            if (this.state.documentFile['path']) {
+              value = this.state.documentFile['filename'];
+            } else {
+              value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
+            }
           }
           views.push(<View>
             <View style={{ height: 20 }} />
@@ -573,7 +749,7 @@ export default class CreateShop extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Create you store'}
+        <HeaderView title={this.props.route.params ? 'Update your profile' : 'Create your profile '}
           showBackBtn={false} showDoneBtn={true}
           doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
@@ -604,17 +780,18 @@ export default class CreateShop extends Component {
               <View style={{ zIndex: 1,}}>
                 <this.renderAddressView />
                 <View style={{ height: 20 }} />
-                <this.renderTitleLbl title={'Preferred Shipment'} />
+                {/* <this.renderTitleLbl title={'Preferred Shipment'} />
                 <View>
                   <this.renderShipmentView />
-                </View>
+                </View> */}
                 <View style={{ height: 60 }} />
                 <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-                  <Text style={commonStyles.themeTitleStyle}>Create</Text>
+                  <Text style={commonStyles.themeTitleStyle}>{this.props.route.params ? 'Update' : 'Create'}</Text>
                 </TouchableOpacity>
                 <View style={{ height: 60 }} />
               </View>
             </View>
+            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView >
         </View>
       </SafeAreaView>

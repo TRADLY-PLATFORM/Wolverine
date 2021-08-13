@@ -12,14 +12,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getUniqueId } from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
 import errorHandler from '../../NetworkManager/ErrorHandle'
+import closeIcon from './../../assets/close.png';
+import appConstant, { userId } from './../../Constants/AppConstants';
 
 export default class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isVisible: true,
-      email: 'event@test.com',
-      password: '123456',
+      isVisible: false,
+      email: '',
+      password: '',
       authType: 2,
       bToken: '',
       authType: '',
@@ -27,17 +29,8 @@ export default class SignIn extends Component {
     }
   }
   componentDidMount() {
-      this.configApi()
-  }
-  configApi = async () => {
-    this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
-    console.log('get data of config', responseJson)
-    if (responseJson['status'] == true) {
-      let keyd = responseJson['data']['key']['app_key']
-      DefaultPreference.set('token', keyd).then(function (){console.log('done')});
-      this.setState({ bToken: keyd, isVisible: false })
-    }
+    // email: 'event@test.com',
+    // password: '123456',
   }
   loginApi = async () => {
     this.setState({ isVisible: true })
@@ -47,26 +40,48 @@ export default class SignIn extends Component {
     }
     dict['email'] = this.state.email
     dict['password'] = this.state.password
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.login, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.login, 'POST', JSON.stringify({ user: dict }), appConstant.bToken)
     console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        console.log('refresh_key => ', responseJson['data']['user']['key']);
+        // console.log('refresh_key => ', responseJson['data']['user']['key']);
         const auth_key = responseJson['data']['user']['key']['auth_key'];
         const refresh_key = responseJson['data']['user']['key']['refresh_key'];
+        const firebase_Token = responseJson['data']['user']['key']['firebase_token'];
         const id = responseJson['data']['user']['id'];
+        appConstant.loggedIn = true;
+        appConstant.refreshKey = refresh_key;
+        appConstant.authKey = auth_key;
+        appConstant.userId = id;
+        appConstant.firebaseToken = firebase_Token;
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
         DefaultPreference.set('userId', id).then();
+        DefaultPreference.set('firebaseToken', firebase_Token).then();
         DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
-        this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        // this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        this.getMyStoreApi();
       } else {
         console.log(" error ", responseJson)
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        console.log('error',error)
-        setTimeout(() => {Alert.alert(error) }, 50)
+        // let error = errorHandler.errorHandle(responseJson)
+        // console.log('error',responseJson)
+        Alert.alert(responseJson)
       }
+    }
+  }
+  getMyStoreApi = async () => {
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let acctData = responseJson['data']['accounts'];
+      if (acctData.length != 0) {
+        appConstant.accountID = acctData[0]['id'];
+      }else{
+        appConstant.accountID = '';
+      }
+      this.props.navigation.goBack();
+    }else {
+      this.setState({ isVisible: false })
     }
   }
   /*  Buttons   */
@@ -87,16 +102,19 @@ export default class SignIn extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
       <SafeAreaView style={styles.Container}>
+        <TouchableOpacity style={commonStyle.closeBtnStyle} onPress={() => this.props.navigation.goBack()}>
+          <Image source={closeIcon} />
+        </TouchableOpacity>
         <ScrollView>
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <View style={{height: 60}}/>
-          <Text style={commonStyle.titleStyle}>Welcome to{`\n`}Community Marketplace</Text>
+          <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
           <Text style={commonStyle.subTitleStyle}>Login to your account</Text>
           <View style={commonStyle.roundView}>
             <TextInput
               style={commonStyle.txtFieldStyle}
               placeholder="Email"
-              keyboardType='phone-pad'
+              keyboardType='email-address'
               placeholderTextColor={colors.AppWhite}
               onChangeText={email => this.setState({ email: email })}
             />

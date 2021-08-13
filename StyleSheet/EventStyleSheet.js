@@ -8,7 +8,8 @@ import colors from '../CommonClasses/AppColor';
 module.exports = StyleSheet.create({
   followContainerStyle: {
     backgroundColor: colors.AppTheme,
-    width: 75,
+    paddingLeft: 10,
+    paddingRight: 10,
     height: 25,
     borderRadius: 3,
     justifyContent: 'center',
@@ -16,12 +17,12 @@ module.exports = StyleSheet.create({
   },
   titleStyle: {
     color: colors.AppBlack,
-    fontSize: 14,
-    fontWeight: '700'
+    fontSize: 16,
+    fontWeight: '600'
   },
   subTitleStyle: {
     color: colors.Lightgray,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '400',
   },
   commonTxtStyle:{
@@ -82,10 +83,19 @@ module.exports = StyleSheet.create({
     borderRadius: 4,
     margin: 5,
     width: '100%',
-    height: 35,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.AppTheme,
+  },
+  disableApplyBtnViewStyle: {
+    borderRadius: 4,
+    margin: 5,
+    width: '100%',
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.Lightgray,
   },
   selectedBtnTxtStyle:{ 
     fontSize: 12, 
@@ -103,10 +113,109 @@ module.exports = StyleSheet.create({
     borderWidth: 1,
     margin: 5,
     width: '100%',
-    height: 35,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.AppWhite,
-  }
+  },
+  variantCellViewStyle: {
+    flexDirection: 'row',
+    margin: 5,
+    justifyContent: 'space-between',
+    alignContent: 'center',
+    borderRadius: 5,
+    shadowColor: 'gray',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 2,
+    backgroundColor: colors.AppWhite,
+  },
+  headerViewStyle: {
+    width: '50%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.BorderColor,
+  },
+  contentContainerStyle: {
+    padding: 16,
+    backgroundColor: colors.AppWhite,
+  },
+  header: {
+    alignItems: 'center',
+    backgroundColor: colors.AppWhite,
+    paddingVertical: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  panelHandle: {
+    width: 40,
+    height: 2,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 4
+  },
+  listViewStyle: {
+    flex:1,
+    margin: 5,
+    marginLeft: 16,
+    marginRight: 16,
+    borderBottomWidth: 1,
+    borderColor: colors.BorderColor,
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  viewOnMapBtnStyle: {
+    height: 40,
+    backgroundColor: colors.AppWhite,
+    flexDirection: 'row',
+    width: 130,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'gray',
+    shadowOpacity: 0.5,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 5,
+    borderRadius: 20,
+  },
+  containerMapStyle: {
+    margin:0,
+    height: "100%",
+    width: "100%",
+  },
+  mapStyle: {
+    position: 'absolute',
+    marginTop: 0,
+    height: "100%",
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 5
+  },
+  variantListViewStyle: {
+    backgroundColor: colors.AppWhite,
+    padding: 16,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: colors.BorderColor,
+  },
+  selectedSegmentViewStyle: {
+    flex: 1,
+    height: 60,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.AppTheme,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  segmentViewStyle: {
+    flex: 1,
+    height: 60,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.BorderColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
 });
 

@@ -2,10 +2,11 @@ module.exports = {
   URLPaths: {
     BaseURL: 'https://api.dev.tradly.app/app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/eventdev/configs',
+    config: 'v1/tenants/tradlysocial/configs',
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',
+    users: 'v1/users/',
     forgotpassword: 'v1/users/password/recovery',
     category:'v1/categories?parent=0&type=',
     attribute:'v1/attributes/?category_id=',
@@ -16,6 +17,25 @@ module.exports = {
     listings: 'products/v1/listings',
     currencies: 'v1/currencies',
     variantType: 'products/v1/variant_types',
+    home: 'products/v1/home',
+    paymentMethod: '/v1/tenants/payment_methods',
+    checkOut: '/checkout',
+    myOrders: 'products/v1/orders?type=events&page=',
+    orderDetail:'products/v1/orders/',
+    createAccountLink: 'v1/payments/stripe/connect/account_links',
+    createExpressLoginLink: 'v1/payments/stripe/connect/login_links',
+    stripeConnectAccount: 'v1/payments/stripe/connect/account?account_id=',
+    ephemeralKey:'v1/payments/stripe/ephemeralKey',
+    paymentIntent:'v1/payments/stripe/paymentIntent',
+    earning: 'v1/earnings?account_id=',
+    transaction: 'v1/transactions?per_page=30&super_type=2&page=',
+    like: '/likes'
 
   }
 }
+// BaseURL: 'https://api.tradly.app/app/',
+// token: 'v1/users/token/refresh',
+// config: 'v1/tenants/classbubs/configs',
+
+
+//eventdev

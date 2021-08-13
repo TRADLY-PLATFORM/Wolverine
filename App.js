@@ -12,7 +12,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
 import colors from './CommonClasses/AppColor';
-import NavigationRoots from './Constants/NavigationRoots';
+import NavigationRoots, { BottomTabbar } from './Constants/NavigationRoots';
+import DefaultPreference from 'react-native-default-preference';
+import networkService from './NetworkManager/NetworkManager';
+import APPURL from './Constants/URLConstants';
+import appConstant from './Constants/AppConstants';
 
 import OnBoarding from './UI/User/OnBoarding';
 import Signin from './UI/User/SignIn';
@@ -33,9 +37,18 @@ import AddVariant from './UI/Event/More/AddEvent/AddVariant';
 import VariantList from './UI/Event/More/AddEvent/VariantList';
 import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
 import Filter from './UI/Event/Explore/Filter';
-import Category from './UI/Event/Explore/Category';
+import Category from './UI/Event/Category';
 import EventDetail from './UI/Event/EventDetail/EventDetail';
-
+import ChatScreen from './UI/Event/Chat/ChatScreen';
+import EventList from './UI/Event/EventList';
+import ConfirmBooking from './UI/Event/EventDetail/ConfirmBooking';
+import MyOrders from './UI/Event/More/MyOrders/MyOrders';
+import OrderDetail from './UI/Event/More/MyOrders/OrderDetail';
+import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
+import * as Sentry from "@sentry/react-native";
+import MySale from './UI/Event/More/MySale/MySale';
+import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
+// import { StripeProvider } from '@stripe/stripe-react-native';
 
 const Stack = createStackNavigator();
 
@@ -45,16 +58,40 @@ export default class App extends Component {
     super(props);
     this.state = {
       loggedIn: 'false',
-      reload: true,
+      reload: false,
+      isVisible: false,
+      appInstalled: false,
     }
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
-
+    DefaultPreference.get('installed').then(function (val) {
+      console.log('installed app', val);
+      if (val == undefined) {
+        DefaultPreference.set('installed', 'true').then(function (){console.log('installed')});
+        this.setState({appInstalled: false})
+      }else {
+        this.setState({appInstalled: true})
+      }
+    }.bind(this))
+    Sentry.init({ dsn: appConstant.dsnSentry, enableNative: false});
+    this.configApi();
+  }
+  configApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
+    console.log('get data of config', responseJson)
+    if (responseJson['status'] == true) {
+      let keyd = responseJson['data']['key']['app_key']
+      DefaultPreference.set('token', keyd).then(function (){console.log('done')});
+      appConstant.bToken = keyd;
+      this.setState({ reload: true, isVisible: false })
+    }
   }
   navigationReturn = () => {
+    let root = this.state.appInstalled ? NavigationRoots.BottomTabbar : NavigationRoots.OnBoardings
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
+      <Stack.Navigator initialRouteName={root} screenOptions={{
         headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
@@ -66,7 +103,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
-        <Stack.Screen name={NavigationRoots.Category} component={CategoryList} />
+        <Stack.Screen name={NavigationRoots.CategoryList} component={CategoryList} />
         <Stack.Screen name={NavigationRoots.AttributeList} component={AttributesList} />
         <Stack.Screen name={NavigationRoots.AddressList} component={AddressList} />
         <Stack.Screen name={NavigationRoots.MyStore} component={MyStore} />
@@ -75,9 +112,16 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.AddVariant} component={AddVariant} />
         <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
         <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
-        <Stack.Screen name={NavigationRoots.Sort} component={Category} />
+        <Stack.Screen name={NavigationRoots.Category} component={Category} />
         <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
-
+        <Stack.Screen name={NavigationRoots.ChatScreen} component={ChatScreen} />
+        <Stack.Screen name={NavigationRoots.EventList} component={EventList} />
+        <Stack.Screen name={NavigationRoots.ConfirmBooking} component={ConfirmBooking} />
+        <Stack.Screen name={NavigationRoots.MyOrders} component={MyOrders} />
+        <Stack.Screen name={NavigationRoots.OrderDetail} component={OrderDetail} />
+        <Stack.Screen name={NavigationRoots.PaymentScreen} component={PaymentScreen} />
+        <Stack.Screen name={NavigationRoots.MySale} component={MySale} />
+        <Stack.Screen name={NavigationRoots.PayoutsScreen} component={PayoutsScreen} />
         <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
@@ -94,24 +138,16 @@ export default class App extends Component {
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }} />
-        {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
-        <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
-        <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
-        <Stack.Screen name={NavigationRoots.Target}component={Target} />
-        <Stack.Screen name={NavigationRoots.SetTarget}component={SetTarget} />
-        <Stack.Screen name={NavigationRoots.CollectionHistory}component={CollectionHistory} />
-        <Stack.Screen name={NavigationRoots.AddRecycleItem}component={AddRecycleItems} />
-        <Stack.Screen name={NavigationRoots.RecycleGuide}component={RecycleGuides} />
-        <Stack.Screen name={NavigationRoots.ApplyGroup}component={ApplyGroups} />
-        <Stack.Screen name={NavigationRoots.InviteFriends}component={InviteFriends} />
-        <Stack.Screen name={NavigationRoots.AddBinMap}component={AddBinMaps} />
-        <Stack.Screen name={NavigationRoots.Notifications}component={Notifications} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   }
   render() {
     if (this.state.reload == false) {
-      return <SafeAreaView style={styles.container}></SafeAreaView>
+      return <SafeAreaView style={styles.container}>
+        <View>
+        {/* <StripeProvider publishableKey={appConstant.stripePublishKey} /> */}
+        </View>
+      </SafeAreaView>
     } else {
       return (<View style={styles.navigationContainer}>
         <this.navigationReturn />

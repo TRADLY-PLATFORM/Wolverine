@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { getUniqueId } from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
 import errorHandler from '../../NetworkManager/ErrorHandle'
+import closeIcon from './../../assets/close.png';
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -54,8 +55,8 @@ export default class SignUp extends Component {
               bToken: this.state.bToken,
             });
         } else {
-            let error = errorHandler.errorHandle(responseJson['error']['code'])
-            setTimeout(() => {Alert.alert(error)}, 50)
+          // let error = errorHandler.errorHandle(responseJson)
+          Alert.alert(responseJson)
         }
     }
 }
@@ -77,10 +78,13 @@ export default class SignUp extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
         <SafeAreaView style={styles.Container}>
-          <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
+          <TouchableOpacity style={commonStyle.closeBtnStyle} onPress={() => this.props.navigation.goBack()}>
+            <Image source={closeIcon}/>
+          </TouchableOpacity>
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
           <ScrollView>
-            <Text style={commonStyle.titleStyle}>Welcome to{`\n`}Community Marketplace</Text>
-            <Text style={commonStyle.subTitleStyle}>Login to your account</Text>
+            <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
+            <Text style={commonStyle.subTitleStyle}>Sign Up your account</Text>
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}
@@ -92,7 +96,7 @@ export default class SignUp extends Component {
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}
-                placeholder="last Name"
+                placeholder="Last Name"
                 placeholderTextColor={colors.AppWhite}
                 onChangeText={name => this.setState({lastName: name })}
               />

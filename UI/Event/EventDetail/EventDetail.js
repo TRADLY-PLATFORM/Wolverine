@@ -34,7 +34,6 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../HelperClasses/SingleTon'
 
 const windowHeight = Dimensions.get('window').height;
@@ -46,7 +45,8 @@ export default class EventDetail extends Component {
     this.state = {
       updateUI: false,
       selectIndex: 0,
-      selectedVariantIndex: 0,
+      selectedVariantId:0,
+      selectedVariant:{},
       isVisible:false,
       imagesArray: [],
       eventDetailData: {},
@@ -55,6 +55,9 @@ export default class EventDetail extends Component {
   }
 
   componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.setState({updateUI: !this.state.updateUI})
+    })
     this.getEventDetailApi();
   }
   /*  APIs   */
@@ -66,6 +69,13 @@ export default class EventDetail extends Component {
       let eData = responseJson['data']['listing'];
       this.state.eventDetailData = eData;
       this.state.imagesArray = eData['images'];
+      let variants = this.state.eventDetailData['variants'];
+      console.log('variants', variants);
+      if (variants.length != 0){
+        this.state.selectedVariantId = variants[0]['id'];
+        this.state.selectedVariant = variants[0];
+      }
+
       this.setState({updateUI: !this.state.updateUI, loadData: true,isVisible: false})
     } else {
       this.setState({ isVisible: false })
@@ -73,11 +83,22 @@ export default class EventDetail extends Component {
   }
 
   /*  Buttons   */
-  didSelectVariant(index) {
-    this.setState({selectedVariantIndex: index})
+  didSelectVariant(item) {
+    this.state.selectedVariant = item,
+    this.setState({selectedVariantId: item['id']})
   }
   doneBtnAction () {
     this.props.navigation.goBack();
+  }
+  bookBtnAction () {
+    if (appConstant.loggedIn){
+      this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
+        eventData:this.state.eventDetailData,
+        variantData: this.state.selectedVariant,
+      });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
   }
   /*  UI   */
 
@@ -102,17 +123,28 @@ export default class EventDetail extends Component {
     var ticket = '';
     var rattingAvg = '';
     var price = '';
+    var title = '';
+
     if (this.state.eventDetailData['title']) {
-      rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
-      price = this.state.eventDetailData['list_price']['formatted'];
-      ticket = `Only ${this.state.eventDetailData['stock']} tickets left`;
+      if (this.state.selectedVariantId != 0){
+        let item = this.state.selectedVariant;
+        let variant_values = item['variant_values'];
+        var vValue = [];
+        for (let obj of variant_values){
+          vValue.push(obj['variant_type_value']['name']);
+        }
+        title = vValue.join(' | ');
+        price = item['list_price']['formatted'];
+        ticket = `Only ${item['stock']} tickets left`;
+
+      } else {
+        rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
+        price = this.state.eventDetailData['list_price']['formatted'];
+        ticket = `Only ${this.state.eventDetailData['stock']} tickets left`;
+        title = this.state.eventDetailData['title']
+      }
       return (<View>
-        <Text style={eventStyles.titleStyle}>{this.state.eventDetailData['title']}</Text>
-        <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View>
+        <Text style={eventStyles.titleStyle}>{title}</Text>
         <View style={{ height: 10 }} />
         <Text style={eventStyles.titleStyle}>{price}</Text>
         <View style={{ height: 10 }} />
@@ -168,16 +200,11 @@ export default class EventDetail extends Component {
             <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
             <View style={{ width: 10 }} />
             <View>
-              <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text>
-              <View style={{ height: 5 }} />
-              <Text style={eventStyles.subTitleStyle}>{location['formatted_address']}</Text>
+              {/* <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text> */}
+              {/* <View style={{ height: 5 }} /> */}
+              <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
             </View>
           </View>
-        </View>
-        <View>
-          <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, marginTop:10}}>
-            {'View Schedules'}
-          </Text>
         </View>
       </View>)
     } else {
@@ -186,10 +213,9 @@ export default class EventDetail extends Component {
   }
   renderVariantListView = () => {
     let variants = this.state.eventDetailData['variants'];
-    console.log('variants', variants)
     if (variants != undefined && variants.length != 0) {
-      return (<View>
-        <View style={styles.commonViewStyle}>
+      return (<View style={{backgroundColor: colors.LightBlueColor}}>
+        <View>
           <FlatList
             data={variants}
             renderItem={this.renderVariantListViewCellItem}
@@ -205,15 +231,22 @@ export default class EventDetail extends Component {
     }
   }
   renderVariantListViewCellItem = ({item,index}) => {
-    let check = index == this.state.selectedVariantIndex;
-    return (<View>
-      <View style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(index)}>
+    let check = item['id'] == this.state.selectedVariantId;
+    let variant_values = item['variant_values'];
+    var vValue = [];
+    for (let obj of variant_values){
+      vValue.push(obj['variant_type_value']['name']);
+    }
+    let title = vValue.join(' | ')
+    console.log('vValue', vValue);
+    return (<View style={eventStyles.variantListViewStyle}>
+      <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(item)}>
         <View style={{ width: '90%' }}>
           <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
             {`${item['stock']} tickets left`}
           </Text>
           <View style={{ height: 10 }} />
-          <Text style={eventStyles.commonTxtStyle}>{item['title']}</Text>
+          <Text style={eventStyles.commonTxtStyle}>{title}</Text>
           <View style={{ height: 10 }} />
           <Text style={{ fontWeight: '400', fontSize: 12 }}>{item['list_price']['formatted']}</Text>
           <View style={{ height: 10 }} />
@@ -222,7 +255,7 @@ export default class EventDetail extends Component {
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
           <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
         </View>
-      </View>
+      </TouchableOpacity>
     </View>)
   }
   renderShareView = () => {
@@ -243,11 +276,17 @@ export default class EventDetail extends Component {
       </View>)
   }
   renderEventDescriptionView = () => {
+    var description = '';
+    if (this.state.selectedVariantId != 0) {
+      description = this.state.selectedVariant['description'];
+    } else {
+      description = this.state.eventDetailData['description'];
+    }
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>Event description</Text>
-        <View style={{height: 10}}/>
-        <Text style={eventStyles.subTitleStyle}>{this.state.eventDetailData['description']}</Text>
-      </View>)
+      <Text style={eventStyles.commonTxtStyle}>Event description</Text>
+      <View style={{ height: 10 }} />
+      <Text style={eventStyles.subTitleStyle}>{description}</Text>
+    </View>)
   }
   renderOtherEventView = () => {
     return (<View>
@@ -336,17 +375,20 @@ export default class EventDetail extends Component {
   }
   renderBottomBtnView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() =>  this.clearBtnAction()}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle}>
-          <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Book Now</Text>
+          <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
+            Book Now
+          </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.applyBtnAction()}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} >
         <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
         </View>
       </TouchableOpacity>
     </View>)
+    
   }
   renderMainView = () => {
     if (this.state.loadData) {
@@ -357,10 +399,10 @@ export default class EventDetail extends Component {
         <View style={styles.commonViewStyle}>
           {this.renderEventDetail()}
         </View>
-        <View style={{ height: 10 }} />
+        {/* <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderUserDetail()}
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <View>
           {this.renderVariantListView()}
@@ -368,27 +410,23 @@ export default class EventDetail extends Component {
         <View style={styles.commonViewStyle}>
           {this.renderTimeAddressDetail()}
         </View>
-        <View style={{ height: 10 }} />
+        {/* <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderShareView()}
-        </View>
+        </View> */}
         <View style={{ height: 10 }} />
         <View style={styles.commonViewStyle}>
           {this.renderEventDescriptionView()}
         </View>
-        <View style={styles.clearViewStyle}>
+        {/* <View style={styles.clearViewStyle}>
           {this.renderOtherEventView()}
-        </View>
-        <View style={styles.clearViewStyle}>
+        </View> */}
+        {/* <View style={styles.clearViewStyle}>
           <RatingReview />
-        </View>
-        <View style={styles.clearViewStyle}>
+        </View> */}
+        {/* <View style={styles.clearViewStyle}>
           {this.renderReviewView()}
-        </View>
-        <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
-          {this.renderBottomBtnView()}
-        </View>
+        </View> */}
         <View style={{ height: 40 }} />
       </View>)
     } else {
@@ -400,12 +438,17 @@ export default class EventDetail extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
             <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
              {this.renderMainView()}
             </View>
           </ScrollView>
+          <View style={styles.commonViewStyle}>
+            <View style={{ height: 10 }} />
+            {this.renderBottomBtnView()}
+            <View style={{ height: 50 }} />
+          </View>
         </View>
       </SafeAreaView>
     );

@@ -38,6 +38,7 @@ import constantArrays from '../../../Constants/ConstantArrays';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
+import { color } from 'react-native-reanimated';
 const origin = { latitude: 30.6225, longitude: 76.6224 };
 const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -110,7 +111,7 @@ export default class Explore extends Component {
   filterBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Filter, {
       filterArray :this.state.filterArray,
-      getFilterData: this.getFilterData,
+      getFilterData :this.getFilterData,
     });
   }
   sortBtnAction(done) {
@@ -120,9 +121,10 @@ export default class Explore extends Component {
     if (done){
       if (this.state.sortSelectedIndex != -1) {
         let sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
-        this.state.params = `${path}&sort=${sortKey[this.state.sortSelectedIndex]}`
+        this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
+        console.log('this.state.params', this.state.params)
       }
-      this.callApi();
+      this.callApi(this.state.params);
     }
   }
   didSelectDate(index) {
@@ -130,7 +132,7 @@ export default class Explore extends Component {
     this.state.selectedDate = this.state.datesArray[index];
     this.setState({ updateUI: !this.state.updateUI})
   }
-  
+
   paginationMethod = () => {
     if (!this.state.stopPagination) {
       this.state.pageNo = this.state.pageNo + 1;
@@ -184,7 +186,7 @@ export default class Explore extends Component {
     let check = index == this.state.sortSelectedIndex ? true : false
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
-        <View style={styles.listViewStyle}>
+        <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
           <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
         </View>
@@ -213,8 +215,8 @@ export default class Explore extends Component {
           scrollEnabled={true}
           animationType={'timing'}
           renderHandle={() => (
-            <View style={styles.header}>
-              <View style={styles.panelHandle} />
+            <View style={eventStyles.header}>
+              <View style={eventStyles.panelHandle} />
               <View style={{ backgroundColor: colors.AppWhite, height: windowHeight/ 2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center'}}>
                   <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
@@ -232,7 +234,7 @@ export default class Explore extends Component {
               </View>
             </View>
           )} topInset={false}
-          contentContainerStyle={styles.contentContainerStyle}
+          contentContainerStyle={eventStyles.contentContainerStyle}
           onSettle={index => { if (index == 2) {  this.sortBtnAction() }}}
         />
       </View>)
@@ -245,18 +247,18 @@ export default class Explore extends Component {
       return (<View style={{ margin: 5, height: '90%' }}>
         <FlatList
           data={this.state.eventsArray}
-          numColumns={1}
+          // initialNumToRender={7}
           renderItem={this.renderListCellItem}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => index}
+          keyExtractor={(item, index) => index + 3245}
+          key={'L'}
           horizontal={this.state.showMap ? true : false}
           onEndReachedThreshold={0}
           onEndReached={this.paginationMethod}
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
+        <Text style={eventStyles.commonTxtStyle}> No events posted yet</Text>
       </View>
     }
   }
@@ -267,14 +269,13 @@ export default class Explore extends Component {
     var time = '';
     if(item['title']){
       title = item['title'];
-      rattingAvg =item['rating_data']['rating_average']
+      rattingAvg = item['rating_data']['rating_average']
       price =item['list_price']['formatted']
       time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     var photo = item['images'] ? item['images'] : [];
-
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
-    <View style={{ flexDirection: 'row' }}>
+    <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ margin: 5 }}>
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
@@ -282,8 +283,8 @@ export default class Explore extends Component {
           <View style={{ width: 5 }} />
           <Text style={eventStyles.titleStyle}>{time}</Text>
         </View>
-        <View style={{ margin: 5}}>
-          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
+        <View style={{ margin: 5, width: '80%'}}>
+          <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
         </View>
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
           <Image style={{ width: 15, height: 15 }} source={starIcon} />
@@ -304,11 +305,11 @@ export default class Explore extends Component {
   }
   renderHeaderView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <TouchableOpacity style={styles.headerViewStyle} onPress={() => this.sortBtnAction()}>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
         <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.headerViewStyle} onPress={() => this.filterBtnAction()}>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
         <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
       </TouchableOpacity>
@@ -345,9 +346,9 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? 5 : -120, zIndex: 100}}
+    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}
        onPress={() => this.setState({showMap: !this.state.showMap})}>
-      <View style={styles.viewOnMapBtnStyle}>
+      <View style={eventStyles.viewOnMapBtnStyle}>
       <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
       <View style={{width: 5}}/>
       <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
@@ -373,39 +374,39 @@ export default class Explore extends Component {
     return markerView;
    }
   renderMainView = () => {
-    if (this.state.showMap) {
-      return (<View style={{height: windowHeight - 180,width: windowWidth}}>
-        <View style={styles.containerMapStyle}>
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.mapStyle}
-            initialRegion={{
-              latitude: 30.68825,
-              longitude: 76.6924,
-              latitudeDelta: 0.015,
-              longitudeDelta: 0.0121,
-            }}
-          >
-            {this.renderMarker()}
-          </MapView>
-        </View>
-        <View style={{marginTop: -220, flex: 1, zIndex: 12} }>
-          {this.renderViewMaBtnView()}
-          {this.renderListView()}
-        </View>
-      </View>)
-    } else {
-      return (<View style={{ height: '100%'}}>
-        <View>
-          {this.renderHeaderView()}
-          {this.renderDateListView()}
-        </View>
-        <View style={{height: windowHeight - 180}}>
-          {this.renderListView()}
-        </View>
-        {this.renderViewMaBtnView()}
-      </View>)
-    }
+      if (this.state.showMap) {
+        return (<View style={{ height: windowHeight / 1.25, width: windowWidth }}>
+          <View style={eventStyles.containerMapStyle}>
+            <MapView
+              // provider={PROVIDER_GOOGLE}
+              style={eventStyles.mapStyle}
+              initialRegion={{
+                latitude: 30.68825,
+                longitude: 76.6924,
+                latitudeDelta: 0.015,
+                longitudeDelta: 0.0121,
+              }}
+            >
+              {this.renderMarker()}
+            </MapView>
+          </View>
+          <View style={{ marginTop: - 200, flex: 1, zIndex: 12 }}>
+            {this.renderViewMaBtnView()}
+            {this.renderListView()}
+          </View>
+        </View>)
+      } else {
+        return (<View style={{ height: '100%' }}>
+          <View>
+            {this.renderHeaderView()}
+            {this.renderDateListView()}
+          </View>
+          <View style={{ height: windowHeight / 1.32 }}>
+            {this.renderListView()}
+            {this.renderViewMaBtnView()}
+          </View>
+        </View>)
+      }
   }
 
   render() {
@@ -413,11 +414,11 @@ export default class Explore extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Explore'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '92%', backgroundColor: colors.AppWhite }}>
-          <View style={{zIndex: 5, position: 'absolute'}}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+          <View style={{ zIndex: 5, position: 'absolute' }}>
             <this.renderMainView />
           </View>
-          <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height:this.state.showSortView ? '100%' : 0}}>
+          <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
             <this.renderSortView />
           </View>
         </View>
@@ -436,13 +437,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignContent: 'center',
     borderRadius: 5,
-    // overflow: 'hidden',
-    height: 130,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
+    width: windowWidth - 20,
+    height: 130,
   },
   headerViewStyle: {
     width: '50%',

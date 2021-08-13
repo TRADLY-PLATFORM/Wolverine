@@ -64,6 +64,7 @@ export default class CategoryList extends Component {
     var views = [];
     for (let a = 0; a < catAry.length; a++) {
       let item = catAry[a];
+      if (item['sub_category']) {
         if (item['sub_category'].length == 0) {
           views.push(
             <TouchableOpacity onPress={() => this.didSelect(item, item)}>
@@ -82,7 +83,8 @@ export default class CategoryList extends Component {
               </View>
             </TouchableOpacity>
           );
-      } 
+        } 
+      }
     }
     return views;
   }

@@ -10,6 +10,8 @@ import APPURL from '../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
 import OTPTextView from 'react-native-otp-textinput';
 import errorHandler from '../../NetworkManager/ErrorHandle'
+// import OtpInputs from 'react-native-otp-inputs';
+import OTPInputView from '@twotalltotems/react-native-otp-input'
 
 
 export default class Verification extends Component {
@@ -22,7 +24,6 @@ export default class Verification extends Component {
   componentDidMount() {
   }
   verificationOTPApi = async () => {
-    console.log('this.state.OTPvalue', this.state.OTPvalue);
     const { verifyId, bToken } = this.props.route.params;
     const dict = JSON.stringify({
       'verify_id': verifyId,
@@ -32,12 +33,24 @@ export default class Verification extends Component {
     console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
-        this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        const auth_key = responseJson['data']['user']['key']['auth_key'];
+        const refresh_key = responseJson['data']['user']['key']['refresh_key'];
+        const id = responseJson['data']['user']['id'];
+        const firebase_Token = responseJson['data']['user']['key']['firebase_token'];
+        appConstant.firebaseToken = firebase_Token;
+        appConstant.loggedIn = true;
+        appConstant.refreshKey = refresh_key;
+        appConstant.authKey = auth_key;
+        appConstant.userId = id;
+        DefaultPreference.set('refreshKey', refresh_key).then();
+        DefaultPreference.set('authKey', auth_key).then();
+        DefaultPreference.set('userId', id).then();
+        DefaultPreference.set('firebaseToken', firebase_Token).then();
+        DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
+        this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
       } else {
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        setTimeout(() => {
-          Alert.alert(error)
-        }, 50)
+        // let error = errorHandler.errorHandle(responseJson)
+        Alert.alert(responseJson)
       }
     }
   }
@@ -49,24 +62,20 @@ export default class Verification extends Component {
       if (responseJson['status'] == true) {
         Alert.alert('OTP Sent!!!')
       } else {
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        setTimeout(() => {
-          Alert.alert(error)
-        }, 50)
+        // let error = errorHandler.errorHandle(responseJson)
+          Alert.alert(responseJson)
       }
     }
   }
   /*  Buttons   */
-  verifyBtnAction = () => {
+  verifyBtnAction(code){
     Keyboard.dismiss()
-    const { otpInput = '' } = this.state;
-    if (otpInput) {
-        console.log("otpInput",otpInput)
-        this.setState({ OTPvalue: otpInput })
+    console.log(code);
+    if (code) {
+        this.state.OTPvalue = code;
         if (this.state.OTPvalue.length != 6) {
-            // Alert.alert('Invalid OTP')
+            Alert.alert('Invalid OTP')
         } else {
-        //     console.log("verif",this.state.OTPvalue)
           this.verificationOTPApi()
         }
     }
@@ -84,12 +93,28 @@ export default class Verification extends Component {
               </Image>
             </TouchableOpacity>
             <View style={{ height: 60 }} />
+            <View  style={{width: '90%', alignSelf: 'center'}}>
             <Text style={commonStyle.titleStyle}>Phone Verification</Text>
             <Text style={commonStyle.subTitleStyle}>Verification code has been sent to below {emailID}</Text>
             <Text style={commonStyle.subTitleStyle}>Enter your OTP code here</Text>
+            </View>
             <View style={{ height: 50 }} />
             <View style={styles.otpView}>
-              <OTPTextView
+              <OTPInputView
+                style={{width: '80%', height: 40}}
+                pinCount={6}
+                // code={this.state.code} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
+                // onCodeChanged = {code => { this.setState({code})}}
+                autoFocusOnLoad
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled = {code => this.verifyBtnAction(code)}
+              />
+              {/* <OtpInputs
+                handleChange={(code) => console.log(code)}
+                numberOfInputs={6}
+              /> */}
+              {/* <OTPTextView
                 ref={(e) => (this.input1 = e)}
                 handleTextChange={(text) => this.setState({ otpInput: text })}
                 inputCount={6}
@@ -98,7 +123,7 @@ export default class Verification extends Component {
                 offTintColor={colors.AppWhite}
                 containerStyle={styles.textInputContainer}
                 textInputStyle={styles.roundedTextInput}
-              />
+              /> */}
             </View>
             <View style={{ height: 50 }} />
             <TouchableOpacity style={commonStyle.loginBtnStyle} onPress={() => this.verifyBtnAction()} >
@@ -132,6 +157,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: colors.lightGray,
     color: colors.AppWhite
-
+  },
+  borderStyleBase: {
+    width: 30,
+    height: 45
+  },
+  borderStyleHighLighted: {
+    borderColor: colors.AppWhite,
+  },
+  underlineStyleBase: {
+    width: 30,
+    height: 45,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.AppWhite,
+  },
+  underlineStyleHighLighted: {
+    borderColor: "#03DAC6",
   },
 });
+
+
