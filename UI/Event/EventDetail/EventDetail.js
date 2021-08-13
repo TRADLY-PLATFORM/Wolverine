@@ -100,6 +100,13 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
+  chatBtnAction() {
+    if (appConstant.loggedIn){
+      this.props.navigation.navigate(NavigationRoots.ChatScreen,{
+        receiverData:this.state.eventDetailData['account']['user'],
+      });
+    }
+  }
   /*  UI   */
 
   renderImageSlider = () => {
@@ -382,7 +389,7 @@ export default class EventDetail extends Component {
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} >
+      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={ () => this.chatBtnAction()}>
         <View style={eventStyles.applyBtnViewStyle}>
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
         </View>

@@ -15,9 +15,13 @@ const Tab = createBottomTabNavigator();
 
 function AppTabbar() {
   var centerTab = Login;
-  
+  var chatS = Login;
+
   if (appConstant.loggedIn) {
     centerTab = appConstant.accountID.length == 0 ? shop : AddEvent
+  }
+  if (appConstant.loggedIn) {
+    chatS = ConversationList;
   }
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{
@@ -46,7 +50,7 @@ function AppTabbar() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="List" component={centerTab} options={{tabBarVisible: false}}/>
-      <Tab.Screen name="Chat" component={ConversationList} />
+      <Tab.Screen name="Chat" component={chatS}  options={{tabBarVisible: appConstant.loggedIn}}/>
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>
   );

@@ -17,24 +17,16 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import sample from '../../../assets/dummy.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import timeIcon from '../../../assets/timeIcon.png';
-import starIcon from '../../../assets/star.png';
-import heartIcon from '../../../assets/heartIcon.png';
-import filterGrayIcon from '../../../assets/filterGrayIcon.png';
-import sortIcon from '../../../assets/sortIcon.png';
-import viewMapIcon from '../../../assets/viewMapIcon.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
-import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
-import {timeAgo,changeDateFormat} from '../../../HelperClasses/SingleTon'
-import constantArrays from '../../../Constants/ConstantArrays';
+import {timeAgo} from '../../../HelperClasses/SingleTon'
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+import DefaultPreference from 'react-native-default-preference';
+import {firebaseAuth} from '../../../Firebase/FirebaseAuth'
 
 
 const windowHeight = Dimensions.get('window').height;
@@ -50,35 +42,43 @@ export default class ConversationList extends Component {
       updateUI: false,
       loadData: false,
       conversationArray: [],
-      isVisible: false,
+      isVisible: true,
     }
   }
   componentDidMount() {
-    this.getChatThread();
+    this.props.navigation.addListener('focus', () => {
+      if (appConstant.loggedIn) {
+        this.getConvesationThread();
+      } 
+    })
   }
-  getChatThread() {
-    console.log('calling chat api', appConstant.userId);
-    var UID = appConstant.userId == '22800ba8-49eb-4a4b-be63-ec366fb25e9c' ? '3f8e07a9-e509-4f2a-a1d3-0d4f9f524d54' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+  componentWillUnmount() {
+    this.setState({updateUI: false});
+  }
+  getConvesationThread() {
+    var UID = appConstant.userId // = '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
     this.state.conversationArray =  []; 
     database().ref(`${appConstant.firebaseChatPath}users/${UID}/chatrooms`).once('value').then(snapshot => {
-      console.log('get User data: ', snapshot.val());
+      // console.log('snapshot.val() ', snapshot.val() )
       if (snapshot.val() != null){
         let object = Object.keys(snapshot.val())
         let dataObj = Object.values(snapshot.val())
-        dataObj[0]['chatrooms'] = object[0];
-        this.state.conversationArray.push(dataObj[0]);
+        dataObj[0]['chatRoomId'] = object[0];
+        if (dataObj[0]['lastMessage'].length != 0) {
+          this.state.conversationArray.push(dataObj[0]);
+        }
       }
       this.setState({updateUI: !this.state.updateUI, loadData: true, isVisible: false})
     });
   }
   /*  Buttons   */
-  chatBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.ChatScreen);
+  chatBtnAction(item) {
+    let chatRoomId = item['chatRoomId'];
+    this.props.navigation.navigate(NavigationRoots.ChatScreen, {
+      chatRoomId: chatRoomId,
+    });
   }
-  
-  
   /*  UI   */
-
   renderConversationListView = () => {
     if (this.state.conversationArray.length != 0){
     return (
@@ -99,9 +99,9 @@ export default class ConversationList extends Component {
   }
   }
   renderListViewCellItem = ({ item, index }) => {
-    console.log('dateFr',timeAgo(new Date(item['lastUpdated']).getTime()))
+    // console.log('dateFr',timeAgo(new Date(item['lastUpdated']).getTime()))
     let time = timeAgo(new Date(item['lastUpdated']).getTime());
-    return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction()}>
+    return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
       <View style={{flexDirection: 'row'}}>
         <Image style={{ height: 50, width: 50, borderRadius: 25 }} source={sample} />
         <View style={{ marginLeft: 10, justifyContent: 'center' }}>

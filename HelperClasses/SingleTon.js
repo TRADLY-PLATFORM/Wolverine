@@ -42,15 +42,16 @@ export function timeAgo(prevDate){
   switch (true) {
       case diff < minute:
           const seconds = Math.round(diff / 1000);
-           return `${seconds} ${seconds > 1 ? 'seconds' : 'second'} ago`
+           
+           return `${seconds > 1 ? `${seconds} secs ago` : 'just now'}`
       case diff < hour:
-          return Math.round(diff / minute) + ' minutes ago';
+          return Math.round(diff / minute) + ' mins ago';
       case diff < day:
-          return Math.round(diff / hour) + ' hours ago';
+          return Math.round(diff / hour) + ' hrs ago';
       case diff < month:
           return Math.round(diff / day) + ' days ago';
       case diff < year:
-          return Math.round(diff / month) + ' months ago';
+          return Math.round(diff / month) + ' mnths ago';
       case diff > year:
           return Math.round(diff / year) + ' years ago';
       default:
