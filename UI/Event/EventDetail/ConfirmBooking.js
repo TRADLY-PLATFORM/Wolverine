@@ -27,7 +27,7 @@ import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
-// import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
+import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
 
 export default class ConfirmBooking extends Component {
   constructor(props) {
@@ -95,7 +95,11 @@ export default class ConfirmBooking extends Component {
     if (responseJson['status'] == true) {
       let cData = responseJson['data'];
       console.log('cData', cData);
-      this.getpaymentIntentApi(cData['order_reference']);
+      if (this.state.selectedPaymentId == 9) {
+        this.getpaymentIntentApi(cData['order_reference']);
+      } else {
+        this.setState({ showCAlert: true,isVisible: false })
+      }
       // this.successAlert();
       // this.setState({updateUI: !this.state.updateUI,isVisible: false })
     } else {
@@ -108,6 +112,7 @@ export default class ConfirmBooking extends Component {
     if (responseJson['status'] == true) {
       let pData = responseJson['data'];
       this.state.clientSecretkey = pData['client_secret'];
+      this.setState({isVisible: false,showCAlert: false})
       this.initializePaymentSheet();
     }else {
       this.setState({ isVisible: false })
@@ -119,14 +124,12 @@ export default class ConfirmBooking extends Component {
   }
   /*  Stripe Payment Gateway */
   initializePaymentSheet = async () => {
-    const { error } = await initPaymentSheet({
+    initPaymentSheet({
       customerId: this.state.customerId,
       customerEphemeralKeySecret: this.state.ephemeralKey,
       paymentIntentClientSecret: this.state.clientSecretkey,
     });
-    if (!error) {
-      setLoading(true);
-    }
+    this.openPaymentSheet();
   };
   openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet({clientSecret: this.state.clientSecretkey});
@@ -134,7 +137,7 @@ export default class ConfirmBooking extends Component {
       this.setState({ isVisible: false })
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
-      this.successAlert();
+      this.setState({ showCAlert: true})
     }
   };
 
@@ -302,7 +305,7 @@ export default class ConfirmBooking extends Component {
               {this.renderTotalView()}
             </View>
             </View>
-            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView  title={'Your booking is successful'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
           <View style={{padding: 16}}>
             <View style={{ height: 10 }} />
