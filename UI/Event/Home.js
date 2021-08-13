@@ -22,7 +22,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import EventView from '../../Component/EventView';
 import Deeplinking from '../../HelperClasses/Deeplinking';
-import {firebaseAuth} from '../../HelperClasses/FirebaseAuth'
+import {firebaseAuth} from '../../Firebase/FirebaseAuth'
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -49,6 +49,9 @@ export default class Home extends Component {
         appConstant.authKey = authKey;
         DefaultPreference.get('refreshKey').then(function (refreshKey) {
           appConstant.refreshKey = refreshKey;
+        }.bind(this))
+        DefaultPreference.get('uName').then(function (uname) {
+          appConstant.userName = uname;
         }.bind(this))
         DefaultPreference.get('loggedIn').then(function (val) {
           appConstant.loggedIn = val == 'true' ? true : false;

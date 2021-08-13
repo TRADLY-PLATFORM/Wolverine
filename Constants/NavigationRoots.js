@@ -31,4 +31,5 @@ module.exports  = {
   PaymentScreen:'PaymentScreen',
   MySale: 'MySale',
   PayoutsScreen: 'PayoutsScreen',
+  
 }

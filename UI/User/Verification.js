@@ -12,6 +12,7 @@ import OTPTextView from 'react-native-otp-textinput';
 import errorHandler from '../../NetworkManager/ErrorHandle'
 // import OtpInputs from 'react-native-otp-inputs';
 import OTPInputView from '@twotalltotems/react-native-otp-input'
+import userModel  from '../../Model/UserModel'
 
 
 export default class Verification extends Component {
@@ -33,20 +34,7 @@ export default class Verification extends Component {
     console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
-        const auth_key = responseJson['data']['user']['key']['auth_key'];
-        const refresh_key = responseJson['data']['user']['key']['refresh_key'];
-        const id = responseJson['data']['user']['id'];
-        const firebase_Token = responseJson['data']['user']['key']['firebase_token'];
-        appConstant.firebaseToken = firebase_Token;
-        appConstant.loggedIn = true;
-        appConstant.refreshKey = refresh_key;
-        appConstant.authKey = auth_key;
-        appConstant.userId = id;
-        DefaultPreference.set('refreshKey', refresh_key).then();
-        DefaultPreference.set('authKey', auth_key).then();
-        DefaultPreference.set('userId', id).then();
-        DefaultPreference.set('firebaseToken', firebase_Token).then();
-        DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
+        userModel.userData(responseJson);
         this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
       } else {
         // let error = errorHandler.errorHandle(responseJson)

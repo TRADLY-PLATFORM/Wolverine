@@ -29,10 +29,9 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
-import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
-import constantArrays from '../../../Constants/ConstantArrays';
+import {timeAgo} from '../../../HelperClasses/SingleTon'
+import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth';
 
 
 const windowHeight = Dimensions.get('window').height;
@@ -41,6 +40,8 @@ const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
 export default class ChatScreen extends Component {
+  _isMounted = false;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -49,23 +50,62 @@ export default class ChatScreen extends Component {
       updateUI: false,
       chatArray: [],
       message: '',
+      chatRoomId: '',
 
     }
   }
   componentDidMount() {
-    this.getChatThread();
+    this.setupChat() 
+  }
+  setupChat = async () => {
+    let {receiverData} = this.props.route.params;
+    if (receiverData != undefined) {
+      let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
+      let profile = `${receiverData['profile_pic']}`;
+      var UID = appConstant.userId // == '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+      createChat(UID, name, profile, chatRoomId => {
+        this.state.chatRoomId = chatRoomId
+        this.getChatThread(chatRoomId);
+      })
+    } else {
+      let { chatRoomId } = this.props.route.params;
+      this.state.chatRoomId = chatRoomId
+      this.getChatThread(chatRoomId);
+    }
+  }
+  getChatThread(chatRoomId) {
+    this.state.chatArray = [];
+    database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`).on('child_added', snapshot => {
+        if (snapshot.val() != null){
+          this.state.chatArray.push(snapshot.val());
+        }
+      this.setState({updateUI: !this.state.updateUI})
+    });
     setTimeout(() => {
-      this.FlatListRef.scrollToEnd();
+      if (this.state.chatArray != 0){
+        this.FlatListRef.scrollToEnd();
+      }
     }, 1500);
   }
-  getChatThread() {
-    console.log('calling chat api',`${appConstant.firebaseChatPath}chats/1623653953344/messages`);
-    var UID = appConstant.userId == '22800ba8-49eb-4a4b-be63-ec366fb25e9c' ? '3f8e07a9-e509-4f2a-a1d3-0d4f9f524d54' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+  /*  Buttons   */
 
-    let daa = database().ref(`${appConstant.firebaseChatPath}chats/1623653953344/messages`).on('child_added', snapshot => {
-      console.log('A new node has been added', snapshot.val());
-    });
+  sendBtnAction(){
+    let chatRoomId = this.state.chatRoomId;
+    let receiverId = '3f8e07a9-e509-4f2a-a1d3-0d4f9f524d54';
+    let sMsg = {
+      "message":this.state.message,
+      "timeStamp": Date.now(),
+       "username":appConstant.userName,
+       "userId":appConstant.userId,
+       "mimeType":'text',
+       "fileName":''
+    }
+    sendMessage(this.state.message,sMsg,chatRoomId,receiverId,'text')
+    this.state.message = '';
+    this.setState({updateUI: !this.state.updateUI})
   }
+  
+
   /*  UI   */
   imagePicker() {
     ImagePicker.openPicker({
@@ -80,9 +120,9 @@ export default class ChatScreen extends Component {
   }
   renderChatView = () => {
     return (
-      <View style={{ width: '100%'}}>
+      <View style={{ width: '100%', height: '100%'}}>
         <FlatList
-          data={[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]}
+          data={this.state.chatArray}
           renderItem={this.renderChatViewCellItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index}
@@ -92,43 +132,47 @@ export default class ChatScreen extends Component {
     )
   }
   renderChatViewCellItem = ({item, index}) => {
-    if (index%2 == 0) {
+    if (item['userId'] == appConstant.userId) {
       return (<View >
-        {this.renderRightView(index)}
+        {this.renderRightView(item)}
       </View>)
     } else {
       return(
         <View>
-          {this.renderLeftView(index)}
+          {this.renderLeftView(item)}
         </View>
       )
     }
   }
-  renderLeftView = (index) => {
-    if (index == 3) {
+  renderLeftView = (item) => {
+    // console.log('item === ',item);
+    let time = timeAgo(new Date(item['timeStamp']).getTime());
+    // console.log('time',time);
+    // if (index == 3) {
+    //   return (<View style={styles.leftViewStyle}>
+    //     <Image style={styles.photoViewStyle}  source={sample} />
+    //     <Text style={styles.timeViewStyle}>07:22 PM</Text>
+    //   </View>)
+    // } else {
       return (<View style={styles.leftViewStyle}>
-        <Image style={styles.photoViewStyle}  source={sample} />
-        <Text style={styles.timeViewStyle}>07:22 PM</Text>
+        <Text style={styles.msgTextStyle}>{item['message']}</Text>
+        <Text style={styles.timeViewStyle}>{time}</Text>
       </View>)
-    } else {
-      return (<View style={styles.leftViewStyle}>
-        <Text style={styles.msgTextStyle}> I wanted to  figure out how many lines a text has and to figure the width of the lines </Text>
-        <Text style={styles.timeViewStyle}>07:22 PM</Text>
-      </View>)
-    }
+    // }
   }
-  renderRightView = (index) => {
-    if (index == 18) {
-      return (<View style={styles.rightViewStyle}>
-        <FastImage style={styles.photoViewStyle} source={this.state.photo == null ? sample : {uri: this.state.photo['path']}} />
-        <Text style={styles.timeViewStyle}>07:22 PM</Text>
-      </View>)
-    } else {
+  renderRightView = (item) => {
+    let time = timeAgo(new Date(item['timeStamp']).getTime());
+    // if (index == 18) {
+    //   return (<View style={styles.rightViewStyle}>
+    //     <FastImage style={styles.photoViewStyle} source={this.state.photo == null ? sample : {uri: this.state.photo['path']}} />
+    //     <Text style={styles.timeViewStyle}>07:22 PM</Text>
+    //   </View>)
+    // } else {
     return (<View style={styles.rightViewStyle}>
-      <Text style={styles.msgTextStyle}>{`${index}`} we the</Text>
-      <Text style={styles.timeViewStyle}>07:22 PM</Text>
+        <Text style={styles.msgTextStyle}>{item['message']}</Text>
+        <Text style={styles.timeViewStyle}>{time}</Text>
     </View>)
-    }
+    // }
   }
 
   renderSendMsgView = () => {
@@ -136,6 +180,7 @@ export default class ChatScreen extends Component {
       <View style={styles.bottomViewStyle}>
         <View style={{ width: '87%', justifyContent: 'center',padding: 10}}>
           <TextInput
+            value={this.state.message}
             onChangeText={txt => this.setState({message: txt})}
             style={styles.msgTextStyle}
             placeholder={'Write here ...'}/>
@@ -147,7 +192,7 @@ export default class ChatScreen extends Component {
       <View>
         <LinearGradient style={styles.enableSendBtnViewStyle}
           colors={this.state.message.length == 0 ? [colors.Lightgray, colors.AppGray] : [colors.GradientTop, colors.GradientBottom]}>
-          <TouchableOpacity disabled={this.state.message.length == 0 ? true : false} >
+          <TouchableOpacity disabled={this.state.message.length == 0 ? true : false} onPress={() => this.sendBtnAction()}>
             <Image style={{ height: 25, width: 25, top: 2, right: 2 }} source={sendIcon} />
           </TouchableOpacity>
         </LinearGradient>
