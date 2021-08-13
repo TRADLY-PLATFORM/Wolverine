@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView ,LogBox,View} from 'react-native';
+import { StyleSheet, SafeAreaView ,LogBox,View,Image} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
@@ -17,6 +17,7 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
 import appConstant from './Constants/AppConstants';
+import logoIcon from './assets/classbubslogo.png';
 
 import OnBoarding from './UI/User/OnBoarding';
 import Signin from './UI/User/SignIn';
@@ -146,6 +147,8 @@ export default class App extends Component {
       return <SafeAreaView style={styles.container}>
         <View>
         {/* <StripeProvider publishableKey={appConstant.stripePublishKey} /> */}
+        <Image style={{width: 200, height: 200, borderRadius: 10}}  source={logoIcon} />
+
         </View>
       </SafeAreaView>
     } else {
