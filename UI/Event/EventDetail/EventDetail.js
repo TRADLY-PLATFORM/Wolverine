@@ -105,6 +105,8 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.ChatScreen,{
         receiverData:this.state.eventDetailData['account']['user'],
       });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
   /*  UI   */
