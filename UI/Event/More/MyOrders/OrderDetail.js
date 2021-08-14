@@ -48,8 +48,8 @@ export default class OrderDetail extends Component {
       this.setState({ isVisible: false })
     }
   }
-
   /*  Buttons   */
+
 
   /*  UI   */
   renderListDetailView = () => {
@@ -70,11 +70,11 @@ export default class OrderDetail extends Component {
   }
   renderTimeAddressDetail = () => {
     if (this.state.orderDetailData['created_at']) {
-      let item = this.state.orderDetailData;
+      let item = this.state.orderDetailData['order_details'][0]['listing'];
       let dt = dateConversionFromTimeStamp(item['created_at']);
       let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
       time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
-      let location = item['account']['location'];
+      let location = this.state.orderDetailData['account']['location'];
       return (<View style={{flexDirection: 'row'}}>
         <View style={{width: '75%'}}>
           <View style={{ flexDirection: 'row'}}>
@@ -93,7 +93,7 @@ export default class OrderDetail extends Component {
             <View>
               {/* <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text> */}
               {/* <View style={{ height: 5 }} /> */}
-              <Text style={eventStyles.commonTxtStyle}>{'location'}</Text>
+              <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
             </View>
           </View>
         </View>

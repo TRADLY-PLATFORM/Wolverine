@@ -89,9 +89,9 @@ export default class MyOrders extends Component {
     </View>
   }
   renderOrderLisCellItem= ({item, index}) => {
-    let dateFr = changeDateFormat(item['created_at']  * 1000, 'ddd, MMM D');
-    time = getTimeFormat(item['created_at']) + ` to ` +  getTimeFormat(item['created_at']) 
     let listD = item['order_details'][0]['listing'];
+    let dateFr = changeDateFormat(listD['start_at']  * 1000, 'ddd, MMM D');
+    time = getTimeFormat(listD['start_at']) + ` to ` +  getTimeFormat(listD['end_at']) 
     var photo = listD['images'] ? listD['images'] : [];
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelect(item)}>
     <View style={{flexDirection: 'row', width: '80%'}}>
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignContent: 'center',
-    borderRadius: 2,
+    borderRadius: 5,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
