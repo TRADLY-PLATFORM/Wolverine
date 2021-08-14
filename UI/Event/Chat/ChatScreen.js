@@ -204,15 +204,15 @@ export default class ChatScreen extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Chat'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '97%', backgroundColor: colors.LightBlueColor}}>
+        <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
           <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={keyboardVerticalOffset}>
-            <View style={{height: '97%', justifyContent: 'space-between' }}>
+            <View style={{height: '100%', justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}>
               <this.renderChatView />
             </View>
             <View>
               <this.renderSendMsgView />
-              {/* <View style={{ height: 0 }} /> */}
+              <View style={{ height: 45 }} />
             </View>
             </View>
           </KeyboardAvoidingView>

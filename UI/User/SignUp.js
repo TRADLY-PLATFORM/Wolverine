@@ -1,6 +1,8 @@
 
 import React, { Component } from 'react';
-import {Alert, TextInput, Text, Image, View, StyleSheet, SafeAreaView, TouchableOpacity,ScrollView} from 'react-native';
+import {Alert,KeyboardAvoidingView, 
+  TextInput, Text, Image, View, 
+  StyleSheet, SafeAreaView, TouchableOpacity,ScrollView} from 'react-native';
 import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
 import commonStyle from '../../StyleSheet/UserStyleSheet';
@@ -82,6 +84,7 @@ export default class SignUp extends Component {
             <Image source={closeIcon}/>
           </TouchableOpacity>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
+          <KeyboardAvoidingView  behavior="padding" style = {{flex:1}}>
           <ScrollView>
             <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
             <Text style={commonStyle.subTitleStyle}>Sign Up your account</Text>
@@ -136,6 +139,7 @@ export default class SignUp extends Component {
               <Text style={commonStyle.forgotBtntitleStyle}>have an account? Sign in</Text>
             </TouchableOpacity>
           </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </LinearGradient>
     );
