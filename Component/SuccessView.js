@@ -25,8 +25,10 @@ export default class SuccessView extends Component {
   static propTypes = {
     show: PropTypes.bool,
     onPress:PropTypes.func,
+    title:PropTypes.string,
   };
   successView = () => {
+    let title = this.props.title == undefined ? 'Successfully Uploaded' :  'Your booking is successful.'
     return <View>
       <Modal
         animationType="slide"
@@ -38,7 +40,7 @@ export default class SuccessView extends Component {
             <Image style={styles.bannerImageViewStyle} resizeMode="contain" source={require('../assets/sucess.png')}>
             </Image>
             <View style={{ marginTop: 20 }} />
-            <Text style={styles.txtStyle}>Successfully Uploaded</Text>
+            <Text style={styles.txtStyle}>{title}</Text>
             <TouchableOpacity style={styles.submitBtnStyle} onPress={() => this.props.onPress()}>
               <Text style={{ fontSize: 16, fontWeight: "400", color: 'white' }}>Continue</Text>
             </TouchableOpacity>

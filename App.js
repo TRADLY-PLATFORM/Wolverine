@@ -49,7 +49,7 @@ import PaymentScreen from './UI/Event/More/Payments/PaymentScreen';
 import * as Sentry from "@sentry/react-native";
 import MySale from './UI/Event/More/MySale/MySale';
 import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
-// import { StripeProvider } from '@stripe/stripe-react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 const Stack = createStackNavigator();
 
@@ -146,9 +146,8 @@ export default class App extends Component {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}>
         <View>
-        {/* <StripeProvider publishableKey={appConstant.stripePublishKey} /> */}
         <Image style={{width: 200, height: 200, borderRadius: 10}}  source={logoIcon} />
-
+        <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>
     } else {
