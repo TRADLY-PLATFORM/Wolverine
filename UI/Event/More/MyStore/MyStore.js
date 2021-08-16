@@ -51,6 +51,7 @@ export default class MyStore extends Component {
       activeSatus: false,
       starRatingValue: 0,
       pageNo: 1,
+      itsFollowing: false,
       stopPagination: false,
     }
   }
@@ -76,6 +77,7 @@ export default class MyStore extends Component {
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['account'];
       this.state.storeDetail = acctData;
+      this.state.itsFollowing = acctData['following'];
       this.state.activeSatus = acctData['active'];
       this.setState({ updateUI: !this.state.updateUI })
     } else {
@@ -116,7 +118,19 @@ export default class MyStore extends Component {
       this.setState({ isVisible: false })
     }
   }
-
+  followAPI = async () => {
+    this.setState({ isVisible: true })
+    const { accId } = this.props.route.params;
+    let method = this.state.itsFollowing ? 'DELETE' : 'POST';
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}/${APPURL.URLPaths.follow}`, 
+    method,'', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      this.state.itsFollowing = !this.state.itsFollowing;
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
   /*  Buttons   */
   didSelectEvent = item => {
     const { accId } = this.props.route.params;
@@ -143,10 +157,26 @@ export default class MyStore extends Component {
   activeBtnAction() {
     this.updateStatusAPI()
   }
+  messageBtnAction() {
+    if (appConstant.loggedIn){
+      this.props.navigation.navigate(NavigationRoots.ChatScreen,{
+        receiverData:this.state.storeDetail['user'],
+      });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
+    
+  }
   editBtnAction() {
     const { accId } = this.props.route.params;
     if (accId == appConstant.accountID) {
       this.props.navigation.navigate(NavigationRoots.CreateStore, { storeDetail: this.state.storeDetail })
+    } else {
+      if (appConstant.loggedIn) {
+        this.followAPI()
+      } else {
+        this.props.navigation.navigate(NavigationRoots.SignIn)
+      }
     }
   }
   addEventBtnAction() {
@@ -208,11 +238,11 @@ export default class MyStore extends Component {
           <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
           <View style={{ marginLeft: 16 }}>
             <Text style={eventStyles.titleStyle}>{this.state.storeDetail['name']}</Text>
-            <View style={{ flexDirection: 'row', marginLeft: -5, marginTop: 5, alignItems: 'center', width: '50%' }}>
+            <View style={{ flexDirection: 'row', marginLeft: -5, marginTop: 5, alignItems: 'center', width: '88%' }}>
               <Image source={locationIcon} style={{ height: 20, width: 20 }} resizeMode={'center'} />
               <Text style={eventStyles.subTitleStyle} numberOfLines={1}>{address}</Text>
-              <View style={{ width: 5 }} />
-              <Text style={styles.greenLinkStyle}>View Location</Text>
+              {/* <View style={{ width: 5 }} />
+              <Text style={styles.greenLinkStyle}>View Location</Text> */}
             </View>
           </View>
         </View>
@@ -249,7 +279,7 @@ export default class MyStore extends Component {
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
-              {accId == appConstant.accountID ? 'Edit Store' : 'Follow'}
+              {accId == appConstant.accountID ? 'Edit Store' : this.state.itsFollowing ? 'Following' : 'Follow'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -269,7 +299,7 @@ export default class MyStore extends Component {
       </View>)
     } else {
       return (<View>
-        <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
+        <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
           <Image source={messageIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
         </TouchableOpacity>
       </View>)
@@ -303,7 +333,7 @@ export default class MyStore extends Component {
         </View>
         <View style={{ height: 20, flexDirection: 'row' }}>
           <TouchableOpacity onPress={() => this.addEventBtnAction()}>
-            <Image source={plusIcon} style={{ height: 30, width: 30 }} resizeMode={'center'} />
+            <Image source={plusIcon} style={{ height: 30, width: 30 }}/>
           </TouchableOpacity>
         </View>
       </View>)
@@ -475,6 +505,7 @@ export default class MyStore extends Component {
     </View>)
   }
   renderEventView = () => {
+    if (this.state.eventsArray.length != 0) {
     return <View style={{ backgroundColor: colors.lightTransparent,}}>
       <FlatList
         data={this.state.eventsArray}
@@ -487,6 +518,11 @@ export default class MyStore extends Component {
         onEndReached={this.paginationMethod}
       />
     </View>
+    }else {
+      return <View style={{height: '100%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
+        <Text style={eventStyles.commonTxtStyle}> No events found</Text>
+      </View>
+    }
   }
   renderEventCellItem = ({ item, index }) => {
     return (<TouchableOpacity onPress={() => this.didSelectEvent(item)}>
@@ -512,7 +548,7 @@ export default class MyStore extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'My Store'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View>
           <View style={{ position: 'relative', flexDirection: 'column', height:'100%'}}>

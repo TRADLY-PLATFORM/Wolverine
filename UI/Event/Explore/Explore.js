@@ -131,6 +131,10 @@ export default class Explore extends Component {
     this.state.selectedDateIndex = index
     this.state.selectedDate = this.state.datesArray[index];
     this.setState({ updateUI: !this.state.updateUI})
+    let cf = changeDateFormat(this.state.selectedDate, 'YYYY-MM-DDThh:mm:ss')
+    console.log('cf',cf);
+    this.state.params = `&created_from=${cf}`
+    this.callApi(this.state.params);
   }
 
   paginationMethod = () => {
@@ -247,7 +251,6 @@ export default class Explore extends Component {
       return (<View style={{ margin: 5, height: '90%' }}>
         <FlatList
           data={this.state.eventsArray}
-          // initialNumToRender={7}
           renderItem={this.renderListCellItem}
           keyExtractor={(item, index) => index + 3245}
           key={'L'}

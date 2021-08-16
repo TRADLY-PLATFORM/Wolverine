@@ -29,7 +29,8 @@ module.exports = {
     paymentIntent:'v1/payments/stripe/paymentIntent',
     earning: 'v1/earnings?account_id=',
     transaction: 'v1/transactions?per_page=30&super_type=2&page=',
-    like: '/likes'
+    like: '/likes',
+    follow: '/follow'
 
   }
 }

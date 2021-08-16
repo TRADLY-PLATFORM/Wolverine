@@ -135,7 +135,7 @@ export default class ConfirmBooking extends Component {
     const { error } = await presentPaymentSheet({clientSecret: this.state.clientSecretkey});
     if (error) {
       this.setState({ isVisible: false })
-      Alert.alert(`Error code: ${error.code}`, error.message);
+      Alert.alert(`${error.message}`, '');
     } else {
       this.setState({ showCAlert: true})
     }
@@ -283,7 +283,7 @@ export default class ConfirmBooking extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Booking Confirm'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={'Booking Confirmation'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor,justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>

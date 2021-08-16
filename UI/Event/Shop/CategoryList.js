@@ -93,7 +93,10 @@ export default class CategoryList extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Category'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
-          <this.renderListView />
+          <ScrollView>
+            <this.renderListView />
+            <View style={{height: 100}}/>
+          </ScrollView>
         </View>
       </SafeAreaView>
     );

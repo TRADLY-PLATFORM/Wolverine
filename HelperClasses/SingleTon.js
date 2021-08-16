@@ -19,18 +19,14 @@ export function getTimeFormat(bDate) {
 }
 export function getDatesArray() {
   var dates = [];
-  var startDate = new Date();
-  var stopDate = new Date();
-  let lm = new Date(stopDate.setMonth(stopDate.getMonth() - 1));
-  var currDate = moment(startDate).startOf('day');
-  var lastDate = moment(lm).startOf('day');
-  while(lastDate.add(1, 'days').diff(currDate) < 0) {
-    let fd = lastDate.clone().toDate();
-    dates.push(changeDateFormat(fd,'YYYY-MM-DD'));
+  var d = new Date();
+  for (let a = 0; a <30; a++ ){
+    console.log('a', a);
+    let nxtD = d.getDate() + a
+    console.log('nxtD',nxtD);
+    dates.push(changeDateFormat(nxtD,'YYYY-MM-DD'));
   }
-  dates.push(changeDateFormat(currDate,'YYYY-MM-DD'));
-
-  return dates.reverse()
+  return dates;
 }
 export function timeAgo(prevDate){
   const diff = Number(new Date()) - prevDate;
@@ -42,7 +38,6 @@ export function timeAgo(prevDate){
   switch (true) {
       case diff < minute:
           const seconds = Math.round(diff / 1000);
-           
            return `${seconds > 1 ? `${seconds} secs ago` : 'just now'}`
       case diff < hour:
           return Math.round(diff / minute) + ' mins ago';

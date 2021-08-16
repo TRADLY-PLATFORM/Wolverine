@@ -73,6 +73,9 @@ export default class AddEvent extends Component {
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
+    this.props.navigation.addListener('focus', () => {
+      this.clearExitData();
+    })
     this.loadCategoryApi()
     this.getCurrencyApi();
     if (this.props.route.params) {
@@ -84,6 +87,15 @@ export default class AddEvent extends Component {
         this.loadVariantTypeApi();
       }
     }
+  }
+  clearExitData() {
+    this.state.imagesArray = [];
+    this.state.name = '';
+    this.state.description = '';
+    this.state.offerPrice = '';
+    this.state.eventPrice = '';
+    this.state.ticketLimit = '';
+    this.setState({ updateUI: !this.state.updateUI})
   }
 
   /*  APIS Methods */
@@ -765,7 +777,7 @@ export default class AddEvent extends Component {
     this.setState({ updateUI: !this.state.updateUI })
   }
   onChangeTextValue(text, id){
-    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    let index = this.state.singleValueArray.findIndex(x => x.valueId === id)
     var valueDic = {};
     valueDic['valueId'] = id;
     valueDic['text'] = text;
@@ -774,6 +786,7 @@ export default class AddEvent extends Component {
     } else {
       this.state.singleValueArray.push(valueDic);
     }
+    // console.log('valueDic',valueDic);
     // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
@@ -936,17 +949,10 @@ export default class AddEvent extends Component {
 
           let titleAray = [];
           if (item['optional'] == false) {
-            titleAray.push(
-              <View>
-              {this.renderTitleLbl({title:item['name']})}
-              </View>
-            )
+            titleAray.push(<View> {this.renderTitleLbl({title:item['name']})}</View>)
           } else {
-            titleAray.push(
-              <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
-              )
+            titleAray.push( <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>)
           }
-
           views.push(<View>
             <View style={{ height: 20 }} />
             {titleAray}

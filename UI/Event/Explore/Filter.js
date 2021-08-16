@@ -56,7 +56,6 @@ export default class Filter extends Component {
           let timeD = objc['time'];
           this.state.timeValue[0] = Number(`${timeD['start']}.0`);
           this.state.timeValue[1] = Number(`${timeD['end']}.0`);
-          console.log('coming',this.state.timeValue);
         }
         if (objc['date']) {
           let dData = objc['date'];
@@ -227,7 +226,6 @@ export default class Filter extends Component {
     </View>)
   }
   renderTimeView = () => {
-    console.log('this.state.timeValue', this.state.timeValue);
     var strt = '';
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={{ padding: 20 }}>

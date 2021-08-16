@@ -51,7 +51,7 @@ export default class ChatScreen extends Component {
       chatArray: [],
       message: '',
       chatRoomId: '',
-
+      titleName: '',
     }
   }
   componentDidMount() {
@@ -61,6 +61,7 @@ export default class ChatScreen extends Component {
     let {receiverData} = this.props.route.params;
     if (receiverData != undefined) {
       let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
+      this.state.titleName = name;
       let profile = `${receiverData['profile_pic']}`;
       var UID = appConstant.userId // == '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
       createChat(UID, name, profile, chatRoomId => {
@@ -68,8 +69,9 @@ export default class ChatScreen extends Component {
         this.getChatThread(chatRoomId);
       })
     } else {
-      let { chatRoomId } = this.props.route.params;
+      let { chatRoomId,name } = this.props.route.params;
       this.state.chatRoomId = chatRoomId
+      this.state.titleName = name;
       this.getChatThread(chatRoomId);
     }
   }
@@ -104,7 +106,6 @@ export default class ChatScreen extends Component {
     this.state.message = '';
     this.setState({updateUI: !this.state.updateUI})
   }
-  
 
   /*  UI   */
   imagePicker() {
@@ -133,15 +134,13 @@ export default class ChatScreen extends Component {
   }
   renderChatViewCellItem = ({item, index}) => {
     if (item['userId'] == appConstant.userId) {
-      return (<View >
-        {this.renderRightView(item)}
+      return (<View> 
+        {this.renderRightView(item)} 
       </View>)
     } else {
-      return(
-        <View>
-          {this.renderLeftView(item)}
-        </View>
-      )
+      return(<View> 
+        {this.renderLeftView(item)} 
+      </View>)
     }
   }
   renderLeftView = (item) => {
@@ -202,7 +201,7 @@ export default class ChatScreen extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Chat'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={this.state.titleName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
           <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={keyboardVerticalOffset}>
