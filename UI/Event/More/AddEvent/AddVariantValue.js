@@ -98,6 +98,9 @@ export default class AddVariantValue extends Component {
     }else {
       uploadDic['variantType'] = variantData;
     }
+    if (variantData['id']) {
+      uploadDic['id'] = variantData['id'];
+    }
     this.props.route.params.getVariantTypeUploadValue(uploadDic,index)
     this.props.navigation.goBack()
   }

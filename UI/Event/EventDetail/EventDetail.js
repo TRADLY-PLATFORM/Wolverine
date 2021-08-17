@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
+  Alert,
   Text,
   Image,
   View,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActionSheetIOS,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
@@ -74,7 +75,6 @@ export default class EventDetail extends Component {
       this.state.itsLiked = eData['liked'];
       this.state.imagesArray = eData['images'];
       let variants = this.state.eventDetailData['variants'];
-      console.log('variants', variants);
       if (variants.length != 0){
         this.state.selectedVariantId = variants[0]['id'];
         this.state.selectedVariant = variants[0];
@@ -98,7 +98,29 @@ export default class EventDetail extends Component {
       this.setState({ isVisible: false })
     }
   }
-
+  deleteEventAPI = async () => {
+    this.setState({ isVisible: true })
+    const {id} = this.props.route.params;
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}`,'DELETE','', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      this.setState({isVisible: false })
+      this.succesDeleted()
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  succesDeleted() {
+    this.setState({isVisible: false })
+    Alert.alert("Deleted", "",
+      [
+        {
+          text: "OK", onPress: () => {
+            this.props.navigation.popToTop();
+          }
+        }
+      ],
+    );
+  }
   /*  Buttons   */
   didSelectVariant(item) {
     this.state.selectedVariant = item,
@@ -129,6 +151,46 @@ export default class EventDetail extends Component {
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
+  }
+  moreBtnAction() {
+    if (appConstant.loggedIn) {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Edit", "Delete", "Cancel"],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 2,
+          userInterfaceStyle: 'light'
+        },
+        buttonIndex => {
+          if (buttonIndex === 0) {
+            const {id} = this.props.route.params;
+            this.props.navigation.navigate(NavigationRoots.AddEvent, {
+              accountId: appConstant.accountID,
+              listingID: id,
+            })
+          } else if (buttonIndex === 1) {
+            this.deleteEventBtnAction()
+          } else if (buttonIndex === 2) {
+            // setResult("🔮");
+          }
+        })
+    }
+  }
+  deleteEventBtnAction() {
+    Alert.alert(
+      "Are you sure you want to this event?", "",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "Yes", onPress: () => {
+             this.deleteEventAPI();
+          }
+        }
+      ],
+    );
   }
   /*  UI   */
 
@@ -214,7 +276,7 @@ export default class EventDetail extends Component {
   renderTimeAddressDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData;
-      let dt = dateConversionFromTimeStamp(item['start_at']);
+      // let dt = dateConversionFromTimeStamp(item['start_at']);
       let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
       time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
       let location = item['location'];
@@ -468,9 +530,15 @@ export default class EventDetail extends Component {
     }
   }
   render() {
+    var showMoreBtn = false
+    if (this.state.eventDetailData['account']){
+      showMoreBtn = this.state.eventDetailData['account']['id'] == appConstant.accountID ? true : false;
+    }
+    
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} 
+         showDoneBtn={showMoreBtn} doneBtnTitle={'More'} doneBtnAction={() => this.moreBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>

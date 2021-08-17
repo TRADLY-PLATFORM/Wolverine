@@ -134,16 +134,16 @@ export default class MyStore extends Component {
   /*  Buttons   */
   didSelectEvent = item => {
     const { accId } = this.props.route.params;
-    if (accId == appConstant.accountID) {
-      this.props.navigation.navigate(NavigationRoots.AddEvent, {
-        accountId: accId,
-        listingID: item['id'],
-      })
-    } else {
+    // if (accId == appConstant.accountID) {
+    //   this.props.navigation.navigate(NavigationRoots.AddEvent, {
+    //     accountId: accId,
+    //     listingID: item['id'],
+    //   })
+    // } else {
       this.props.navigation.navigate(NavigationRoots.EventDetail, {
         id: item['id'],
       });
-    }
+    // }
 
   }
   backBtnAction() {

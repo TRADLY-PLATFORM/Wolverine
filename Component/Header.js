@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import commonStyle from '../StyleSheet/UserStyleSheet';
 import backIcon from '../assets/back.png'
 import closeIcon from '../assets/close.png'
+import menuIcon from '../assets/menu.png'
 
 export default class AppHeader extends Component {
   static propTypes = {
@@ -27,6 +28,13 @@ export default class AppHeader extends Component {
 
   renderDoneBtn = () => {
     if (this.props.showDoneBtn) {
+      if (this.props.doneBtnTitle == 'More') {
+        return <View>
+          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
+          <Image style={commonStyle.backBtnStyle} resizeMode='contain'  source={menuIcon} />
+        </TouchableOpacity>
+        </View>
+      }else {
       return <View>
         <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: '700'}}>
@@ -34,6 +42,7 @@ export default class AppHeader extends Component {
             </Text>
         </TouchableOpacity>
       </View>
+      }
     } else {
       return <View />
     }

@@ -74,6 +74,7 @@ export default class ChatScreen extends Component {
       this.state.titleName = name;
       this.getChatThread(chatRoomId);
     }
+    this.setState({updateUI: !this.state.updateUI})
   }
   getChatThread(chatRoomId) {
     this.state.chatArray = [];

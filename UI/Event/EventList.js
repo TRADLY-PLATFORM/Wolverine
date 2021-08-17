@@ -22,7 +22,6 @@ import starIcon from '../../assets/star.png';
 import heartIcon from '../../assets/heartIcon.png';
 import filterGrayIcon from '../../assets/filterGrayIcon.png';
 import sortIcon from '../../assets/sortIcon.png';
-import viewMapIcon from '../../assets/viewMapIcon.png';
 import APPURL from '../../Constants/URLConstants';
 import networkService from '../../NetworkManager/NetworkManager';
 import appConstant from '../../Constants/AppConstants';
@@ -32,7 +31,7 @@ import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../assets/radio.png';
 import selectedradio from '../../assets/selectedradio.png';
 import {getTimeFormat,changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/SingleTon'
-
+import ExploreListItem from '../../Component/ExploreListItem'
 import constantArrays from '../../Constants/ConstantArrays';
 
 const windowHeight = Dimensions.get('window').height;
@@ -96,6 +95,7 @@ export default class EventList extends Component {
   }
   /*  Buttons   */
   didSelectEventList(item, index) {
+    console.log('dsdsddsds calling')
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
       id :item['id'],
     });
@@ -262,46 +262,9 @@ export default class EventList extends Component {
     }
   }
   renderListCellItem = ({ item, index }) => {
-    var title = '';
-    var rattingAvg = '';
-    var price = '';
-    var time = '';
-    if(item['title']){
-      title = item['title'];
-      rattingAvg =item['rating_data']['rating_average']
-      price =item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
-    }
-    var photo = item['images'] ? item['images'] : [];
-
-    return <TouchableOpacity style={eventStyles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
-    <View style={{flexDirection: 'row', width: '80%'}}>
-      <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{ margin: 5 }}>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.titleStyle}>{time}</Text>
-        </View>
-        <View style={{ margin: 5, width: '80%'}}>
-          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
-        </View>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View>
-        <View style={{ margin: 5, marginTop: 15}}>
-        <Text style={eventStyles.titleStyle}>{price}</Text>
-        </View>
-      </View>
-      <View>
-        </View>
-    </View>
-    <View style={{ alignContent: 'center', padding: 10}}>
-      <Image style={{width: 40, height: 40, marginTop: 5}} resizeMode='center' source={heartIcon} />
-    </View>
-  </TouchableOpacity>
+    return (<TouchableOpacity onPress={() => this.didSelectEventList(item, index)}>
+      <ExploreListItem data={item} />
+    </TouchableOpacity>)
   }
   renderHeaderView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -363,7 +326,7 @@ export default class EventList extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={categoryName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{ zIndex: 5, position: 'absolute' }}>
             <this.renderMainView />
           </View>

@@ -216,6 +216,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
+      console.log('vData', vData)
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -241,9 +242,11 @@ export default class AddEvent extends Component {
         fDict['uploadParm'] = dic2;
         fDict['currency'] = this.state.selectedCurrency;
         this.state.selectVariantArray.push(fDict)
-        let vvv = this.state.selectVariantArray[0];
-        let dc = vvv['variantType'];
-        // console.log('dc == ', dc['values']);
+        console.log('fDict == ', fDict);
+
+        // let vvv = this.state.selectVariantArray[0];
+        // let dc = vvv['variantType'];
+        // // console.log('dc == ', dc['values']);
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -617,10 +620,10 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    // if(item['id']){
-    //    path = '/variants/' + item['id'];
-    //    reqMethod = 'PUT';
-    // }
+    if(dic['id']){
+       path = '/variants/' + dic['id'];
+       reqMethod = 'PUT';
+    }
     console.log('path == >', path, reqMethod)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
@@ -830,7 +833,7 @@ export default class AddEvent extends Component {
       width: 200,
       cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.2,
+      compressImageQuality: 0.7,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;

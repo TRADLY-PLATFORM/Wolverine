@@ -34,6 +34,8 @@ const windowWidth = Dimensions.get('window').width;
 
 
 export default class ConversationList extends Component {
+  _isMounted = false;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -47,20 +49,22 @@ export default class ConversationList extends Component {
   }
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
+      this._isMounted = true;
       if (appConstant.loggedIn) {
         this.getConvesationThread();
       } 
     })
   }
   componentWillUnmount() {
-    this.setState({updateUI: false});
+    this._isMounted = false;
+    this.setState({updateUI: !this.state.updateUI});
   }
   getConvesationThread() {
     var UID = appConstant.userId // = '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
-    this.state.conversationArray =  []; 
+    this.state.conversationArray = [];
     database().ref(`${appConstant.firebaseChatPath}users/${UID}/chatrooms`).once('value').then(snapshot => {
       // console.log('snapshot.val() ', snapshot.val() )
-      if (snapshot.val() != null){
+      if (snapshot.val() != null) {
         let object = Object.keys(snapshot.val())
         let dataObj = Object.values(snapshot.val())
         dataObj[0]['chatRoomId'] = object[0];
@@ -68,7 +72,7 @@ export default class ConversationList extends Component {
           this.state.conversationArray.push(dataObj[0]);
         }
       }
-      this.setState({updateUI: !this.state.updateUI, loadData: true, isVisible: false})
+      this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
     });
   }
   /*  Buttons   */
@@ -100,7 +104,6 @@ export default class ConversationList extends Component {
   }
   }
   renderListViewCellItem = ({ item, index }) => {
-    // console.log('dateFr',timeAgo(new Date(item['lastUpdated']).getTime()))
     let time = timeAgo(new Date(item['lastUpdated']).getTime());
     return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
       <View style={{flexDirection: 'row'}}>

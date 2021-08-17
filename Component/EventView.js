@@ -37,7 +37,7 @@ export default class EventView extends Component {
           </View>
           <View>
             <View style={eventStyles.followContainerStyle}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.AppWhite }}>{price['formatted']}</Text>
+              <Text style={{fontSize: 14, fontWeight: '600', color: colors.AppWhite}}>{price['formatted']}</Text>
             </View>
           </View>
         </View>

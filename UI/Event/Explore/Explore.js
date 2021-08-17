@@ -32,6 +32,7 @@ import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import {getTimeFormat,changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
+import ExploreListItem from '../../../Component/ExploreListItem'
 
 import constantArrays from '../../../Constants/ConstantArrays';
 
@@ -66,6 +67,8 @@ export default class Explore extends Component {
       datesArray: [],
       selectedDate:'',
       filterArray: [],
+      isVisible: true,
+      dataLoad: false,
     }
   }
   componentDidMount() {
@@ -78,6 +81,7 @@ export default class Explore extends Component {
 
   }
   callApi(param) {
+    this.setState({ dataLoad: false })
     this.state.eventsArray = [];
     this.state.stopPagination = false
     this.state.pageNo = 1;
@@ -97,10 +101,15 @@ export default class Explore extends Component {
       }else {
         this.state.stopPagination = true
       }
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false,dataLoad: true })
     } else {
-      this.setState({ isVisible: false })
+      this.setState({ isVisible: false,dataLoad: true  })
     }
+  }
+  _handleRefresh = () => {
+    this.state.params = '';
+    this.setState({ isVisible: true })
+    this.callApi(this.state.params);
   }
   /*  Buttons   */
   didSelectEventList(item, index) {
@@ -258,54 +267,20 @@ export default class Explore extends Component {
           horizontal={this.state.showMap ? true : false}
           onEndReachedThreshold={0}
           onEndReached={this.paginationMethod}
+          onRefresh={this._handleRefresh}
+          refreshing={this.state.isVisible}
         />
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
-        <Text style={eventStyles.commonTxtStyle}> No events posted yet</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events posted yet' : ''}</Text>
       </View>
     }
   }
   renderListCellItem = ({ item, index }) => {
-    var title = '';
-    var rattingAvg = '';
-    var price = '';
-    var time = '';
-    if(item['title']){
-      title = item['title'];
-      rattingAvg = item['rating_data']['rating_average']
-      price =item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
-    }
-    var photo = item['images'] ? item['images'] : [];
-    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
-    <View style={{flexDirection: 'row', width: '80%'}}>
-      <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{ margin: 5 }}>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.titleStyle}>{time}</Text>
-        </View>
-        <View style={{ margin: 5, width: '80%'}}>
-          <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
-        </View>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View>
-        <View style={{ margin: 5, marginTop: 15}}>
-        <Text style={eventStyles.titleStyle}>{price}</Text>
-        </View>
-      </View>
-      <View>
-        </View>
-    </View>
-    <View style={{ alignContent: 'center', padding: 10}}>
-      <Image style={{width: 40, height: 40, marginTop: 5}} resizeMode='center' source={heartIcon} />
-    </View>
-  </TouchableOpacity>
+    return (<TouchableOpacity onPress={() => this.didSelectEventList(item, index)}>
+      <ExploreListItem data={item} />
+    </TouchableOpacity>)
   }
   renderHeaderView = () => {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -328,6 +303,7 @@ export default class Explore extends Component {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index}
         horizontal={true}
+
       />
     </View>)
   }
@@ -434,20 +410,6 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
-  },
-  variantCellViewStyle: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    borderRadius: 5,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-    backgroundColor: colors.AppWhite,
-    width: windowWidth - 20,
-    height: 130,
   },
   headerViewStyle: {
     width: '50%',

@@ -11,7 +11,6 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
@@ -225,6 +224,7 @@ export default class Filter extends Component {
       </TouchableOpacity>
     </View>)
   }
+  
   renderTimeView = () => {
     var strt = '';
     return (<View style={{ backgroundColor: colors.AppWhite }}>
