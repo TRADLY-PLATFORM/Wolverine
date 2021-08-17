@@ -31,7 +31,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../assets/radio.png';
 import selectedradio from '../../assets/selectedradio.png';
-import {getTimeFormat,changeDateFormat,getDatesArray} from '../../HelperClasses/SingleTon'
+import {getTimeFormat,changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/SingleTon'
 
 import constantArrays from '../../Constants/ConstantArrays';
 
@@ -120,8 +120,14 @@ export default class EventList extends Component {
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
-    this.state.selectedDate = this.state.datesArray[index];
+    this.state.selectedDate = changeDateFormat(this.state.datesArray[index], 'YYYY-MM-DD');
+    let nxtDate = getNextDate(this.state.datesArray[index])
+    let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
     this.setState({ updateUI: !this.state.updateUI})
+    let strtD = `${this.state.selectedDate}T00:00:00Z`;
+    let endD = `${nxt}T00:00:00Z`;
+    this.state.params = `&start_at=${strtD}&end_at=${endD}`;
+    this.callApi(this.state.params);
   }
 
   paginationMethod = () => {

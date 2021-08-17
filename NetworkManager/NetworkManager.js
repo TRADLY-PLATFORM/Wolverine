@@ -58,7 +58,6 @@ class NetworkManager {
     console.log(' refreshKey url == ', url)
     console.log(' refreshKeyauth == ', auth)
     console.log(' refresh Key == ', appConstant.refreshKey)
-
     let err, response
     [err, response] = await to(fetch(url, {
       method: method,
@@ -147,7 +146,7 @@ class NetworkManager {
       console.log('response error', err);
       return false;
     } else {
-      console.log('response uploadFileWithSignedURL', response);
+      // console.log('response uploadFileWithSignedURL', response);
       return true;
     }
   }

@@ -58,12 +58,12 @@ export default class AddVariantValue extends Component {
     let {variantData} = this.props.route.params;
     if (variantData['variantType']) {
       let uploadParm = variantData['uploadParm'];
-      this.state.imagesArray = uploadParm['images'];
-      this.state.name = uploadParm[keyAry[0]];
-      this.state.description = uploadParm[keyAry[1]];
-      this.state.price = uploadParm[keyAry[2]];
-      this.state.ticketLimit = uploadParm[keyAry[3]];
-      this.state.offerPrice = uploadParm[keyAry[4]];
+      this.state.imagesArray = uploadParm['images'] || [];
+      this.state.name = uploadParm[keyAry[0]] || '';
+      this.state.description = uploadParm[keyAry[1]] || '';
+      this.state.price = uploadParm[keyAry[2]] || '';
+      this.state.ticketLimit = uploadParm[keyAry[3]] || '';
+      this.state.offerPrice = uploadParm[keyAry[4]] || '';
       this.state.selectedCurrency = variantData['currency'];
     } 
     this.setState({ updateUI: !this.state.updateUI })

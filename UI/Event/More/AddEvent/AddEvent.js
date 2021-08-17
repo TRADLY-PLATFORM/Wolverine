@@ -36,6 +36,8 @@ import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
 
+var viewload = false;
+
 export default class AddEvent extends Component {
   constructor(props) {
     super(props);
@@ -73,9 +75,6 @@ export default class AddEvent extends Component {
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.props.navigation.addListener('focus', () => {
-      this.clearExitData();
-    })
     this.loadCategoryApi()
     this.getCurrencyApi();
     if (this.props.route.params) {
@@ -95,6 +94,13 @@ export default class AddEvent extends Component {
     this.state.offerPrice = '';
     this.state.eventPrice = '';
     this.state.ticketLimit = '';
+    this.state.selectedCatData = {};
+    this.state.categoryName = 'Select Category';
+    this.state.attributeArray = [];
+    this.state.eventDateArray = [];
+    this.state.selectVariantArray = [];
+    this.state.isEditing = false;
+
     this.setState({ updateUI: !this.state.updateUI})
   }
 
@@ -603,6 +609,7 @@ export default class AddEvent extends Component {
   }
   addVariantTypeApi = async (images, index) => {
     let dic = this.state.selectVariantArray[index];
+    console.log('dic', dic);
     var dict = dic['uploadParm'];
     dict['images'] = images;
     let item = dic['variantType']
@@ -610,12 +617,13 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(item['id']){
-       path = '/variants/' + item['id'];
-       reqMethod = 'patch';
-    }
-    console.log('path == >', path)
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod, JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
+    // if(item['id']){
+    //    path = '/variants/' + item['id'];
+    //    reqMethod = 'PUT';
+    // }
+    console.log('path == >', path, reqMethod)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
+     JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
@@ -627,10 +635,15 @@ export default class AddEvent extends Component {
     }
   }
   successAlert() {
+    this.clearExitData();
     this.setState({showCAlert: false});
     this.props.navigation.goBack();
   }
   /*  Buttons   */
+  backBtnAction(){
+    this.clearExitData();
+    this.props.navigation.goBack();
+  }
   createBtnAction() {
     if (this.state.name.length == 0) {
       Alert.alert('Name field should not be empty')
@@ -1134,20 +1147,24 @@ export default class AddEvent extends Component {
       if(value['values']) {
         title = value['values']['name'];
       }
-      let pp = item['uploadParm']['list_price'];
-        let curency = item['currency']['format']
-      if(curency != undefined) {
+      let pp = item['uploadParm']['list_price'] || '';
+      let curency = item['currency']['format']
+      if (curency != undefined) {
         price = curency.replace('{amount}', ` ${pp}`)
       } else {
         price = `$ ${pp}`
       }
-      stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
+      if (item['uploadParm']['stock']){
+        stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
+      }
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
-      if (photos[0]['sourceURL']) { 
-        photos = photos[0]['path'];
-      } else {
-        photos = photos[0];
+      if (photos.length != 0) {
+        if (photos[0]['sourceURL']) { 
+          photos = photos[0]['path'];
+        } else {
+          photos = photos[0];
+        }
       }
     }
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectVariant(index)}>
@@ -1169,7 +1186,7 @@ export default class AddEvent extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title= {this.state.isEditing ? 'Update Event' : 'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
+        <HeaderView title= {this.state.isEditing ? 'Update Event' : 'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} showDoneBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>

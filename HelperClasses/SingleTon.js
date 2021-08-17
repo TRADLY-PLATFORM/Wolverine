@@ -18,16 +18,29 @@ export function getTimeFormat(bDate) {
   return sTime;
 }
 export function getDatesArray() {
-  var dates = [];
-  var d = new Date();
-  for (let a = 0; a <30; a++ ){
-    console.log('a', a);
-    let nxtD = d.getDate() + a
-    console.log('nxtD',nxtD);
-    dates.push(changeDateFormat(nxtD,'YYYY-MM-DD'));
+  let startDate = new Date();
+  var stopDate = new Date();
+  stopDate.setDate(stopDate.getDate() + 30);
+  var dateArray = new Array();
+  var currentDate = startDate;
+  while (currentDate <= stopDate) {
+      dateArray.push(new Date (currentDate));
+      currentDate = currentDate.addDays(1);
   }
-  return dates;
+  return dateArray;
 }
+export function getNextDate(startDate) {
+  let  nxtDt = new Date(startDate);;
+  nxtDt.setDate(nxtDt.getDate() + 1);
+  return nxtDt
+}
+
+Date.prototype.addDays = function(days) {
+  var dat = new Date(this.valueOf())
+  dat.setDate(dat.getDate() + days);
+  return dat;
+}
+
 export function timeAgo(prevDate){
   const diff = Number(new Date()) - prevDate;
   const minute = 60 * 1000;

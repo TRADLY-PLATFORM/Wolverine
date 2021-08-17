@@ -29,12 +29,13 @@ import copy from '../../../assets/copy.png';
 import whatsappIcon from '../../../assets/whatsapp.png';
 import share from '../../../assets/share.png';
 import heartIcon from '../../../assets/heartIcon.png';
+import favouriteIcon from '../../../assets/favourite.png';
 import RatingReview from '../../../Component/RatingReview';
 import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../HelperClasses/SingleTon'
+import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -51,6 +52,7 @@ export default class EventDetail extends Component {
       imagesArray: [],
       eventDetailData: {},
       loadData: false,
+      itsLiked:false,
     }
   }
 
@@ -67,7 +69,9 @@ export default class EventDetail extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${id}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let eData = responseJson['data']['listing'];
+      console.log('eData ==> ', eData['liked']);
       this.state.eventDetailData = eData;
+      this.state.itsLiked = eData['liked'];
       this.state.imagesArray = eData['images'];
       let variants = this.state.eventDetailData['variants'];
       console.log('variants', variants);
@@ -81,14 +85,31 @@ export default class EventDetail extends Component {
       this.setState({ isVisible: false })
     }
   }
+  LikesAPI = async () => {
+    this.setState({ isVisible: true })
+    const { id } = this.props.route.params;
+    let method = this.state.itsLiked ? 'DELETE' : 'POST';
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}/${APPURL.URLPaths.like}`, 
+    method,'', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      this.state.itsLiked = !this.state.itsLiked;
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
 
   /*  Buttons   */
   didSelectVariant(item) {
     this.state.selectedVariant = item,
     this.setState({selectedVariantId: item['id']})
   }
-  doneBtnAction () {
-    this.props.navigation.goBack();
+  likeBtnAction () {
+    if (appConstant.loggedIn){
+      this.LikesAPI();
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
   }
   bookBtnAction () {
     if (appConstant.loggedIn){
@@ -113,19 +134,23 @@ export default class EventDetail extends Component {
 
   renderImageSlider = () => {
     var views = []
+    var cDate = "";
     for (let a = 0; a < this.state.imagesArray.length; a++) {
       views.push(<View>
         <FastImage style={{ aspectRatio: 16/9  }} source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a]}} />
       </View>)
-    }
-    return (<View style={{aspectRatio:16/9}}>
+    
+    cDate = dateConversionFromTimeStamp(this.state.eventDetailData['created_at']);
+  }
+    let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
+    return (<View style={{ aspectRatio: 16 / 9 }}>
       <Pages>
         {views}
       </Pages>
-      <View style={{justifyContent: 'space-between', position: 'absolute', padding: 10, flexDirection: 'row', width: '100%'}} >
-          <Text style={{ fontWeight: '600', fontSize: 11, color:colors.AppWhite}}>15 hours ago</Text>
-          <Image style={{width: 40, height: 40}} source={heartIcon} />
-        </View>
+      <TouchableOpacity style={styles.createDateViewStyle} onPress={() => this.likeBtnAction()}>
+        <Text style={{ fontWeight: '600', fontSize: 11, color: colors.AppWhite }}>{cDate}</Text>
+        <Image style={{ width: 40, height: 40 }} source={icon} />
+      </TouchableOpacity>
     </View>)
   }
   renderEventDetail = () => {
@@ -154,9 +179,9 @@ export default class EventDetail extends Component {
       }
       return (<View>
         <Text style={eventStyles.titleStyle}>{title}</Text>
-        <View style={{ height: 10 }} />
+        <View style={{ height: 5 }} />
         <Text style={eventStyles.titleStyle}>{price}</Text>
-        <View style={{ height: 10 }} />
+        <View style={{ height: 5 }} />
         <Text style={{ fontSize: 12, fontWeight: '500', color:colors.AppTheme }}>{ticket}</Text>
       </View>)
     } else {
@@ -254,11 +279,11 @@ export default class EventDetail extends Component {
           <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
             {`${item['stock']} tickets left`}
           </Text>
-          <View style={{ height: 10 }} />
+          <View style={{ height: 5 }} />
           <Text style={eventStyles.commonTxtStyle}>{title}</Text>
-          <View style={{ height: 10 }} />
+          <View style={{ height: 5 }} />
           <Text style={{ fontWeight: '400', fontSize: 12 }}>{item['list_price']['formatted']}</Text>
-          <View style={{ height: 10 }} />
+          <View style={{ height: 5 }} />
           <Text style={eventStyles.subTitleStyle}>{item['description']}</Text>
         </View>
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
@@ -529,5 +554,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     borderRadius: 20,
   },
+  createDateViewStyle:{
+    justifyContent: 'space-between', position: 'absolute', padding: 10, flexDirection: 'row', width: '100%',
+  }
 });
 

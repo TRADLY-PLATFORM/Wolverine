@@ -29,6 +29,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
 import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
 
+let pType = 'stripe';
+
 export default class ConfirmBooking extends Component {
   constructor(props) {
     super(props);
@@ -40,6 +42,7 @@ export default class ConfirmBooking extends Component {
       countPrice: 1,
       paymentArray: [],
       selectedPaymentId: 0,
+      selectedPaymentType: '',
       ephemeralKey: '',
       customerId: '',
       clientSecretkey: '',
@@ -59,6 +62,7 @@ export default class ConfirmBooking extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['payment_methods'];
+      console.log('pData', pData)
       this.state.paymentArray = pData
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
@@ -95,7 +99,7 @@ export default class ConfirmBooking extends Component {
     if (responseJson['status'] == true) {
       let cData = responseJson['data'];
       console.log('cData', cData);
-      if (this.state.selectedPaymentId == 9) {
+      if (this.state.selectedPaymentType == pType) {
         this.getpaymentIntentApi(cData['order_reference']);
       } else {
         this.setState({ showCAlert: true,isVisible: false })
@@ -135,7 +139,15 @@ export default class ConfirmBooking extends Component {
     const { error } = await presentPaymentSheet({clientSecret: this.state.clientSecretkey});
     if (error) {
       this.setState({ isVisible: false })
-      Alert.alert(`${error.message}`, '');
+      Alert.alert( `${error.message}`, "",
+        [
+          {
+            text: 'OK', onPress: () => {
+              this.props.navigation.goBack()
+            }
+          }
+        ],
+      );
     } else {
       this.setState({ showCAlert: true})
     }
@@ -157,6 +169,9 @@ export default class ConfirmBooking extends Component {
     let amount = this.state.eventDetailData['list_price']['amount'];
     this.state.listPrice =  (amount * this.state.countPrice) ;
     this.setState({updateUI: !this.state.updateUI})
+  }
+  didSelectPaymentType(item) {
+    this.setState({selectedPaymentId: item['id'],selectedPaymentType: item['type']})
   }
   /*  UI   */
   renderTimeAddressDetail = () => {
@@ -230,7 +245,7 @@ export default class ConfirmBooking extends Component {
   renderPaymentCellItem = ({item, index}) => {
     let check = item['id'] == this.state.selectedPaymentId;
     return (<View>
-      <TouchableOpacity style={styles.commonViewStyle} onPress={() => this.setState({selectedPaymentId: item['id']})}>
+      <TouchableOpacity style={styles.commonViewStyle} onPress={() => this.didSelectPaymentType(item)}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
           <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
