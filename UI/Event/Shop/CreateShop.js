@@ -274,11 +274,13 @@ export default class CreateShop extends Component {
             let data = this.state.singleSelectedArray[obj]['data']
             let atrDic = {
               values:[data[0]['id']],
-              id: data[0]['id'],
+              id: this.state.singleSelectedArray[obj]['valueId'],
             }
             localAry.push(atrDic)
           }
         }
+
+        console.log('local type 1', localAry);
         if (objc['optional'] == false) {
           if (localAry.length == 0) {
             Alert.alert(`Please select ${objc['name']}`);
@@ -484,6 +486,7 @@ export default class CreateShop extends Component {
     this.loadAttributeApi(data['id'])
   }
   getAttributeSelectedValues = (data, singleSelect) => {
+    console.log('data ==> ',JSON.stringify(data));
     if (singleSelect) {
       let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
       if (obj != -1) {
@@ -500,6 +503,8 @@ export default class CreateShop extends Component {
       }
       // this.state.multipleSelectedsArray = data
     }
+    // console.log('singleSelectedArray ==> ',JSON.stringify(this.state.singleSelectedArray));
+
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAddress = data => {
@@ -526,7 +531,7 @@ export default class CreateShop extends Component {
       cropping: true,
       includeBase64: true,
     }).then(image => {
-      console.log('image', image);
+      // console.log('image', image);
       if (id == 2) {
         this.state.documentFile = image;
       }else {

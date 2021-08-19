@@ -54,6 +54,7 @@ export default class EventDetail extends Component {
       eventDetailData: {},
       loadData: false,
       itsLiked:false,
+      itsOwnEvent:true,
     }
   }
 
@@ -74,6 +75,7 @@ export default class EventDetail extends Component {
       this.state.eventDetailData = eData;
       this.state.itsLiked = eData['liked'];
       this.state.imagesArray = eData['images'];
+      this.state.itsOwnEvent = this.state.eventDetailData['account']['id'] == appConstant.accountID ? true : false;
       let variants = this.state.eventDetailData['variants'];
       if (variants.length != 0){
         this.state.selectedVariantId = variants[0]['id'];
@@ -199,19 +201,25 @@ export default class EventDetail extends Component {
     var cDate = "";
     for (let a = 0; a < this.state.imagesArray.length; a++) {
       views.push(<View>
-        <FastImage style={{ aspectRatio: 16/9  }} source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a]}} />
+        <FastImage style={{ aspectRatio: 16 / 9 }} source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
       </View>)
-    
-    cDate = dateConversionFromTimeStamp(this.state.eventDetailData['created_at']);
-  }
-    let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
+      cDate = changeDateFormat(this.state.eventDetailData['created_at'] * 1000, 'ddd, MMM D');
+
+    }
+    var likeView = [];
+    if (!this.state.itsOwnEvent) {
+      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
+      likeView.push(
+        <Image style={{ width: 40, height: 40 }} source={icon} />
+      )
+    }
     return (<View style={{ aspectRatio: 16 / 9 }}>
       <Pages>
         {views}
       </Pages>
       <TouchableOpacity style={styles.createDateViewStyle} onPress={() => this.likeBtnAction()}>
         <Text style={{ fontWeight: '600', fontSize: 11, color: colors.AppWhite }}>{cDate}</Text>
-        <Image style={{ width: 40, height: 40 }} source={icon} />
+        {likeView}
       </TouchableOpacity>
     </View>)
   }
@@ -470,7 +478,10 @@ export default class EventDetail extends Component {
     </View>)
   }
   renderBottomBtnView = () => {
-    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+    
+    if (!this.state.itsOwnEvent){
+    return (<View style={styles.commonViewStyle}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle}>
           <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
@@ -483,7 +494,11 @@ export default class EventDetail extends Component {
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
         </View>
       </TouchableOpacity>
+      </View>
     </View>)
+    }else {
+      return <View />
+    }
     
   }
   renderMainView = () => {
@@ -530,15 +545,10 @@ export default class EventDetail extends Component {
     }
   }
   render() {
-    var showMoreBtn = false
-    if (this.state.eventDetailData['account']){
-      showMoreBtn = this.state.eventDetailData['account']['id'] == appConstant.accountID ? true : false;
-    }
-    
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} 
-         showDoneBtn={showMoreBtn} doneBtnTitle={'More'} doneBtnAction={() => this.moreBtnAction()}/>
+         showDoneBtn={this.state.itsOwnEvent} doneBtnTitle={'More'} doneBtnAction={() => this.moreBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
@@ -546,7 +556,7 @@ export default class EventDetail extends Component {
              {this.renderMainView()}
             </View>
           </ScrollView>
-          <View style={styles.commonViewStyle}>
+          <View>
             <View style={{ height: 10 }} />
             {this.renderBottomBtnView()}
             <View style={{ height: 50 }} />

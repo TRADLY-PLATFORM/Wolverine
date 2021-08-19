@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import {
   Alert,
+  RefreshControl,
   FlatList,
   Text,Image,View,
   StyleSheet, SafeAreaView,
@@ -97,6 +98,10 @@ export default class Home extends Component {
     }else {
       this.setState({ isVisible: false })
     }
+  }
+  _handleRefresh = () => {
+    this.setState({ isVisible: true })
+    this.getHomeDataApi()
   }
   /*  Buttons   */
   didSelectCategory(item,index) {
@@ -259,7 +264,12 @@ export default class Home extends Component {
         <HeaderView title={'ClassBubs'} showBackBtn={false} />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <ScrollView>
+        <ScrollView  refreshControl={
+          <RefreshControl
+            refreshing={this.state.isVisible}
+            onRefresh={this._handleRefresh}
+          />
+        }>
           <View style={{backgroundColor: colors.LightBlueColor, height: '100%'}}>
             <View style={{ height: 10,backgroundColor: 'white'}} />
             <this.renderGridView />

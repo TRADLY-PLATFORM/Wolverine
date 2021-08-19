@@ -133,18 +133,9 @@ export default class MyStore extends Component {
   }
   /*  Buttons   */
   didSelectEvent = item => {
-    const { accId } = this.props.route.params;
-    // if (accId == appConstant.accountID) {
-    //   this.props.navigation.navigate(NavigationRoots.AddEvent, {
-    //     accountId: accId,
-    //     listingID: item['id'],
-    //   })
-    // } else {
-      this.props.navigation.navigate(NavigationRoots.EventDetail, {
-        id: item['id'],
-      });
-    // }
-
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id: item['id'],
+    });
   }
   backBtnAction() {
     let { createProfile } = this.props.route.params;
@@ -563,7 +554,7 @@ export default class MyStore extends Component {
                 <this.renderFilterView />
               </View>
               <View style={{ height: 10 }} />
-              <View style={{height: '65%'}}>
+              <View style={{height: '65%',backgroundColor: colors.LightBlueColor}}>
                 <this.renderTabActionView />
               </View>
               <View style={{ height: 100,backgroundColor: colors.LightBlueColor}} />

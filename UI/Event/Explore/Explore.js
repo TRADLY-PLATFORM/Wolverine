@@ -31,7 +31,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
-import {getTimeFormat,changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
+import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
 import ExploreListItem from '../../../Component/ExploreListItem'
 
 import constantArrays from '../../../Constants/ConstantArrays';
@@ -39,7 +39,6 @@ import constantArrays from '../../../Constants/ConstantArrays';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
-import { color } from 'react-native-reanimated';
 const origin = { latitude: 30.6225, longitude: 76.6224 };
 const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -273,7 +272,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events posted yet' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events available yet' : ''}</Text>
       </View>
     }
   }

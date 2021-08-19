@@ -27,6 +27,7 @@ import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 const windowHeight = Dimensions.get('window').height;
+const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
 
 export default class Filter extends Component {
   constructor(props) {
@@ -37,6 +38,7 @@ export default class Filter extends Component {
       showFilterView:false,
       selectedFilterIndex: -1,
       timeValue: [0,24.0],
+      timeApplied: false,
       distanceValue: [0],
       selectedDatePostedIndex: -1,
       selectedRatingIndex: -1,
@@ -52,6 +54,7 @@ export default class Filter extends Component {
       this.state.filterValueArray = filterArray;
       for (let objc of filterArray) {
         if (objc['time']) {
+          this.state.timeApplied = true;
           let timeD = objc['time'];
           this.state.timeValue[0] = Number(`${timeD['start']}.0`);
           this.state.timeValue[1] = Number(`${timeD['end']}.0`);
@@ -96,6 +99,7 @@ export default class Filter extends Component {
   doneBtnAction () {
     this.setState({showFilterView: false})
     if (this.state.selectedFilterIndex == 0){
+      this.state.timeApplied = true;
       let stTime = this.state.timeValue[0].toFixed(0);
       let edTime = this.state.timeValue[1].toFixed(0);
       let timeDict = {
@@ -179,6 +183,7 @@ export default class Filter extends Component {
     this.props.navigation.goBack();
   }
   clearBtnAction () {
+    this.state.timeApplied = false;
     this.state.filterValueArray = [];
     this.props.route.params.getFilterData(this.state.filterValueArray);
     this.props.navigation.goBack();
@@ -188,7 +193,11 @@ export default class Filter extends Component {
     this.setState({selectedDatePostedIndex: index})
   }
   /*  UI   */
- 
+  convert12HoursFormat(time) {
+    var ampm = time >= 12 ? 'PM' : 'AM';
+    var timeString = `${time.length == 1 ? `0${time}`:time}:00 ${ampm}`;
+    return timeString
+  }
   renderListView = () => {
     return (<View style={{margin: 5, height: '84%'}}>
       <FlatList
@@ -200,12 +209,63 @@ export default class Filter extends Component {
     </View>)
   }
   renderListViewCellItem = ({item, index}) => {
-    let check = item == 4 ? false : true
+    var views = [];
+    if (index == 0) {
+      if (this.state.timeApplied) {
+        let stTime = this.convert12HoursFormat(this.state.timeValue[0].toFixed(0));
+        let edTime = this.convert12HoursFormat(this.state.timeValue[1].toFixed(0));
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${stTime} - ${edTime}`} </Text>
+        </View>)
+      }
+    }
+    if (index == 1) {
+      if (this.state.selectedDatePostedIndex != -1) {
+        let value = titleAry[this.state.selectedDatePostedIndex];
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${value}`} </Text>
+        </View>)
+      }
+    }
+    if (index == 2) {
+      if (this.state.selectedRatingIndex != -1) {
+        var startView = []
+        for (let a = 0; a < 5 - this.state.selectedRatingIndex; a++) {
+          startView.push(<View style={{ flexDirection: 'row', margin: 5 }}>
+            <Image source={starIcon} style={{ height: 15, width: 15 }} />
+          </View>)
+        }
+        views.push(<View>
+          <View style={{flexDirection: 'row', }}>
+            {startView}
+          </View>
+        </View>)
+      }
+    }
+    if (index == 3) {
+      if (this.state.distanceValue[0] != 0) {
+        let value = this.state.distanceValue[0].toFixed(0)
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${value} KM`} </Text>
+        </View>)
+      }
+    }
+    if (index == 4) {
+      if (this.state.selectedCategoryIndex != -1) {
+        var value = '';
+        if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
+          value = this.state.categoryArray[this.state.selectedCategoryIndex]['name'];
+        }
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${value}`} </Text>
+        </View>)
+      }
+    }
     return (
       <TouchableOpacity onPress={() => this.didSelect(index)}>
         <View style={styles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? emptyIcon : tickIcon} />
+          {views}
         </View>
       </TouchableOpacity>
     )
@@ -248,7 +308,6 @@ export default class Filter extends Component {
     </View>)
   }
   renderDatePostedView = () => {
-    let titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
     var views = [];
     for (let a = 0; a < titleAry.length; a++) {
       if (this.state.selectedDatePostedIndex == a) {
@@ -441,16 +500,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppTheme
   },
   listViewStyle: {
-    justifyContent: 'space-between',
-    width: "97%",
-    margin: 5,
-    marginLeft: 16,
+    width: "100%",
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
-    height: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 10,
+    padding: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   bottomBtnViewStyle: {
     width: '45%',
@@ -505,6 +560,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 10,
   },
+  textValueStyle: {
+    textAlign: 'left',
+    fontSize: 14,
+    color: colors.Lightgray,
+    marginTop: 5,
+  }
 
 });
 
