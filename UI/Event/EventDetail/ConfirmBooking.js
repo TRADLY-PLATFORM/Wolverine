@@ -53,7 +53,7 @@ export default class ConfirmBooking extends Component {
   componentDidMount() {
     let {eventData} = this.props.route.params;
     this.state.eventDetailData = eventData
-    this.state.listPrice = this.state.eventDetailData['list_price']['amount'];
+    this.state.listPrice = this.state.eventDetailData['offer_price']['amount'];
     this.setState({updateUI: !this.state.updateUI})
     this.getPaymentMethodsApi();
     this.getphemeralKeyApi();

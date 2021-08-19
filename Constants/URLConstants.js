@@ -1,6 +1,6 @@
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.dev.tradly.app/app/',
+    BaseURL: 'https://api.dev.tradly.app/',
     token: 'v1/users/token/refresh',
     config: 'v1/tenants/tradlysocial/configs',
     register: 'v1/users/register',
@@ -30,7 +30,7 @@ module.exports = {
     earning: 'v1/earnings?account_id=',
     transaction: 'v1/transactions?per_page=30&super_type=2&page=',
     like: '/likes',
-    follow: '/follow'
+    follow: '/follow',
 
   }
 }

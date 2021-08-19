@@ -53,6 +53,8 @@ export default class MyStore extends Component {
       pageNo: 1,
       itsFollowing: false,
       stopPagination: false,
+      dataLoad: false,
+
     }
   }
 
@@ -63,6 +65,7 @@ export default class MyStore extends Component {
     });
   }
   apiCalls() {
+    this.setState({ dataLoad: false })
     this.state.eventsArray = []
     this.state.stopPagination = false
     this.state.pageNo = 1;
@@ -98,9 +101,9 @@ export default class MyStore extends Component {
       } else {
         this.state.stopPagination = true
       }
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false,dataLoad: true  })
     } else {
-      this.setState({ isVisible: false })
+      this.setState({ isVisible: false,dataLoad: true  })
     }
   }
   updateStatusAPI = async () => {
@@ -510,8 +513,8 @@ export default class MyStore extends Component {
       />
     </View>
     }else {
-      return <View style={{height: '100%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
-        <Text style={eventStyles.commonTxtStyle}> No events found</Text>
+      return <View style={{height: '100%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
       </View>
     }
   }
@@ -545,19 +548,21 @@ export default class MyStore extends Component {
           <View style={{ position: 'relative', flexDirection: 'column', height:'100%'}}>
             <View style={{ backgroundColor: colors.AppTheme, height: 100}}>
             </View>
-            <View style={{ backgroundColor: colors.LightBlueColor, height: windowHeight/ 1.36 }}>
+            <View style={{ backgroundColor: colors.LightBlueColor, height: windowHeight / 1.36 }}>
               <View style={styles.headerContainerViewStyle} >
                 <this.renderProfileView />
               </View>
               <View>
                 <this.renderSegmentBar />
+              </View>
+              <View style={{ height: '77%', backgroundColor: colors.LightBlueColor }}>
                 <this.renderFilterView />
+                <View style={{ height: 10 }} />
+                <View style={{flex:1}}>
+                  <this.renderTabActionView />
+                </View>
+                <View style={{height: 40}}/>
               </View>
-              <View style={{ height: 10 }} />
-              <View style={{height: '65%',backgroundColor: colors.LightBlueColor}}>
-                <this.renderTabActionView />
-              </View>
-              <View style={{ height: 100,backgroundColor: colors.LightBlueColor}} />
             </View>
           </View>
         </View>

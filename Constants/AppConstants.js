@@ -2,6 +2,7 @@ module.exports = {
   loggedIn:false,
   authKey: '',
   refreshKey: '',
+  termCondition: '',
   bToken: '',
   userId: '',
   userName: '',

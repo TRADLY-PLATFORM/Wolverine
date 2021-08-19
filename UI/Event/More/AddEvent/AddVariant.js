@@ -132,7 +132,8 @@ export default class AddVariant extends Component {
  
   /*  UI   */
   renderSelectedVariantListView = () => {
-    return (<View>
+    if (this.state.selectedVariantArray.length != 0) {
+    return (<View style={styles.mainViewStyle}>
       <FlatList
         data={this.state.selectedVariantArray}
         renderItem={this.renderListCellItem}
@@ -140,6 +141,9 @@ export default class AddVariant extends Component {
         keyExtractor={(item, index) => index}
       />
     </View>)
+    } else {
+      return <View />
+    }
   }
   renderListCellItem = ({ item, index }) => {
     return <View style={{ flexDirection: 'row',borderWidth: 1, borderColor: colors.BorderColor, padding: 10, justifyContent: 'space-between', margin: 5 }}>
@@ -186,7 +190,7 @@ export default class AddVariant extends Component {
             </TouchableOpacity>
           </View>
           <View style={{ height: 20 }} />
-          <View style={styles.mainViewStyle}>
+          <View >
             <this.renderSelectedVariantListView />
           </View>
         </View>

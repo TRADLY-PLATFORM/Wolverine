@@ -60,7 +60,7 @@ class NetworkManager {
     console.log(' refresh Key == ', appConstant.refreshKey)
     let err, response
     [err, response] = await to(fetch(url, {
-      method: method,
+      method: 'get',
       dataType: 'json',
       headers: {
         'Accept': 'application/json',

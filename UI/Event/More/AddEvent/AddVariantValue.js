@@ -180,15 +180,13 @@ export default class AddVariantValue extends Component {
       } else {
         views.push(
           <View>
-            <View style={styles.dottedViewStyle}>
-              <TouchableOpacity onPress={() => this.imagePicker()}>
-                <View style={{ justifyContent: 'center' }}>
-                  <Image source={cameraIcon}
-                    style={{ width: 30, height: 30, alignSelf: 'center' }}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+              <View style={{ justifyContent: 'center' }}>
+                <Image source={cameraIcon}
+                  style={{ width: 30, height: 30, alignSelf: 'center' }}
+                />
+              </View>
+            </TouchableOpacity>
           </View>,
         );
       }

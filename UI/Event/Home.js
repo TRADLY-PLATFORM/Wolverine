@@ -83,7 +83,7 @@ export default class Home extends Component {
         appConstant.accountID = '';
       }
     }else {
-      this.setState({ isVisible: false })
+      // this.setState({ isVisible: false })
     }
   }
   getHomeDataApi = async () => {

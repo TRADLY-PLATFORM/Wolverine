@@ -122,7 +122,7 @@ export default class ConversationList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Conversation'} showBackBtn={false} />
+        <HeaderView title={'Chats'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '93%', backgroundColor: colors.AppWhite }}>
           <this.renderConversationListView />

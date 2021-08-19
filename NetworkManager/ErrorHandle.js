@@ -9,6 +9,7 @@ export default class ErrorHandler {
           case 301: return 'User already exist'
           case 401: return 'Unauthorized'
           case 402: return 'Technical issue'
+          case 753: return 'Action not allowed'
           default: return 'invalid or missing parameters' ;
           }
   }

@@ -83,7 +83,9 @@ export default class App extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
     console.log('get data of config', responseJson)
     if (responseJson['status'] == true) {
-      let keyd = responseJson['data']['key']['app_key']
+      let keyd = responseJson['data']['key']['app_key'];
+      appConstant.termCondition = responseJson['data']['configs']['terms_url'] || 'https://community.tradly.app';
+      // console.log('appConstant.termCondition =>', appConstant.termCondition);
       DefaultPreference.set('token', keyd).then(function (){console.log('done')});
       appConstant.bToken = keyd;
       this.setState({ reload: true, isVisible: false })

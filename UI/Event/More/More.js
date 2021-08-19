@@ -1,7 +1,7 @@
 
 import React, { Component } from 'react';
 import {
-  FlatList, Alert, TextInput, Text, Image, View,
+  FlatList, Alert, Linking, Text, Image, View,
   StyleSheet, SafeAreaView, TouchableOpacity, ScrollView
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -117,6 +117,9 @@ export default class More extends Component {
           this.props.navigation.navigate(NavigationRoots.CreateStore);
         }
       }
+      else if (index == 4) {
+        Linking.openURL(appConstant.termCondition);
+      }
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
@@ -135,7 +138,7 @@ export default class More extends Component {
           renderItem={this.renderListCellItem}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => index}
-          ItemSeparatorComponent={() => <View style={{ alignSelf: 'center', width: "100%", height: 1, marginTop: 12, backgroundColor: colors.LightUltraGray }} />}
+          ItemSeparatorComponent={() => <View style={{alignSelf: 'center', width: "100%", height: 1, marginTop: 12, backgroundColor: colors.LightUltraGray }} />}
         />
       </View>
     )
@@ -164,7 +167,7 @@ export default class More extends Component {
   }
   render() {
     return (
-        <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
+        // <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
           <SafeAreaView style={styles.Container}>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
           <View style={{ position: 'relative', flexDirection: 'column' }}>
@@ -181,13 +184,14 @@ export default class More extends Component {
             </View>
           </View>
           </SafeAreaView>
-        </LinearGradient>
+        // </LinearGradient>
     );
   }
 }
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
+    backgroundColor: colors.AppTheme,
   },
   titleStyle: {
     color: colors.AppWhite,

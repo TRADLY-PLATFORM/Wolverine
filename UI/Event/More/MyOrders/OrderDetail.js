@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
   Text,
   Image,
-  FlatList,
+  Alert,
   ScrollView,
   View,
   StyleSheet,
@@ -32,6 +32,7 @@ export default class OrderDetail extends Component {
       orderDetailData: {},
       updateUI: false,
       isVisible:true,
+      showCancelBtn: false,
     }
   }
   componentDidMount() {
@@ -43,13 +44,52 @@ export default class OrderDetail extends Component {
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['order'];
       this.state.orderDetailData = pData;
+      let nextStatus = this.state.orderDetailData['next_status'];
+      console.log('nextStatus', nextStatus)
+      this.state.showCancelBtn = nextStatus.includes(16);
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
       this.setState({ isVisible: false })
     }
   }
+  cancelOrderAPI = async () => {
+    let dic = {'status': 16}
+    this.setState({ isVisible: true })
+    let {orderId} = this.props.route.params;
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.orderDetail}${orderId}/status`, 'patch',JSON.stringify({order:dic}),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      this.setState({ isVisible: false })
+      Alert.alert( `Successfull!`, "",
+      [
+        {
+          text: 'OK', onPress: () => {
+            this.props.navigation.goBack()
+          }
+        }
+      ],
+    );
+    }else {
+      this.setState({ isVisible: false })
+      Alert.alert(responseJson)
+    }
+  }
   /*  Buttons   */
-
+  cancelBtnAction() {
+    Alert.alert(
+      "Are you sure you want to Cancel this order", "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "OK", onPress: () => {
+            this.cancelOrderAPI(); 
+          }
+        }
+      ],
+    );
+  }
 
   /*  UI   */
   renderListDetailView = () => {
@@ -123,13 +163,17 @@ export default class OrderDetail extends Component {
     }
   }
   renderBottomBtnView = () => {
-    return (<View>
-      <TouchableOpacity style={eventStyles.bottomBtnViewStyle}>
+    if (this.state.showCancelBtn) {
+    return (<View style={styles.commonViewStyle}>
+      <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.cancelBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle } >
           <Text style={{ color: colors.AppTheme,fontWeight: '600' }}>Cancel Booking</Text>
         </View>
       </TouchableOpacity>
     </View>)
+    }else {
+      return <View />
+    }
   }
   render() {
     return (
@@ -150,7 +194,7 @@ export default class OrderDetail extends Component {
               {this.renderTimeAddressDetail()}
             </View>
           </ScrollView>
-          <View style={styles.commonViewStyle}>
+          <View>
             {this.renderBottomBtnView()}
             <View style={{ height: 40 }} />
           </View>

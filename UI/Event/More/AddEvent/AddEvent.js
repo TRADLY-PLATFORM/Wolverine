@@ -385,7 +385,7 @@ export default class AddEvent extends Component {
             let data = this.state.singleSelectedArray[obj]['data']
             let atrDic = {
               values:[data[0]['id']],
-              id: data[0]['id'],
+              id: this.state.singleSelectedArray[obj]['valueId'],
             }
             localAry.push(atrDic)
           }
@@ -620,8 +620,8 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(dic['id']){
-       path = '/variants/' + dic['id'];
+    if(dict['id']){
+       path = '/variants/' + dict['id'];
        reqMethod = 'PUT';
     }
     console.log('path == >', path, reqMethod)
@@ -883,15 +883,13 @@ export default class AddEvent extends Component {
         if (this.state.imagesArray.length < 4) {
           views.push(
             <View>
-              <View style={styles.dottedViewStyle}>
-                <TouchableOpacity onPress={() => this.imagePicker()}>
-                  <View style={{ justifyContent: 'center' }}>
-                    <Image source={cameraIcon}
-                      style={{ width: 30, height: 30, alignSelf: 'center' }}
-                    />
-                  </View>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+                <View style={{ justifyContent: 'center' }}>
+                  <Image source={cameraIcon}
+                    style={{ width: 30, height: 30, alignSelf: 'center' }}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>,
           );
         } else {
@@ -1094,11 +1092,11 @@ export default class AddEvent extends Component {
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
             <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
-              <Image style={{ width: 12, height: 12, marginLeft: 10 }} resizeMode='center' source={editGreen} />
+              <Image style={{ width: 12, height: 12, marginLeft: 10 }} source={editGreen} />
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-            <Image style={{ width: 12, height: 12 }} resizeMode='center' source={timeIcon} />
+            <Image style={{ width: 12, height: 12 }}  source={timeIcon} />
             <View style={{ width: 5 }} />
             <Text style={eventStyles.subTitleStyle}>{`${item['startTime']} to ${item['endTime']}`}</Text>
           </View>

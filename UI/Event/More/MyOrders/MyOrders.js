@@ -38,7 +38,9 @@ export default class MyOrders extends Component {
     }
   }
   componentDidMount() {
-    this.callApi();
+    this.props.navigation.addListener('focus', () => {
+      this.callApi();
+    })
   }
   callApi() {
     this.state.myOrderArray = [];
@@ -138,10 +140,12 @@ export default class MyOrders extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'My Orders'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={'My Bookings'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
+          <View style={{height: '94%'}}>
           <this.renderOrderListView />
+          </View>
         </View>
       </SafeAreaView>
     );
