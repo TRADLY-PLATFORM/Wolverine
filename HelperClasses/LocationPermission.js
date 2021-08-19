@@ -1,90 +1,50 @@
-import RNLocation, { requestPermission } from 'react-native-location'
-import OpenAppSettings from 'react-native-app-settings'
+
 import React, { Component } from 'react';
+import GetLocation from 'react-native-get-location';
+import appConstant from '../Constants/AppConstants';
+import {Alert} from 'react-native';
 
+export default class CurrentLocation extends Component {
 
-export default class LocationPermission extends Component {
-
-  allowLocationPermission = () => {
-    RNLocation.requestPermission({
-      ios: "whenInUse",
-      android: {
-        detail: "fine",
-        rationale: {
-          title: "Location permission",
-          message: "We use your location to demo the library",
-          buttonPositive: "OK",
-          buttonNegative: "Cancel"
-        }
-      }
-    }).then(granted => {
-      console.log('permission granted', granted)
-      if (granted) {
-        // this._startUpdatingLocation();
-      } else {
-        OpenAppSettings.open()
-      }
-    });
-    RNLocation.configure({
-      distanceFilter: 100, // Meters
-      desiredAccuracy: {
-        ios: "best",
-        android: "balancedPowerAccuracy"
-      },
-      // Android only
-      androidProvider: "auto",
-      interval: 5000, // Milliseconds
-      fastestInterval: 10000, // Milliseconds
-      maxWaitTime: 5000, // Milliseconds
-      // iOS Only
-      activityType: "other",
-      allowsBackgroundLocationUpdates: true,
-      headingFilter: 1, // Degrees
-      headingOrientation: "portrait",
-      pausesLocationUpdatesAutomatically: false,
-      showsBackgroundLocationIndicator: true,
-    })
-
-    // RNLocation.getLatestLocation({ timeout: 100 })
-    //   .then(latestLocation => {
-    //     console.log('latestLocation',latestLocation)
-    //   })
-
-    //  RNLocation.subscribeToLocationUpdates(locations => {
-    //     console.log('subscribeToLocationUpdates',locations)
-    //   })
-    //   RNLocation.subscribeToPermissionUpdates(currentPermission => {
-    //     console.log('subscribeToPermissionUpdates',currentPermission)
-
-    //     if (currentPermission == 'denied')
-    //     {
-    //       OpenAppSettings.open()
-    //     }
-    //     else if (currentPermission == 'notDetermined')
-    //     {
-    //     }
-
-    //   })
-  }
-
-  _getCurrentLocation =  async() => {
-   await RNLocation.getLatestLocation({ timeout: 60000 }) .then(latestLocation => {
-        console.log('current loc ', latestLocation['latitude'], ' longitude', latestLocation['longitude'])
-        return latestLocation
+  _requestLocation = () => {
+      GetLocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 150000,
+      }) .then(location => {
+        console.log('appConstant =location> ',location);
+        appConstant.lat = location['latitude'];
+        appConstant.long = location['longitude'];
       })
-  }
-  _startUpdatingLocation = () => {
-    this.locationSubscription = RNLocation.subscribeToLocationUpdates(
-      locations => {
-        console.log('_startUpdatingLocation', locations)
+      .catch(ex => {
+        const { code, message } = ex;
+        // console.warn(code, message);
+        // if (code === 'CANCELLED') {
+        //   // Alert.alert('Location cancelled by user or by another request');
+        // }
+        if (code === 'UNAVAILABLE') {
+          Alert.alert('Location service is disabled or unavailable');
+        }
+        if (code === 'TIMEOUT') {
+          Alert.alert('Location request timed out');
+        }
+        if (code === 'UNAUTHORIZED') {
+          Alert.alert(
+            'Authorization denied', "",
+            [
+              {
+                text: "OK", onPress: () => {
+                  GetLocation.openAppSettings();  
+                }
+              }
+            ],
+          );
+        }
+        // this.setState({
+        //   location: null,
+        //   loading: false,
+        // });
       });
-  };
-
-  _stopUpdatingLocation = () => {
-    this.locationSubscription && this.locationSubscription();
-    console.log('_stopUpdatingLocation')
-  };
-
+  }
 }
 
 // Unsubscribe
