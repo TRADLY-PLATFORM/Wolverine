@@ -15,18 +15,13 @@ import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import sample from '../../../assets/dummy.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import timeIcon from '../../../assets/timeIcon.png';
-import starIcon from '../../../assets/star.png';
-import heartIcon from '../../../assets/heartIcon.png';
 import filterGrayIcon from '../../../assets/filterGrayIcon.png';
 import sortIcon from '../../../assets/sortIcon.png';
 import viewMapIcon from '../../../assets/viewMapIcon.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
-import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
@@ -35,7 +30,7 @@ import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses
 import ExploreListItem from '../../../Component/ExploreListItem'
 
 import constantArrays from '../../../Constants/ConstantArrays';
-
+import LocationPermission from '../../../HelperClasses/LocationPermission';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
@@ -66,18 +61,19 @@ export default class Explore extends Component {
       datesArray: [],
       selectedDate:'',
       filterArray: [],
-      isVisible: true,
+      isVisible: false,
       dataLoad: false,
     }
   }
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
+      let lp = new LocationPermission();
+      lp._requestLocation();
     });
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
     this.callApi(this.state.params);
-
   }
   callApi(param) {
     this.setState({ dataLoad: false })
@@ -88,7 +84,10 @@ export default class Explore extends Component {
   }
   getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    var path = `&per_page=30&type=events&latitude=30.70&longitude=76.62` + param;
+    var path = '&per_page=30&type=events&';
+    if (appConstant.lat.length != 0) {
+      path = path + `latitude=${appConstant.lat}&longitude=${appConstant.long}` + param;
+    }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}${path}`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
@@ -188,10 +187,6 @@ export default class Explore extends Component {
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    // timeString12hr;
-    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    // let startTimestamp = new Date(startDate).getTime() / 1000;
     return timeString
   }
   /*  UI   */
@@ -337,13 +332,8 @@ export default class Explore extends Component {
    renderMarker = () => {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
-      // let objc = this.state.eventsArray[0];
       let coordinate = objc['coordinates'];
-      // console.log('objc', objc['coordinates'])
-      // let coordinate =  {
-      //   "latitude": 30.6892,
-      //   "longitude":76.6907,
-      // }
+      // console.log('objc', coordinate)
       markerView.push(<Marker
         coordinate={coordinate}
         image = {require('../../../assets/mapPin.png')} 
@@ -357,11 +347,11 @@ export default class Explore extends Component {
         return (<View style={{ height: windowHeight / 1.25, width: windowWidth }}>
           <View style={eventStyles.containerMapStyle}>
             <MapView
-              // provider={PROVIDER_GOOGLE}
+              provider={PROVIDER_GOOGLE}
               style={eventStyles.mapStyle}
               initialRegion={{
-                latitude: 30.68825,
-                longitude: 76.6924,
+                latitude: appConstant.lat,
+                longitude: appConstant.long,
                 latitudeDelta: 0.015,
                 longitudeDelta: 0.0121,
               }}

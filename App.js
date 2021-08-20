@@ -75,7 +75,10 @@ export default class App extends Component {
         this.setState({appInstalled: true})
       }
     }.bind(this))
-    Sentry.init({ dsn: appConstant.dsnSentry, enableNative: false});
+    if (__DEV__) {
+      console.log('I am in debug');
+    }
+    Sentry.init({dsn: appConstant.dsnSentry, enableNative: false});
     this.configApi();
   }
   configApi = async () => {
