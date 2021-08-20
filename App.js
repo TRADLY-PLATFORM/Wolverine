@@ -75,11 +75,7 @@ export default class App extends Component {
         this.setState({appInstalled: true})
       }
     }.bind(this))
-    var evn = 'production';
-    if (__DEV__) {
-      evn = 'development'
-    }
-    Sentry.init({environment:evn ,dsn: appConstant.dsnSentry, enableNative: false});
+    Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
     this.configApi();
   }
   configApi = async () => {
