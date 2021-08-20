@@ -238,12 +238,13 @@ export default class Home extends Component {
     var photo = item['images'] ? item['images'] : [];
 
     if(item['user']) {
+      var profilePic = item['user']['profile_pic'].length == 0 ? dummy : {uri:item['user']['profile_pic']}
       return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
         <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
         <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
         <View style={{flexDirection: 'row', marginTop: 15}}>
-          <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={{uri:item['user']['profile_pic']}} />
+          <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic} />
           <Text numberOfLines={2} style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
         </View>
         </View>

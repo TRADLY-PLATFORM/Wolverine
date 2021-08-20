@@ -204,8 +204,9 @@ export default class AddEvent extends Component {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
-      let cData = responseJson['data']['attributes'];
-      this.state.attributeArray = cData
+      let aData = responseJson['data']['attributes'];
+      console.log('aData == >.',JSON.stringify(aData))
+      this.state.attributeArray = aData
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
       this.setState({ isVisible: false })
@@ -963,9 +964,15 @@ export default class AddEvent extends Component {
 
           let titleAray = [];
           if (item['optional'] == false) {
-            titleAray.push(<View> {this.renderTitleLbl({title:item['name']})}</View>)
+            titleAray.push(<View>
+               {this.renderTitleLbl({title:item['name']})}
+            </View>)
           } else {
-            titleAray.push( <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>)
+            titleAray.push( <View>
+              <Text style={commonStyles.textLabelStyle}>{item['name']}
+              </Text>
+              </View>
+            )
           }
           views.push(<View>
             <View style={{ height: 20 }} />
