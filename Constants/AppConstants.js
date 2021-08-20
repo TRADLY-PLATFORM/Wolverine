@@ -1,7 +1,7 @@
 module.exports = {
   loggedIn:false,
-  lat:'',
-  long:'',
+  lat:30.76,
+  long:76.56,
   authKey: '',
   refreshKey: '',
   bToken: '',

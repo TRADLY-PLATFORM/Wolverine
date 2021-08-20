@@ -24,6 +24,7 @@ import NavigationRoots from '../../Constants/NavigationRoots';
 import EventView from '../../Component/EventView';
 import Deeplinking from '../../HelperClasses/Deeplinking';
 import {firebaseAuth} from '../../Firebase/FirebaseAuth'
+import LocationPermission from '../../HelperClasses/LocationPermission';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -41,7 +42,12 @@ export default class Home extends Component {
     }
   }
   componentDidMount() {
+    this.locationPermission()
     this.getSavedData();
+  }
+  locationPermission() {
+    let lp = new LocationPermission();
+    lp._requestLocation();
   }
   getSavedData() {
     DefaultPreference.get('token').then(function (value) {

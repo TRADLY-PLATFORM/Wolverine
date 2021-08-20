@@ -187,10 +187,6 @@ export default class Explore extends Component {
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    // timeString12hr;
-    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    // let startTimestamp = new Date(startDate).getTime() / 1000;
     return timeString
   }
   /*  UI   */
@@ -336,13 +332,8 @@ export default class Explore extends Component {
    renderMarker = () => {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
-      // let objc = this.state.eventsArray[0];
       let coordinate = objc['coordinates'];
-      // console.log('objc', objc['coordinates'])
-      // let coordinate =  {
-      //   "latitude": 30.6892,
-      //   "longitude":76.6907,
-      // }
+      // console.log('objc', coordinate)
       markerView.push(<Marker
         coordinate={coordinate}
         image = {require('../../../assets/mapPin.png')} 
@@ -356,11 +347,11 @@ export default class Explore extends Component {
         return (<View style={{ height: windowHeight / 1.25, width: windowWidth }}>
           <View style={eventStyles.containerMapStyle}>
             <MapView
-              // provider={PROVIDER_GOOGLE}
+              provider={PROVIDER_GOOGLE}
               style={eventStyles.mapStyle}
               initialRegion={{
-                latitude: 30.68825,
-                longitude: 76.6924,
+                latitude: appConstant.lat,
+                longitude: appConstant.long,
                 latitudeDelta: 0.015,
                 longitudeDelta: 0.0121,
               }}
