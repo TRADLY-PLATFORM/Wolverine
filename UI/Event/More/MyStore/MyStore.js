@@ -44,7 +44,7 @@ export default class MyStore extends Component {
     super(props);
     this.state = {
       eventsArray: [],
-      isVisible: false,
+      isVisible: true,
       updateUI: false,
       segmentIndex: 0,
       storeDetail: {},
@@ -61,6 +61,7 @@ export default class MyStore extends Component {
   componentDidMount() {
     // this.apiCalls();
     this.props.navigation.addListener('focus', () => {
+      this.setState({ isVisible: false })
       this.apiCalls();
     });
   }
@@ -74,7 +75,6 @@ export default class MyStore extends Component {
     this.getEventsApi();
   }
   getMyStoreDetailApi = async () => {
-    this.setState({ isVisible: true })
     const { accId } = this.props.route.params;
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
@@ -82,13 +82,12 @@ export default class MyStore extends Component {
       this.state.storeDetail = acctData;
       this.state.itsFollowing = acctData['following'];
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
   getEventsApi = async () => {
-    this.setState({ isVisible: true })
     const { accId } = this.props.route.params;
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=${this.state.pageNo}&per_page=30&type=events`,
       'get', '', appConstant.bToken, appConstant.authKey)
@@ -203,6 +202,7 @@ export default class MyStore extends Component {
   paginationMethod = () => {
     console.log('pagination');
     if (!this.state.stopPagination) {
+      this.setState({ isVisible: true })
       this.state.pageNo = this.state.pageNo + 1;
       this.getEventsApi();
     }

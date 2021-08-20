@@ -47,8 +47,8 @@ class NetworkManager {
           return error
         }
       }else {
-        console.log('response actual', json);
-        // console.log('response actual', JSON.stringify(json));
+        // console.log('response actual', json);
+        console.log('response actual', JSON.stringify(json));
         return json
       }
     }

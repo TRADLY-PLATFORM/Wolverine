@@ -271,12 +271,15 @@ export default class Home extends Component {
         <HeaderView title={'ClassBubs'} showBackBtn={false} />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <ScrollView  refreshControl={
-          <RefreshControl
-            refreshing={this.state.isVisible}
-            onRefresh={this._handleRefresh}
-          />
-        }>
+        <ScrollView
+          nestedScrollEnabled={true}
+          style={{backgroundColor: colors.LightBlueColor}}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isVisible}
+              onRefresh={this._handleRefresh}
+            />
+          }>
           <View style={{backgroundColor: colors.LightBlueColor, height: '100%'}}>
             <View style={{ height: 10,backgroundColor: 'white'}} />
             <this.renderGridView />

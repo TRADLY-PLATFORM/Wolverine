@@ -38,7 +38,15 @@ export default class AddVariant extends Component {
   }
   componentDidMount() {
     let {selectVariantArray} = this.props.route.params;
-    this.state.selectedVariantArray = selectVariantArray;;
+    var  vAry = []
+    for (let objc of selectVariantArray){
+      if(objc['variantType']){
+        vAry.push(objc['variantType'])
+      }else {
+        vAry.push(objc)
+      }
+    }
+    this.state.selectedVariantArray = vAry;;
     this.setState({updateUI: !this.state.updateUI})
     this.getVariantApi();
   }
@@ -60,9 +68,9 @@ export default class AddVariant extends Component {
     this.setState({ updateUI: !this.state.updateUI })
   }
   doneBtnAction() {
-    if (this.state.selectedVariantArray != 0) {
-      this.props.route.params.getVariant(this.state.selectedVariantArray);
-    }
+    // if (this.state.selectedVariantArray != 0) {
+    this.props.route.params.getVariant(this.state.selectedVariantArray);
+    // }
     this.props.navigation.goBack();
   }
   variantBtnAction() {
@@ -101,24 +109,28 @@ export default class AddVariant extends Component {
   getVariant = data => {
     this.state.selectedVariantType = data[0];
     let index = this.state.selectedVariantArray.findIndex(x => x['id'] == this.state.selectedVariantType['id'])
-    if (index == -1){
-      this.setState({ updateUI: !this.state.updateUI, variantName: this.state.selectedVariantType['name'] })
-    } else {
-      Alert.alert('Already Selected please choose another')
-    }
+    // if (index == -1){
+    this.setState({ updateUI: !this.state.updateUI, variantName: this.state.selectedVariantType['name'] })
+    // } else {
+    //   Alert.alert('Already Selected please choose another')
+    // }
     this.setState({ disableAddBtn: true})
   }
   getVariantTypeValues = data => {
-    console.log('data', data);
     this.state.selectedVariantTypeValues = data[0];
+    console.log('data[0]',data[0])
+    console.log('selectedVariantArray',this.state.selectedVariantArray)
     var value = data
     if (value.length != 0) {
       var nameAry = [];
+      var vtid = '';
       for (let o = 0; o < value.length; o++) {
-        console.log('obj',value[o]);
         nameAry.push(value[o]['name'])
+        vtid = value[o]['id'];
       }
-      let index = this.state.selectedVariantArray.findIndex(x => x['id'] == this.state.selectedVariantType['id'])
+      console.log('nameAry ==>', nameAry);
+      let index = this.state.selectedVariantArray.findIndex(x => x['values']['id'] == vtid)
+      console.log('index ==>', index);
       if (index == -1){
         this.setState({ updateUI: !this.state.updateUI, variantTypeValues: nameAry.toString() })
         this.setState({ disableAddBtn: false})
@@ -126,7 +138,6 @@ export default class AddVariant extends Component {
         this.setState({ disableAddBtn: true})
         Alert.alert('Already Selected please choose another')
       }
-
     }
   }
  
@@ -146,16 +157,20 @@ export default class AddVariant extends Component {
     }
   }
   renderListCellItem = ({ item, index }) => {
-    return <View style={{ flexDirection: 'row',borderWidth: 1, borderColor: colors.BorderColor, padding: 10, justifyContent: 'space-between', margin: 5 }}>
-      <View >
-          <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['name']}</Text>
-          <View style={{height: 5}}/>
-          <Text style={eventStyles.subTitleStyle}>{item['values']['name']}</Text>
+    if (item['values']){
+      return <View style={{ flexDirection: 'row',borderWidth: 1, borderColor: colors.BorderColor, padding: 10, justifyContent: 'space-between', margin: 5 }}>
+        <View >
+            <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['name']}</Text>
+            <View style={{height: 5}}/>
+            <Text style={eventStyles.subTitleStyle}>{item['values']['name']}</Text>
+        </View>
+        <TouchableOpacity onPress={() => this.deleteBtnAction(index)}>
+          <Image style={commonStyles.backBtnStyle} resizeMode='center' source={deleteIcon} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => this.deleteBtnAction(index)}>
-        <Image style={commonStyles.backBtnStyle} resizeMode='center' source={deleteIcon} />
-      </TouchableOpacity>
-    </View>
+    } else {
+      return <View />
+    }
   }
   render() {
     let valueTitle = this.state.variantTypeValues.length == 0 ? 'Select Variant Type Values': this.state.variantTypeValues;

@@ -61,8 +61,8 @@ export default class EventDetail extends Component {
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       this.setState({updateUI: !this.state.updateUI})
+      this.getEventDetailApi();
     })
-    this.getEventDetailApi();
   }
   /*  APIs   */
   getEventDetailApi = async () => {
@@ -180,7 +180,7 @@ export default class EventDetail extends Component {
   }
   deleteEventBtnAction() {
     Alert.alert(
-      "Are you sure you want to this event?", "",
+      "Are you sure you want to delete this event?", "",
       [
         {
           text: "No",
@@ -342,7 +342,6 @@ export default class EventDetail extends Component {
       vValue.push(obj['variant_type_value']['name']);
     }
     let title = vValue.join(' | ')
-    console.log('vValue', vValue);
     return (<View style={eventStyles.variantListViewStyle}>
       <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.didSelectVariant(item)}>
         <View style={{ width: '90%' }}>

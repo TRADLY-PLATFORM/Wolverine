@@ -66,6 +66,7 @@ export default class CreateShop extends Component {
       isEditing: false,
       accountId: '',
       showCAlert: false,
+      coordinates:{},
     }
     this.renderAddressView = this.renderAddressView.bind(this);
   }
@@ -82,6 +83,7 @@ export default class CreateShop extends Component {
       this.state.photoURLPath = storeDetail['images'].length != 0 ? storeDetail['images'][0] : '' ;
       this.state.storeDetail = storeDetail;
       this.state.selectAddress = storeDetail['location'];
+      this.state.coordinates = storeDetail['coordinates'];;
       this.state.description = storeDetail['description'];
       this.state.name = storeDetail['name'];
       this.state.categoryName = storeDetail['categories'][0]['name'];
@@ -256,9 +258,7 @@ export default class CreateShop extends Component {
       dict['description'] = this.state.description;
     }
     if (this.state.selectAddress['formatted_address'] !== undefined) {
-      latitude = this.state.selectAddress['latitude'];
-      longitude = this.state.selectAddress['longitude'];
-      dict['coordinates'] = {'latitude': latitude,'longitude': longitude};
+      dict['coordinates'] = this.state.coordinates;
     }
     if (this.state.shippingID != 0) {
       dict['shipping_methods'] = [this.state.shippingID]
@@ -486,7 +486,6 @@ export default class CreateShop extends Component {
     this.loadAttributeApi(data['id'])
   }
   getAttributeSelectedValues = (data, singleSelect) => {
-    console.log('data ==> ',JSON.stringify(data));
     if (singleSelect) {
       let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
       if (obj != -1) {
@@ -508,6 +507,10 @@ export default class CreateShop extends Component {
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAddress = data => {
+    this.state.coordinates = {
+      'latitude':data['latitude'],
+      'longitude':data['longitude'],
+    }
     this.setState({selectAddress: data});
   }
   onChangeTextValue(text, id){

@@ -71,6 +71,7 @@ export default class AddEvent extends Component {
       isEditing: false,
       selectedVariantIndex: 0,
       showCAlert:false,
+      coordinates:{},
     }
   }
   componentDidMount() {
@@ -115,6 +116,7 @@ export default class AddEvent extends Component {
       this.state.description = listData['description'];
       console.log('description ==> ',this.state.description);
       this.state.selectAddress = listData['location'];
+      this.state.coordinates = listData['coordinates']
       this.state.eventPrice = listData['list_price']['amount'];
       this.state.offerPrice = listData['offer_percent'];
       this.state.ticketLimit = listData['stock'];
@@ -370,9 +372,7 @@ export default class AddEvent extends Component {
       dict['description'] = this.state.description;
     }
     if (this.state.selectAddress['formatted_address'] !== undefined) {
-      latitude = this.state.selectAddress['latitude'];
-      longitude = this.state.selectAddress['longitude'];
-      dict['coordinates'] = { 'latitude': latitude, 'longitude': longitude };
+      dict['coordinates'] = this.state.coordinates;
     }
 
     var attributeAry = [];
@@ -565,7 +565,7 @@ export default class AddEvent extends Component {
     var imgParm = [];
     var uploadBase64 = [];
     var imageFileURI = [];
-    if (uploadImageArray.length != 0) {
+    if (uploadImageArray != undefined) {
       for (let p = 0; p < uploadImageArray.length; p++) {
         let photo = uploadImageArray[p]
         let fileName = photo.data;
@@ -613,6 +613,7 @@ export default class AddEvent extends Component {
   }
   addVariantTypeApi = async (images, index) => {
     let dic = this.state.selectVariantArray[index];
+    console.log('dic',dic);
     console.log('dic', dic);
     var dict = dic['uploadParm'];
     dict['images'] = images;
@@ -625,7 +626,7 @@ export default class AddEvent extends Component {
        path = '/variants/' + dict['id'];
        reqMethod = 'PUT';
     }
-    console.log('path == >', path, reqMethod)
+    console.log('path == >', path, reqMethod,)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
@@ -637,6 +638,16 @@ export default class AddEvent extends Component {
         Alert.alert(responseJson)
       }
     }
+  }
+  deleteEventAPI = async (id) => {
+    this.setState({ isVisible: true })
+      let { listingID } = this.props.route.params;
+      const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${listingID}/variants/${id}`, 'DELETE', '', appConstant.bToken, appConstant.authKey)
+      if (responseJson['status'] == true) {
+        this.setState({ isVisible: false })
+      } else {
+        this.setState({ isVisible: false })
+      }
   }
   successAlert() {
     this.clearExitData();
@@ -750,6 +761,14 @@ export default class AddEvent extends Component {
   }
   /*  Delegates  */
   getDeleteVariant = data => {
+
+    let { listingID } = this.props.route.params;
+    if (listingID != undefined) {
+      if (this.state.selectVariantArray[data]['id']){
+        console.log('this.state.selectVariantArray == >',this.state.selectVariantArray[data]['id']);
+        this.deleteEventAPI(this.state.selectVariantArray[data]['id'])
+      }
+    }
     this.state.selectVariantArray.splice(data, 1);
     this.setState({ updateUI: !this.state.updateUI });
   }
@@ -765,6 +784,10 @@ export default class AddEvent extends Component {
     }
   }
   getAddress = data => {
+    this.state.coordinates = {
+      'latitude':data['latitude'],
+      'longitude':data['longitude'],
+    }
     this.setState({ selectAddress: data });
   }
   getEventDateTime = data => {
@@ -957,7 +980,7 @@ export default class AddEvent extends Component {
                 for (let obj of data) {
                   nameAry.push(obj['name'])
                 }
-                value = nameAry.join()
+                value = nameAry.join(', ')
               }
             }
           }
@@ -1197,7 +1220,7 @@ export default class AddEvent extends Component {
         <HeaderView title= {this.state.isEditing ? 'Update Event' : 'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} showDoneBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             <View style={{ padding: 16 }}>
               <ScrollView horizontal={true}>
                 <View style={{ width: '100%', height: 130, flexDirection: 'row-reverse', marginTop: 10, alignContent: 'center' }}>
