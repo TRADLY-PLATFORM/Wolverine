@@ -14,6 +14,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 
 static void InitializeFlipper(UIApplication *application) {
@@ -41,7 +42,7 @@ static void InitializeFlipper(UIApplication *application) {
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"tradlyEvent"
                                             initialProperties:nil];
-  //[GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
+  [GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
 
   if (@available(iOS 13.0, *)) {
       rootView.backgroundColor = [UIColor systemBackgroundColor];

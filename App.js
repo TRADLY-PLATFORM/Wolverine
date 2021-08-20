@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView ,LogBox,View,Image} from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox, View, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
@@ -69,10 +69,10 @@ export default class App extends Component {
     DefaultPreference.get('installed').then(function (val) {
       console.log('installed app', val);
       if (val == undefined) {
-        DefaultPreference.set('installed', 'true').then(function (){console.log('installed')});
-        this.setState({appInstalled: false})
-      }else {
-        this.setState({appInstalled: true})
+        DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });
+        this.setState({ appInstalled: false })
+      } else {
+        this.setState({ appInstalled: true })
       }
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
@@ -86,7 +86,7 @@ export default class App extends Component {
       let keyd = responseJson['data']['key']['app_key'];
       appConstant.termCondition = responseJson['data']['configs']['terms_url'] || 'https://community.tradly.app';
       // console.log('appConstant.termCondition =>', appConstant.termCondition);
-      DefaultPreference.set('token', keyd).then(function (){console.log('done')});
+      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
       appConstant.bToken = keyd;
       this.setState({ reload: true, isVisible: false })
     }
@@ -95,14 +95,15 @@ export default class App extends Component {
     let root = this.state.appInstalled ? NavigationRoots.BottomTabbar : NavigationRoots.OnBoardings
     return <NavigationContainer>
       <Stack.Navigator initialRouteName={root} screenOptions={{
-        headerShown: false}}>
+        headerShown: false
+      }}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
           options={{
             title: '',
             ...TransitionPresets.ModalSlideFromBottomIOS,
           }} />
-         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
+        <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
         <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
@@ -125,19 +126,19 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.PaymentScreen} component={PaymentScreen} />
         <Stack.Screen name={NavigationRoots.MySale} component={MySale} />
         <Stack.Screen name={NavigationRoots.PayoutsScreen} component={PayoutsScreen} />
-        <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
+        <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}/>
-        <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
+        }} />
+        <Stack.Screen name={NavigationRoots.Profile} component={Profile} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}/>
+        }} />
         <Stack.Screen name={NavigationRoots.CreateStore} component={CreateStore} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }} />
-         <Stack.Screen name={NavigationRoots.AddEvent} component={AddEvent} options={{
+        <Stack.Screen name={NavigationRoots.AddEvent} component={AddEvent} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
         }} />
@@ -148,8 +149,8 @@ export default class App extends Component {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}>
         <View>
-        <Image style={{width: 200, height: 200, borderRadius: 10}}  source={logoIcon} />
-        <StripeProvider publishableKey={appConstant.stripePublishKey} />
+          <Image style={{ width: 200, height: 200, borderRadius: 10 }} source={logoIcon} />
+          <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>
     } else {
@@ -163,12 +164,12 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:colors.AppTheme,
+    backgroundColor: colors.AppTheme,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navigationContainer: {
     flex: 1,
-    backgroundColor:colors.AppTheme,
+    backgroundColor: colors.AppTheme,
   },
 });
