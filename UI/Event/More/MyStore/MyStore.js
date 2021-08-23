@@ -555,14 +555,15 @@ export default class MyStore extends Component {
               <View>
                 <this.renderSegmentBar />
               </View>
-              <View style={{ height: '77%', backgroundColor: colors.LightBlueColor }}>
+              {/* <View style={{ height: '77%', backgroundColor: colors.LightBlueColor }}>
                 <this.renderFilterView />
                 <View style={{ height: 10 }} />
                 <View style={{flex:1}}>
                   <this.renderTabActionView />
                 </View>
                 <View style={{height: 40}}/>
-              </View>
+              </View> */}
+              <View style={{height: 40,backgroundColor: colors.LightBlueColor }}/>
             </View>
           </View>
         </View>

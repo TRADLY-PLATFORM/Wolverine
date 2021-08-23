@@ -4,6 +4,7 @@ module.exports = {
   long:76.56,
   authKey: '',
   refreshKey: '',
+  fcmToken:'',
   termCondition: '',
   bToken: '',
   userId: '',

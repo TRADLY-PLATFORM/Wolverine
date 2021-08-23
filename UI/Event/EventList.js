@@ -256,7 +256,7 @@ export default class EventList extends Component {
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
         <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
       </View>
     }

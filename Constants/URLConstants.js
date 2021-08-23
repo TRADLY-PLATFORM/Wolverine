@@ -7,6 +7,7 @@ module.exports = {
     login: 'v1/users/login',
     verify: 'v1/users/verify',
     users: 'v1/users/',
+    devices: 'v1/devices',
     forgotpassword: 'v1/users/password/recovery',
     category:'v1/categories?parent=0&type=',
     attribute:'v1/attributes/?category_id=',

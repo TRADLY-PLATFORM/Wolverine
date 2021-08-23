@@ -7,9 +7,10 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, LogBox, View, Image } from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox, View, Image,Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
 import NavigationRoots, { BottomTabbar } from './Constants/NavigationRoots';
@@ -76,8 +77,40 @@ export default class App extends Component {
       }
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
+    this.fcmNotification()
     this.configApi();
   }
+  fcmNotification() {
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!', remoteMessage);
+    });
+    messaging().onMessage(async remoteMessage => {
+      console.log('Message onMessage!', remoteMessage);
+      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+      navigation.navigate(remoteMessage.data.type);
+    });
+
+    // Check whether an initial notification is available
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log(
+            'Notification caused app to open from quit state:',
+            remoteMessage.notification,
+          );
+          setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
+        }
+        setLoading(false);
+      });
+  }
+
   configApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
