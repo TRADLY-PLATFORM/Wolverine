@@ -12,7 +12,6 @@ import APPURL from './../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
 import DeviceInfo,{getUniqueId} from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
-import errorHandler from '../../NetworkManager/ErrorHandle'
 import closeIcon from './../../assets/close.png';
 import appConstant from './../../Constants/AppConstants';
 import userModel  from '../../Model/UserModel'

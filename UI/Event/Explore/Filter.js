@@ -40,6 +40,7 @@ export default class Filter extends Component {
       timeValue: [0,24.0],
       timeApplied: false,
       distanceValue: [0],
+      priceValue: [0, 300],
       selectedDatePostedIndex: -1,
       selectedRatingIndex: -1,
       selectedCategoryIndex: -1,
@@ -49,6 +50,7 @@ export default class Filter extends Component {
 
   componentDidMount() {
     this.loadCategoryApi()
+    this.state.filterArray =  [];
     let {filterArray} = this.props.route.params;
     if (filterArray) {
       this.state.filterValueArray = filterArray;
@@ -71,6 +73,12 @@ export default class Filter extends Component {
           let dObjc = objc['distance']
           this.state.distanceValue[0] = Number(`${dObjc['distance']}.0`);
         }
+        if (objc['price']) {
+          let dObjc = objc['price']
+          this.state.priceValue[0] = Number(`${dObjc['from']}`);
+          this.state.priceValue[1] = Number(`${dObjc['to']}`);
+        }
+        
         if (objc['category']) {
           let dObjc = objc['category'];
           this.state.selectedCategoryIndex = dObjc['index'];
@@ -169,6 +177,14 @@ export default class Filter extends Component {
       }
       this.state.filterValueArray.push({ distance: dDict })
     } else if (this.state.selectedFilterIndex == 4){
+      let fromPrice = this.state.priceValue[0].toFixed(0);
+      let toPrice = this.state.priceValue[1].toFixed(0);
+      let pDict = {
+        'from': fromPrice,
+        'to': toPrice,
+      }
+      this.state.filterValueArray.push({ price: pDict})
+    } else if (this.state.selectedFilterIndex == 5){
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
@@ -251,6 +267,15 @@ export default class Filter extends Component {
       }
     }
     if (index == 4) {
+      if (this.state.priceValue[0] != 0) {
+        let from = this.state.priceValue[0].toFixed(0);
+        let to = this.state.priceValue[1].toFixed(0)
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${from} - ${to}`} </Text>
+        </View>)
+      }
+    }
+    if (index == 5) {
       if (this.state.selectedCategoryIndex != -1) {
         var value = '';
         if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
@@ -350,7 +375,6 @@ export default class Filter extends Component {
         <Image source={starIcon} style={{ height: 15, width: 15 }} />
       </View>)
     }
-
     return (
       <TouchableOpacity onPress={() => this.setState({ selectedRatingIndex: index })}>
         <View style={styles.startViewCellStyle}>
@@ -380,6 +404,27 @@ export default class Filter extends Component {
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{0}</Text>
         <Text style={eventStyles.commonTxtStyle}>{this.state.distanceValue[0].toFixed(0) + ` KM` }</Text>
+      </View>
+    </View>)
+  }
+  renderPriceView = () => {
+    return (<View style={{ backgroundColor: colors.AppWhite }}>
+      <View style={{ padding: 20 }}>
+        <Text style={eventStyles.commonTxtStyle}>0 - 300</Text>
+      </View>
+      <Slider
+        value={this.state.priceValue}
+        style={{ width: '90%', marginLeft: 20 }}
+        minimumValue={0}
+        maximumValue={300}
+        onValueChange={value => this.setState({ priceValue: value })}
+        trackStyle={styles.track}
+        thumbStyle={styles.thumb}
+        minimumTrackTintColor={colors.AppGreen}
+      />
+      <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[0].toFixed(0)}</Text>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[1].toFixed(0)}</Text>
       </View>
     </View>)
   }
@@ -424,11 +469,15 @@ export default class Filter extends Component {
       </View>)
     } else if (this.state.selectedFilterIndex == 4) {
       return (<View>
+        {this.renderPriceView()}
+      </View>)
+    } else if (this.state.selectedFilterIndex == 5) {
+      return (<View>
         {this.renderCategoryView()}
       </View>)
     }
   }
-
+  // 95 96 71 93 96
   renderSelectFilterView = () => {
     var snapPoint = '50%';
     let maxHeight = '100%'
@@ -436,7 +485,7 @@ export default class Filter extends Component {
     if (this.state.selectedFilterIndex == 2) {
       snapPoint = '40%'
       viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 4) {
+    }else if (this.state.selectedFilterIndex == 5) {
       snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }

@@ -4,15 +4,13 @@ import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
 import commonStyle from '../../StyleSheet/UserStyleSheet';
 import NavigationRoots from '../../Constants/NavigationRoots';
-import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../NetworkManager/NetworkManager';
 import APPURL from '../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
-import OTPTextView from 'react-native-otp-textinput';
-import errorHandler from '../../NetworkManager/ErrorHandle'
-// import OtpInputs from 'react-native-otp-inputs';
 import OTPInputView from '@twotalltotems/react-native-otp-input'
 import userModel  from '../../Model/UserModel'
+import DeviceInfo from 'react-native-device-info';
+import appConstant from './../../Constants/AppConstants';
 
 
 export default class Verification extends Component {
@@ -20,9 +18,20 @@ export default class Verification extends Component {
     super(props);
     this.state = {
       OTPvalue: '',
+      deviceName: '',
+      manufacturer:'',
     }
   }
   componentDidMount() {
+    this.getSystemDetail();
+  }
+  async getSystemDetail () {
+    DeviceInfo.getDeviceName().then((deviceName) => {
+      this.state.deviceName = deviceName;
+    })
+    DeviceInfo.getDeviceName().then((manufacturer) => {
+      this.state.manufacturer = manufacturer;
+    })
   }
   verificationOTPApi = async () => {
     const { verifyId, bToken } = this.props.route.params;
@@ -35,6 +44,7 @@ export default class Verification extends Component {
     if (responseJson) {
       if (responseJson['status'] == true) {
         userModel.userData(responseJson);
+        this.updateDeviceInfoAPI()
         this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
       } else {
         // let error = errorHandler.errorHandle(responseJson)
@@ -53,6 +63,23 @@ export default class Verification extends Component {
         // let error = errorHandler.errorHandle(responseJson)
           Alert.alert(responseJson)
       }
+    }
+  }
+  updateDeviceInfoAPI = async () => {
+    let dict = {
+      'device_name':this.state.deviceName ,
+      'device_manufacturer': this.state.manufacturer ,
+      'device_model': DeviceInfo.getModel(),
+      'app_version': DeviceInfo.getVersion(),
+      'os_version': DeviceInfo.getSystemVersion(),
+      'push_token': appConstant.fcmToken,
+      'language': 'en',
+      'client_type':  Platform.OS === 'ios' ? 1 : 2,
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.devices}`, 'put',JSON.stringify({ device_info: dict }),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+    }else {
+      this.setState({ isVisible: false })
     }
   }
   /*  Buttons   */

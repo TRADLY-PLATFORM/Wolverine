@@ -179,6 +179,10 @@ export default class Explore extends Component {
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}`;
       }
+      if (objc['price']) {
+        let dObjc = objc['price']
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
+      }
     }
     this.state.filterArray = data
     this.state.params = queryParams;
@@ -252,7 +256,7 @@ export default class Explore extends Component {
   }
   renderListView = () => {
     if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
+      return (<View style={{ margin: 5, height: '87%' }}>
         <FlatList
           data={this.state.eventsArray}
           renderItem={this.renderListCellItem}
