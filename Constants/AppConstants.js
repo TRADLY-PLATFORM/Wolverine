@@ -7,6 +7,7 @@ module.exports = {
   fcmToken:'',
   termCondition: '',
   bToken: '',
+  defaultCurrency: '',
   userId: '',
   userName: '',
   profilePic: '',

@@ -81,34 +81,13 @@ export default class App extends Component {
     this.configApi();
   }
   fcmNotification() {
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
     messaging().onMessage(async remoteMessage => {
       console.log('Message onMessage!', remoteMessage);
-      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.notification,
-      );
-      navigation.navigate(remoteMessage.data.type);
+      console.log( 'Notification from background state:',  remoteMessage);
     });
-
-    // Check whether an initial notification is available
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        if (remoteMessage) {
-          console.log(
-            'Notification caused app to open from quit state:',
-            remoteMessage.notification,
-          );
-          setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
-        }
-        setLoading(false);
-      });
   }
 
   configApi = async () => {
@@ -121,7 +100,22 @@ export default class App extends Component {
       // console.log('appConstant.termCondition =>', appConstant.termCondition);
       DefaultPreference.set('token', keyd).then(function () { console.log('done') });
       appConstant.bToken = keyd;
+      this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
+    }
+  }
+  getCurrencyApi = async () => {
+    console.log('calling currency');
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.currencies, 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let ccData = responseJson['data']['currencies']
+      console.log('getCurrencyApi', ccData)
+      for (let obj of ccData) {
+        if (obj['default'] == true) {
+          appConstant.defaultCurrency = obj['format'];
+        }
+      }
+
     }
   }
   navigationReturn = () => {

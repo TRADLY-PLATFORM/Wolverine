@@ -183,6 +183,11 @@ export default class Explore extends Component {
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
       }
+      if (objc['attribute']) {
+        let nObj = objc['attribute']
+        let dObjc = nObj['values'];
+        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+      }
     }
     this.state.filterArray = data
     this.state.params = queryParams;

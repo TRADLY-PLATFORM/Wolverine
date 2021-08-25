@@ -10,6 +10,7 @@ module.exports = {
     devices: 'v1/devices',
     forgotpassword: 'v1/users/password/recovery',
     category:'v1/categories?parent=0&type=',
+    getAttribute: 'v1/attributes/?type=listings',
     attribute:'v1/attributes/?category_id=',
     shippingMethod: 'v1/tenants/shipping_methods',
     searchAddress: 'v1/addresses/search?key=',

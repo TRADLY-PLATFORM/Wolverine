@@ -168,18 +168,18 @@ export default class EventList extends Component {
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
       }
+      if (objc['attribute']) {
+        let nObj = objc['attribute']
+        let dObjc = nObj['values'];
+        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+      }
     }
     this.state.filterArray = data
     this.state.params = queryParams;
     this.callApi(this.state.params);
-
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    // timeString12hr;
-    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    // let startTimestamp = new Date(startDate).getTime() / 1000;
     return timeString
   }
   /*  UI   */
