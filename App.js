@@ -83,7 +83,7 @@ export default class App extends Component {
   fcmNotification() {
     messaging().onMessage(async remoteMessage => {
       console.log('Message onMessage!', remoteMessage);
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log( 'Notification from background state:',  remoteMessage);

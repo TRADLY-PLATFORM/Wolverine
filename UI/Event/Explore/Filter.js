@@ -58,10 +58,10 @@ export default class Filter extends Component {
     this.loadCategoryApi()
     this.loadAttributeApi()
     this.state.filterArray =  [];
-    let {filterArray} = this.props.route.params;
-    if (filterArray) {
-      this.state.filterValueArray = filterArray;
-      for (let objc of filterArray) {
+    let {filtersArray} = this.props.route.params;
+    if (filtersArray) {
+      this.state.filterValueArray = filtersArray;
+      for (let objc of filtersArray) {
         if (objc['time']) {
           this.state.timeApplied = true;
           let timeD = objc['time'];
@@ -90,8 +90,9 @@ export default class Filter extends Component {
           this.state.selectedCategoryIndex = dObjc['index'];
         }
         if (objc['attribute']) {
-          this.state.selectedAtriValueIds = objc['values'];
-          this.state.selectAttributeIds = objc['category'];
+          let aObjc = objc['attribute'];
+          this.state.selectedAtriValueIds = aObjc['values'];
+          this.state.selectAttributeIds = aObjc['category'];
         }
       }
     }

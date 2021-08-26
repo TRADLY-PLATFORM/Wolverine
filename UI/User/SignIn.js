@@ -23,8 +23,8 @@ export default class SignIn extends Component {
     super(props);
     this.state = {
       isVisible: false,
-      email: 'dev@dev.com',
-      password: '123456',
+      email: '',
+      password: '',
       authType: 2,
       bToken: '',
       authType: '',
@@ -69,6 +69,7 @@ export default class SignIn extends Component {
     }
   }
   getMyStoreApi = async () => {
+    this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['accounts'];
@@ -77,6 +78,7 @@ export default class SignIn extends Component {
       }else{
         appConstant.accountID = '';
       }
+      this.setState({ isVisible: false })
       this.props.navigation.goBack();
     }else {
       this.setState({ isVisible: false })
@@ -114,10 +116,10 @@ export default class SignIn extends Component {
   //2
   getToken = async() => {
     await DefaultPreference.get('fcmToken').then(function (fcmToken) {
-      console.log('fcmToken', fcmToken)
+      // console.log('fcmToken', fcmToken)
       if (fcmToken == undefined) {
           const t =  messaging().getToken().then((tk) => {
-            console.log(' messaging token ==>', tk);
+            // console.log(' messaging token ==>', tk);
             appConstant.fcmToken = tk;
             DefaultPreference.set('fcmToken', tk).then();
           });
