@@ -28,7 +28,6 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
-
 export default class Filter extends Component {
   constructor(props) {
     super(props);
@@ -40,19 +39,29 @@ export default class Filter extends Component {
       timeValue: [0,24.0],
       timeApplied: false,
       distanceValue: [0],
+      priceValue: [0, 300],
       selectedDatePostedIndex: -1,
       selectedRatingIndex: -1,
       selectedCategoryIndex: -1,
       filterValueArray: [],
+      attributesArray: [],
+      selectedAttributeArray: [],
+      selectAttributeIds:[],
+      selectedAtriValueIds: []
     }
   }
 
   componentDidMount() {
+    for (let obc of constantArrays.filterArray){
+      this.state.attributesArray.push(obc)
+    }
     this.loadCategoryApi()
-    let {filterArray} = this.props.route.params;
-    if (filterArray) {
-      this.state.filterValueArray = filterArray;
-      for (let objc of filterArray) {
+    this.loadAttributeApi()
+    this.state.filterArray =  [];
+    let {filtersArray} = this.props.route.params;
+    if (filtersArray) {
+      this.state.filterValueArray = filtersArray;
+      for (let objc of filtersArray) {
         if (objc['time']) {
           this.state.timeApplied = true;
           let timeD = objc['time'];
@@ -71,9 +80,19 @@ export default class Filter extends Component {
           let dObjc = objc['distance']
           this.state.distanceValue[0] = Number(`${dObjc['distance']}.0`);
         }
+        if (objc['price']) {
+          let dObjc = objc['price']
+          this.state.priceValue[0] = Number(`${dObjc['from']}`);
+          this.state.priceValue[1] = Number(`${dObjc['to']}`);
+        }
         if (objc['category']) {
           let dObjc = objc['category'];
           this.state.selectedCategoryIndex = dObjc['index'];
+        }
+        if (objc['attribute']) {
+          let aObjc = objc['attribute'];
+          this.state.selectedAtriValueIds = aObjc['values'];
+          this.state.selectAttributeIds = aObjc['category'];
         }
       }
     }
@@ -89,12 +108,30 @@ export default class Filter extends Component {
       this.setState({ isVisible: false })
     }
   }
+  loadAttributeApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.getAttribute, 'get', '', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let aData = responseJson['data']['attributes'];
+      for (let a = 0; a < aData.length; a++) {
+        let objc = aData[a];
+        if (objc['field_type'] == 1 || objc['field_type'] == 2) {
+          this.state.attributesArray.push(objc);
+        }
+      }
+      this.setState({updateUI: !this.state.updateUI})
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
   /*  Buttons   */
-  didSelect = (index) => {
+  didSelect = (item,index) => {
     this.state.selectedFilterIndex = index;
+    if (item['name']) {
+      this.state.selectAttributeIds.push(item['id']);
+      this.state.selectedAttributeArray = item['values'];
+    }
     this.setState({showFilterView: !this.state.showFilterView})
-    // this.props.navigation.navigate(NavigationRoots.Sort);    
-    // this.setState({updateUI: !this.state.updateUI})
   }
   doneBtnAction () {
     this.setState({showFilterView: false})
@@ -169,12 +206,27 @@ export default class Filter extends Component {
       }
       this.state.filterValueArray.push({ distance: dDict })
     } else if (this.state.selectedFilterIndex == 4){
+      let fromPrice = this.state.priceValue[0].toFixed(0);
+      let toPrice = this.state.priceValue[1].toFixed(0);
+      let pDict = {
+        'from': fromPrice,
+        'to': toPrice,
+      }
+      this.state.filterValueArray.push({ price: pDict})
+    } else if (this.state.selectedFilterIndex == 5){
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
         'index':this.state.selectedCategoryIndex,
       }
       this.state.filterValueArray.push({ category: cDict })
+    }
+    if (this.state.selectedAtriValueIds.length != 0) {
+      let cDict = {
+        'values': this.state.selectedAtriValueIds,
+        'category':this.state.selectAttributeIds,
+      }
+      this.state.filterValueArray.push({ attribute: cDict })
     }
 
   }
@@ -185,12 +237,29 @@ export default class Filter extends Component {
   clearBtnAction () {
     this.state.timeApplied = false;
     this.state.filterValueArray = [];
+    this.state.selectedAtriValueIds = [];
+    this.state.selectAttributeIds = [];
     this.props.route.params.getFilterData(this.state.filterValueArray);
+    this.props.navigation.goBack();
+    this.setState({updateUI: !this.state.updateUI})
+  }
+  backBtnAction () {
+    this.state.timeApplied = false;
+    this.state.filterValueArray = [];
     this.props.navigation.goBack();
     this.setState({updateUI: !this.state.updateUI})
   }
   didSelectDatePosted(index) {
     this.setState({selectedDatePostedIndex: index})
+  }
+  didSelectAttributes(item) {
+    var index = this.state.selectedAtriValueIds.indexOf(item['id']);
+    if (index !== -1) {
+      this.state.selectedAtriValueIds.splice(index, 1);
+    }else {
+      this.state.selectedAtriValueIds.push(item['id'])
+    }
+    this.setState({updateUI: !this.state.updateUI})
   }
   /*  UI   */
   convert12HoursFormat(time) {
@@ -201,7 +270,7 @@ export default class Filter extends Component {
   renderListView = () => {
     return (<View style={{margin: 5, height: '84%'}}>
       <FlatList
-        data={constantArrays.filterArray}
+        data={this.state.attributesArray}
         renderItem={this.renderListViewCellItem}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => index}
@@ -219,7 +288,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    if (index == 1) {
+    else if (index == 1) {
       if (this.state.selectedDatePostedIndex != -1) {
         let value = titleAry[this.state.selectedDatePostedIndex];
         views.push(<View>
@@ -227,7 +296,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    if (index == 2) {
+    else if (index == 2) {
       if (this.state.selectedRatingIndex != -1) {
         var startView = []
         for (let a = 0; a < 5 - this.state.selectedRatingIndex; a++) {
@@ -242,7 +311,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    if (index == 3) {
+    else if (index == 3) {
       if (this.state.distanceValue[0] != 0) {
         let value = this.state.distanceValue[0].toFixed(0)
         views.push(<View>
@@ -250,7 +319,16 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    if (index == 4) {
+    else if (index == 4) {
+      if (this.state.priceValue[0] != 0) {
+        let from = this.state.priceValue[0].toFixed(0);
+        let to = this.state.priceValue[1].toFixed(0)
+        views.push(<View>
+          <Text style={styles.textValueStyle}> {`${from} - ${to}`} </Text>
+        </View>)
+      }
+    }
+    else if (index == 5) {
       if (this.state.selectedCategoryIndex != -1) {
         var value = '';
         if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
@@ -260,11 +338,38 @@ export default class Filter extends Component {
           <Text style={styles.textValueStyle}> {`${value}`} </Text>
         </View>)
       }
+    } else{
+      if (this.state.selectedAtriValueId != -1) {
+        var value = '';
+        var indx = this.state.selectAttributeIds.indexOf(item['id']); // 1
+        if (indx != -1) {
+          let ida = this.state.selectAttributeIds[indx]
+          let iA = this.state.attributesArray.findIndex(x => x['id'] == ida)
+          if (iA != -1) {
+            let obj = this.state.attributesArray[iA]['values'];
+            for (let dic of this.state.selectedAtriValueIds) {
+              let idx = obj.findIndex(x => x['id'] == dic)
+              if (idx != -1) {
+                value = obj[idx]['name'];
+                views.push(<View>
+                  <Text style={styles.textValueStyle}> {`${value}`} </Text>
+                </View>)
+              }
+            }
+          }
+        }
+      }
+    }
+    var title = "";
+    if (item['name']) {
+      title = item['name'];
+    } else {
+      title = item;
     }
     return (
-      <TouchableOpacity onPress={() => this.didSelect(index)}>
+      <TouchableOpacity onPress={() => this.didSelect(item,index)}>
         <View style={styles.listViewStyle}>
-          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
+          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {title} </Text>
           {views}
         </View>
       </TouchableOpacity>
@@ -350,7 +455,6 @@ export default class Filter extends Component {
         <Image source={starIcon} style={{ height: 15, width: 15 }} />
       </View>)
     }
-
     return (
       <TouchableOpacity onPress={() => this.setState({ selectedRatingIndex: index })}>
         <View style={styles.startViewCellStyle}>
@@ -383,6 +487,27 @@ export default class Filter extends Component {
       </View>
     </View>)
   }
+  renderPriceView = () => {
+    return (<View style={{ backgroundColor: colors.AppWhite }}>
+      <View style={{ padding: 20 }}>
+        <Text style={eventStyles.commonTxtStyle}>{appConstant.defaultCurrency}</Text>
+      </View>
+      <Slider
+        value={this.state.priceValue}
+        style={{ width: '90%', marginLeft: 20 }}
+        minimumValue={0}
+        maximumValue={300}
+        onValueChange={value => this.setState({ priceValue: value })}
+        trackStyle={styles.track}
+        thumbStyle={styles.thumb}
+        minimumTrackTintColor={colors.AppGreen}
+      />
+      <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[0].toFixed(0)}</Text>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[1].toFixed(0)}</Text>
+      </View>
+    </View>)
+  }
   renderCategoryView = () => {
     return(<View style={{marginTop: 10, marginBottom: 10}}>
       <FlatList
@@ -400,6 +525,29 @@ export default class Filter extends Component {
       <TouchableOpacity onPress={() => this.setState({ selectedCategoryIndex: index })}>
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
+          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+        </View>
+      </TouchableOpacity>
+    )
+  }
+  renderAttriView = () => {
+    return(<View style={{marginTop: 10, marginBottom: 10}}>
+      <FlatList
+        data={this.state.selectedAttributeArray}
+        numColumns={1}
+        renderItem={this.renderAttributeItemCell}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => index}
+      />
+    </View>)
+  }
+  renderAttributeItemCell = ({ item, index }) => {
+    var indx = this.state.selectedAtriValueIds.indexOf(item['id']); // 1
+    let check = indx == -1 ? false : true
+    return (
+      <TouchableOpacity onPress={() => this.didSelectAttributes(item)}>
+        <View style={styles.startViewCellStyle}>
+          <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray, width: '85%' }}> {item['name']} </Text>
           <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
         </View>
       </TouchableOpacity>
@@ -424,11 +572,19 @@ export default class Filter extends Component {
       </View>)
     } else if (this.state.selectedFilterIndex == 4) {
       return (<View>
+        {this.renderPriceView()}
+      </View>)
+    } else if (this.state.selectedFilterIndex == 5) {
+      return (<View>
         {this.renderCategoryView()}
+      </View>)
+    } else{
+      return (<View>
+        {this.renderAttriView()}
       </View>)
     }
   }
-
+  // 95 96 71 93 96
   renderSelectFilterView = () => {
     var snapPoint = '50%';
     let maxHeight = '100%'
@@ -436,11 +592,17 @@ export default class Filter extends Component {
     if (this.state.selectedFilterIndex == 2) {
       snapPoint = '40%'
       viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 4) {
+    }else if (this.state.selectedFilterIndex == 5) {
       snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }
     if (this.state.showFilterView) {
+      var title  = ''
+      if (this.state.attributesArray[this.state.selectedFilterIndex]['name']) {
+        title = this.state.attributesArray[this.state.selectedFilterIndex]['name']
+      } else {
+        title = this.state.attributesArray[this.state.selectedFilterIndex]
+      }
       return (<View style={{backgroundColor: 'green'}}>
         <ScrollBottomSheet
           componentType="ScrollView"
@@ -453,7 +615,7 @@ export default class Filter extends Component {
               <View style={styles.panelHandle} />
               <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center'}}>
-              <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{constantArrays.filterArray[this.state.selectedFilterIndex]}</Text>
+                <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{title}</Text>
                 </View>
                 <View style={{height: '58%', marginTop: 10}}>
                   {this.renderSelectedType()}
@@ -479,7 +641,7 @@ export default class Filter extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>
             <this.renderListView />

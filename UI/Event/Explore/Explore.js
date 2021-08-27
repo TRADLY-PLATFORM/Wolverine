@@ -60,7 +60,7 @@ export default class Explore extends Component {
       selectedDateIndex: 0,
       datesArray: [],
       selectedDate:'',
-      filterArray: [],
+      filtersArray: [],
       isVisible: false,
       dataLoad: false,
     }
@@ -117,7 +117,7 @@ export default class Explore extends Component {
   }
   filterBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Filter, {
-      filterArray :this.state.filterArray,
+      filtersArray :this.state.filtersArray,
       getFilterData :this.getFilterData,
     });
   }
@@ -179,8 +179,17 @@ export default class Explore extends Component {
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}`;
       }
+      if (objc['price']) {
+        let dObjc = objc['price']
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
+      }
+      if (objc['attribute']) {
+        let nObj = objc['attribute']
+        let dObjc = nObj['values'];
+        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+      }
     }
-    this.state.filterArray = data
+    this.state.filtersArray = data
     this.state.params = queryParams;
     this.callApi(this.state.params);
 
@@ -252,7 +261,7 @@ export default class Explore extends Component {
   }
   renderListView = () => {
     if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
+      return (<View style={{ margin: 5, height: '87%' }}>
         <FlatList
           data={this.state.eventsArray}
           renderItem={this.renderListCellItem}

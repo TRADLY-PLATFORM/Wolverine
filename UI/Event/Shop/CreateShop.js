@@ -32,6 +32,7 @@ import check from '../../../assets/check.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../Component/SuccessView';
+import cancelIcon from '../../../assets/cancel.png';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -526,11 +527,15 @@ export default class CreateShop extends Component {
     // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
+  deleteImageButtonAction() {
+    this.state.photo = null;
+    this.setState({updateUI: !this.state.updateUI});
+  }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
       height: 200,
-      width: windowWidth,
+      width: 200,
       cropping: true,
       includeBase64: true,
     }).then(image => {
@@ -552,36 +557,41 @@ export default class CreateShop extends Component {
       }else {
         photoPath = this.state.photo; 
       }
-      views.push(
-        <View>
-          <View style={styles.imagePickerPlaceholderStyle}>
-            <TouchableOpacity onPress={() => this.imagePicker()}>
-                <FastImage source={{uri: photoPath}}
-                  style={styles.SelectedImageStyle}
-                  resizeMode={'cover'}
-                />
-            </TouchableOpacity>
-          </View>
-        </View>,
-      );
-    } else {
-      views.push(
-        <View>
-          <View style={styles.imagePickerPlaceholderStyle}>
-            <TouchableOpacity onPress={() => this.imagePicker()}>
+        views.push(
+            <View style={styles.imageSelectedStyle}>
+              <TouchableOpacity onPress={() => this.imagePicker()}>
+                <View>
+                  <FastImage
+                    source={{ uri: photoPath}}
+                    style={styles.SelectedImageStyle}
+                    resizeMode={'cover'}
+                  />
+                  <TouchableOpacity
+                    style={styles.deleteViewStyle}
+                    onPress={() => this.deleteImageButtonAction()}>
+                    <Image resizeMode={'center'} style={{height:20, width:20}}
+                      source={cancelIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            </View>,
+        );
+      } else {
+        views.push(
+          <View>
+            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
               <View style={{ justifyContent: 'center' }}>
-                <Image
-                  source={cameraIcon}
+                <Image source={cameraIcon}
                   style={{ width: 30, height: 30, alignSelf: 'center' }}
                 />
               </View>
             </TouchableOpacity>
-          </View>
-        </View>,
-      );
-    }
+          </View>,
+        );
+      }
     return views;
-  };
+  }
   renderTitleLbl = ({ title }) => {
     return (
       <View style={{margin: -5}}>
@@ -763,10 +773,10 @@ export default class CreateShop extends Component {
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ margin: 10, width: windowWidth - 20, height: imagePickerHeight }}>
+            <View style={{ margin: 16, width: windowWidth - 20, height: 120 }}>
               <this.viewSelectedImages />
             </View>
-            <View style={{ backgroundColor: colors.AppWhite, height: '80%', padding: 16 }}>
+            <View style={{ backgroundColor: colors.AppWhite, height: '100%', padding: 16 }}>
               <this.renderTitleLbl title={'Name'} />
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
@@ -812,24 +822,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
-  imagePickerPlaceholderStyle: {
-    height: imagePickerHeight,
-    width: '100%',
-    margin: 0,
+  imageSelectedStyle: {
+    height: 120,
+    width: 120,
+    margin: 10,
     justifyContent: 'center',
-    borderColor: colors.AppTheme,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderRadius: 10,
+  },
+  deleteViewStyle: {
+    height: 20,
+    width: 20,
+    marginLeft: 105,
+    top: -125,
   },
   SelectedImageStyle: {
-    height: imagePickerHeight,
-    width: windowWidth - 20,
+    height: 120,
+    width: 120,
     borderRadius: 10,
-    borderColor: colors.BorderColor,
+  },
+  dottedViewStyle: {
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
+    height: 120,
+    width: 120,
+    borderStyle: 'dashed',
+    borderColor: colors.BorderColor
   },
   dropDownViewStyle: {
     width: "100%",
