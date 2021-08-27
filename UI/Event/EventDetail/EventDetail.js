@@ -36,7 +36,7 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
+import {getTimeFormat,changeDateFormat} from '../../../HelperClasses/SingleTon'
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -57,7 +57,6 @@ export default class EventDetail extends Component {
       itsOwnEvent:true,
     }
   }
-
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
       this.setState({updateUI: !this.state.updateUI})
@@ -81,7 +80,6 @@ export default class EventDetail extends Component {
         this.state.selectedVariantId = variants[0]['id'];
         this.state.selectedVariant = variants[0];
       }
-
       this.setState({updateUI: !this.state.updateUI, loadData: true,isVisible: false})
     } else {
       this.setState({ isVisible: false })

@@ -29,7 +29,7 @@
 			<string>classbubs</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>classbubs</string>
+				<string>tradlysocial</string>
 			</array>
 		</dict>
 	</array>
@@ -78,5 +78,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>branch_app_domain</key>
+	<string>t1m2.app.link</string>
+	<key>branch_key</key>
+	<string>key_live_icjv7mBG7nRpz6bZtl6TZmblCDewTymU</string>
 </dict>
 </plist>

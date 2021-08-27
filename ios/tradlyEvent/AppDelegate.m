@@ -16,7 +16,7 @@
 #import <Firebase.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import "RNFBMessagingModule.h"
-
+#import <RNBranch/RNBranch.h> 
 
 static void InitializeFlipper(UIApplication *application) {
   FlipperClient *client = [FlipperClient sharedClient];
@@ -40,7 +40,8 @@ static void InitializeFlipper(UIApplication *application) {
     [FIRApp configure];
   }
   [GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
-
+  
+  [RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES]; // <-- add this
   NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
@@ -70,18 +71,17 @@ static void InitializeFlipper(UIApplication *application) {
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-- (BOOL)application:(UIApplication *)application
-   openURL:(NSURL *)url
-   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url  options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
-  return [RCTLinkingManager application:application openURL:url options:options];
+  return [RCTLinkingManager application:application openURL:url options:options] || [RNBranch application:application openURL:url options:options];
 }
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
  return [RCTLinkingManager application:application
                   continueUserActivity:userActivity
-                    restorationHandler:restorationHandler];
+                    restorationHandler:restorationHandler] || [RNBranch continueUserActivity:userActivity];
 }
+
 
 @end

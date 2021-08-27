@@ -14,6 +14,7 @@
 		780B6D1626C7A2DC002DB55A /* Fix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780B6D1526C7A2DC002DB55A /* Fix.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		AED7485AA72278705DCCF024 /* libPods-tradlyEvent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31AAB7B79DCA00EC3942829 /* libPods-tradlyEvent.a */; };
+		B3088AFE26D91B6800568989 /* tradlyEvent.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = B345300526D3C3A7005699DC /* tradlyEvent.entitlements */; };
 		B3FBFAC226C6B112006974C6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B3FBFAC126C6B112006974C6 /* GoogleService-Info.plist */; };
 		D28625FDE74271CA5E2E4083 /* libPods-tradlyEvent-tradlyEventTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F1F5396CFCFC5D2A9FCB027D /* libPods-tradlyEvent-tradlyEventTests.a */; };
 /* End PBXBuildFile section */
@@ -265,6 +266,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3088AFE26D91B6800568989 /* tradlyEvent.entitlements in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				B3FBFAC226C6B112006974C6 /* GoogleService-Info.plist in Resources */,

@@ -35,6 +35,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
+import branchDeepLinking from '../../../../HelperClasses/BranchDeepLinking';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -54,7 +55,6 @@ export default class MyStore extends Component {
       itsFollowing: false,
       stopPagination: false,
       dataLoad: false,
-
     }
   }
 
@@ -182,22 +182,9 @@ export default class MyStore extends Component {
     this.setState({ starRatingValue: id + 1 })
   }
   onShareBtnAction = async () => {
-    try {
-      const result = await Share.share({
-        message: appConstant.appSharePath,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      alert(error.message);
-    }
+    await branchDeepLinking.initBranch(resp => {
+      console.log('console branch url', resp)
+    })
   }
   paginationMethod = () => {
     console.log('pagination');

@@ -51,6 +51,7 @@ import * as Sentry from "@sentry/react-native";
 import MySale from './UI/Event/More/MySale/MySale';
 import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import branchDeepLinking from './HelperClasses/BranchDeepLinking';
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,7 @@ export default class App extends Component {
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
     this.fcmNotification()
+    this.getDeepLink()
     this.configApi();
   }
   fcmNotification() {
@@ -87,6 +89,10 @@ export default class App extends Component {
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log( 'N',  remoteMessage);
     });
+  }
+
+  getDeepLink() {
+    branchDeepLinking.readDeepLinking()
   }
 
   configApi = async () => {

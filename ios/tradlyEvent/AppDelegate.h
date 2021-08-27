@@ -4,7 +4,7 @@
 #import <Firebase.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import "RNFBMessagingModule.h"
-
+#import <RNBranch/RNBranch.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
 
