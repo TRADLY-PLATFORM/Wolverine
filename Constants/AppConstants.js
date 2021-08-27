@@ -8,6 +8,7 @@ module.exports = {
   termCondition: '',
   bToken: '',
   defaultCurrency: '',
+  defaultCurrencyCode: '',
   userId: '',
   userName: '',
   profilePic: '',

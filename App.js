@@ -82,11 +82,10 @@ export default class App extends Component {
   }
   fcmNotification() {
     messaging().onMessage(async remoteMessage => {
-      console.log('Message onMessage!', remoteMessage);
-      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      console.log('M', remoteMessage);
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log( 'Notification from background state:',  remoteMessage);
+      console.log( 'N',  remoteMessage);
     });
   }
 
@@ -105,7 +104,6 @@ export default class App extends Component {
     }
   }
   getCurrencyApi = async () => {
-    console.log('calling currency');
     const responseJson = await networkService.networkCall(APPURL.URLPaths.currencies, 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let ccData = responseJson['data']['currencies']
