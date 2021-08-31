@@ -8,7 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../CommonClasses/AppColor';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import sample from '../../../assets/dummy.png';
-import settingIcon from '../../../assets/settingIcon.png';
+import editIcon from '../../../assets/editIcon.png';
 import appConstant from '../../../Constants/AppConstants';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
@@ -17,6 +17,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 
 import constantArrays from '../../../Constants/ConstantArrays';
+import FastImage from 'react-native-fast-image';
 
 export default class More extends Component {
   constructor(props) {
@@ -27,7 +28,9 @@ export default class More extends Component {
       updateUI: false,
       email: '',
       name: '',
+      profilePic: '',
       loadData: false,
+      userDetailData: {},
     }
   }
   componentDidMount() {
@@ -48,7 +51,9 @@ export default class More extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let uData = responseJson['data']['user'];
+      this.state.userDetailData = uData;
       this.state.email = uData['email'];
+      this.state.profilePic = uData['profile_pic']
       this.state.name = `${uData['first_name']} ${uData['last_name']}`;
       this.setState({updateUI: !this.state.updateUI, loadData: true})
     }else {
@@ -71,6 +76,11 @@ export default class More extends Component {
   /*  Buttons   */
   settingBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Profile)
+  }
+  editBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.Profile, {
+      userData:this.state.userDetailData,
+    })
   }
   logoutBtnAction() {
     Alert.alert(
@@ -151,11 +161,14 @@ export default class More extends Component {
   renderUserInfo = () => {
     console.log(appConstant.loggedIn);
     if(appConstant.loggedIn) {
-      return (<View>
+      return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
         <View style={{ marginLeft: 10}}>
           <Text style={styles.titleStyle}>{this.state.email}</Text>
           <Text style={styles.subTitleStyle}>{this.state.name}</Text>
         </View>
+        <TouchableOpacity onPress={() => this.editBtnAction()}>
+          <Image source={editIcon} style={{height: 30, width: 30}} />
+        </TouchableOpacity>
       </View>)
     }else {
       return (<View>
@@ -166,6 +179,7 @@ export default class More extends Component {
     }
   }
   render() {
+    console.log('profilePic',this.state.profilePic);
     return (
         // <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
           <SafeAreaView style={styles.Container}>
@@ -173,7 +187,8 @@ export default class More extends Component {
           <View style={{ position: 'relative', flexDirection: 'column' }}>
             <View style={{ height: 200 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20, }}>
-                <Image source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+                <FastImage source={this.state.profilePic.length == 0 ? sample : { uri:this.state.profilePic}} 
+                   style={{height: 60, width: 60, borderRadius: 30 }} />
                 <this.renderUserInfo />
               </View>
             </View>
