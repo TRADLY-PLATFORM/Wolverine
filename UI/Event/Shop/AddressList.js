@@ -30,6 +30,8 @@ export default class AddressList extends Component {
       searchArray: [],
       updateUI: false,
       isVisible: false,
+      searchKey: '',
+      typingTimeout: 0
     }
   }
 
@@ -47,8 +49,16 @@ export default class AddressList extends Component {
       this.setState({isVisible: false })
     }
   }
-  onSearchChanges(text) {
-    this.searchApi(text);
+  onSearchChanges = (text) => {
+    this.setState({searchKey: text})
+    if (this.state.typingTimeout) {
+      clearTimeout(this.state.typingTimeout);
+   }
+   this.setState({
+      typingTimeout: setTimeout(function () {
+        this.searchApi(this.state.searchKey);
+      }.bind(this), 5000)
+    })
   }
   /*  Buttons   */
   didSelect = (item) => {

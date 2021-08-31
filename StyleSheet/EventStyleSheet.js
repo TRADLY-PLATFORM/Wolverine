@@ -191,7 +191,8 @@ module.exports = StyleSheet.create({
     marginTop: 0,
     height: "100%",
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 5
+    borderRadius: 5,
+    flex:1
   },
   variantListViewStyle: {
     backgroundColor: colors.AppWhite,

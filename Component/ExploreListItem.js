@@ -52,7 +52,7 @@ export default class ExploreListItem extends Component {
           <Text style={eventStyles.titleStyle} numberOfLines={1}>{time}</Text>
         </View>
         <View style={{ margin: 5, width: '80%'}}>
-          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
+          <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
         </View>
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
           <Image style={{ width: 15, height: 15 }} source={starIcon} />

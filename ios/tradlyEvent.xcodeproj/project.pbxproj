@@ -47,6 +47,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = tradlyEvent/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A7BD7DFDBA5A7591D34C9FB2 /* Pods-tradlyEvent.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tradlyEvent.debug.xcconfig"; path = "Target Support Files/Pods-tradlyEvent/Pods-tradlyEvent.debug.xcconfig"; sourceTree = "<group>"; };
 		B31AAB7B79DCA00EC3942829 /* libPods-tradlyEvent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tradlyEvent.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B345300526D3C3A7005699DC /* tradlyEvent.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = tradlyEvent.entitlements; path = tradlyEvent/tradlyEvent.entitlements; sourceTree = "<group>"; };
 		B3FBFAC126C6B112006974C6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CC3E9EAB688B4FA786E72748 /* RangeSlider.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RangeSlider.xcodeproj; path = "../node_modules/react-native-range-slider/ios/RangeSlider.xcodeproj"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -93,6 +94,7 @@
 		13B07FAE1A68108700A75B9A /* tradlyEvent */ = {
 			isa = PBXGroup;
 			children = (
+				B345300526D3C3A7005699DC /* tradlyEvent.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -537,7 +539,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F3Y3NZRWNC;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -569,7 +573,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F3Y3NZRWNC;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",

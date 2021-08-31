@@ -15,6 +15,7 @@
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
 #import <GoogleMaps/GoogleMaps.h>
+#import "RNFBMessagingModule.h"
 
 
 static void InitializeFlipper(UIApplication *application) {
@@ -38,11 +39,14 @@ static void InitializeFlipper(UIApplication *application) {
   if ([FIRApp defaultApp] == nil) {
     [FIRApp configure];
   }
+  [GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
+
+  NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
+
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"tradlyEvent"
-                                            initialProperties:nil];
-  [GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
+                                            initialProperties:appProperties];
 
   if (@available(iOS 13.0, *)) {
       rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -79,4 +83,5 @@ static void InitializeFlipper(UIApplication *application) {
                   continueUserActivity:userActivity
                     restorationHandler:restorationHandler];
 }
+
 @end

@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
-import {Alert, TextInput, Text, Image, View, StyleSheet, SafeAreaView, TouchableOpacity,ScrollView} from 'react-native';
+import {Alert, TextInput, Text, Image, View, StyleSheet,
+  Platform,  SafeAreaView, TouchableOpacity,ScrollView} from 'react-native';
 import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
 import commonStyle from '../../StyleSheet/UserStyleSheet';
@@ -9,12 +10,14 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from './../../NetworkManager/NetworkManager';
 import APPURL from './../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
-import { getUniqueId } from 'react-native-device-info';
+import DeviceInfo,{getUniqueId} from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
-import errorHandler from '../../NetworkManager/ErrorHandle'
 import closeIcon from './../../assets/close.png';
 import appConstant from './../../Constants/AppConstants';
 import userModel  from '../../Model/UserModel'
+import messaging from '@react-native-firebase/messaging';
+
+
 export default class SignIn extends Component {
   constructor(props) {
     super(props);
@@ -26,11 +29,22 @@ export default class SignIn extends Component {
       bToken: '',
       authType: '',
       countriesArray: [],
+      deviceName: '',
+      manufacturer:'',
     }
   }
   componentDidMount() {
-    // email: 'event@test.com',
-    // password: '123456',
+    
+    this.checkPermission()
+    this.getSystemDetail();
+  }
+  async getSystemDetail () {
+    DeviceInfo.getDeviceName().then((deviceName) => {
+      this.state.deviceName = deviceName;
+    })
+    DeviceInfo.getDeviceName().then((manufacturer) => {
+      this.state.manufacturer = manufacturer;
+    })
   }
   loginApi = async () => {
     this.setState({ isVisible: true })
@@ -45,19 +59,17 @@ export default class SignIn extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        // console.log('refresh_key => ', responseJson['data']['user']['key']);
         userModel.userData(responseJson);
-        // this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        this.updateDeviceInfoAPI();
         this.getMyStoreApi();
       } else {
         console.log(" error ", responseJson)
-        // let error = errorHandler.errorHandle(responseJson)
-        // console.log('error',responseJson)
         Alert.alert(responseJson)
       }
     }
   }
   getMyStoreApi = async () => {
+    this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['accounts'];
@@ -66,11 +78,68 @@ export default class SignIn extends Component {
       }else{
         appConstant.accountID = '';
       }
+      this.setState({ isVisible: false })
       this.props.navigation.goBack();
     }else {
       this.setState({ isVisible: false })
     }
   }
+  updateDeviceInfoAPI = async () => {
+    let dict = {
+      'device_name':this.state.deviceName ,
+      'device_manufacturer': this.state.manufacturer ,
+      'device_model': DeviceInfo.getModel(),
+      'app_version': DeviceInfo.getVersion(),
+      'os_version': DeviceInfo.getSystemVersion(),
+      'push_token': appConstant.fcmToken,
+      'language': 'en',
+      'client_type':  Platform.OS === 'ios' ? 1 : 2,
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.devices}`, 'put',JSON.stringify({ device_info: dict }),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
+    //1
+  async checkPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =  authStatus === messaging.AuthorizationStatus.AUTHORIZED ||  authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+      this.getToken();
+    } else {
+      this.requestPermission();
+    }
+  }
+
+  //2
+  getToken = async() => {
+    await DefaultPreference.get('fcmToken').then(function (fcmToken) {
+      // console.log('fcmToken', fcmToken)
+      if (fcmToken == undefined) {
+          const t =  messaging().getToken().then((tk) => {
+            // console.log(' messaging token ==>', tk);
+            appConstant.fcmToken = tk;
+            DefaultPreference.set('fcmToken', tk).then();
+          });
+      }else {
+        appConstant.fcmToken = fcmToken;
+      }
+    }.bind(this))
+    
+  }
+  //3
+  async  requestUserPermission() {
+    const authorizationStatus = await messaging().requestPermission();
+    if (authorizationStatus) {
+      console.log('Permission status:', authorizationStatus);
+      this.getToken();
+    }else {
+      console.log('Permission error');
+    }
+  }
+
   /*  Buttons   */
   signUpBtnAction() {
     this.props.navigation.navigate(NavigationRoots.SignUp);

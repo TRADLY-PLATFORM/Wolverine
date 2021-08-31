@@ -16,11 +16,9 @@ import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
 import cameraIcon from '../../../../assets/camera.png';
-import upload from '../../../../assets/upload.png';
 import dropdownIcon from '../../../../assets/dropdown.png';
 import commonStyles from '../../../../StyleSheet/UserStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
-import errorHandler from '../../../../NetworkManager/ErrorHandle'
 import ImagePicker from 'react-native-image-crop-picker';
 import APPURL from '../../../../Constants/URLConstants';
 import DefaultPreference from 'react-native-default-preference';
