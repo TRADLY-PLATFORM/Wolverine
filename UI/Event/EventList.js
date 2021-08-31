@@ -120,14 +120,19 @@ export default class EventList extends Component {
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
-    this.state.selectedDate = changeDateFormat(this.state.datesArray[index], 'YYYY-MM-DD');
-    let nxtDate = getNextDate(this.state.datesArray[index])
-    let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
-    this.setState({ updateUI: !this.state.updateUI})
-    let strtD = `${this.state.selectedDate}T00:00:00Z`;
-    let endD = `${nxt}T00:00:00Z`;
-    this.state.params = `&start_at=${strtD}&end_at=${endD}`;
-    this.callApi(this.state.params);
+    if (index != 0) {
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[index - 1], 'YYYY-MM-DD');
+      let nxtDate = getNextDate(this.state.datesArray[index])
+      let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
+      this.setState({ updateUI: !this.state.updateUI })
+      let strtD = `${this.state.selectedDate}T00:00:00Z`;
+      let endD = `${nxt}T00:00:00Z`;
+      this.state.params = `&start_at=${strtD}&end_at=${endD}`;
+      this.callApi(this.state.params);
+    } else {
+      this.state.params = ``;
+      this.callApi(this.state.params);
+    }
   }
 
   paginationMethod = () => {
@@ -295,7 +300,10 @@ export default class EventList extends Component {
     </View>)
   }
   renderDateListViewCellItem = ({item, index}) => {
-    let dt = index == 0 ? 'Today' : changeDateFormat(item, 'ddd D')
+    var dt = index == 1 ? 'Today' : changeDateFormat(this.state.datesArray[index - 1], 'ddd D')
+    if (index == 0) {
+      dt = "All";
+    }
     if (this.state.selectedDateIndex == index) {
       return(<View style={{margin: 5,marginLeft: 10, borderRadius: 15}}>
         <TouchableOpacity style={eventStyles.selectedBntViewStyle} onPress={() => this.didSelectDate(index)}>

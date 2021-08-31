@@ -135,14 +135,19 @@ export default class Explore extends Component {
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
-    this.state.selectedDate = changeDateFormat(this.state.datesArray[index], 'YYYY-MM-DD');
-    let nxtDate = getNextDate(this.state.datesArray[index])
-    let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
-    this.setState({ updateUI: !this.state.updateUI})
-    let strtD = `${this.state.selectedDate}T00:00:00Z`;
-    let endD = `${nxt}T00:00:00Z`;
-    this.state.params = `&start_at=${strtD}&end_at=${endD}`;
-    this.callApi(this.state.params);
+    if (index != 0) {
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[index - 1], 'YYYY-MM-DD');
+      let nxtDate = getNextDate(this.state.datesArray[index])
+      let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
+      this.setState({ updateUI: !this.state.updateUI })
+      let strtD = `${this.state.selectedDate}T00:00:00Z`;
+      let endD = `${nxt}T00:00:00Z`;
+      this.state.params = `&start_at=${strtD}&end_at=${endD}`;
+      this.callApi(this.state.params);
+    } else {
+      this.state.params = ``;
+      this.callApi(this.state.params);
+    }
   }
 
   paginationMethod = () => {
@@ -311,7 +316,10 @@ export default class Explore extends Component {
     </View>)
   }
   renderDateListViewCellItem = ({item, index}) => {
-    let dt = index == 0 ? 'Today' : changeDateFormat(item, 'ddd D')
+    var dt = index == 1 ? 'Today' : changeDateFormat(this.state.datesArray[index - 1], 'ddd D')
+    if (index == 0) {
+      dt = "All";
+    }
     if (this.state.selectedDateIndex == index) {
       return(<View style={{margin: 5,marginLeft: 10, borderRadius: 15}}>
         <TouchableOpacity style={eventStyles.selectedBntViewStyle} onPress={() => this.didSelectDate(index)}>
@@ -329,14 +337,13 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}
-       onPress={() => this.setState({showMap: !this.state.showMap})}>
-      <View style={eventStyles.viewOnMapBtnStyle}>
+    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
+      <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({showMap: !this.state.showMap})}>
       <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
       <View style={{width: 5}}/>
       <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
-      </View>
-  </TouchableOpacity>)
+      </TouchableOpacity>
+  </View>)
   }
    renderMarker = () => {
      var markerView = [];
@@ -353,8 +360,8 @@ export default class Explore extends Component {
    }
   renderMainView = () => {
       if (this.state.showMap) {
-        return (<View style={{ height: windowHeight / 1.25, width: windowWidth }}>
-          <View style={eventStyles.containerMapStyle}>
+        return (<View style={{ height: windowHeight / 0.74, width: windowWidth }}>
+          <View style={{flex: 1}}>
             <MapView
               provider={PROVIDER_GOOGLE}
               style={eventStyles.mapStyle}
@@ -374,7 +381,7 @@ export default class Explore extends Component {
           </View>
         </View>)
       } else {
-        return (<View style={{ height: '100%' }}>
+        return (<View style={{flex:1 }}>
           <View>
             {this.renderHeaderView()}
             {this.renderDateListView()}
@@ -392,8 +399,8 @@ export default class Explore extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Explore'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <View style={{ zIndex: 5, position: 'absolute' }}>
+        <View style={{ flex:1, backgroundColor: colors.LightBlueColor }}>
+          <View style={{ zIndex: 5, position: 'absolute'}}>
             <this.renderMainView />
           </View>
           <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>

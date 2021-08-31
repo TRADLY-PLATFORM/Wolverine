@@ -14,8 +14,6 @@ import {
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import tickIcon from '../../../assets/tick.png';
-import emptyIcon from '../../../assets/empty.png';
 import constantArrays from '../../../Constants/ConstantArrays';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
@@ -74,7 +72,7 @@ export default class Filter extends Component {
         } 
         if (objc['rating']) {
           let rObjc = objc['rating']
-          this.state.selectedRatingIndex = rObjc['rating'];
+          this.state.selectedRatingIndex = 5 - rObjc['rating'];
         }
         if (objc['distance']) {
           let dObjc = objc['distance']
@@ -143,7 +141,14 @@ export default class Filter extends Component {
         'start': stTime,
         'end': edTime,
       }
-      this.state.filterValueArray.push({time: timeDict})
+      let dic = {time: timeDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['time']) {
+            aIndx = a
+          }
+        }
+        this.addValueInArray(aIndx,dic)
     } else if (this.state.selectedFilterIndex == 1){
       var fromDate = new Date();
       var toDate = new Date();
@@ -157,8 +162,14 @@ export default class Filter extends Component {
           'created_to': d,
           index: this.state.selectedDatePostedIndex,
         }
-        this.state.filterValueArray.push({ date: dateDict })
-
+        let dic = {date: dateDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['date']) {
+            aIndx = a
+          }
+        }
+        this.addValueInArray(aIndx,dic)
       } else if (this.state.selectedDatePostedIndex == 2) {
         var makeDate = new Date();
         let lm = new Date(makeDate.setMonth(makeDate.getMonth() - 1));
@@ -167,7 +178,14 @@ export default class Filter extends Component {
           'created_to': lm.toString(),
           index: this.state.selectedDatePostedIndex,
         }
-        this.state.filterValueArray.push({ date: dateDict })
+        let dic = {date: dateDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['date']) {
+            aIndx = a
+          }
+        }
+        this.addValueInArray(aIndx,dic)
       } else if (this.state.selectedDatePostedIndex == 3) {
         var today = new Date();
         var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
@@ -176,7 +194,14 @@ export default class Filter extends Component {
           'created_to': lastWeek.toString(),
           index: this.state.selectedDatePostedIndex,
         }
-        this.state.filterValueArray.push({ date: dateDict })
+        let dic = {date: dateDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['date']) {
+            aIndx = a
+          }
+        }
+        this.addValueInArray(aIndx,dic)
       } else if (this.state.selectedDatePostedIndex == 4) {
         var today = new Date();
         let yesterday = new Date();
@@ -186,25 +211,53 @@ export default class Filter extends Component {
           'created_to': yesterday.toString(),
           index: this.state.selectedDatePostedIndex,
         }
-        this.state.filterValueArray.push({ date: dateDict })
+        let dic = {date: dateDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['date']) {
+            aIndx = a
+          }
+        }
+        this.addValueInArray(aIndx,dic)
       } else {
         let dateDict = {
           'created_from': fromDate.toString(),
           'created_to': toDate.toString(),
           index: this.state.selectedDatePostedIndex,
         }
-        this.state.filterValueArray.push({ date: dateDict })
+        let dic = {date: dateDict }
+        var aIndx = -1
+        for (let a = 0; a <this.state.filterValueArray.length; a++){
+          if (this.state.filterValueArray[a]['date']) {
+            aIndx = a
+          }
+          this.addValueInArray(aIndx,dic)
+        }
       }
     } else if (this.state.selectedFilterIndex == 2){
       let ratingDict = {
         'rating': 5 - this.state.selectedRatingIndex,
       }
-      this.state.filterValueArray.push({ rating: ratingDict })
+      let dic = {rating: ratingDict}
+      var aIndx = -1
+      for (let a = 0; a <this.state.filterValueArray.length; a++){
+        if (this.state.filterValueArray[a]['rating']) {
+          aIndx = a
+        }
+      }
+      this.addValueInArray(aIndx,dic)
     } else if (this.state.selectedFilterIndex == 3){
       let dDict = {
         'distance': this.state.distanceValue[0].toFixed(0),
       }
-      this.state.filterValueArray.push({ distance: dDict })
+      let dic = {distance: dDict}
+      var aIndx = -1
+      for (let a = 0; a <this.state.filterValueArray.length; a++){
+        if (this.state.filterValueArray[a]['distance']) {
+          aIndx = a
+        }
+      }
+      this.addValueInArray(aIndx,dic)
     } else if (this.state.selectedFilterIndex == 4){
       let fromPrice = this.state.priceValue[0].toFixed(0);
       let toPrice = this.state.priceValue[1].toFixed(0);
@@ -212,23 +265,49 @@ export default class Filter extends Component {
         'from': fromPrice,
         'to': toPrice,
       }
-      this.state.filterValueArray.push({ price: pDict})
+      let dic = {price: pDict}
+      var aIndx = -1
+      for (let a = 0; a <this.state.filterValueArray.length; a++){
+        if (this.state.filterValueArray[a]['price']) {
+          aIndx = a
+        }
+      }
+      this.addValueInArray(aIndx,dic)
     } else if (this.state.selectedFilterIndex == 5){
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
         'index':this.state.selectedCategoryIndex,
       }
-      this.state.filterValueArray.push({ category: cDict })
+      let dic = {category: cDict}
+      var aIndx = -1
+      for (let a = 0; a <this.state.filterValueArray.length; a++){
+        if (this.state.filterValueArray[a]['category']) {
+          aIndx = a
+        }
+      }
+      this.addValueInArray(aIndx,dic)
     }
     if (this.state.selectedAtriValueIds.length != 0) {
       let cDict = {
         'values': this.state.selectedAtriValueIds,
         'category':this.state.selectAttributeIds,
       }
-      this.state.filterValueArray.push({ attribute: cDict })
+      var aIndx = -1
+      for (let a = 0; a <this.state.filterValueArray.length; a++){
+        if (this.state.filterValueArray[a]['attribute']) {
+          aIndx = a
+        }
+      }
+      this.addValueInArray(aIndx,{attribute: cDict})
     }
-
+  }
+  addValueInArray(index , objc) {
+    if (index != -1) {
+      this.state.filterValueArray[index] = objc
+    } else {
+      this.state.filterValueArray.push(objc)
+    }
   }
   applyBtnAction () {
     this.props.route.params.getFilterData(this.state.filterValueArray);
