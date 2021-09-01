@@ -110,6 +110,11 @@ export default class Home extends Component {
     this.getHomeDataApi()
   }
   /*  Buttons   */
+  favouriteBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.EventList,{
+      favourite:true,
+    });
+  }
   didSelectCategory(item,index) {
     if (index == 7) {
       this.props.navigation.navigate(NavigationRoots.Category,{
@@ -249,7 +254,7 @@ export default class Home extends Component {
         <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
         <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
-        <View style={{flexDirection: 'row', marginTop: 15}}>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
           <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic} />
           <Text numberOfLines={2} style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
         </View>
@@ -268,7 +273,7 @@ export default class Home extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'ClassBubs'} showBackBtn={false} />
+        <HeaderView title={'ClassBubs'} showDoneBtn={true} doneBtnTitle={'Favourite'} doneBtnAction={() => this.  favouriteBtnAction()} />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView

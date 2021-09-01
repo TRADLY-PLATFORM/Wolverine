@@ -13,6 +13,8 @@ import commonStyle from '../StyleSheet/UserStyleSheet';
 import backIcon from '../assets/back.png'
 import closeIcon from '../assets/close.png'
 import menuIcon from '../assets/menu.png'
+import searchIcon from '../assets/search.png'
+import heartEmptyIcon from '../assets/heartEmpty.png'
 
 export default class AppHeader extends Component {
   static propTypes = {
@@ -32,6 +34,18 @@ export default class AppHeader extends Component {
         return <View>
           <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
           <Image style={commonStyle.backBtnStyle} resizeMode='contain'  source={menuIcon} />
+        </TouchableOpacity>
+        </View>
+      }else if (this.props.doneBtnTitle == 'Search') {
+        return <View>
+          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
+          <Image style={{height: 25, width: 25}} resizeMode='contain'  source={searchIcon} />
+        </TouchableOpacity>
+        </View>
+      }else if (this.props.doneBtnTitle == 'Favourite') {
+        return <View>
+          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
+          <Image style={{height: 25, width: 25}} resizeMode='contain'  source={heartEmptyIcon} />
         </TouchableOpacity>
         </View>
       }else {

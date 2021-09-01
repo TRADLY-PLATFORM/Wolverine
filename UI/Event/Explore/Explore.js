@@ -28,6 +28,7 @@ import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
 import ExploreListItem from '../../../Component/ExploreListItem'
+import SearchBar from 'react-native-search-bar';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
@@ -63,13 +64,18 @@ export default class Explore extends Component {
       filterArray: [],
       isVisible: false,
       dataLoad: false,
+      showSearchBar: true,
+      searchKey:'',
+      typingTimeout: 0
     }
   }
   componentDidMount() {
+    this.refs.searchBar.focus()
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
       lp._requestLocation();
+      this.setState({showSearchBar: false})
     });
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
@@ -109,7 +115,30 @@ export default class Explore extends Component {
     this.setState({ isVisible: true })
     this.callApi(this.state.params);
   }
+  onSearchChanges = () => {
+    if (this.state.typingTimeout) {
+      clearTimeout(this.state.typingTimeout);
+   }
+   this.setState({
+      typingTimeout: setTimeout(function () {
+        if (this.state.searchKey.length != 0) {
+          this.state.params = `&search_key=${this.state.searchKey}`;
+          this.setState({ isVisible: true })
+          this.callApi(this.state.params);
+        }
+        this.refs.searchBar.unFocus()
+        this.setState({showSearchBar: false })
+      }.bind(this), 10)
+    })
+  }
+  
   /*  Buttons   */
+  openSearchBarAction =  () => {
+    this.setState({showSearchBar: true })
+    setTimeout(function () {
+      this.refs.searchBar.focus()
+    }.bind(this), 100)
+  }
   didSelectEventList(item, index) {
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
       id :item['id'],
@@ -127,7 +156,7 @@ export default class Explore extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
+        let sortKey  = ['nearest_distance','price_high_to_low', 'price_low_to_high', 'relevance'];
         this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
       }
       this.callApi(this.state.params);
@@ -377,11 +406,33 @@ export default class Explore extends Component {
         </View>)
       }
   }
+  renderSearchBar = () => {
+    if (this.state.showSearchBar) {
+      return (<View style={{ backgroundColor: colors.AppTheme, height: 60}} >
+        <SearchBar
+          ref="searchBar"
+          barTintColor={colors.AppWhite}
+          searchBarStyle={'minimal'}
+          tintColor={colors.AppWhite}
+          placeholderTextColor={colors.AppWhite}
+          textFieldBackgroundColor={colors.AppWhite}
+          style={{ borderColor: colors.AppWhite, height: 60 }}
+          textColor={colors.AppBlack}
+          onChangeText={text =>     this.setState({searchKey: text})        }
+          tintColor={colors.AppWhite}
+          onCancelButtonPress={() => this.setState({showSearchBar: false})}
+          onSearchButtonPress={() => this.onSearchChanges()}
+        />
+      </View>)
+    } else {
+      return <HeaderView title={'Search'} showDoneBtn={true} doneBtnTitle={'Search'} doneBtnAction={() => this.openSearchBarAction()} />
+    }
+  }
 
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Explore'} showBackBtn={false} />
+        {this.renderSearchBar()}
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{ zIndex: 5, position: 'absolute' }}>
