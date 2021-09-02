@@ -284,7 +284,6 @@ export default class EventDetail extends Component {
   renderTimeAddressDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData;
-      // let dt = dateConversionFromTimeStamp(item['start_at']);
       let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
       time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
       let location = item['location'];
@@ -304,8 +303,6 @@ export default class EventDetail extends Component {
             <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
             <View style={{ width: 10 }} />
             <View>
-              {/* <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text> */}
-              {/* <View style={{ height: 5 }} /> */}
               <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
             </View>
           </View>
@@ -385,11 +382,15 @@ export default class EventDetail extends Component {
     } else {
       description = this.state.eventDetailData['description'];
     }
-    return (<View>
-      <Text style={eventStyles.commonTxtStyle}>Event description</Text>
-      <View style={{ height: 10 }} />
-      <Text style={eventStyles.subTitleStyle}>{description}</Text>
-    </View>)
+    if (description.length != 0) {
+      return (<View style={styles.commonViewStyle}>
+        <Text style={eventStyles.commonTxtStyle}>Event description</Text>
+        <View style={{ height: 10 }} />
+        <Text style={eventStyles.subTitleStyle}>{description}</Text>
+      </View>)
+    } else {
+      return <View />
+    }
   }
   renderOtherEventView = () => {
     return (<View>
@@ -429,6 +430,50 @@ export default class EventDetail extends Component {
         <Text style={eventStyles.subTitleStyle}>188 Attending</Text>
       </View>
     </View>)
+  }
+  renderArrtibutes = () => {
+    if (this.state.eventDetailData['attributes']) {
+      let attributesAry = this.state.eventDetailData['attributes'];
+      var views = [];
+      for (let a = 0; a < attributesAry.length; a++) {
+        let item = attributesAry[a];
+        var values = [];
+        if (item['field_type'] == 1 || item['field_type'] == 2) {
+          for (let obj of item['values']) {
+            values.push(obj['name']);
+          }
+        } else {
+          values = item['values']
+        }
+        if (item['field_type'] == 5) {
+          views.push(<View style={{ flexDirection: 'row'}}>
+            <View style={{ width: '40%', height: 40,justifyContent: 'center' }}>
+              <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
+            </View>
+            <TouchableOpacity style={{ width: '60%', height: 40,justifyContent: 'center' }}>
+              <Text style={styles.greenLinkStyle}>{values.toString()}</Text>
+            </TouchableOpacity>
+          </View>)
+        } else {
+          views.push(<View style={{ flexDirection: 'row'}}>
+            <View style={{ width: '40%', height: 40,  justifyContent: 'center' }}>
+              <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
+            </View>
+            <View style={{ width: '60%', height: 40, justifyContent: 'center' }}>
+              <Text style={styles.textStyle}>{values.toString()}</Text>
+            </View>
+          </View>)
+        }
+      }
+    }
+    if (views.length != 0) {
+      return( <View style={styles.commonViewStyle}> 
+      <Text style={eventStyles.commonTxtStyle}>Details</Text>
+        {views}
+      </View>)
+    } else {
+      return<View />
+    }
   }
   renderReviewView = () => {
     return (<View>
@@ -483,9 +528,7 @@ export default class EventDetail extends Component {
     <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle}>
-          <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>
-            Book Now
-          </Text>
+          <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>Book Now</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={ () => this.chatBtnAction()}>
@@ -524,8 +567,12 @@ export default class EventDetail extends Component {
         <View style={styles.commonViewStyle}>
           {this.renderShareView()}
         </View> */}
+         <View style={{ height: 10 }} />
+        <View>
+          {this.renderArrtibutes()}
+        </View>
         <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
+        <View >
           {this.renderEventDescriptionView()}
         </View>
         {/* <View style={styles.clearViewStyle}>

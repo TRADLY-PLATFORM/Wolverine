@@ -230,8 +230,10 @@ export default class MyStore extends Component {
       <View style={{ flexDirection: 'column' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
           <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
-          <View style={{ marginLeft: 16 }}>
-            <Text style={eventStyles.titleStyle}>{this.state.storeDetail['name']}</Text>
+          <View style={{ marginLeft: 16, flex:1}}>
+            <Text style={eventStyles.titleStyle}>
+              {this.state.storeDetail['name']}
+            </Text>
             <View style={{ flexDirection: 'row', marginLeft: -5, marginTop: 5, alignItems: 'center', width: '88%' }}>
               <Image source={locationIcon} style={{ height: 20, width: 20 }} resizeMode={'center'} />
               <Text style={eventStyles.subTitleStyle} numberOfLines={1}>{address}</Text>
@@ -555,15 +557,17 @@ export default class MyStore extends Component {
               <View>
                 <this.renderSegmentBar />
               </View>
-              <View style={{ height: '77%', backgroundColor: colors.LightBlueColor }}>
+              <View style={{flex: 1}}>
+              <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
                 <this.renderFilterView />
                 <View style={{ height: 10 }} />
                 <View style={{flex:1}}>
                   <this.renderTabActionView />
                 </View>
-                <View style={{height: 40}}/>
+              </View>
               </View>
             </View>
+            <View style={{height: 40,backgroundColor: colors.LightBlueColor }}/>
           </View>
         </View>
       </SafeAreaView>

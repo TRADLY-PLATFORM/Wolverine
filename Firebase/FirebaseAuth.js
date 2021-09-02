@@ -3,7 +3,7 @@ import { Linking, View } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 export function firebaseAuth(token) {
-  console.log('waiting', token);
+  console.log('firebaseAuth token', token);
   auth()
     .signInWithCustomToken(token)
     .then(() => {

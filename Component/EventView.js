@@ -31,7 +31,7 @@ export default class EventView extends Component {
         <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }} numberOfLines={1}>{item['title']}</Text>
         <View style={{ height: 5 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
             <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
             <Text numberOfLines={1} style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%' }}>{item['account']['name']}</Text>
           </View>
