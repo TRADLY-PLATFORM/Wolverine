@@ -62,11 +62,14 @@ export default class EventList extends Component {
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
     if (this.props.route.params) {
-      let {categoryID} = this.props.route.params
-      this.state.params = '&category_id=' + categoryID;
+      let {categoryID} = this.props.route.params;
+      if (categoryID != undefined){
+        this.state.params = '&category_id=' + categoryID;
+        this.callApi(this.state.params);
+      }else {
+        this.callApi('');
+      }
     }
-    this.callApi(this.state.params);
-
   }
   callApi(param) {
     this.state.eventsArray = [];
@@ -76,8 +79,14 @@ export default class EventList extends Component {
   }
   getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    var path = `&per_page=30&type=events&latitude=30.70&longitude=76.62` + param;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}${path}`,
+    var path = `&per_page=30&type=events` + param;
+    let {favourite} = this.props.route.params;
+    if (favourite != undefined){
+      path = `/likes?page=${this.state.pageNo}&per_page=30`
+    } else {
+      path = `?page=${this.state.pageNo}${path}`
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}${path}`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
@@ -111,7 +120,7 @@ export default class EventList extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
+        let sortKey  = ['nearest_distance','price_high_to_low', 'price_low_to_high', 'relevance'];
         this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
         console.log('this.state.params', this.state.params)
       }
@@ -333,7 +342,11 @@ export default class EventList extends Component {
   }
 
   render() {
+    var title = 'Favourite';
     let {categoryName} = this.props.route.params;
+    if (categoryName != undefined) {
+      title = categoryName;
+    }
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={categoryName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />

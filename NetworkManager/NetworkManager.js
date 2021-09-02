@@ -150,7 +150,6 @@ class NetworkManager {
       return true;
     }
   }
-
 }
 const network = new NetworkManager();
 export default network;

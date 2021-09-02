@@ -174,7 +174,7 @@ export default class App extends Component {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}>
         <View>
-          <Image style={{ width: 200, height: 200, borderRadius: 10 }} source={logoIcon} />
+          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} />
           <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>
