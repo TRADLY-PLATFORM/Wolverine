@@ -53,7 +53,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-This is an open source business web site. Which you can easily use for your business platform by changing a little bit.It has all the features of a business website. The benefits of SEO have also been added. Which is Google friendly. And you can easily optimize your website.
+This is an open source business application. Which you can easily use for your business platform by changing a little bit.It has all the features of a business application. The benefits of SEO have also been added. Which is Google friendly. And you can easily optimize your application.
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
  
 
