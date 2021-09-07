@@ -14,16 +14,11 @@
   <h3 align="center">Tradly Platform</h3>
 
   <p align="center">
-     An open source ReactJS Template. Contents served from Tradly Headless API
+     An open source React-Native App. Contents served from Tradly Headless API
     <br />
     <a href="https://portal.tradly.app/docs/introduction"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://tradly.netlify.app/">View Demo</a>
-    ·
-    <a href="https://github.com/TRADLY-PLATFORM/Hummingbirds/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/TRADLY-PLATFORM/Hummingbirds/issues">Request Feature</a>
   </p>
 </p>
 
