@@ -69,10 +69,11 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+We recommend installing Node and Watchman using [Homebrew](https://brew.sh). Run the following commands in a Terminal after installing Homebrew:
+* Node
   ```sh
-  npm install
+  brew install node
+  brew install watchman
   ```
 
 ### Installation
@@ -88,7 +89,7 @@ This is an example of how to list things you need to use the software and how to
 #### iOS
     In the `ios` directory
     * Install Pods: `gem install cocoapods`
-    * Install Pods: `npx pod-install ios`
+    * Install Pods: `pod install`
  
 #### Android
 
