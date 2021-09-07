@@ -114,6 +114,7 @@ There are some things you need to know to work on this open source.
     stripePublishKey: 'abc',
     dsnSentry: 'https://abc.ingest.sentry.io/5896058',
     firebaseChatPath: '/abc_dev/',
+    tenantID:'abc',
 ```
 
 
