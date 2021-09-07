@@ -8,7 +8,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/TRADLY-PLATFORM/Hummingbirds">
-    <img src="./src/assets/images/logo.svg" alt="Logo" width="80" height="80">
+    <img src="https://avatars.githubusercontent.com/u/40002234?v=4" alt="Logo" width="80" height="80">
   </a>
  
   <h3 align="center">Tradly Platform</h3>
@@ -64,11 +64,8 @@ This is an open source business web site. Which you can easily use for your busi
 
 ### Built With
 
-* [React](https://reactjs.org/)
-* [Bootstrap3](https://getbootstrap.com/)
+* [React-Native](https://reactnative.dev)
  
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
