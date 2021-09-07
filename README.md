@@ -118,7 +118,7 @@ There are some things you need to know to work on this open source.
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/TRADLY-PLATFORM/Wolverine/issues) for a list of proposed features (and known issues).
 
 
 
