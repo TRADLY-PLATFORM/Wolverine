@@ -106,8 +106,9 @@ We recommend installing Node and Watchman using [Homebrew](https://brew.sh). Run
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-There are some things you need to know to work on this open source.
-* You might be change these values which are given below
+Here is some client/app specific things you might need to change. 3rd party integrations with Stripe, Firebase, Sentry need your own account Keys for it to work. 
+- TenantID of Tradly can be found from [Tradly Superadmin Dashboard](https://superadmin.sandbox.tradly.app)(Sandbox or Production tenantID/APIkey based on your purchase)
+- You might be change these values which are given below
 
 ```tsx
 // AppConstant.js
@@ -119,32 +120,21 @@ There are some things you need to know to work on this open source.
     tenantID:'abc',
 ```
 
-
 <!-- ROADMAP -->
 ## Roadmap
-
 See the [open issues](https://github.com/TRADLY-PLATFORM/Wolverine/issues) for a list of proposed features (and known issues).
-
-
 
 
 <!-- LICENSE -->
 ## License
-
 Distributed under the MIT License. See `LICENSE` for more information.
 
 
-
-
 ## Have a question
-- create an issue
-- join our [community forum](https://community.tradly.app)
+- [create an issue](https://github.com/TRADLY-PLATFORM/Wolverine/issues)
+- join our [community forum] for further discussion (https://community.tradly.app)
 - Tradly Platform   -  hitradly@gmail.com
-
-Tradly Platform   -  hitradly@gmail.com
-
-Project Link: [https://github.com/github_username/repo_name](https://github.com/TRADLY-PLATFORM/Wolverine)
-
+- Project Link: [https://github.com/github_username/repo_name](https://github.com/TRADLY-PLATFORM/Wolverine)
 
 
 <!-- ACKNOWLEDGEMENTS -->
