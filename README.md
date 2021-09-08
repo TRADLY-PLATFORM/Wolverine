@@ -152,15 +152,15 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/TRADLY-PLATFORM/Hummingbirds 
-[contributors-url]: https://github.com/TRADLY-PLATFORM/Hummingbirds/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TRADLY-PLATFORM/Hummingbirdse
-[forks-url]: https://github.com/TRADLY-PLATFORM/Hummingbirds/network/members
-[stars-shield]: https://img.shields.io/github/stars/TRADLY-PLATFORM/Hummingbirds
-[stars-url]: https://github.com/TRADLY-PLATFORM/Hummingbirds/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TRADLY-PLATFORM/Hummingbirds
-[issues-url]: https://github.com/TRADLY-PLATFORM/Hummingbirds/issues
+[contributors-shield]: https://img.shields.io/github/contributors/TRADLY-PLATFORM/Wolverine 
+[contributors-url]: https://github.com/TRADLY-PLATFORM/Wolverine/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TRADLY-PLATFORM/Wolverine
+[forks-url]: https://github.com/TRADLY-PLATFORM/Wolverine/network/members
+[stars-shield]: https://img.shields.io/github/stars/TRADLY-PLATFORM/Wolverine
+[stars-url]: https://github.com/TRADLY-PLATFORM/Wolverine/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TRADLY-PLATFORM/Wolverine
+[issues-url]: https://github.com/TRADLY-PLATFORM/Wolverine/issues
 [license-shield]: https://img.shields.io/github/license/TRADLY-PLATFORM/repo.svg?style=for-the-badge
-[license-url]: https://github.com/TRADLY-PLATFORM/Hummingbirds/blob/master/LICENSE.txt
+[license-url]: https://github.com/TRADLY-PLATFORM/Wolverine/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/github_username
