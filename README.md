@@ -7,7 +7,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/TRADLY-PLATFORM/Hummingbirds">
+  <a href="https://github.com/TRADLY-PLATFORM/Wolverine">
     <img src="https://avatars.githubusercontent.com/u/40002234?v=4" alt="Logo" width="80" height="80">
   </a>
  
