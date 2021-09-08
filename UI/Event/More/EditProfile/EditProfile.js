@@ -20,7 +20,11 @@ import emptyIcon from '../../../../assets/empty.png';
 import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
-
+import FastImage from 'react-native-fast-image'
+import eventStyles from '../../../../StyleSheet/EventStyleSheet';
+import cameraIcon from '../../../../assets/camera.png';
+import Spinner from 'react-native-loading-spinner-overlay';
+import ImagePicker from 'react-native-image-crop-picker';
 // const windowWidth = Dimensions.get('window').width;
 
 export default class EditProfile extends Component {
@@ -30,53 +34,175 @@ export default class EditProfile extends Component {
       selectedAttributes: [],
       attributeArray: [],
       updateUI: false,
+      firstname:'',
+      lastname:'',
+      email:'',
+      isVisible:false,
+      photo:null,
     }
   }
 
   componentDidMount() {
     this.setState({updateUI: !this.state.updateUI})
+    let {userData} = this.props.route.params;
+    if (userData != undefined) {
+      this.state.email = userData['email'];
+      this.state.firstname = userData['first_name'];
+      this.state.lastname = userData['last_name'];
+      this.state.photo = userData['profile_pic'];
+    }
+
     // this.getMyStoreApi();
   }
-  getMyStoreApi = async () => {
+  uploadPhotoAPI = async () => {
     this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
+    var imgParm = [];
+    var uploadBase64 = [];
+  
+    if (this.state.photo != null) {
+      let fileName = this.state.photo.data;
+      if (fileName != null) {
+        var photoDic = {
+          name: this.state.photo['filename'],
+          type: this.state.photo['mime'],
+        };
+        uploadBase64.push({
+          file: 'data:image/png;base64,' + this.state.photo.data,
+        });
+        imgParm.push(photoDic);
+      }
+    }
+    if (imgParm != 0) {
+      const responseJson = await networkService.networkCall(
+        APPURL.URLPaths.S3signedUploadURL, 'POST', JSON.stringify({ files: imgParm }), appConstant.bToken, appConstant.authKey);
+      if (responseJson['status'] == true) {
+        var result = responseJson['data']['result'];
+        for (let i = 0; i < imgParm.length; i++) {
+          fetch(uploadBase64[i]['file']).then(async res => {
+            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
+              await res.blob(),
+            );
+            this.UpdateProfileAPI(result[0]['fileUri']);
+          });
+        }
+      } else {
+        this.setState({ isVisible: false })
+        Alert.alert(responseJson)
+      }
+    } else {
+      this.UpdateProfileAPI(this.state.photo != null ? this.state.photo : '')
+    }
+  };
+  UpdateProfileAPI = async (photoPath) => {
+    let dic = {
+      'first_name': this.state.firstname,
+      'last_name': this.state.lastname,
+      'profile_pic': photoPath
+    }
+    this.setState({ isVisible: true })
+    let method = 'PATCH';
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}${appConstant.userId}`, 
+    method,JSON.stringify({user: dic}), appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
-      let shipData = responseJson['data'];
-      console.log('shipping_methods == >',shipData)
-      this.setState({ updateUI: !this.state.updateUI,isVisible: false })
-    }else {
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.props.navigation.goBack();
+    } else {
       this.setState({ isVisible: false })
     }
   }
   /*  Buttons   */
-  didSelect = (item, itemData) => {
-  }
-  doneBtnAction () {
+  submitBtnAction () {
+    this.uploadPhotoAPI()
   }
   /*  UI   */
-  renderListView = () => {
-    let atAry = this.state.attributeArray;
+  imagePicker(id) {
+    ImagePicker.openPicker({
+      height: 200,
+      width: 200,
+      cropping: true,
+      includeBase64: true,
+    }).then(image => {
+      this.state.photo = image;
+      this.setState({ updateUI: !this.state.updateUI })
+    });
+  }
+  viewSelectedImages = () => {
     var views = [];
-    for (let a = 0; a < atAry.length; a++) {
-      let item = atAry[a];
+    if (this.state.photo != null) {
+      let photo =  this.state.photo;
+      var photoPath = ''
+      if (photo) {
+        if (photo['sourceURL']) {
+           photoPath = photo.path;
+        }else {
+          photoPath = photo; 
+        }
+      }
       views.push(
-        <TouchableOpacity onPress={() => this.didSelect(item, a)}>
-          <View style={styles.listViewStyle}>
-            <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
-            <Image style={commonStyles.nextIconStyle} source={check ? emptyIcon : tickIcon} />
-          </View>
-        </TouchableOpacity>
+        <View style={styles.imageSelectedStyle}>
+          <TouchableOpacity onPress={() => this.imagePicker()}>
+            <FastImage source={{ uri: photoPath }} style={styles.SelectedImageStyle} resizeMode={'cover'} />
+          </TouchableOpacity>
+        </View>,
+      );
+    } else {
+      views.push(
+        <View>
+          <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+            <View style={{ justifyContent: 'center' }}>
+              <Image source={cameraIcon}
+                style={{ width: 30, height: 30, alignSelf: 'center' }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>,
       );
     }
+
     return views;
-  }
+  };
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Edit Profile'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={true}/>
-        <View>
-        </View>
-        <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
+        <HeaderView title={'Edit Profile'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+        <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={{ padding: 16, justifyContent: 'center',height: 150, alignItems: 'center'}}>
+              <View style={{width: 140, height: 140, justifyContent: 'center'}}> 
+                <this.viewSelectedImages />
+              </View>
+            </View>
+            <View style={{ backgroundColor: colors.LightBlueColor, padding: 16 }}>
+              <Text style={commonStyles.textLabelStyle}>First Name</Text>
+              <TextInput
+                style={commonStyles.addTxtFieldStyle}
+                placeholder={'Enter first name'}
+                value={this.state.firstname}
+                onChangeText={value => this.setState({ firstname: value })}
+              />
+              <View style={{ height: 20 }} />
+              <Text style={commonStyles.textLabelStyle}>Last Name</Text>
+              <TextInput
+                style={commonStyles.addTxtFieldStyle}
+                placeholder={'Enter last name'}
+                value={this.state.lastname}
+                onChangeText={value => this.setState({ lastname: value })}
+              />
+              <View style={{ height: 20 }} />
+              <Text style={commonStyles.textLabelStyle}>Email ID</Text>
+              <TextInput
+                style={commonStyles.addTxtFieldStyle}
+                value={this.state.email}
+                editable={false}
+              />
+              <View style={{ height: 50 }} />
+              <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.submitBtnAction()}>
+                <Text style={commonStyles.themeTitleStyle}>Submit</Text>
+              </TouchableOpacity>
+              <View style={{ height: 50 }} />
+            </View>
+          </ScrollView >
         </View>
       </SafeAreaView>
     );
@@ -87,17 +213,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
-  listViewStyle: {
-    justifyContent: 'space-between',
-    width: "97%",
-    margin: 5,
-    marginLeft: 16,
-    borderBottomWidth: 1,
-    borderColor: colors.BorderColor,
-    height: 40,
-    flexDirection: 'row',
+  imageSelectedStyle: {
+    height: 120,
+    width: 120,
+    margin: 10,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingRight: 10,
+  },
+  SelectedImageStyle: {
+    height: 120,
+    width: 120,
+    borderRadius: 10,
+  },
+  dottedViewStyle: {
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    height: 120,
+    width: 120,
+    borderStyle: 'dashed',
+    borderColor: colors.BorderColor
   },
 });
 

@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  AppState,
   Alert,
 } from 'react-native';
 
@@ -37,13 +38,20 @@ export default class ConfirmBooking extends Component {
       stripConnectedOnboarding: false,
       payoutsEnabled: false,
       errorArray: [],
+      loginLink: '',
       loadData: false,
+      appState: AppState.currentState,
     }
   }
 
   componentDidMount() {
-    this.getUserDetailApi()
-    this.getStripConnectAccountApi()
+    this.getUserDetailApi();
+    this.loadApi();
+    AppState.addEventListener('change', this._handleAppStateChange);
+  }
+  loadApi() {
+    this.getStripConnectAccountApi();
+    this.createExpressLoginLinkAPI();
   }
   getUserDetailApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}/${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -68,6 +76,7 @@ export default class ConfirmBooking extends Component {
           this.state.errorArray.push(obj['reason']);
         }
       }
+      this.state.stripConnectedOnboarding = acctData['stripe_connect_onboarding'];
       this.state.payoutsEnabled = acctData['payouts_enabled'];
       this.setState({updateUI: !this.state.updateUI, isVisible: false,loadData: true })
     }else {
@@ -87,11 +96,37 @@ export default class ConfirmBooking extends Component {
       this.setState({ isVisible: false })
     }
   }
+  createExpressLoginLinkAPI = async () => {
+    var dict = {'account_id': appConstant.accountID}
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.createExpressLoginLink}`, 'post', JSON.stringify(dict),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let acctData = responseJson['data'];
+      console.log('acctData',acctData)
+      if (acctData['login_link']) {
+        this.state.loginLink = acctData['login_link'];
+      }
+      this.setState({updateUI: !this.state.updateUI, isVisible: false})
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
+  /*   App State  */
+  _handleAppStateChange = (nextAppState) => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      this.loadApi();
+    }
+    this.setState({ appState: nextAppState });
+  };
+
   /*  Buttons   */
- 
   connectStripBtnAction(){
-    if (!this.state.stripConnectedOnboarding){
+    console.log('!this.state.stripConnectedOnboarding',this.state.stripConnectedOnboarding);
+    if (this.state.stripConnectedOnboarding == false){
       this.createAccountLinkApi();
+    } else {
+      if(this.state.loginLink.length != 0){
+        Linking.openURL(this.state.loginLink);
+      }
     }
   }
 

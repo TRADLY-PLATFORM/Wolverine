@@ -7,9 +7,10 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, LogBox, View, Image } from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox, View, Image,Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
 import NavigationRoots, { BottomTabbar } from './Constants/NavigationRoots';
@@ -75,8 +76,18 @@ export default class App extends Component {
       }
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
+    this.fcmNotification()
     this.configApi();
   }
+  fcmNotification() {
+    messaging().onMessage(async remoteMessage => {
+      console.log('M', remoteMessage);
+    });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log( 'N',  remoteMessage);
+    });
+  }
+
   configApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
@@ -87,7 +98,21 @@ export default class App extends Component {
       // console.log('appConstant.termCondition =>', appConstant.termCondition);
       DefaultPreference.set('token', keyd).then(function () { console.log('done') });
       appConstant.bToken = keyd;
+      this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
+    }
+  }
+  getCurrencyApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.currencies, 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let ccData = responseJson['data']['currencies']
+      console.log('getCurrencyApi', ccData)
+      for (let obj of ccData) {
+        if (obj['default'] == true) {
+          appConstant.defaultCurrency = obj['format'];
+        }
+      }
+
     }
   }
   navigationReturn = () => {

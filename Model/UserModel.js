@@ -23,10 +23,5 @@ export default class UserModel {
     DefaultPreference.set('userId', udata['id']).then();
     DefaultPreference.set('firebaseToken', firebase_Token).then();
     DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
-    // let dataObj = 
-    // let dic = {
-    //   'chatrooms': object[0],
-    //   'name'
-    // }
   }
 }

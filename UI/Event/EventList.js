@@ -129,14 +129,19 @@ export default class EventList extends Component {
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
-    this.state.selectedDate = changeDateFormat(this.state.datesArray[index], 'YYYY-MM-DD');
-    let nxtDate = getNextDate(this.state.datesArray[index])
-    let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
-    this.setState({ updateUI: !this.state.updateUI})
-    let strtD = `${this.state.selectedDate}T00:00:00Z`;
-    let endD = `${nxt}T00:00:00Z`;
-    this.state.params = `&start_at=${strtD}&end_at=${endD}`;
-    this.callApi(this.state.params);
+    if (index != 0) {
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[index - 1], 'YYYY-MM-DD');
+      let nxtDate = getNextDate(this.state.datesArray[index])
+      let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
+      this.setState({ updateUI: !this.state.updateUI })
+      let strtD = `${this.state.selectedDate}T00:00:00Z`;
+      let endD = `${nxt}T00:00:00Z`;
+      this.state.params = `&start_at=${strtD}&end_at=${endD}`;
+      this.callApi(this.state.params);
+    } else {
+      this.state.params = ``;
+      this.callApi(this.state.params);
+    }
   }
 
   paginationMethod = () => {
@@ -173,18 +178,22 @@ export default class EventList extends Component {
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}`;
       }
+      if (objc['price']) {
+        let dObjc = objc['price']
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
+      }
+      if (objc['attribute']) {
+        let nObj = objc['attribute']
+        let dObjc = nObj['values'];
+        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+      }
     }
     this.state.filterArray = data
     this.state.params = queryParams;
     this.callApi(this.state.params);
-
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    // timeString12hr;
-    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    // let startTimestamp = new Date(startDate).getTime() / 1000;
     return timeString
   }
   /*  UI   */
@@ -265,7 +274,7 @@ export default class EventList extends Component {
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite}}>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
         <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
       </View>
     }
@@ -300,7 +309,10 @@ export default class EventList extends Component {
     </View>)
   }
   renderDateListViewCellItem = ({item, index}) => {
-    let dt = index == 0 ? 'Today' : changeDateFormat(item, 'ddd D')
+    var dt = index == 1 ? 'Today' : changeDateFormat(this.state.datesArray[index - 1], 'ddd D')
+    if (index == 0) {
+      dt = "All";
+    }
     if (this.state.selectedDateIndex == index) {
       return(<View style={{margin: 5,marginLeft: 10, borderRadius: 15}}>
         <TouchableOpacity style={eventStyles.selectedBntViewStyle} onPress={() => this.didSelectDate(index)}>
