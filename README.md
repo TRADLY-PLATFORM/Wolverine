@@ -135,7 +135,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Tradly Platform   -  hitradly@gmail.com
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/TRADLY-PLATFORM/Hummingbirds)
+Project Link: [https://github.com/github_username/repo_name](https://github.com/TRADLY-PLATFORM/Wolverine)
 
 
 
