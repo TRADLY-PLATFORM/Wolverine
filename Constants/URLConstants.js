@@ -1,8 +1,11 @@
+import appConstant from './AppConstants';
+
+
 module.exports = {
   URLPaths: {
     BaseURL: 'https://api.dev.tradly.app/',
     token: 'v1/users/token/refresh',
-    config: 'v1/tenants/tradlysocial/configs',
+    config: `v1/tenants/${appConstant.tenantID}/configs`,
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',

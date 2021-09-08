@@ -67,7 +67,6 @@ export default class App extends Component {
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
     DefaultPreference.get('installed').then(function (val) {
-      console.log('installed app', val);
       if (val == undefined) {
         DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });
         this.setState({ appInstalled: false })
@@ -94,13 +93,10 @@ export default class App extends Component {
   navigationReturn = () => {
     let root = this.state.appInstalled ? NavigationRoots.BottomTabbar : NavigationRoots.OnBoardings
     return <NavigationContainer>
-      <Stack.Navigator initialRouteName={root} screenOptions={{
-        headerShown: false
-      }}>
+      <Stack.Navigator initialRouteName={root} screenOptions={{headerShown: false}}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
         <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
-          options={{
-            title: '',
+          options={{title: '',
             ...TransitionPresets.ModalSlideFromBottomIOS,
           }} />
         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />

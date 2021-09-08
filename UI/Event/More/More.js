@@ -15,6 +15,7 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import DefaultPreference from 'react-native-default-preference';
 import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
+import appMsg from '../../../Constants/AppMessages';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 
@@ -74,7 +75,7 @@ export default class More extends Component {
   }
   logoutBtnAction() {
     Alert.alert(
-      "Are you sure you want to logout?", "",
+      appMsg.logoutMsg, "",
       [
         {
           text: "Cancel",
