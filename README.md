@@ -1,24 +1,30 @@
- [![Contributors][contributors-shield]][contributors-url]
+
+[![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-  
+
 
 
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/TRADLY-PLATFORM/Wolverine">
-    <img src="https://avatars.githubusercontent.com/u/40002234?v=4" alt="Logo" width="80" height="80">
+    <a href="https://github.com/TRADLY-PLATFORM/Wolverine">
+    <img src="https://avatars.githubusercontent.com/u/64465296?s=200&v=4" alt="Logo" width="80" height="80">
   </a>
  
   <h3 align="center">Tradly Platform</h3>
-
-  <p align="center">
-     An open source React-Native App. Contents served from Tradly Headless API
+ 
+ <p align="center">
+     An open source React Native Template. Built on top of Tradly Headless API
     <br />
     <a href="https://portal.tradly.app/docs/introduction"><strong>Explore the docs »</strong></a>
     <br />
     <br />
+    <a href="https://portal.tradly.app/react-native">View Demo</a>
+    ·
+    <a href="https://github.com/TRADLY-PLATFORM/Wolverine/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/TRADLY-PLATFORM/Wolverine/issues">Request Feature</a>
   </p>
 </p>
 
@@ -43,23 +49,22 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <!-- <li><a href="#acknowledgements">Acknowledgements</a></li> -->
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-This is an open source business application. Which you can easily use for your business platform by changing a little bit.It has all the features of a business application. The benefits of SEO have also been added. Which is Google friendly. And you can easily optimize your application.
+This React Native template provides a full fledged event marketplace app. With a few smaller customisation on strings used in the app, it can be personalised for other marketplace types as well. Progressively we will be adding the mobile app configs that will help you to customise things from [Tradly SuperAdmin](https://auth.sandbox.tradly.app/register)
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
- 
+
 
 ### Built With
 
-* [React-Native](https://reactnative.dev)
+* [React](https://github.com/facebook/react-native)
  
 
 <!-- GETTING STARTED -->
@@ -130,8 +135,11 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 
 
-<!-- CONTACT -->
-## Contact
+
+## Have a question
+- create an issue
+- join our [community forum](https://community.tradly.app)
+- Tradly Platform   -  hitradly@gmail.com
 
 Tradly Platform   -  hitradly@gmail.com
 
