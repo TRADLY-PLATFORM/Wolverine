@@ -37,6 +37,7 @@ import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
+import appMsg from '../../../Constants/AppMessages';
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -180,7 +181,7 @@ export default class EventDetail extends Component {
   }
   deleteEventBtnAction() {
     Alert.alert(
-      "Are you sure you want to delete this event?", "",
+      appMsg.eventDeleteMsg, "",
       [
         {
           text: "No",

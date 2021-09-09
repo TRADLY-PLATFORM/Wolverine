@@ -24,6 +24,8 @@ import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
+import Spinner from 'react-native-loading-spinner-overlay';
+
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
 export default class Filter extends Component {
@@ -31,6 +33,7 @@ export default class Filter extends Component {
     super(props);
     this.state = {
       categoryArray: [],
+      isVisible:true,
       updateUI: false,
       showFilterView:false,
       selectedFilterIndex: -1,
@@ -117,7 +120,7 @@ export default class Filter extends Component {
           this.state.attributesArray.push(objc);
         }
       }
-      this.setState({updateUI: !this.state.updateUI})
+      this.setState({updateUI: !this.state.updateUI,isVisible: false})
     } else {
       this.setState({ isVisible: false })
     }
@@ -721,6 +724,7 @@ export default class Filter extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>
             <this.renderListView />

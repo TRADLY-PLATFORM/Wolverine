@@ -15,6 +15,7 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import DefaultPreference from 'react-native-default-preference';
 import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
+import appMsg from '../../../Constants/AppMessages';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
@@ -84,7 +85,7 @@ export default class More extends Component {
   }
   logoutBtnAction() {
     Alert.alert(
-      "Are you sure you want to logout?", "",
+      appMsg.logoutMsg, "",
       [
         {
           text: "Cancel",
@@ -130,8 +131,22 @@ export default class More extends Component {
       else if (index == 4) {
         Linking.openURL(appConstant.termCondition);
       }
+      else if (index == 5) {
+        Linking.openURL(appConstant.privacyURL);
+      }
+      else if (index == 6) {
+        this.props.navigation.navigate(NavigationRoots.InviteFriend);
+      }
     } else {
-      this.props.navigation.navigate(NavigationRoots.SignIn)
+      if (index == 3) {
+        Linking.openURL(appConstant.termCondition);
+      } else if (index == 4) {
+        Linking.openURL(appConstant.privacyURL);
+      } else if (index == 5) {
+        this.props.navigation.navigate(NavigationRoots.InviteFriend);
+      } else {
+        this.props.navigation.navigate(NavigationRoots.SignIn)
+      }
     }
   }
   /*  UI   */
@@ -179,7 +194,6 @@ export default class More extends Component {
     }
   }
   render() {
-    console.log('profilePic',this.state.profilePic);
     return (
         // <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
           <SafeAreaView style={styles.Container}>

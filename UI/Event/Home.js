@@ -273,7 +273,7 @@ export default class Home extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'ClassBubs'} showDoneBtn={true} doneBtnTitle={'Favourite'} doneBtnAction={() => this.favouriteBtnAction()} />
+        <HeaderView title={appConstant.appHomeTitle} showDoneBtn={true} doneBtnTitle={'Favourite'} doneBtnAction={() => this.favouriteBtnAction()} />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView
