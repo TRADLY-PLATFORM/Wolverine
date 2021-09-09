@@ -134,7 +134,7 @@ export default class Explore extends Component {
   
   /*  Buttons   */
   openSearchBarAction =  () => {
-    this.setState({showSearchBar: true })
+    this.setState({showSearchBar: true, showMap: false })
     setTimeout(function () {
       this.refs.searchBar.focus()
     }.bind(this), 100)

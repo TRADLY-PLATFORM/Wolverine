@@ -18,7 +18,7 @@ function AppTabbar() {
   var chatS = Login;
 
   if (appConstant.loggedIn) {
-    centerTab = appConstant.accountID.length == 0 ? shop : shop
+    centerTab = appConstant.accountID.length == 0 ? shop : AddEvent
   }
   if (appConstant.loggedIn) {
     chatS = ConversationList;

@@ -51,6 +51,7 @@ import * as Sentry from "@sentry/react-native";
 import MySale from './UI/Event/More/MySale/MySale';
 import PayoutsScreen from './UI/Event/More/MySale/PayoutsScreen';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import InviteFriend from './UI/Event/More/InviteFriends';
 
 const Stack = createStackNavigator();
 
@@ -91,13 +92,24 @@ export default class App extends Component {
   configApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
-    console.log('get data of config', responseJson)
-    if (responseJson['status'] == true) {
+    if (responseJson['status'] == true) {     
       let keyd = responseJson['data']['key']['app_key'];
-      appConstant.termCondition = responseJson['data']['configs']['terms_url'] || 'https://community.tradly.app';
-      // console.log('appConstant.termCondition =>', appConstant.termCondition);
-      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
       appConstant.bToken = keyd;
+ ;
+      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
+      this.configListApi()
+      // this.setState({ reload: true, isVisible: false })
+    }
+  }
+  configListApi = async()  => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general', 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let into = responseJson['data']['configs']
+      console.log('into  == >', into);
+      appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
+      appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
+      appConstant.intoScreen = into['intro_screens'];
+      appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
       this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
     }
@@ -147,6 +159,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.PaymentScreen} component={PaymentScreen} />
         <Stack.Screen name={NavigationRoots.MySale} component={MySale} />
         <Stack.Screen name={NavigationRoots.PayoutsScreen} component={PayoutsScreen} />
+        <Stack.Screen name={NavigationRoots.InviteFriend} component={InviteFriend} />
         <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

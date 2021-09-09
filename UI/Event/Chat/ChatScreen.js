@@ -23,9 +23,6 @@ import attachIcon from '../../../assets/attachIcon.png';
 import sendIcon from '../../../assets/sendIcon.png';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image'
-
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -34,8 +31,6 @@ import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
 
 
-const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
@@ -59,11 +54,12 @@ export default class ChatScreen extends Component {
   }
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
+    console.log('receiverData',receiverData)
     if (receiverData != undefined) {
       let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
       this.state.titleName = name;
       let profile = `${receiverData['profile_pic']}`;
-      var UID = appConstant.userId // == '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+      var UID = receiverData['id'] 
       createChat(UID, name, profile, chatRoomId => {
         this.state.chatRoomId = chatRoomId
         this.getChatThread(chatRoomId);
@@ -185,9 +181,9 @@ export default class ChatScreen extends Component {
             style={styles.msgTextStyle}
             placeholder={'Write here ...'}/>
         </View>
-        <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
+        {/* <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
           <Image style={{ height: 20, width: 20 }} source={attachIcon} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <View>
         <LinearGradient style={styles.enableSendBtnViewStyle}

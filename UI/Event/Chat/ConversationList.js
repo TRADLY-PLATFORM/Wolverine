@@ -17,20 +17,11 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import sample from '../../../assets/dummy.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import {timeAgo} from '../../../HelperClasses/SingleTon'
 import database from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth';
-import DefaultPreference from 'react-native-default-preference';
-import {firebaseAuth} from '../../../Firebase/FirebaseAuth'
-
-
-const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 
 
 export default class ConversationList extends Component {
