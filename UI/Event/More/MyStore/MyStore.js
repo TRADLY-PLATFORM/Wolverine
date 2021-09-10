@@ -21,10 +21,10 @@ import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
-import messageIcon from '../../../../assets/message.png';
+import messageIcon from '../../../../assets/messageIcon.svg';
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
-import shareIcon from '../../../../assets/share.png';
+import shareIcon from '../../../../assets/shareIcon.svg';
 import product from '../../../../assets/product.png';
 import productGray from '../../../../assets/productGray.png';
 import info from '../../../../assets/info.png';
@@ -35,6 +35,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
+import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -269,7 +270,7 @@ export default class MyStore extends Component {
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
-            <Image source={shareIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
+            <SvgUri width={15} height={15} source={shareIcon} fill={colors.AppTheme} />
           </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
@@ -296,7 +297,7 @@ export default class MyStore extends Component {
     } else {
       return (<View>
         <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
-          <Image source={messageIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
+          <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} />
         </TouchableOpacity>
       </View>)
     }

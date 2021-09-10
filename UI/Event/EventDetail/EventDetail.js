@@ -28,7 +28,7 @@ import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import copy from '../../../assets/copy.png';
 import whatsappIcon from '../../../assets/whatsapp.png';
-import share from '../../../assets/share.png';
+import share from '../../../assets/shareIcon.svg';
 import heartIcon from '../../../assets/heartIcon.png';
 import favouriteIcon from '../../../assets/favourite.png';
 import RatingReview from '../../../Component/RatingReview';
@@ -38,6 +38,7 @@ import selectedradio from '../../../assets/selectedradio.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
 import appMsg from '../../../Constants/AppMessages';
+import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -371,7 +372,7 @@ export default class EventDetail extends Component {
             <Image style={{height: 20, width: 20}} resizeMode={'center'} source={copy}/>
           </View>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Image style={{height: 20, width: 20}} resizeMode={'center'} source={share}/>
+            <SvgUri width={20} height={20} source={share} fill={colors.AppTheme} />
           </View>
         </View>
       </View>)

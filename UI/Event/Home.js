@@ -1,7 +1,5 @@
-
 import React, { Component } from 'react';
 import {
-  Alert,
   RefreshControl,
   FlatList,
   Text,Image,View,
@@ -18,13 +16,14 @@ import APPURL from './../../Constants/URLConstants';
 import networkService from './../../NetworkManager/NetworkManager';
 import HeaderView from '../../Component/Header'
 import FastImage from 'react-native-fast-image'
-import moreIcon from './../../assets/more.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import EventView from '../../Component/EventView';
 import Deeplinking from '../../HelperClasses/Deeplinking';
 import {firebaseAuth} from '../../Firebase/FirebaseAuth'
 import LocationPermission from '../../HelperClasses/LocationPermission';
+import moreSVG from '../../assets/more.svg';
+import SvgUri from 'react-native-svg-uri';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -153,8 +152,14 @@ export default class Home extends Component {
     if (index < 8) {
       if (this.state.categoryArray[index]){
         let dic = this.state.categoryArray[index];
+        var imageView = [];
+        if (index == 7) {
+          imageView.push( <SvgUri width={30} height={30} source={moreSVG} fill={colors.AppTheme}/>)
+        } else {
+          imageView.push(<Image style={styles.imageThumbnail} source={{url: dic['image_path']}} resizeMode={'contain'}/>)
+        }
         return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(dic,index)}>
-          <Image style={styles.imageThumbnail} source={ index == 7 ? moreIcon : {url: dic['image_path']}} resizeMode={'contain'}/>
+            {imageView}
           <View style={{height: 5}}/>
           <Text style={{textAlign: 'center', fontSize: 12}}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
         </TouchableOpacity>)

@@ -1,5 +1,6 @@
 module.exports = {
   loggedIn:false,
+  appInstalled: false,
   lat:30.76,
   long:76.56,
   authKey: '',
@@ -11,6 +12,8 @@ module.exports = {
   userName: '',
   appHomeTitle: '',
   profilePic: '',
+  primaryColor: '#13B58C',
+  secondaryColor: '#13B58C',
   firebaseToken: '',
   defaultCurrency: '',
   intoScreen: [],

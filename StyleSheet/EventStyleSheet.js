@@ -4,7 +4,6 @@ var React = require('react-native');
 var { StyleSheet, } = React;
 import colors from '../CommonClasses/AppColor';
 
-
 module.exports = StyleSheet.create({
   followContainerStyle: {
     backgroundColor: colors.AppTheme,

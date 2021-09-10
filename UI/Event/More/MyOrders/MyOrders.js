@@ -138,9 +138,14 @@ export default class MyOrders extends Component {
     </View>)
   }
   render() {
+    var value = 'My Bookings';
+    let { title } = this.props.route.params;
+    if (title != undefined) {
+      value = title;
+    }
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'My Bookings'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{height: '94%'}}>

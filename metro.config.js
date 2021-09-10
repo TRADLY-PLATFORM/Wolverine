@@ -14,4 +14,13 @@ module.exports = {
       },
     }),
   },
+  resolver: {
+    sourceExts: ["js", "ts", "jsx", "tsx"],
+  },
+  sourceExts: [ "js","jsx","svg","ts","tsx"]
 };
+module.exports = {
+  resolver: {
+    sourceExts: ["js", "ts", "jsx", "tsx", "json"],
+  }
+}
