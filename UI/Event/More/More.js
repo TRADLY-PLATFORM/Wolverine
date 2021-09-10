@@ -104,13 +104,13 @@ export default class More extends Component {
     );
   }
   didSelectList = ({ index }) => {
-    if (index == 5) {
+    if (index == 4) {
       Linking.openURL(appConstant.termCondition);
     }
-    else if (index == 6) {
+    else if (index == 5) {
       Linking.openURL(appConstant.privacyURL);
     }
-    else if (index == 7) {
+    else if (index == 6) {
       this.props.navigation.navigate(NavigationRoots.InviteFriend);
     } else {
       if (appConstant.loggedIn) {
@@ -136,7 +136,7 @@ export default class More extends Component {
           } else {
             this.props.navigation.navigate(NavigationRoots.CreateStore);
           }
-        }else if (index == 4) {
+        }else if (index == 42) {
           if (this.state.accountId != 0) {
             this.props.navigation.navigate(NavigationRoots.MyOrders,{
               title:constantArrays.menuArray[index]
