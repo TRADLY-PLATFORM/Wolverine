@@ -104,46 +104,47 @@ export default class More extends Component {
     );
   }
   didSelectList = ({ index }) => {
-    if(appConstant.loggedIn) {
-      if (index == constantArrays.menuArray.length - 1) {
-        this.logoutBtnAction()
-      } else if (index == 0) {
-        if (this.state.accountId != 0) {
-          this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
-        } else {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        }
-      } else if (index == 1) {
-        if (this.state.accountId == 0) {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        } else {
-          this.props.navigation.navigate(NavigationRoots.PaymentScreen);
-        }
-      } else if (index == 2) {
-        this.props.navigation.navigate(NavigationRoots.MyOrders);
-      } else if (index == 3) {
-        if (this.state.accountId != 0) {
-          this.props.navigation.navigate(NavigationRoots.MySale);
-        } else {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        }
-      }
-      else if (index == 4) {
-        Linking.openURL(appConstant.termCondition);
-      }
-      else if (index == 5) {
-        Linking.openURL(appConstant.privacyURL);
-      }
-      else if (index == 6) {
-        this.props.navigation.navigate(NavigationRoots.InviteFriend);
-      }
+    if (index == 5) {
+      Linking.openURL(appConstant.termCondition);
+    }
+    else if (index == 6) {
+      Linking.openURL(appConstant.privacyURL);
+    }
+    else if (index == 7) {
+      this.props.navigation.navigate(NavigationRoots.InviteFriend);
     } else {
-      if (index == 3) {
-        Linking.openURL(appConstant.termCondition);
-      } else if (index == 4) {
-        Linking.openURL(appConstant.privacyURL);
-      } else if (index == 5) {
-        this.props.navigation.navigate(NavigationRoots.InviteFriend);
+      if (appConstant.loggedIn) {
+        if (index == constantArrays.menuArray.length - 1) {
+          this.logoutBtnAction()
+        } else if (index == 0) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        } else if (index == 1) {
+          if (this.state.accountId == 0) {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          } else {
+            this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+          }
+        } else if (index == 2) {
+          this.props.navigation.navigate(NavigationRoots.MyOrders);
+        } else if (index == 3) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MySale);
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        }else if (index == 4) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MyOrders,{
+              title:constantArrays.menuArray[index]
+            });
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        }
       } else {
         this.props.navigation.navigate(NavigationRoots.SignIn)
       }

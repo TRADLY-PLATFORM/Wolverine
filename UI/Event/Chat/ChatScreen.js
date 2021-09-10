@@ -13,12 +13,10 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import sample from '../../../assets/dummy.png';
-import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import attachIcon from '../../../assets/attachIcon.png';
 import sendIcon from '../../../assets/sendIcon.png';
 import LinearGradient from 'react-native-linear-gradient';

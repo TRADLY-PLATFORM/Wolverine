@@ -3,7 +3,7 @@
 var React = require('react-native');
 var { StyleSheet, } = React;
 import colors from '../CommonClasses/AppColor';
-
+import appConstant from '../Constants/AppConstants';
 
 module.exports = StyleSheet.create({
   logoImageViewStyle:{
@@ -76,7 +76,7 @@ module.exports = StyleSheet.create({
   },
   headerViewStyle: {
     height: 60,
-    backgroundColor: colors.AppTheme,
+    backgroundColor: appConstant.primaryColor,
     justifyContent: 'space-between',
     padding: 16,
     flexDirection: 'row',

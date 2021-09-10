@@ -15,6 +15,7 @@ import closeIcon from '../assets/close.png'
 import menuIcon from '../assets/menu.png'
 import searchIcon from '../assets/search.png'
 import heartEmptyIcon from '../assets/heartEmpty.png'
+import colors from '../CommonClasses/AppColor';
 
 export default class AppHeader extends Component {
   static propTypes = {

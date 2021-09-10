@@ -34,7 +34,6 @@ export default class SignIn extends Component {
     }
   }
   componentDidMount() {
-    
     this.checkPermission()
     this.getSystemDetail();
   }
