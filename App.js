@@ -73,9 +73,9 @@ export default class App extends Component {
       appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
-      colors.AppTheme = into['app_color_primary'] || colors.AppTheme;
-      colors.GradientBottom = into['app_color_primary'] || colors.AppTheme;
-      colors.GradientTop = into['app_color_secondary'] || colors.GradientTop;
+      // colors.AppTheme = into['app_color_primary'] || colors.AppTheme;
+      // colors.GradientBottom = into['app_color_primary'] || colors.AppTheme;
+      // colors.GradientTop = into['app_color_secondary'] || colors.GradientTop;
       this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
     }
@@ -111,12 +111,12 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: colors.AppTheme,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navigationContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor:  colors.AppTheme,
   },
 });

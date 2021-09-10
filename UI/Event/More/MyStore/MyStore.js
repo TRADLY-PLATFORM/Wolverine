@@ -22,6 +22,7 @@ import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
 import messageIcon from '../../../../assets/messageIcon.svg';
+import message from '../../../../assets/message.png';
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
 import shareIcon from '../../../../assets/shareIcon.svg';
@@ -297,7 +298,8 @@ export default class MyStore extends Component {
     } else {
       return (<View>
         <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
-          <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} />
+          {/* <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} /> */}
+          <Image source={message} style={{ height: 20, width: 20 }} resizeMode={'center'} />
         </TouchableOpacity>
       </View>)
     }
