@@ -225,13 +225,7 @@ export default class EventDetail extends Component {
       cDate = changeDateFormat(this.state.eventDetailData['created_at'] * 1000, 'ddd, MMM D');
 
     }
-    var likeView = [];
-    if (!this.state.itsOwnEvent) {
-      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
-      likeView.push(
-        <Image style={{ width: 40, height: 40 }} source={icon} />
-      )
-    }
+   
     return (<View style={{ aspectRatio: 1 / 1 }}>
       <Pages>
         {views}
@@ -586,6 +580,13 @@ export default class EventDetail extends Component {
     }
   }
   renderHeaderView = () => {
+    var likeView = [];
+    if (!this.state.itsOwnEvent) {
+      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
+      likeView.push(
+        <Image style={{width: 30, height: 30, marginTop: -3}} source={icon} />
+      )
+    }
     return (<View> 
       <View style={commonStyles.headerViewStyle}>
         <StatusBar barStyle="light-content" />
@@ -599,7 +600,7 @@ export default class EventDetail extends Component {
         </View>
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={() => this.likeBtnAction()}>
-          <Image style={{height: 25, width: 25}} source={favouriteIcon} />
+          {likeView}
         </TouchableOpacity>
         <View style={{width: 10}}/>
         <TouchableOpacity onPress={() => this.moreBtnAction()}>
