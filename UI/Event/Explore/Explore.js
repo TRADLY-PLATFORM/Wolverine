@@ -453,7 +453,7 @@ export default class Explore extends Component {
             <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
           </View>
         </TouchableOpacity>
-        <View style={{height: 170, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280 }}>
+        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280}}>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
