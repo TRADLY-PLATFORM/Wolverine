@@ -17,14 +17,15 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import constantArrays from '../../../Constants/ConstantArrays';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
 import Slider from "react-native-sliders";
 import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
+import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
@@ -486,7 +487,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ timeValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[0].toFixed(0)}</Text>
@@ -543,7 +544,9 @@ export default class Filter extends Component {
           <View style={{ width: 200, flexDirection: 'row', }}>
             {startView}
           </View>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -561,7 +564,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ distanceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{0}</Text>
@@ -582,7 +585,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ priceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[0].toFixed(0)}</Text>
@@ -607,7 +610,9 @@ export default class Filter extends Component {
       <TouchableOpacity onPress={() => this.setState({ selectedCategoryIndex: index })}>
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -630,7 +635,9 @@ export default class Filter extends Component {
       <TouchableOpacity onPress={() => this.didSelectAttributes(item)}>
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray, width: '85%' }}> {item['name']} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -791,7 +798,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     borderRadius: 13,
-    backgroundColor: colors.AppGreen,
+    backgroundColor: colors.AppTheme,
   },
   startViewCellStyle: {
     justifyContent: 'space-between',

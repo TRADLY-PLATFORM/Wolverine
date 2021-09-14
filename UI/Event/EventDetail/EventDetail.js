@@ -33,8 +33,8 @@ import heartIcon from '../../../assets/heartIcon.png';
 import favouriteIcon from '../../../assets/favourite.png';
 import RatingReview from '../../../Component/RatingReview';
 import emptyStar from '../../../assets/emptyStar.png';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
 import appMsg from '../../../Constants/AppMessages';
@@ -202,8 +202,11 @@ export default class EventDetail extends Component {
     var views = []
     var cDate = "";
     for (let a = 0; a < this.state.imagesArray.length; a++) {
-      views.push(<View>
-        <FastImage style={{ aspectRatio: 16 / 9 }} source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
+      views.push(<View style={{backgroundColor: colors.LightUltraGray}}>
+        <FastImage 
+        resizeMode={'contain'}
+          style={{ aspectRatio: 16 / 9 }} 
+          source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
       </View>)
       cDate = changeDateFormat(this.state.eventDetailData['created_at'] * 1000, 'ddd, MMM D');
 
@@ -355,7 +358,9 @@ export default class EventDetail extends Component {
           <Text style={eventStyles.subTitleStyle}>{item['description']}</Text>
         </View>
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     </View>)
