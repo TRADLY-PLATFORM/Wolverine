@@ -18,17 +18,21 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import filterGrayIcon from '../../../assets/filterGrayIcon.png';
 import sortIcon from '../../../assets/sortIcon.png';
-import viewMapIcon from '../../../assets/viewMapIcon.png';
+import viewMapIcon from '../../../assets/viewMap.svg';
 import APPURL from '../../../Constants/URLConstants';
+
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
+import searchSvg from '../../../assets/searchSvg.svg';
+
 import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
 import ExploreListItem from '../../../Component/ExploreListItem'
 import SearchBar from 'react-native-search-bar';
+import SvgUri from 'react-native-svg-uri';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
@@ -235,11 +239,15 @@ export default class Explore extends Component {
   /*  UI   */
   renderSortItemCell = ({item, index }) => {
     let check = index == this.state.sortSelectedIndex ? true : false
+    var views = [];
+    views.push(<View style={commonStyles.nextIconStyle}> 
+        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+    </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
         <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          {views}
         </View>
       </TouchableOpacity>
     )
@@ -368,7 +376,7 @@ export default class Explore extends Component {
   renderViewMaBtnView = () => {
     return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
       <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({showMap: !this.state.showMap})}>
-      <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
+        <SvgUri width={20} height={20} source={viewMapIcon} fill={colors.AppTheme} />
       <View style={{width: 5}}/>
       <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
       </TouchableOpacity>
@@ -388,39 +396,16 @@ export default class Explore extends Component {
     return markerView;
    }
   renderMainView = () => {
-      if (this.state.showMap) {
-        return (<View style={{ height: windowHeight / 0.74, width: windowWidth }}>
-          <View style={{flex: 1}}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={eventStyles.mapStyle}
-              initialRegion={{
-                latitude: appConstant.lat,
-                longitude: appConstant.long,
-                latitudeDelta: 0.015,
-                longitudeDelta: 0.0121,
-              }}
-            >
-              {this.renderMarker()}
-            </MapView>
-          </View>
-          <View style={{ marginTop: - 200, flex: 1, zIndex: 12 }}>
-            {this.renderViewMaBtnView()}
-            {this.renderListView()}
-          </View>
-        </View>)
-      } else {
-        return (<View style={{flex:1 }}>
-          <View>
-            {this.renderHeaderView()}
-            {this.renderDateListView()}
-          </View>
-          <View style={{ height: windowHeight / 1.32 }}>
-            {this.renderListView()}
-            {this.renderViewMaBtnView()}
-          </View>
-        </View>)
-      }
+    return (<View style={{ flex: 1 }}>
+      <View>
+        {this.renderHeaderView()}
+        {this.renderDateListView()}
+      </View>
+      <View style={{ height: windowHeight / 1.32 }}>
+        {this.renderListView()}
+        {this.renderViewMaBtnView()}
+      </View>
+    </View>)
   }
   renderSearchBar = () => {
     if (this.state.showSearchBar) {
@@ -446,6 +431,34 @@ export default class Explore extends Component {
   }
 
   render() {
+    if (this.state.showMap) {
+      return (<View style={{ flex:1 }}>
+        <View style={{flex: 1, zIndex:10, height: windowHeight}}>
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            style={eventStyles.mapStyle}
+            initialRegion={{
+              latitude: appConstant.lat,
+              longitude: appConstant.long,
+              latitudeDelta: 0.015,
+              longitudeDelta: 0.0121,
+            }}
+          >
+            {this.renderMarker()}
+          </MapView>
+        </View>
+        <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
+          <Text>Search..</Text>
+          <View>
+            <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
+          </View>
+        </TouchableOpacity>
+        <View style={{height: 170, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280 }}>
+          {this.renderViewMaBtnView()}
+          {this.renderListView()}
+        </View>
+      </View>)
+    }
     return (
       <SafeAreaView style={styles.Container}>
         {this.renderSearchBar()}
@@ -537,6 +550,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+  searchBtnStyle: {
+    height: 40,
+    width: windowWidth - 40,
+    zIndex: 11,
+    position: 'absolute',
+    marginTop: 60,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 20,
+    backgroundColor: colors.AppWhite,
+    paddingRight: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    paddingLeft: 16, 
+  }
 
 });
 

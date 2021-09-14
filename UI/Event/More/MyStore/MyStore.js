@@ -22,15 +22,13 @@ import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
 import messageIcon from '../../../../assets/messageIcon.svg';
-import message from '../../../../assets/message.png';
+import notesIcon from '../../../../assets/clipboardNotes.svg';
+
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
 import shareIcon from '../../../../assets/shareIcon.svg';
-import product from '../../../../assets/product.png';
-import productGray from '../../../../assets/productGray.png';
-import info from '../../../../assets/info.png';
-import infoGreen from '../../../../assets/infoGreen.png';
-import plusIcon from '../../../../assets/plusIcon.png';
+import productIcon from '../../../../assets/product.svg';
+import plusIcon from '../../../../assets/plusIcon.svg';
 import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
@@ -298,8 +296,7 @@ export default class MyStore extends Component {
     } else {
       return (<View>
         <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
-          {/* <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} /> */}
-          <Image source={message} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+          <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} />
         </TouchableOpacity>
       </View>)
     }
@@ -308,7 +305,7 @@ export default class MyStore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
         style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <Image source={this.state.segmentIndex == 0 ? product : productGray} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+        <SvgUri width={20} height={20} source={productIcon} fill={this.state.segmentIndex == 0  ? colors.AppTheme :colors.Lightgray} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
           Classes
@@ -316,7 +313,7 @@ export default class MyStore extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
         style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <Image source={this.state.segmentIndex == 0 ? info : infoGreen} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+        <SvgUri width={20} height={20} source={notesIcon} fill={ this.state.segmentIndex == 0  ? colors.Lightgray :colors.AppTheme} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
           About
@@ -332,7 +329,7 @@ export default class MyStore extends Component {
         </View>
         <View style={{ height: 20, flexDirection: 'row' }}>
           <TouchableOpacity onPress={() => this.addEventBtnAction()}>
-            <Image source={plusIcon} style={{ height: 30, width: 30 }}/>
+            <SvgUri width={24} height={24} source={plusIcon} fill={colors.AppTheme} />
           </TouchableOpacity>
         </View>
       </View>)

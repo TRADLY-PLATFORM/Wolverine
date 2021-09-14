@@ -15,11 +15,7 @@ import NavigationRoots from '../../Constants/NavigationRoots';
 import HeaderView from '../../Component/Header'
 import colors from '../../CommonClasses/AppColor';
 import commonStyles from '../../StyleSheet/UserStyleSheet';
-import sample from '../../assets/dummy.png';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
-import timeIcon from '../../assets/timeIcon.png';
-import starIcon from '../../assets/star.png';
-import heartIcon from '../../assets/heartIcon.png';
 import filterGrayIcon from '../../assets/filterGrayIcon.png';
 import sortIcon from '../../assets/sortIcon.png';
 import APPURL from '../../Constants/URLConstants';
@@ -28,14 +24,14 @@ import appConstant from '../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../assets/radio.png';
-import selectedradio from '../../assets/selectedradio.png';
-import {getTimeFormat,changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/SingleTon'
+import radio from '../../assets/radio.svg';
+import selectedradio from '../../assets/radioChecked.svg';
+import {changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/SingleTon'
 import ExploreListItem from '../../Component/ExploreListItem'
 import constantArrays from '../../Constants/ConstantArrays';
+import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 
 
 export default class EventList extends Component {
@@ -203,7 +199,9 @@ export default class EventList extends Component {
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
         <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )

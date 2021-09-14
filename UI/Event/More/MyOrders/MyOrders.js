@@ -139,10 +139,10 @@ export default class MyOrders extends Component {
   }
   render() {
     var value = 'My Bookings';
-    let { title } = this.props.route.params;
-    if (title != undefined) {
-      value = title;
-    }
+    // let { title } = this.props.route.params;
+    // if (title != undefined) {
+    //   value = title;
+    // }
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>

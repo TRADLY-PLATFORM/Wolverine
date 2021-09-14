@@ -76,7 +76,7 @@ module.exports = StyleSheet.create({
   },
   headerViewStyle: {
     height: 60,
-    backgroundColor: appConstant.primaryColor,
+    backgroundColor: appConstant.AppTheme,
     justifyContent: 'space-between',
     padding: 16,
     flexDirection: 'row',

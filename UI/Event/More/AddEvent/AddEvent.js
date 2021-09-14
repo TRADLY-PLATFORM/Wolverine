@@ -26,15 +26,16 @@ import cancelIcon from '../../../../assets/cancel.png';
 import forwardIcon from '../../../../assets/forward.png';
 import upload from '../../../../assets/upload.png';
 import Tags from "react-native-tags";
-import calendarIcon from '../../../../assets/calendarIcon.png';
+import calendarIcon from '../../../../assets/calendar.png';
 import deleteIcon from '../../../../assets/deleteIcon.png';
-import editGreen from '../../../../assets/editGreen.png';
+import editGreen from '../../../../assets/editGreen.svg';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
 import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
+import SvgUri from 'react-native-svg-uri';
 
 var viewload = false;
 
@@ -1117,12 +1118,14 @@ export default class AddEvent extends Component {
     // console.log('item', item)
     return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
-        <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
+        <View style={styles.calendarViewStyle}>
+            <Image style={{ width: 20, height:23, marginRight:1, marginTop: -2}} source={calendarIcon} />
+        </View>
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
             <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
-              <Image style={{ width: 12, height: 12, marginLeft: 10 }} source={editGreen} />
+              <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
@@ -1298,6 +1301,14 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
+  },
+  calendarViewStyle:{
+    height: 40,
+    width: 40, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: colors.AppTheme,
+     borderRadius: 20
   },
   imageSelectedStyle: {
     height: 120,
