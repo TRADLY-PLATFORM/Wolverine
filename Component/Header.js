@@ -27,17 +27,13 @@ export default class AppHeader extends Component {
     doneBtnAction: PropTypes.func,
     doneBtnTitle: PropTypes.string,
     backBtnIcon: PropTypes.string,
+    multipleBtn:PropTypes.bool, 
+    secondBtnAction: PropTypes.func,
   };
 
   renderDoneBtn = () => {
     if (this.props.showDoneBtn) {
-      if (this.props.doneBtnTitle == 'More') {
-        return <View>
-          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-          <Image style={commonStyle.backBtnStyle} resizeMode='contain'  source={menuIcon} />
-        </TouchableOpacity>
-        </View>
-      }else if (this.props.doneBtnTitle == 'Search') {
+      if (this.props.doneBtnTitle == 'Search') {
         return <View>
           <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
           <Image style={{height: 25, width: 25}} resizeMode='contain'  source={searchIcon} />
