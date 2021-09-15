@@ -125,7 +125,8 @@ export default class ConfirmBooking extends Component {
   }
   successAlert() {
     this.setState({ showCAlert: false,isVisible: false })
-    this.props.navigation.popToTop();
+    this.props.navigation.navigate(NavigationRoots.MyOrders);
+    
   }
   /*  Stripe Payment Gateway */
   initializePaymentSheet = async () => {

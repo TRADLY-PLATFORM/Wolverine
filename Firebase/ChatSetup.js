@@ -35,6 +35,7 @@ export const createChat = (receiverId, receiverName, profilepic, callback) => {
 
 export const initializeChat = (receiverId, receiverName, profilepic, cID) => {
   let chatRoomId = Date.now();
+
   var user = {};
   user[`${appConstant.userId}`] = true;
   user[`${receiverId}`] = true;

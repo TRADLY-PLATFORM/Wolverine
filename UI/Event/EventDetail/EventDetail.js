@@ -170,18 +170,20 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
+  userBtnAction(id) {
+    this.props.navigation.navigate(NavigationRoots.MyStore, {accId :id});
+  }
   moreBtnAction() {
     if (appConstant.loggedIn) {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Edit", "Delete", "Cancel"],
-          destructiveButtonIndex: 2,
-          cancelButtonIndex: 2,
-          userInterfaceStyle: 'light'
-        },
+      ActionSheetIOS.showActionSheetWithOptions({
+        options: ["Edit", "Delete", "Cancel"],
+        destructiveButtonIndex: 2,
+        cancelButtonIndex: 2,
+        userInterfaceStyle: 'light'
+      },
         buttonIndex => {
           if (buttonIndex === 0) {
-            const {id} = this.props.route.params;
+            const { id } = this.props.route.params;
             this.props.navigation.navigate(NavigationRoots.AddEvent, {
               accountId: appConstant.accountID,
               listingID: id,
@@ -270,22 +272,16 @@ export default class EventDetail extends Component {
   renderUserDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData['account'];
-      let follow = item['following'] ? 'Following' : 'Follow'
       var photo = item['images'] ? item['images'] : [];
-      return (<View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems : 'center' }}>
+      return (<TouchableOpacity onPress={() => this.userBtnAction(item['id'])}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+          <View style={{ flexDirection: 'row', alignItems : 'center'}}>
             <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
             <View style={{ width: 10 }} />
             <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
           </View>
-          <View>
-            <View>
-              <Text style={{fontSize: 14, fontWeight: '600', color: colors.AppTheme}}>{follow}</Text>
-            </View>
-          </View>
         </View>
-      </View>)
+      </TouchableOpacity>)
     } else {
       return <View />
     }
@@ -554,7 +550,7 @@ export default class EventDetail extends Component {
   }
   renderMainView = () => {
     if (this.state.loadData) {
-      return (<View style={{height: '100%'}}>
+      return (<View style={{ height: '100%' }}>
         <View style={styles.commonViewStyle}>
           {this.renderEventDetail()}
         </View>
@@ -563,9 +559,13 @@ export default class EventDetail extends Component {
           {this.renderVariantListView()}
         </View>
         <View style={styles.commonViewStyle}>
+          {this.renderUserDetail()}
+        </View>
+        <View style={{ height: 10 }} />
+        <View style={styles.commonViewStyle}>
           {this.renderTimeAddressDetail()}
         </View>
-         <View style={{ height: 10 }} />
+        <View style={{ height: 0 }} />
         <View>
           {this.renderArrtibutes()}
         </View>

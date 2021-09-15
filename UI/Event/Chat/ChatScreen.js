@@ -44,28 +44,34 @@ export default class ChatScreen extends Component {
       chatArray: [],
       message: '',
       chatRoomId: '',
+      receiverId:'',
       titleName: '',
     }
   }
   componentDidMount() {
     this.setupChat() 
   }
+  componentWillUnmount(){
+    this.state.chatArray = [];
+    this.setState({updateUI: !this.state.updateUI})
+  }
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
-    console.log('receiverData',receiverData)
     if (receiverData != undefined) {
       let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
       this.state.titleName = name;
       let profile = `${receiverData['profile_pic']}`;
       var UID = receiverData['id'] 
+      this.state.receiverId = UID;
       createChat(UID, name, profile, chatRoomId => {
         this.state.chatRoomId = chatRoomId
         this.getChatThread(chatRoomId);
       })
     } else {
-      let { chatRoomId,name } = this.props.route.params;
+      let { chatRoomId,name,receiverId } = this.props.route.params;
       this.state.chatRoomId = chatRoomId
       this.state.titleName = name;
+      this.state.receiverId = receiverId;
       this.getChatThread(chatRoomId);
     }
     this.setState({updateUI: !this.state.updateUI})
@@ -79,7 +85,7 @@ export default class ChatScreen extends Component {
       this.setState({updateUI: !this.state.updateUI})
     });
     setTimeout(() => {
-      if (this.state.chatArray != 0){
+      if (this.state.chatArray != 0) {
         this.FlatListRef.scrollToEnd();
       }
     }, 1500);
@@ -88,7 +94,7 @@ export default class ChatScreen extends Component {
 
   sendBtnAction(){
     let chatRoomId = this.state.chatRoomId;
-    let receiverId = '3f8e07a9-e509-4f2a-a1d3-0d4f9f524d54';
+    let receiverId = this.state.receiverId;
     let sMsg = {
       "message":this.state.message,
       "timeStamp": Date.now(),

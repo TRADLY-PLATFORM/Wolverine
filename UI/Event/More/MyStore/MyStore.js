@@ -338,19 +338,23 @@ export default class MyStore extends Component {
     }
   }
   renderAboutView = () => {
-    return (<View style={{ margin: 16, marginTop: 5 }}>
-      <View style={{ borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite }}>
-        <Text style={{ padding: 5, fontSize: 12 }}>{this.state.storeDetail['description']}</Text>
-        {this.renderArrtibutes()}
-      </View>
-      <View style={{ height: 20 }} />
-      {/* {this.renderRateStoreView()}
-      <View style={{ height: 20 }} />
-      <RatingReview /> */}
-      {/* {this.renderRatingReviewView()} */}
-      {/* <View style={{ height: 20 }} />
-      {this.renderReviewView()} */}
-    </View>)
+    if (this.state.storeDetail['description']) {
+      return (<View style={{ margin: 16, marginTop: 5 }}>
+        <View style={{ borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite }}>
+          <Text style={{ padding: 5, fontSize: 12 }}>{this.state.storeDetail['description']}</Text>
+          {this.renderArrtibutes()}
+        </View>
+        <View style={{ height: 20 }} />
+        {/* {this.renderRateStoreView()}
+        <View style={{ height: 20 }} />
+        <RatingReview /> */}
+        {/* {this.renderRatingReviewView()} */}
+        {/* <View style={{ height: 20 }} />
+        {this.renderReviewView()} */}
+      </View>)
+    }else {
+      return <View />
+    }
   }
   renderArrtibutes = () => {
     if (this.state.storeDetail['attributes']) {
