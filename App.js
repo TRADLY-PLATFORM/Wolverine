@@ -19,6 +19,10 @@ import logoIcon from './assets/classbubslogo.png';
 import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
+import Spinner from 'react-native-loading-spinner-overlay';
+import commonStyles from './StyleSheet/UserStyleSheet'
+
+
 export default class App extends Component {
 
   constructor(props) {
@@ -98,7 +102,8 @@ export default class App extends Component {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}>
         <View>
-          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} />
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+          {/* <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} /> */}
           <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>
