@@ -76,6 +76,7 @@ export default class ConversationList extends Component {
     this.props.navigation.navigate(NavigationRoots.ChatScreen, {
       chatRoomId: chatRoomId,
       name: item['receiver'],
+      receiverId:item['receiverId'],
     });
   }
   /*  UI   */
