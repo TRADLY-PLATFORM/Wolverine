@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, LogBox, View, Image} from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
@@ -70,9 +70,11 @@ export default class App extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
+      console.log('into -- = >', into)
       appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
+      appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       // colors.AppTheme = into['app_color_primary'] || colors.AppTheme;
       // colors.GradientBottom = into['app_color_primary'] || colors.AppTheme;
       // colors.GradientTop = into['app_color_secondary'] || colors.GradientTop;

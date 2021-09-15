@@ -11,6 +11,7 @@ module.exports = {
   userId: '',
   userName: '',
   appHomeTitle: '',
+  appVersion: '',
   profilePic: '',
   primaryColor: '#13B58C',
   secondaryColor: '#13B58C',

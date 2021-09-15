@@ -52,6 +52,7 @@ export default class MyOrders extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.myOrders}${this.state.pageNo}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['orders'];
+      console.log('pData == ',pData);
       if (pData.length != 0) {
         for(let objc of pData){
           this.state.myOrderArray.push(objc);
@@ -145,7 +146,7 @@ export default class MyOrders extends Component {
     // }
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{height: '94%'}}>

@@ -39,7 +39,6 @@ export default class More extends Component {
     // this.getMyStoreApi();
     this.props.navigation.addListener('focus', () => {
       if (appConstant.loggedIn) {
-          console.log('calling');
           this.setState({ isVisible: true })
           this.state.loadData = true
           this.getUserDetailApi();
@@ -175,7 +174,6 @@ export default class More extends Component {
     </TouchableOpacity>
   }
   renderUserInfo = () => {
-    console.log(appConstant.loggedIn);
     if(appConstant.loggedIn) {
       return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
         <View style={{ marginLeft: 10}}>
@@ -207,9 +205,12 @@ export default class More extends Component {
                 <this.renderUserInfo />
               </View>
             </View>
-            <View style={{ backgroundColor: colors.AppWhite, height: '80%', }}>
+            <View style={{ backgroundColor: colors.LightBlueColor, height: '74%', justifyContent: 'space-between'}}>
               <View style={styles.listContainerView} >
                 <this.renderListView />
+              </View>
+              <View style={{height: 50,alignItems: 'center'}}>
+                <Text>{appConstant.appVersion}</Text>
               </View>
             </View>
           </View>
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   listContainerView: {
-    height: '150%',
+    height: '90%',
     marginTop: -100,
     backgroundColor: colors.AppWhite,
     margin: 20,

@@ -52,7 +52,6 @@ export default class ChatScreen extends Component {
   }
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
-    console.log('receiverData',receiverData)
     if (receiverData != undefined) {
       let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
       this.state.titleName = name;
