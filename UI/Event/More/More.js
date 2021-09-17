@@ -102,6 +102,11 @@ export default class More extends Component {
       ],
     );
   }
+  // rateAppBtnAction() {
+  //   Linking.canOpenURL(link).then(supported => {
+  //     supported && Linking.openURL(link);
+  //   }, (err) => console.log(err));
+  // }
   didSelectList = ({ index }) => {
     if (index == 4) {
       Linking.openURL(appConstant.termCondition);

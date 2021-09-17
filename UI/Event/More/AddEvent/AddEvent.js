@@ -73,12 +73,16 @@ export default class AddEvent extends Component {
       selectedVariantIndex: 0,
       showCAlert:false,
       coordinates:{},
+      hideOfferPrice:false,
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.loadCategoryApi()
-    this.getCurrencyApi();
+    this.props.navigation.addListener('focus', () => {
+      this.loadCategoryApi()
+      this.loadConfigApi()
+      this.getCurrencyApi()
+    })
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
@@ -107,6 +111,16 @@ export default class AddEvent extends Component {
   }
 
   /*  APIS Methods */
+  loadConfigApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      var configs = responseJson['data']['configs'];
+      console.log('configs ==>', configs);
+      this.setState({hideOfferPrice: configs['hide_offer_percent'] || false});
+
+    }
+    this.setState({dataLoad: true});
+  };
   loadEventDetailApi = async () => {
     this.setState({ isVisible: true })
     const {accId} = this.props.route.params;
@@ -1217,6 +1231,23 @@ export default class AddEvent extends Component {
       </View>
     </TouchableOpacity>
   }
+  renderOfferView = () => {
+    console.log('this.state.hideOfferPrice', this.state.hideOfferPrice);
+    if (this.state.hideOfferPrice) {
+      return (<View style={{ marginTop: 20 }}>
+        <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
+        <TextInput
+          style={commonStyles.addTxtFieldStyle}
+          placeholder={'Enter Offer Percentage'}
+          value={this.state.offerPrice.toString()}
+          keyboardType={'number-pad'}
+          onChangeText={value => this.setState({ offerPrice: value })}
+        />
+      </View>)
+    } else {
+      return <View />
+    }
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
@@ -1252,16 +1283,7 @@ export default class AddEvent extends Component {
                 <this.renderTitleLbl title={'Price'} />
                 <this.renderPriceView />
               </View>
-              <View style={{ marginTop: 20 }}>
-                <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
-                <TextInput
-                  style={commonStyles.addTxtFieldStyle}
-                  placeholder={'Enter Offer Percentage'}
-                  value={this.state.offerPrice.toString()}
-                  keyboardType={'number-pad'}
-                  onChangeText={value => this.setState({ offerPrice: value })}
-                />
-              </View>
+              <this.renderOfferView />
               <View style={{ height: 20 }} />
               <this.renderTitleLbl title={'Ticket Limits'} />
               <TextInput

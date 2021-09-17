@@ -38,7 +38,7 @@ function AppTabbar() {
           iconName = require('../assets/homeIcon.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'Explore') {
-          iconName = require('../assets/exploreIcon.svg');
+          iconName = require('../assets/searchSvg.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'List') {
           iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');

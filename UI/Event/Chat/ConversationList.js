@@ -58,14 +58,15 @@ export default class ConversationList extends Component {
       if (snapshot.val() != null) {
         let object = Object.keys(snapshot.val())
         let dataObj = Object.values(snapshot.val())
-        for (let o = 0; o <dataObj.length; o++) {
+        for (let o = 0; o < dataObj.length; o++) {
           var dic = dataObj[o];
           dic['chatRoomId'] = object[o];
-          if (dataObj[o]['lastMessage'].length != 0) {
-            this.state.conversationArray.push(dic);
+          if (dataObj[o]['lastMessage']) {
+            if (dataObj[o]['lastMessage'].length != 0) {
+              this.state.conversationArray.push(dic);
+            }
           }
         }
-       
       }
       this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
     });
