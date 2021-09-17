@@ -54,7 +54,6 @@ export default class MyStore extends Component {
       itsFollowing: false,
       stopPagination: false,
       dataLoad: false,
-
     }
   }
 
