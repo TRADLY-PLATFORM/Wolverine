@@ -61,6 +61,9 @@
 This React Native template provides a full fledged event marketplace app. With a few smaller customisation on strings used in the app, it can be personalised for other marketplace types as well. Progressively we will be adding the mobile app configs that will help you to customise things from [Tradly SuperAdmin](https://auth.sandbox.tradly.app/register)
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
+The below picture is how this react native app is done. There might be small features which may be missing but will be developed as per the Roadmap. 
+![Snip20210920_20](https://user-images.githubusercontent.com/61427976/133940821-f7df0364-9c41-4181-9179-2e14924e19c4.png)
+![Snip20210920_21](https://user-images.githubusercontent.com/61427976/133940825-8c63d4aa-5f9c-4e58-894d-e75f0fa00f55.png)
 
 ### Built With
 
@@ -119,6 +122,7 @@ Here is some client/app specific things you might need to change. 3rd party inte
     firebaseChatPath: '/abc_dev/',
     tenantID:'abc',
 ```
+
 
 <!-- ROADMAP -->
 ## Roadmap
