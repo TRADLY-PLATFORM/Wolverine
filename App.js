@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
+import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';

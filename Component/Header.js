@@ -39,13 +39,7 @@ export default class AppHeader extends Component {
           <Image style={{height: 25, width: 25}} resizeMode='contain'  source={searchIcon} />
         </TouchableOpacity>
         </View>
-      }else if (this.props.doneBtnTitle == 'Favourite') {
-        return <View>
-          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-          <Image style={{height: 25, width: 25}} resizeMode='contain'  source={heartEmptyIcon} />
-        </TouchableOpacity>
-        </View>
-      }else {
+      } else {
       return <View>
         <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: '700'}}>
