@@ -74,7 +74,7 @@ export default class Explore extends Component {
     }
   }
   componentDidMount() {
-    this.refs.searchBar.focus()
+    // this.refs.searchBar.focus()
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
@@ -84,6 +84,9 @@ export default class Explore extends Component {
     this.state.datesArray = getDatesArray();
     this.state.selectedDate = this.state.datesArray[0];
     this.callApi(this.state.params);
+  }
+  componentWillUnmount(){
+
   }
   callApi(param) {
     this.setState({ dataLoad: false })
@@ -303,7 +306,7 @@ export default class Explore extends Component {
   }
   renderListView = () => {
     if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '87%' }}>
+      return (<View style={{ margin: 5, height: '90%' }}>
         <FlatList
           data={this.state.eventsArray}
           renderItem={this.renderListCellItem}
@@ -375,10 +378,10 @@ export default class Explore extends Component {
   }
   renderViewMaBtnView = () => {
     return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
-      <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({showMap: !this.state.showMap})}>
+      <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({ showMap: !this.state.showMap })}>
         <SvgUri width={20} height={20} source={viewMapIcon} fill={colors.AppTheme} />
-      <View style={{width: 5}}/>
-      <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
+        <View style={{ width: 5 }} />
+        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
       </TouchableOpacity>
   </View>)
   }
@@ -488,19 +491,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.BorderColor,
-  },
-  viewOnMapBtnStyle: {
-    height: 40,
-    backgroundColor: colors.AppWhite,
-    flexDirection: 'row',
-    width: 130,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'gray',
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 5,
-    borderRadius: 20,
   },
   containerMapStyle: {
     margin:0,

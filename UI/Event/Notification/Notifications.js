@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
+    elevation: 10,
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     margin: 10,

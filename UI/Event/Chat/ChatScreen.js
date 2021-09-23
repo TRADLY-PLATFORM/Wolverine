@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 2, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     alignSelf: 'flex-start',
   },
   timeViewStyle: {
@@ -262,6 +263,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 2, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     alignSelf: 'flex-end',
   },
   bottomViewStyle: {
@@ -273,6 +275,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     margin: 5,
+    elevation: 10,
     flexDirection: 'row',
     width: '80%',
   },
@@ -289,6 +292,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     backgroundColor: colors.AppTheme,
     marginLeft: 10,
    },

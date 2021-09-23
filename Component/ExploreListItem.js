@@ -61,9 +61,9 @@ export default class ExploreListItem extends Component {
           <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
         </View>
         <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
+          <Image style={{ width: 15, height: 15, marginTop: -3 }} source={starIcon} />
           <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 ratings`}</Text>
+          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg}`}</Text>
         </View>
         <View style={{ margin: 5, marginTop: 5}}>
         <Text style={eventStyles.titleStyle}>{price}</Text>
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
     height: 130,
+    elevation: 10,
   },
   selectedImageStyle: {
     height: windowWidth/2.25,

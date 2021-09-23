@@ -100,7 +100,6 @@ export default class Home extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.home}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let hData = responseJson['data'];
-      console.log('Home api res ==== ', hData);
       this.state.promoBannerArray = hData['promo_banners'];
       this.state.categoryArray = hData['categories'];
       this.state.collectionsArray = hData['collections'];
@@ -288,21 +287,18 @@ export default class Home extends Component {
     return (<View> 
       <View style={commonStyles.headerViewStyle}>
         <StatusBar barStyle="light-content" />
-        <View style={{justifyContent: 'space-between', flexDirection: 'row', width: '100%'}}>
-        <View>
-        <TouchableOpacity style={{left:0}} onPress={() => this.props.navigation.goBack()}>
-          <Image 
-            style={commonStyles.backBtnStyle} resizeMode="contain" source={backIcon} />
-            </TouchableOpacity>
-            <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+          <View>
+            <Text style={commonStyles.headerTitleStyle}>{appConstant.appHomeTitle}</Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity onPress={() => this.notificationBtnAction()}>
-              <Image style={{ width: 30, height: 30}} source={notificationIcon} />
+              <Image style={{ width: 30, height: 30 }} source={notificationIcon} />
             </TouchableOpacity>
             <View style={{ width: 10 }} />
             <TouchableOpacity onPress={() => this.favouriteBtnAction()}>
-              <Image style={{ width: 30, height: 30}} source={heartEmptyIcon} />
+              <Image style={{ width: 30, height: 30 }} source={heartEmptyIcon} />
+
             </TouchableOpacity>
           </View>
         </View>
@@ -316,7 +312,6 @@ export default class Home extends Component {
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView
-        contentContainerStyle={{height: windowHeight}}
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
           style={{backgroundColor: colors.LightBlueColor}}
@@ -365,6 +360,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     flexDirection: 'row',
   },
   horizontalCellItemStyle: {
@@ -377,6 +373,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
   },
   selectedImageStyle: {
     height: windowWidth/2.25,

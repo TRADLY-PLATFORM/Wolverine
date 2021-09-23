@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     backgroundColor: colors.AppWhite,
     margin: 10,
     padding: 10,

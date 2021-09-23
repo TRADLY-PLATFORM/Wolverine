@@ -49,7 +49,11 @@ export default class MyOrders extends Component {
     this.getMyOrderApi();
   }
   getMyOrderApi = async () => {
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.myOrders}${this.state.pageNo}`, 'get','',appConstant.bToken,appConstant.authKey)
+    var path = `${APPURL.URLPaths.myOrders}${this.state.pageNo}`;
+    if (this.props.route.params) {
+      path = `${path}&account_id=${appConstant.accountID}`;
+    }
+    const responseJson = await networkService.networkCall(path, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['orders'];
       console.log('pData == ',pData);
@@ -73,9 +77,13 @@ export default class MyOrders extends Component {
    }
   /*  Buttons   */
   didSelect = (item) => {
-    this.props.navigation.navigate(NavigationRoots.OrderDetail,{
-      orderId:item['id'],
+    // if (this.props.route.params) {
+
+    // } else {
+    this.props.navigation.navigate(NavigationRoots.OrderDetail, {
+      orderId: item['id'],
     });
+    // }
   }
   /*  UI   */
   renderOrderListView = () => {
@@ -103,7 +111,7 @@ export default class MyOrders extends Component {
         <View style={{ marginLeft: 10, width: '80%'}}>
           <Text style={eventStyles.titleStyle}>{listD['title']}</Text>
           <View style={{height: 5}} />
-          <Text style={eventStyles.subTitleStyle}>{listD['description']}</Text>
+          <Text style={eventStyles.subTitleStyle} numberOfLines={2}>{listD['description']}</Text>
           <View style={{height: 5}} />
           <View style={{flexDirection: 'row'}}>
             <Text style={eventStyles.subTitleStyle}>{dateFr}</Text>
@@ -140,10 +148,10 @@ export default class MyOrders extends Component {
   }
   render() {
     var value = 'My Bookings';
-    // let { title } = this.props.route.params;
-    // if (title != undefined) {
-    //   value = title;
-    // }
+    if (this.props.route.params) {
+      let { title } = this.props.route.params;
+      value = title;
+    }
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
@@ -171,6 +179,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     backgroundColor: colors.AppWhite,
     margin: 10,
     padding: 10,
