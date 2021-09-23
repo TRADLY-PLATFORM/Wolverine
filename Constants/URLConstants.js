@@ -36,6 +36,7 @@ module.exports = {
     transaction: 'v1/transactions?per_page=30&super_type=2&page=',
     like: '/likes',
     follow: '/follow',
+    activities: 'v1/activities?page='
 
   }
 }

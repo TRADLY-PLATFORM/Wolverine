@@ -43,7 +43,7 @@ import MySale from '../UI/Event/More/MySale/MySale';
 import PayoutsScreen from '../UI/Event/More/MySale/PayoutsScreen';
 import InviteFriend from '../UI/Event/More/InviteFriends';
 import appConstant from '../Constants/AppConstants';
-
+import Notifications from '../UI/Event/Notification/Notifications';
 const Stack = createStackNavigator();
 
 export default class App extends Component {
@@ -88,6 +88,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.MySale} component={MySale} />
         <Stack.Screen name={NavigationRoots.PayoutsScreen} component={PayoutsScreen} />
         <Stack.Screen name={NavigationRoots.InviteFriend} component={InviteFriend} />
+        <Stack.Screen name={NavigationRoots.Notifications} component={Notifications} />
         <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

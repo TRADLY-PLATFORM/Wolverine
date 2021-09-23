@@ -32,5 +32,5 @@ module.exports  = {
   MySale: 'MySale',
   PayoutsScreen: 'PayoutsScreen',
   InviteFriend: 'InviteFriend',
-  
+  Notifications:'Notifications' ,
 }

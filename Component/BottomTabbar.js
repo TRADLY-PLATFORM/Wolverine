@@ -50,7 +50,7 @@ function AppTabbar() {
           iconName = require('../assets/more.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         }
-        return  <SvgUri width={18} height={18} source={iconName} fill={tabColor} />
+        return  <SvgUri width={20} height={20} source={iconName} fill={tabColor} />
       },
     })}>
       <Tab.Screen name="Home" component={Home} />
