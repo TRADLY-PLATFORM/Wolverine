@@ -100,7 +100,6 @@ export default class Home extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.home}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let hData = responseJson['data'];
-      // console.log('Home api res ==== ', hData);
       this.state.promoBannerArray = hData['promo_banners'];
       this.state.categoryArray = hData['categories'];
       this.state.collectionsArray = hData['collections'];
@@ -299,6 +298,7 @@ export default class Home extends Component {
             <View style={{ width: 10 }} />
             <TouchableOpacity onPress={() => this.favouriteBtnAction()}>
               <Image style={{ width: 30, height: 30 }} source={heartEmptyIcon} />
+
             </TouchableOpacity>
           </View>
         </View>

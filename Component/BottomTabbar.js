@@ -38,6 +38,7 @@ function AppTabbar() {
           iconName = require('../assets/homeIcon.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'Search') {
+
           iconName = require('../assets/searchSvg.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'List') {

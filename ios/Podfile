@@ -14,7 +14,6 @@ target 'tradlyEvent' do
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
   pod 'RNSearchBar', :path => '../node_modules/react-native-search-bar'
-
   pod 'react-native-location', :path => '../node_modules/react-native-location'
 
   target 'tradlyEventTests' do

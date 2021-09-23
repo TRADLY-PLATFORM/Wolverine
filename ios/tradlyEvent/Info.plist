@@ -60,8 +60,6 @@
 	<string>Allow permission to your photo library to choose photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow permission to your photo library to choose photos</string>
-	<key>UIUserInterfaceStyle</key>
-	<string>Light</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -76,6 +74,12 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>itms-apps</string>
+		</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
