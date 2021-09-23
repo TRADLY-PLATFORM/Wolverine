@@ -10,6 +10,7 @@ import More from '../UI/Event/More/More';
 import appConstant from '../Constants/AppConstants';
 import ConversationList from '../UI/Event/Chat/ConversationList';
 import Login from '../UI/User/SignIn';
+import SvgUri from 'react-native-svg-uri';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,24 +32,29 @@ function AppTabbar() {
       
     }} screenOptions={({ route}) => ({
       tabBarIcon: ({ focused, color, size }) => {
-        // console.log('hideTabbar==', appConstant.hideTabbar)
         let iconName;
+        let tabColor;
         if (route.name === 'Home') {
-          iconName = focused ? require('../assets/activehome.png') : require('../assets/home.png');
-        } else if (route.name === 'Explore') {
-          iconName = focused ? require('../assets/activefeed.png') : require('../assets/feed.png');
+          iconName = require('../assets/homeIcon.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
+        } else if (route.name === 'Search') {
+          iconName = require('../assets/searchSvg.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'List') {
           iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
+          return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
         } else if (route.name === 'Chat') {
-          iconName = focused ? require('../assets/activechat.png') : require('../assets/chat.png');
+          iconName = require('../assets/chatIcon.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'More') {
-          iconName = focused ? require('../assets/more.png') : require('../assets/profile.png');
+          iconName = require('../assets/more.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
         }
-        return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
+        return  <SvgUri width={20} height={20} source={iconName} fill={tabColor} />
       },
     })}>
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
+      <Tab.Screen name="Search" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="List" component={centerTab} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={chatS}  options={{tabBarVisible: appConstant.loggedIn}}/>
       <Tab.Screen name="More" component={More} />

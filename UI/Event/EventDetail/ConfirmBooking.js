@@ -23,11 +23,12 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../HelperClasses/SingleTon'
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
 import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
+import SvgUri from 'react-native-svg-uri';
 
 let pType = 'stripe';
 
@@ -124,7 +125,8 @@ export default class ConfirmBooking extends Component {
   }
   successAlert() {
     this.setState({ showCAlert: false,isVisible: false })
-    this.props.navigation.popToTop();
+    this.props.navigation.navigate(NavigationRoots.MyOrders);
+    
   }
   /*  Stripe Payment Gateway */
   initializePaymentSheet = async () => {
@@ -242,13 +244,15 @@ export default class ConfirmBooking extends Component {
       />
     </View>)
   }
-  renderPaymentCellItem = ({item, index}) => {
+  renderPaymentCellItem = ({ item, index }) => {
     let check = item['id'] == this.state.selectedPaymentId;
     return (<View>
       <TouchableOpacity style={styles.commonViewStyle} onPress={() => this.didSelectPaymentType(item)}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
       <View style={{ height: 10 }} />
@@ -357,6 +361,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     borderRadius: 20,
   },
 });

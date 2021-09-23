@@ -17,20 +17,11 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import sample from '../../../assets/dummy.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import {timeAgo} from '../../../HelperClasses/SingleTon'
 import database from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth';
-import DefaultPreference from 'react-native-default-preference';
-import {firebaseAuth} from '../../../Firebase/FirebaseAuth'
-
-
-const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 
 
 export default class ConversationList extends Component {
@@ -67,9 +58,14 @@ export default class ConversationList extends Component {
       if (snapshot.val() != null) {
         let object = Object.keys(snapshot.val())
         let dataObj = Object.values(snapshot.val())
-        dataObj[0]['chatRoomId'] = object[0];
-        if (dataObj[0]['lastMessage'].length != 0) {
-          this.state.conversationArray.push(dataObj[0]);
+        for (let o = 0; o < dataObj.length; o++) {
+          var dic = dataObj[o];
+          dic['chatRoomId'] = object[o];
+          if (dataObj[o]['lastMessage']) {
+            if (dataObj[o]['lastMessage'].length != 0) {
+              this.state.conversationArray.push(dic);
+            }
+          }
         }
       }
       this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
@@ -81,6 +77,7 @@ export default class ConversationList extends Component {
     this.props.navigation.navigate(NavigationRoots.ChatScreen, {
       chatRoomId: chatRoomId,
       name: item['receiver'],
+      receiverId:item['receiverId'],
     });
   }
   /*  UI   */

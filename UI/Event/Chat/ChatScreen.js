@@ -13,19 +13,14 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import sample from '../../../assets/dummy.png';
-import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import attachIcon from '../../../assets/attachIcon.png';
 import sendIcon from '../../../assets/sendIcon.png';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image'
-
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -34,8 +29,6 @@ import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
 
 
-const windowHeight = Dimensions.get('window').height;
-const windowWidth = Dimensions.get('window').width;
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
@@ -51,11 +44,16 @@ export default class ChatScreen extends Component {
       chatArray: [],
       message: '',
       chatRoomId: '',
+      receiverId:'',
       titleName: '',
     }
   }
   componentDidMount() {
     this.setupChat() 
+  }
+  componentWillUnmount(){
+    this.state.chatArray = [];
+    this.setState({updateUI: !this.state.updateUI})
   }
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
@@ -63,15 +61,17 @@ export default class ChatScreen extends Component {
       let name = `${receiverData['first_name']} ${receiverData['last_name']}`;
       this.state.titleName = name;
       let profile = `${receiverData['profile_pic']}`;
-      var UID = appConstant.userId // == '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+      var UID = receiverData['id'] 
+      this.state.receiverId = UID;
       createChat(UID, name, profile, chatRoomId => {
         this.state.chatRoomId = chatRoomId
         this.getChatThread(chatRoomId);
       })
     } else {
-      let { chatRoomId,name } = this.props.route.params;
+      let { chatRoomId,name,receiverId } = this.props.route.params;
       this.state.chatRoomId = chatRoomId
       this.state.titleName = name;
+      this.state.receiverId = receiverId;
       this.getChatThread(chatRoomId);
     }
     this.setState({updateUI: !this.state.updateUI})
@@ -85,7 +85,7 @@ export default class ChatScreen extends Component {
       this.setState({updateUI: !this.state.updateUI})
     });
     setTimeout(() => {
-      if (this.state.chatArray != 0){
+      if (this.state.chatArray != 0) {
         this.FlatListRef.scrollToEnd();
       }
     }, 1500);
@@ -94,7 +94,7 @@ export default class ChatScreen extends Component {
 
   sendBtnAction(){
     let chatRoomId = this.state.chatRoomId;
-    let receiverId = '3f8e07a9-e509-4f2a-a1d3-0d4f9f524d54';
+    let receiverId = this.state.receiverId;
     let sMsg = {
       "message":this.state.message,
       "timeStamp": Date.now(),
@@ -185,9 +185,9 @@ export default class ChatScreen extends Component {
             style={styles.msgTextStyle}
             placeholder={'Write here ...'}/>
         </View>
-        <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
+        {/* <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
           <Image style={{ height: 20, width: 20 }} source={attachIcon} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <View>
         <LinearGradient style={styles.enableSendBtnViewStyle}
@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 2, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     alignSelf: 'flex-start',
   },
   timeViewStyle: {
@@ -262,6 +263,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 2, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     alignSelf: 'flex-end',
   },
   bottomViewStyle: {
@@ -273,6 +275,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     margin: 5,
+    elevation: 10,
     flexDirection: 'row',
     width: '80%',
   },
@@ -289,6 +292,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     backgroundColor: colors.AppTheme,
     marginLeft: 10,
    },

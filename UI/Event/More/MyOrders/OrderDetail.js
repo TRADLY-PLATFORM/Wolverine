@@ -96,9 +96,9 @@ export default class OrderDetail extends Component {
     if (this.state.orderDetailData['order_details']) {
       let listD = this.state.orderDetailData['order_details'][0]['listing'];
       var photo = listD['images'] ? listD['images'] : [];
-      return (<View style={{ flexDirection: 'row'}}>
+      return (<View style={{ flexDirection: 'row', }}>
         <FastImage style={{ width: 80, height: 80, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-          <View style={{ marginLeft: 15}}>
+          <View style={{ marginLeft: 15, width: '70%'}}>
             <Text style={eventStyles.titleStyle}>{listD['title']}</Text>
             <View style={{ height: 5 }} />
             <Text style={eventStyles.subTitleStyle}>{listD['description']}</Text>

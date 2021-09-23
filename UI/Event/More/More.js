@@ -15,6 +15,7 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import DefaultPreference from 'react-native-default-preference';
 import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
+import appMsg from '../../../Constants/AppMessages';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
@@ -38,7 +39,6 @@ export default class More extends Component {
     // this.getMyStoreApi();
     this.props.navigation.addListener('focus', () => {
       if (appConstant.loggedIn) {
-          console.log('calling');
           this.setState({ isVisible: true })
           this.state.loadData = true
           this.getUserDetailApi();
@@ -84,7 +84,7 @@ export default class More extends Component {
   }
   logoutBtnAction() {
     Alert.alert(
-      "Are you sure you want to logout?", "",
+      appMsg.logoutMsg, "",
       [
         {
           text: "Cancel",
@@ -102,36 +102,58 @@ export default class More extends Component {
       ],
     );
   }
+  // rateAppBtnAction() {
+  //   Linking.canOpenURL(link).then(supported => {
+  //     supported && Linking.openURL(link);
+  //   }, (err) => console.log(err));
+  // }
   didSelectList = ({ index }) => {
-    if(appConstant.loggedIn) {
-      if (index == constantArrays.menuArray.length - 1) {
-        this.logoutBtnAction()
-      } else if (index == 0) {
-        if (this.state.accountId != 0) {
-          this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
-        } else {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        }
-      } else if (index == 1) {
-        if (this.state.accountId == 0) {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        } else {
-          this.props.navigation.navigate(NavigationRoots.PaymentScreen);
-        }
-      } else if (index == 2) {
-        this.props.navigation.navigate(NavigationRoots.MyOrders);
-      } else if (index == 3) {
-        if (this.state.accountId != 0) {
-          this.props.navigation.navigate(NavigationRoots.MySale);
-        } else {
-          this.props.navigation.navigate(NavigationRoots.CreateStore);
-        }
-      }
-      else if (index == 4) {
-        Linking.openURL(appConstant.termCondition);
-      }
+    console.log('appConstant.loggedIn ==> ', appConstant.loggedIn);
+
+    if (index == 5) {
+      Linking.openURL(appConstant.termCondition);
+    }
+    else if (index == 6) {
+      Linking.openURL(appConstant.privacyURL);
+    }
+    else if (index == 7) {
+      this.props.navigation.navigate(NavigationRoots.InviteFriend);
     } else {
-      this.props.navigation.navigate(NavigationRoots.SignIn)
+      if (appConstant.loggedIn) {
+        if (index == constantArrays.menuArray.length - 1) {
+          this.logoutBtnAction()
+        } else if (index == 0) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        } else if (index == 1) {
+          if (this.state.accountId == 0) {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          } else {
+            this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+          }
+        } else if (index == 2) {
+          this.props.navigation.navigate(NavigationRoots.MyOrders);
+        } else if (index == 4) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MySale);
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        }else if (index == 3) {
+          if (this.state.accountId != 0) {
+            this.props.navigation.navigate(NavigationRoots.MyOrders,{
+              title:constantArrays.menuArray[index]
+            });
+          } else {
+            this.props.navigation.navigate(NavigationRoots.CreateStore);
+          }
+        }
+      } else {
+        this.props.navigation.navigate(NavigationRoots.SignIn)
+      }
     }
   }
   /*  UI   */
@@ -159,7 +181,6 @@ export default class More extends Component {
     </TouchableOpacity>
   }
   renderUserInfo = () => {
-    console.log(appConstant.loggedIn);
     if(appConstant.loggedIn) {
       return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
         <View style={{ marginLeft: 10}}>
@@ -179,7 +200,6 @@ export default class More extends Component {
     }
   }
   render() {
-    console.log('profilePic',this.state.profilePic);
     return (
         // <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
           <SafeAreaView style={styles.Container}>
@@ -192,9 +212,12 @@ export default class More extends Component {
                 <this.renderUserInfo />
               </View>
             </View>
-            <View style={{ backgroundColor: colors.AppWhite, height: '80%', }}>
+            <View style={{ backgroundColor: colors.LightBlueColor, height: '74%', justifyContent: 'space-between'}}>
               <View style={styles.listContainerView} >
                 <this.renderListView />
+              </View>
+              <View style={{height: 50,alignItems: 'center'}}>
+                <Text>{appConstant.appVersion}</Text>
               </View>
             </View>
           </View>
@@ -220,7 +243,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   listContainerView: {
-    height: '150%',
+    height: '90%',
     marginTop: -100,
     backgroundColor: colors.AppWhite,
     margin: 20,
@@ -228,6 +251,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 5,
+    elevation: 10,
     flexDirection: 'row',
     borderRadius: 10,
   }

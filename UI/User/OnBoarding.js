@@ -1,35 +1,14 @@
 
 import React, { Component } from 'react';
-import {FlatList, Alert, TextInput, Text, Image, View,
-  StyleSheet, SafeAreaView, TouchableOpacity,ScrollView
+import {Text, Image, View, StyleSheet, TouchableOpacity,ScrollView
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../CommonClasses/AppColor';
-import pic1 from '../../assets/obBoarding1.png';
-import pic2 from '../../assets/obBoarding2.png';
-import pic3 from '../../assets/obBoarding3.png';
 import NavigationRoots from '../../Constants/NavigationRoots';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
-import { CommonActions } from '@react-navigation/native';
+import appConstant from '../../Constants/AppConstants';
 
-const slides = [{
-  key: 1,
-  title: 'Find classes for your kids',
-  text: '',
-  image: pic1,
-}, {
-  key: 2,
-  title: 'Select and pay for classes',
-  text: '',
-  image: pic2,
-}, {
-  key: 3,
-  title: 'Give ratings and feedback on the classes',
-  text: '',
-  image: pic3,
-}
-];
 export default class OnBoardings extends Component {
   constructor(props) {
     super(props);
@@ -37,10 +16,22 @@ export default class OnBoardings extends Component {
       isVisible: false,
       slider: AppIntroSlider | undefined,
       index: 0,
+      slides: [],
     }
-    
   }
   componentDidMount() {
+    var index = 0 ;
+    for (let obj of appConstant.intoScreen) {
+      index = index + 1
+      let dic = {
+        key: index,
+        title: obj['text'],
+        text: '',
+        image: {url:obj['image']},
+      }
+      this.state.slides.push(dic)
+    }
+
   }
   /*  Buttons   */
   _onDone = () => {  
@@ -58,7 +49,7 @@ export default class OnBoardings extends Component {
     return (
       <View style={styles.slide}>
         <View style={styles.imageViewStyle}>
-          <Image source={item.image} style={styles.image}/>
+          <Image source={item.image} style={styles.image} resizeMode={'contain'}/>
         </View>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.text}>{item.text}</Text>
@@ -88,7 +79,7 @@ export default class OnBoardings extends Component {
       dotStyle={{backgroundColor: colors.LightGreen}}
       activeDotStyle={{backgroundColor: colors.AppTheme}}
       renderItem={this._renderItem}
-      data={slides} 
+      data={this.state.slides} 
       renderNextButton={this.renderNextBtn}
       renderDoneButton={this.renderDoneBtn}
       onSlideChange={i => this.setState({index: i})}
@@ -131,13 +122,12 @@ const styles = StyleSheet.create({
   },
   imageViewStyle: {
     margin: 20,
-    padding:20 ,
+    padding:20,
     width: '100%'
   },
   image: {
     width: '100%',
     height: '70%',
-    borderRadius: 20,
   },
   text: {
     color: colors.AppWhite,
@@ -168,6 +158,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     borderRadius: 20,
   }
 });

@@ -17,13 +17,16 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import constantArrays from '../../../Constants/ConstantArrays';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
 import Slider from "react-native-sliders";
 import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
+import Spinner from 'react-native-loading-spinner-overlay';
+import SvgUri from 'react-native-svg-uri';
+
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
 export default class Filter extends Component {
@@ -31,6 +34,7 @@ export default class Filter extends Component {
     super(props);
     this.state = {
       categoryArray: [],
+      isVisible:true,
       updateUI: false,
       showFilterView:false,
       selectedFilterIndex: -1,
@@ -117,7 +121,7 @@ export default class Filter extends Component {
           this.state.attributesArray.push(objc);
         }
       }
-      this.setState({updateUI: !this.state.updateUI})
+      this.setState({updateUI: !this.state.updateUI,isVisible: false})
     } else {
       this.setState({ isVisible: false })
     }
@@ -367,7 +371,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 1) {
+    else if (index == -211) {
       if (this.state.selectedDatePostedIndex != -1) {
         let value = titleAry[this.state.selectedDatePostedIndex];
         views.push(<View>
@@ -375,7 +379,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 2) {
+    else if (index == 1) {
       if (this.state.selectedRatingIndex != -1) {
         var startView = []
         for (let a = 0; a < 5 - this.state.selectedRatingIndex; a++) {
@@ -390,7 +394,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 3) {
+    else if (index == 2) {
       if (this.state.distanceValue[0] != 0) {
         let value = this.state.distanceValue[0].toFixed(0)
         views.push(<View>
@@ -398,7 +402,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 4) {
+    else if (index == -24) {
       if (this.state.priceValue[0] != 0) {
         let from = this.state.priceValue[0].toFixed(0);
         let to = this.state.priceValue[1].toFixed(0)
@@ -407,7 +411,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 5) {
+    else if (index == 3) {
       if (this.state.selectedCategoryIndex != -1) {
         var value = '';
         if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
@@ -483,7 +487,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ timeValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[0].toFixed(0)}</Text>
@@ -540,7 +544,9 @@ export default class Filter extends Component {
           <View style={{ width: 200, flexDirection: 'row', }}>
             {startView}
           </View>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -558,7 +564,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ distanceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{0}</Text>
@@ -579,7 +585,7 @@ export default class Filter extends Component {
         onValueChange={value => this.setState({ priceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
-        minimumTrackTintColor={colors.AppGreen}
+        minimumTrackTintColor={colors.AppTheme}
       />
       <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.priceValue[0].toFixed(0)}</Text>
@@ -604,7 +610,9 @@ export default class Filter extends Component {
       <TouchableOpacity onPress={() => this.setState({ selectedCategoryIndex: index })}>
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -627,7 +635,9 @@ export default class Filter extends Component {
       <TouchableOpacity onPress={() => this.didSelectAttributes(item)}>
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray, width: '85%' }}> {item['name']} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -637,23 +647,23 @@ export default class Filter extends Component {
       return (<View>
         {this.renderTimeView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 1) {
+    } else if (this.state.selectedFilterIndex == -11) {
       return (<View>
         {this.renderDatePostedView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 2) {
+    } else if (this.state.selectedFilterIndex == 1) {
       return (<View>
         {this.renderRatingView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 3) {
+    } else if (this.state.selectedFilterIndex == 2) {
       return (<View>
         {this.renderDistanceView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 4) {
+    } else if (this.state.selectedFilterIndex == -213) {
       return (<View>
         {this.renderPriceView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 5) {
+    } else if (this.state.selectedFilterIndex == 3) {
       return (<View>
         {this.renderCategoryView()}
       </View>)
@@ -668,10 +678,10 @@ export default class Filter extends Component {
     var snapPoint = '50%';
     let maxHeight = '100%'
     var viewHeight = windowHeight/ 3;
-    if (this.state.selectedFilterIndex == 2) {
+    if (this.state.selectedFilterIndex == 1) {
       snapPoint = '40%'
       viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 5) {
+    }else if (this.state.selectedFilterIndex == 3) {
       snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }
@@ -721,6 +731,7 @@ export default class Filter extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>
             <this.renderListView />
@@ -758,6 +769,7 @@ const styles = StyleSheet.create({
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
+    elevation: 10,
     shadowRadius: 2,
     borderRadius: 20,
   },
@@ -787,7 +799,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     borderRadius: 13,
-    backgroundColor: colors.AppGreen,
+    backgroundColor: colors.AppTheme,
   },
   startViewCellStyle: {
     justifyContent: 'space-between',

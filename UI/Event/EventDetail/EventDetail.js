@@ -11,6 +11,9 @@ import {
   ScrollView,
   Dimensions,
   ActionSheetIOS,
+  StatusBar,
+  NativeModules,
+  Platform,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
@@ -28,19 +31,32 @@ import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import copy from '../../../assets/copy.png';
 import whatsappIcon from '../../../assets/whatsapp.png';
-import share from '../../../assets/share.png';
+import share from '../../../assets/shareIcon.svg';
 import heartIcon from '../../../assets/heartIcon.png';
 import favouriteIcon from '../../../assets/favourite.png';
 import RatingReview from '../../../Component/RatingReview';
 import emptyStar from '../../../assets/emptyStar.png';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
+import appMsg from '../../../Constants/AppMessages';
+import SvgUri from 'react-native-svg-uri';
+import backIcon from '../../../assets/back.png'
+import menuIcon from '../../../assets/menu.png'
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
 
+const { StatusBarManager } = NativeModules;
+var statusBarHeight = 20;
+if (Platform.OS === 'android') {
+  statusBarHeight = StatusBar.currentHeight;
+}else {
+  StatusBarManager.getHeight((sbH)=>{
+    statusBarHeight = sbH['height'];
+  })
+}
 export default class EventDetail extends Component {
   constructor(props) {
     super(props);
@@ -154,18 +170,20 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
+  userBtnAction(id) {
+    this.props.navigation.navigate(NavigationRoots.MyStore, {accId :id});
+  }
   moreBtnAction() {
     if (appConstant.loggedIn) {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Edit", "Delete", "Cancel"],
-          destructiveButtonIndex: 2,
-          cancelButtonIndex: 2,
-          userInterfaceStyle: 'light'
-        },
+      ActionSheetIOS.showActionSheetWithOptions({
+        options: ["Edit", "Delete", "Cancel"],
+        destructiveButtonIndex: 2,
+        cancelButtonIndex: 2,
+        userInterfaceStyle: 'light'
+      },
         buttonIndex => {
           if (buttonIndex === 0) {
-            const {id} = this.props.route.params;
+            const { id } = this.props.route.params;
             this.props.navigation.navigate(NavigationRoots.AddEvent, {
               accountId: appConstant.accountID,
               listingID: id,
@@ -180,7 +198,7 @@ export default class EventDetail extends Component {
   }
   deleteEventBtnAction() {
     Alert.alert(
-      "Are you sure you want to delete this event?", "",
+      appMsg.eventDeleteMsg, "",
       [
         {
           text: "No",
@@ -200,27 +218,20 @@ export default class EventDetail extends Component {
     var views = []
     var cDate = "";
     for (let a = 0; a < this.state.imagesArray.length; a++) {
-      views.push(<View>
-        <FastImage style={{ aspectRatio: 16 / 9 }} source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
+      views.push(<View style={{backgroundColor: colors.LightUltraGray}}>
+        <FastImage 
+          resizeMode={'contain'}
+          style={{ aspectRatio: 1 / 1 }} 
+          source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
       </View>)
       cDate = changeDateFormat(this.state.eventDetailData['created_at'] * 1000, 'ddd, MMM D');
 
     }
-    var likeView = [];
-    if (!this.state.itsOwnEvent) {
-      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
-      likeView.push(
-        <Image style={{ width: 40, height: 40 }} source={icon} />
-      )
-    }
-    return (<View style={{ aspectRatio: 16 / 9 }}>
+   
+    return (<View style={{ aspectRatio: 1 / 1 }}>
       <Pages>
         {views}
       </Pages>
-      <TouchableOpacity style={styles.createDateViewStyle} onPress={() => this.likeBtnAction()}>
-        <Text style={{ fontWeight: '600', fontSize: 11, color: colors.AppWhite }}>{cDate}</Text>
-        {likeView}
-      </TouchableOpacity>
     </View>)
   }
   renderEventDetail = () => {
@@ -261,22 +272,16 @@ export default class EventDetail extends Component {
   renderUserDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData['account'];
-      let follow = item['following'] ? 'Following' : 'Follow'
       var photo = item['images'] ? item['images'] : [];
-      return (<View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems : 'center' }}>
+      return (<TouchableOpacity onPress={() => this.userBtnAction(item['id'])}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+          <View style={{ flexDirection: 'row', alignItems : 'center'}}>
             <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
             <View style={{ width: 10 }} />
             <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
           </View>
-          <View>
-            <View>
-              <Text style={{fontSize: 14, fontWeight: '600', color: colors.AppTheme}}>{follow}</Text>
-            </View>
-          </View>
         </View>
-      </View>)
+      </TouchableOpacity>)
     } else {
       return <View />
     }
@@ -353,7 +358,9 @@ export default class EventDetail extends Component {
           <Text style={eventStyles.subTitleStyle}>{item['description']}</Text>
         </View>
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          <View style={commonStyles.nextIconStyle}>
+            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          </View>
         </View>
       </TouchableOpacity>
     </View>)
@@ -370,7 +377,7 @@ export default class EventDetail extends Component {
             <Image style={{height: 20, width: 20}} resizeMode={'center'} source={copy}/>
           </View>
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Image style={{height: 20, width: 20}} resizeMode={'center'} source={share}/>
+            <SvgUri width={20} height={20} source={share} fill={colors.AppTheme} />
           </View>
         </View>
       </View>)
@@ -522,7 +529,6 @@ export default class EventDetail extends Component {
     </View>)
   }
   renderBottomBtnView = () => {
-    
     if (!this.state.itsOwnEvent){
     return (<View style={styles.commonViewStyle}>
     <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -541,33 +547,25 @@ export default class EventDetail extends Component {
     }else {
       return <View />
     }
-    
   }
   renderMainView = () => {
     if (this.state.loadData) {
-      return (<View style={{height: '100%'}}>
-        <View style={{ aspectRatio: 16 / 9 }}>
-          {this.renderImageSlider()}
-        </View>
+      return (<View style={{ height: '100%' }}>
         <View style={styles.commonViewStyle}>
           {this.renderEventDetail()}
         </View>
-        {/* <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
-          {this.renderUserDetail()}
-        </View> */}
         <View style={{ height: 10 }} />
         <View>
           {this.renderVariantListView()}
         </View>
         <View style={styles.commonViewStyle}>
+          {this.renderUserDetail()}
+        </View>
+        <View style={{ height: 10 }} />
+        <View style={styles.commonViewStyle}>
           {this.renderTimeAddressDetail()}
         </View>
-        {/* <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
-          {this.renderShareView()}
-        </View> */}
-         <View style={{ height: 10 }} />
+        <View style={{ height: 0 }} />
         <View>
           {this.renderArrtibutes()}
         </View>
@@ -575,40 +573,71 @@ export default class EventDetail extends Component {
         <View >
           {this.renderEventDescriptionView()}
         </View>
-        {/* <View style={styles.clearViewStyle}>
-          {this.renderOtherEventView()}
-        </View> */}
-        {/* <View style={styles.clearViewStyle}>
-          <RatingReview />
-        </View> */}
-        {/* <View style={styles.clearViewStyle}>
-          {this.renderReviewView()}
-        </View> */}
         <View style={{ height: 40 }} />
       </View>)
     } else {
       return (<View />)
     }
   }
+  renderHeaderView = () => {
+    var likeView = [];
+    var moreView = [];
+    if (!this.state.itsOwnEvent) {
+      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
+      likeView.push(<Image style={{width: 30, height: 30, marginTop: -3}} source={icon} />)
+    }
+    if (this.state.itsOwnEvent) {
+      moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
+      </TouchableOpacity>)
+    }
+    return (<View> 
+      <View style={commonStyles.headerViewStyle}>
+        <StatusBar barStyle="light-content" />
+        <View style={{justifyContent: 'space-between', flexDirection: 'row', width: '100%'}}>
+        <View>
+        <TouchableOpacity style={{left:0}} onPress={() => this.props.navigation.goBack()}>
+          <Image 
+            style={commonStyles.backBtnStyle} resizeMode="contain" source={backIcon} />
+        </TouchableOpacity>
+        <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
+        </View>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity onPress={() => this.likeBtnAction()}>
+          {likeView}
+        </TouchableOpacity>
+        <View style={{width: 10}}/>
+          {moreView}
+        </View>
+        </View>
+      </View>
+    </View>)
+  }
   render() {
     return (
-      <SafeAreaView style={styles.Container}>
-        <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} 
-         showDoneBtn={this.state.itsOwnEvent} doneBtnTitle={'More'} doneBtnAction={() => this.moreBtnAction()}/>
+      <View style={styles.Container}>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
-          <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
-            <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-             {this.renderMainView()}
+        <View>
+          <View style={{ zIndex: 10, backgroundColor: colors.LightBlueColor }}>
+            <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
+              <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
+                {this.renderImageSlider()}
+                <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+                  {this.renderMainView()}
+                </View>
+              </ScrollView>
+              <View>
+                <View style={{ height: 0 }} />
+                {this.renderBottomBtnView()}
+                {/* <View style={{ height: 50 }} /> */}
+              </View>
             </View>
-          </ScrollView>
-          <View>
-            <View style={{ height: 10 }} />
-            {this.renderBottomBtnView()}
-            <View style={{ height: 50 }} />
+          </View>
+          <View style={{zIndex: 12, position:'absolute', marginTop: statusBarHeight}}>
+            <this.renderHeaderView />
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }
@@ -659,6 +688,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
   },
   selectedImageStyle: {
     width: 140,
@@ -676,10 +706,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     borderRadius: 20,
   },
   createDateViewStyle:{
-    justifyContent: 'space-between', position: 'absolute', padding: 10, flexDirection: 'row', width: '100%',
+    justifyContent: 'space-between', 
+    position: 'absolute',
+     padding: 10, 
+     flexDirection: 'row', 
+     width: '100%',
+     marginTop:statusBarHeight + 30,
   }
 });
 

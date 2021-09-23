@@ -15,6 +15,7 @@ import closeIcon from '../assets/close.png'
 import menuIcon from '../assets/menu.png'
 import searchIcon from '../assets/search.png'
 import heartEmptyIcon from '../assets/heartEmpty.png'
+import colors from '../CommonClasses/AppColor';
 
 export default class AppHeader extends Component {
   static propTypes = {
@@ -26,29 +27,19 @@ export default class AppHeader extends Component {
     doneBtnAction: PropTypes.func,
     doneBtnTitle: PropTypes.string,
     backBtnIcon: PropTypes.string,
+    multipleBtn:PropTypes.bool, 
+    secondBtnAction: PropTypes.func,
   };
 
   renderDoneBtn = () => {
     if (this.props.showDoneBtn) {
-      if (this.props.doneBtnTitle == 'More') {
-        return <View>
-          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-          <Image style={commonStyle.backBtnStyle} resizeMode='contain'  source={menuIcon} />
-        </TouchableOpacity>
-        </View>
-      }else if (this.props.doneBtnTitle == 'Search') {
+      if (this.props.doneBtnTitle == 'Search') {
         return <View>
           <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
           <Image style={{height: 25, width: 25}} resizeMode='contain'  source={searchIcon} />
         </TouchableOpacity>
         </View>
-      }else if (this.props.doneBtnTitle == 'Favourite') {
-        return <View>
-          <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
-          <Image style={{height: 25, width: 25}} resizeMode='contain'  source={heartEmptyIcon} />
-        </TouchableOpacity>
-        </View>
-      }else {
+      } else {
       return <View>
         <TouchableOpacity onPress={() => this.props.doneBtnAction()}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: '700'}}>

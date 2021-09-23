@@ -11,17 +11,13 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
 import commonStyles from '../../../../StyleSheet/UserStyleSheet';
-import tickIcon from '../../../../assets/tick.png';
-import emptyIcon from '../../../../assets/empty.png';
 import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
-import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import cameraIcon from '../../../../assets/camera.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -45,11 +41,12 @@ export default class EditProfile extends Component {
   componentDidMount() {
     this.setState({updateUI: !this.state.updateUI})
     let {userData} = this.props.route.params;
+    console.log('userData ==> ', userData);
     if (userData != undefined) {
       this.state.email = userData['email'];
       this.state.firstname = userData['first_name'];
       this.state.lastname = userData['last_name'];
-      this.state.photo = userData['profile_pic'];
+      this.state.photo = userData['profile_pic'] || null;
     }
 
     // this.getMyStoreApi();

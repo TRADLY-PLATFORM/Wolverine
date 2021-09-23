@@ -26,15 +26,16 @@ import cancelIcon from '../../../../assets/cancel.png';
 import forwardIcon from '../../../../assets/forward.png';
 import upload from '../../../../assets/upload.png';
 import Tags from "react-native-tags";
-import calendarIcon from '../../../../assets/calendarIcon.png';
+import calendarIcon from '../../../../assets/calendar.png';
 import deleteIcon from '../../../../assets/deleteIcon.png';
-import editGreen from '../../../../assets/editGreen.png';
+import editGreen from '../../../../assets/editGreen.svg';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
 import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
+import SvgUri from 'react-native-svg-uri';
 
 var viewload = false;
 
@@ -72,12 +73,16 @@ export default class AddEvent extends Component {
       selectedVariantIndex: 0,
       showCAlert:false,
       coordinates:{},
+      hideOfferPrice:false,
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.loadCategoryApi()
-    this.getCurrencyApi();
+    this.props.navigation.addListener('focus', () => {
+      this.loadCategoryApi()
+      this.loadConfigApi()
+      this.getCurrencyApi()
+    })
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
@@ -106,6 +111,16 @@ export default class AddEvent extends Component {
   }
 
   /*  APIS Methods */
+  loadConfigApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      var configs = responseJson['data']['configs'];
+      console.log('configs ==>', configs);
+      this.setState({hideOfferPrice: configs['hide_offer_percent'] || false});
+
+    }
+    this.setState({dataLoad: true});
+  };
   loadEventDetailApi = async () => {
     this.setState({ isVisible: true })
     const {accId} = this.props.route.params;
@@ -1117,12 +1132,14 @@ export default class AddEvent extends Component {
     // console.log('item', item)
     return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
-        <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
+        <View style={styles.calendarViewStyle}>
+            <Image style={{ width: 20, height:23, marginRight:1, marginTop: -2}} source={calendarIcon} />
+        </View>
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
             <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
-              <Image style={{ width: 12, height: 12, marginLeft: 10 }} source={editGreen} />
+              <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
@@ -1214,6 +1231,23 @@ export default class AddEvent extends Component {
       </View>
     </TouchableOpacity>
   }
+  renderOfferView = () => {
+    console.log('this.state.hideOfferPrice', this.state.hideOfferPrice);
+    if (this.state.hideOfferPrice) {
+      return (<View style={{ marginTop: 20 }}>
+        <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
+        <TextInput
+          style={commonStyles.addTxtFieldStyle}
+          placeholder={'Enter Offer Percentage'}
+          value={this.state.offerPrice.toString()}
+          keyboardType={'number-pad'}
+          onChangeText={value => this.setState({ offerPrice: value })}
+        />
+      </View>)
+    } else {
+      return <View />
+    }
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
@@ -1249,16 +1283,7 @@ export default class AddEvent extends Component {
                 <this.renderTitleLbl title={'Price'} />
                 <this.renderPriceView />
               </View>
-              <View style={{ marginTop: 20 }}>
-                <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
-                <TextInput
-                  style={commonStyles.addTxtFieldStyle}
-                  placeholder={'Enter Offer Percentage'}
-                  value={this.state.offerPrice.toString()}
-                  keyboardType={'number-pad'}
-                  onChangeText={value => this.setState({ offerPrice: value })}
-                />
-              </View>
+              <this.renderOfferView />
               <View style={{ height: 20 }} />
               <this.renderTitleLbl title={'Ticket Limits'} />
               <TextInput
@@ -1298,6 +1323,14 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
+  },
+  calendarViewStyle:{
+    height: 40,
+    width: 40, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: colors.AppTheme,
+     borderRadius: 20
   },
   imageSelectedStyle: {
     height: 120,

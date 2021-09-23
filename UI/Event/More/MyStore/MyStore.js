@@ -21,20 +21,20 @@ import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
-import messageIcon from '../../../../assets/message.png';
+import messageIcon from '../../../../assets/messageIcon.svg';
+import notesIcon from '../../../../assets/clipboardNotes.svg';
+
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
-import shareIcon from '../../../../assets/share.png';
-import product from '../../../../assets/product.png';
-import productGray from '../../../../assets/productGray.png';
-import info from '../../../../assets/info.png';
-import infoGreen from '../../../../assets/infoGreen.png';
-import plusIcon from '../../../../assets/plusIcon.png';
+import shareIcon from '../../../../assets/shareIcon.svg';
+import productIcon from '../../../../assets/product.svg';
+import plusIcon from '../../../../assets/plusIcon.svg';
 import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
+import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -54,7 +54,6 @@ export default class MyStore extends Component {
       itsFollowing: false,
       stopPagination: false,
       dataLoad: false,
-
     }
   }
 
@@ -219,6 +218,7 @@ export default class MyStore extends Component {
     var address = ''
     var rating = ''
     var review = ''
+
     if (this.state.storeDetail['location']) {
       let add = this.state.storeDetail['location']
       address = add['formatted_address'];
@@ -226,10 +226,11 @@ export default class MyStore extends Component {
       rating = reRate['rating_average'] || '0';
       review = reRate['review_count'] || '0';
     }
+    var photo = this.state.storeDetail['images'] ? this.state.storeDetail['images'] : [];
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
-          <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+          <FastImage source={photo.length == 0 ? sample : { uri: photo[0] }} style={{ height: 60, width: 60, borderRadius: 30 }} />
           <View style={{ marginLeft: 16, flex:1}}>
             <Text style={eventStyles.titleStyle}>
               {this.state.storeDetail['name']}
@@ -269,13 +270,13 @@ export default class MyStore extends Component {
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
-            <Image source={shareIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
+            <SvgUri width={15} height={15} source={shareIcon} fill={colors.AppTheme} />
           </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
-              {accId == appConstant.accountID ? 'Edit Store' : this.state.itsFollowing ? 'Following' : 'Follow'}
+              {accId == appConstant.accountID ? 'Edit' : this.state.itsFollowing ? 'Following' : 'Follow'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -296,7 +297,7 @@ export default class MyStore extends Component {
     } else {
       return (<View>
         <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
-          <Image source={messageIcon} style={{ height: 15, width: 15 }} resizeMode={'center'} />
+          <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} />
         </TouchableOpacity>
       </View>)
     }
@@ -305,7 +306,7 @@ export default class MyStore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
         style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <Image source={this.state.segmentIndex == 0 ? product : productGray} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+        <SvgUri width={20} height={20} source={productIcon} fill={this.state.segmentIndex == 0  ? colors.AppTheme :colors.Lightgray} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
           Classes
@@ -313,7 +314,7 @@ export default class MyStore extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
         style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <Image source={this.state.segmentIndex == 0 ? info : infoGreen} style={{ height: 20, width: 20 }} resizeMode={'center'} />
+        <SvgUri width={20} height={20} source={notesIcon} fill={ this.state.segmentIndex == 0  ? colors.Lightgray :colors.AppTheme} />
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
           About
@@ -329,7 +330,7 @@ export default class MyStore extends Component {
         </View>
         <View style={{ height: 20, flexDirection: 'row' }}>
           <TouchableOpacity onPress={() => this.addEventBtnAction()}>
-            <Image source={plusIcon} style={{ height: 30, width: 30 }}/>
+            <SvgUri width={24} height={24} source={plusIcon} fill={colors.AppTheme} />
           </TouchableOpacity>
         </View>
       </View>)
@@ -338,19 +339,23 @@ export default class MyStore extends Component {
     }
   }
   renderAboutView = () => {
-    return (<View style={{ margin: 16, marginTop: 5 }}>
-      <View style={{ borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite }}>
-        <Text style={{ padding: 5, fontSize: 12 }}>{this.state.storeDetail['description']}</Text>
-        {this.renderArrtibutes()}
-      </View>
-      <View style={{ height: 20 }} />
-      {/* {this.renderRateStoreView()}
-      <View style={{ height: 20 }} />
-      <RatingReview /> */}
-      {/* {this.renderRatingReviewView()} */}
-      {/* <View style={{ height: 20 }} />
-      {this.renderReviewView()} */}
-    </View>)
+    if (this.state.storeDetail['description']) {
+      return (<View style={{ margin: 16, marginTop: 5 }}>
+        <View style={{ borderWidth: 1, borderColor: colors.BorderColor, borderRadius: 2, backgroundColor: colors.AppWhite }}>
+          <Text style={{ padding: 5, fontSize: 12 }}>{this.state.storeDetail['description']}</Text>
+          {this.renderArrtibutes()}
+        </View>
+        <View style={{ height: 20 }} />
+        {/* {this.renderRateStoreView()}
+        <View style={{ height: 20 }} />
+        <RatingReview /> */}
+        {/* {this.renderRatingReviewView()} */}
+        {/* <View style={{ height: 20 }} />
+        {this.renderReviewView()} */}
+      </View>)
+    }else {
+      return <View />
+    }
   }
   renderArrtibutes = () => {
     if (this.state.storeDetail['attributes']) {
