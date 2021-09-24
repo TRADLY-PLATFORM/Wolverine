@@ -5,7 +5,7 @@ import {firebaseAuth} from '../Firebase/FirebaseAuth'
 
 export default class UserModel {
   static userData(object) {
-    // console.log('key: ', object);
+    // console.log('key: calling', object);
     const auth_key = object['data']['user']['key']['auth_key'];
     const refresh_key = object['data']['user']['key']['refresh_key'];
     const firebase_Token = object['data']['user']['key']['firebase_token'];
@@ -16,12 +16,13 @@ export default class UserModel {
     appConstant.userId = udata['id'];
     appConstant.firebaseToken = firebase_Token;
     appConstant.userName = `${udata['first_name']} ${udata['last_name']}`;
+    // console.log('firebase_Token => ',firebase_Token)
     firebaseAuth(firebase_Token);
     DefaultPreference.set('uName', appConstant.userName).then();
     DefaultPreference.set('refreshKey', refresh_key).then();
     DefaultPreference.set('authKey', auth_key).then();
     DefaultPreference.set('userId', udata['id']).then();
-    DefaultPreference.set('firebaseToken', firebase_Token).then();
+    DefaultPreference.set('firebaseToken', firebase_Token).then(function () { console.log('done firebaseToken') });
     DefaultPreference.set('loggedIn', 'true').then(function () { console.log('done loggedIn') });
   }
 }

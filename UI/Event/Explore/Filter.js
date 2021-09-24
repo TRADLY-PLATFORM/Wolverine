@@ -49,7 +49,8 @@ export default class Filter extends Component {
       attributesArray: [],
       selectedAttributeArray: [],
       selectAttributeIds:[],
-      selectedAtriValueIds: []
+      selectedAtriValueIds: [],
+      selectedAtriValueId:0
     }
   }
 
@@ -63,6 +64,7 @@ export default class Filter extends Component {
     let {filtersArray} = this.props.route.params;
     if (filtersArray) {
       this.state.filterValueArray = filtersArray;
+      // console.log('filtersArray ==> ' , filtersArray)
       for (let objc of filtersArray) {
         if (objc['time']) {
           this.state.timeApplied = true;
@@ -153,7 +155,7 @@ export default class Filter extends Component {
           }
         }
         this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 1){
+    } else if (this.state.selectedFilterIndex == -221){
       var fromDate = new Date();
       var toDate = new Date();
       if (this.state.selectedDatePostedIndex == 1) {
@@ -238,7 +240,7 @@ export default class Filter extends Component {
           this.addValueInArray(aIndx,dic)
         }
       }
-    } else if (this.state.selectedFilterIndex == 2){
+    } else if (this.state.selectedFilterIndex == 1){
       let ratingDict = {
         'rating': 5 - this.state.selectedRatingIndex,
       }
@@ -250,7 +252,7 @@ export default class Filter extends Component {
         }
       }
       this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 3){
+    } else if (this.state.selectedFilterIndex == 2){
       let dDict = {
         'distance': this.state.distanceValue[0].toFixed(0),
       }
@@ -262,7 +264,7 @@ export default class Filter extends Component {
         }
       }
       this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 4){
+    } else if (this.state.selectedFilterIndex == -14){
       let fromPrice = this.state.priceValue[0].toFixed(0);
       let toPrice = this.state.priceValue[1].toFixed(0);
       let pDict = {
@@ -277,7 +279,7 @@ export default class Filter extends Component {
         }
       }
       this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 5){
+    } else if (this.state.selectedFilterIndex == 3){
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
@@ -552,6 +554,7 @@ export default class Filter extends Component {
     )
   }
   renderDistanceView = () => {
+    console.log('this.state.distanceValue', this.state.distanceValue)
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={{ padding: 20 }}>
         <Text style={eventStyles.commonTxtStyle}>10 KM Surrounding</Text>

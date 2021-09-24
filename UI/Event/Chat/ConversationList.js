@@ -51,10 +51,10 @@ export default class ConversationList extends Component {
     this.setState({updateUI: !this.state.updateUI});
   }
   getConvesationThread() {
-    var UID = appConstant.userId // = '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
+    var UID = appConstant.userId 
     this.state.conversationArray = [];
     database().ref(`${appConstant.firebaseChatPath}users/${UID}/chatrooms`).once('value').then(snapshot => {
-      // console.log('snapshot.val() ', snapshot.val() )
+      console.log('snapshot.val() ', snapshot.val() )
       if (snapshot.val() != null) {
         let object = Object.keys(snapshot.val())
         let dataObj = Object.values(snapshot.val())
@@ -69,6 +69,10 @@ export default class ConversationList extends Component {
         }
       }
       this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
+    }).catch((error) => {
+      console.log('error ====------ ',error)
+      this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
+
     });
   }
   /*  Buttons   */

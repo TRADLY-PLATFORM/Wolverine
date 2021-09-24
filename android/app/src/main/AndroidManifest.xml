@@ -2,7 +2,8 @@
   package="com.tradlyevent">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -10,6 +11,9 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -21,5 +25,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
     </application>
+
 </manifest>

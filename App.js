@@ -74,7 +74,7 @@ export default class App extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
-      console.log('into -- = >', into)
+      // console.log('into -- = >', into)
       appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';

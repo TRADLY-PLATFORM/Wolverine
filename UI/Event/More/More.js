@@ -177,7 +177,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
+      <Text style={{height: 20, fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {

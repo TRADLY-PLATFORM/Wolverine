@@ -25,6 +25,8 @@ export default class EventView extends Component {
     let item = this.props.data;
     let price = item['list_price'];
     var photo = item['images'] ? item['images'] : [];
+    let nItem = item['account'];
+    var profilePic = nItem['user']['profile_pic'].length == 0 ? sample : { uri: nItem['user']['profile_pic'] }
     return (<View style={styles.horizontalCellItemStyle}>
       <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ padding: 2 }}>
@@ -32,7 +34,7 @@ export default class EventView extends Component {
         <View style={{ height: 5 }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 3 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}>
-            <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={sample} />
+            <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic} />
             <Text numberOfLines={1} style={{ color: colors.Lightgray, fontSize: 10, padding: 5, width: '70%' }}>{item['account']['name']}</Text>
           </View>
           <View>

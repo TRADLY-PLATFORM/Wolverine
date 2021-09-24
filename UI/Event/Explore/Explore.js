@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
+  Platform,
   Text,
   Image,
   View,
@@ -66,7 +66,7 @@ export default class Explore extends Component {
       datesArray: [],
       selectedDate:'',
       filtersArray: [],
-      isVisible: false,
+      isVisible: true,
       dataLoad: false,
       showSearchBar: true,
       searchKey:'',
@@ -306,7 +306,7 @@ export default class Explore extends Component {
   }
   renderListView = () => {
     if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
+      return (<View style={{ margin: 5, height: Platform.OS === 'ios' ? '87%' : '103%'}}>
         <FlatList
           data={this.state.eventsArray}
           renderItem={this.renderListCellItem}
@@ -389,12 +389,14 @@ export default class Explore extends Component {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
       let coordinate = objc['coordinates'];
-      // console.log('objc', coordinate)
-      markerView.push(<Marker
-        coordinate={coordinate}
-        image = {require('../../../assets/mapPin.png')} 
-        title={objc['title']}
-      />);
+      if (coordinate != undefined) {
+        console.log('objc', coordinate)
+        markerView.push(<Marker
+          coordinate={coordinate}
+          image={require('../../../assets/mapPin.png')}
+          title={objc['title']}
+        />);
+      }
     }
     return markerView;
    }
@@ -435,6 +437,7 @@ export default class Explore extends Component {
 
   render() {
     if (this.state.showMap) {
+      console.log('appConstant.lat', appConstant.lat ,appConstant.long);
       return (<View style={{ flex:1 }}>
         <View style={{flex: 1, zIndex:10, height: windowHeight}}>
           <MapView
@@ -456,7 +459,7 @@ export default class Explore extends Component {
             <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
           </View>
         </TouchableOpacity>
-        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280}}>
+        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: Platform.OS === 'ios' ? windowHeight - 280 : windowHeight - 200}}>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
