@@ -54,7 +54,6 @@ export default class MyStore extends Component {
       itsFollowing: false,
       stopPagination: false,
       dataLoad: false,
-
     }
   }
 
@@ -219,6 +218,7 @@ export default class MyStore extends Component {
     var address = ''
     var rating = ''
     var review = ''
+
     if (this.state.storeDetail['location']) {
       let add = this.state.storeDetail['location']
       address = add['formatted_address'];
@@ -226,10 +226,11 @@ export default class MyStore extends Component {
       rating = reRate['rating_average'] || '0';
       review = reRate['review_count'] || '0';
     }
+    var photo = this.state.storeDetail['images'] ? this.state.storeDetail['images'] : [];
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
-          <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+          <FastImage source={photo.length == 0 ? sample : { uri: photo[0] }} style={{ height: 60, width: 60, borderRadius: 30 }} />
           <View style={{ marginLeft: 16, flex:1}}>
             <Text style={eventStyles.titleStyle}>
               {this.state.storeDetail['name']}
@@ -275,7 +276,7 @@ export default class MyStore extends Component {
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
-              {accId == appConstant.accountID ? 'Edit Store' : this.state.itsFollowing ? 'Following' : 'Follow'}
+              {accId == appConstant.accountID ? 'Edit' : this.state.itsFollowing ? 'Following' : 'Follow'}
             </Text>
           </TouchableOpacity>
         </View>

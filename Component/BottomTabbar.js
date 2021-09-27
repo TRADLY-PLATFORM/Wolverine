@@ -37,8 +37,9 @@ function AppTabbar() {
         if (route.name === 'Home') {
           iconName = require('../assets/homeIcon.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
-        } else if (route.name === 'Explore') {
-          iconName = require('../assets/exploreIcon.svg');
+        } else if (route.name === 'Search') {
+
+          iconName = require('../assets/searchSvg.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === 'List') {
           iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
@@ -50,11 +51,11 @@ function AppTabbar() {
           iconName = require('../assets/more.svg');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         }
-        return  <SvgUri width={18} height={18} source={iconName} fill={tabColor} />
+        return  <SvgUri width={20} height={20} source={iconName} fill={tabColor} />
       },
     })}>
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
+      <Tab.Screen name="Search" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name="List" component={centerTab} options={{tabBarVisible: false}}/>
       <Tab.Screen name="Chat" component={chatS}  options={{tabBarVisible: appConstant.loggedIn}}/>
       <Tab.Screen name="More" component={More} />

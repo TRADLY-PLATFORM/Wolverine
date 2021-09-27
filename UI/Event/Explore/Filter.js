@@ -371,7 +371,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 1) {
+    else if (index == -211) {
       if (this.state.selectedDatePostedIndex != -1) {
         let value = titleAry[this.state.selectedDatePostedIndex];
         views.push(<View>
@@ -379,7 +379,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 2) {
+    else if (index == 1) {
       if (this.state.selectedRatingIndex != -1) {
         var startView = []
         for (let a = 0; a < 5 - this.state.selectedRatingIndex; a++) {
@@ -394,7 +394,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 3) {
+    else if (index == 2) {
       if (this.state.distanceValue[0] != 0) {
         let value = this.state.distanceValue[0].toFixed(0)
         views.push(<View>
@@ -402,7 +402,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 4) {
+    else if (index == -24) {
       if (this.state.priceValue[0] != 0) {
         let from = this.state.priceValue[0].toFixed(0);
         let to = this.state.priceValue[1].toFixed(0)
@@ -411,7 +411,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 5) {
+    else if (index == 3) {
       if (this.state.selectedCategoryIndex != -1) {
         var value = '';
         if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
@@ -647,23 +647,23 @@ export default class Filter extends Component {
       return (<View>
         {this.renderTimeView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 1) {
+    } else if (this.state.selectedFilterIndex == -11) {
       return (<View>
         {this.renderDatePostedView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 2) {
+    } else if (this.state.selectedFilterIndex == 1) {
       return (<View>
         {this.renderRatingView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 3) {
+    } else if (this.state.selectedFilterIndex == 2) {
       return (<View>
         {this.renderDistanceView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 4) {
+    } else if (this.state.selectedFilterIndex == -213) {
       return (<View>
         {this.renderPriceView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 5) {
+    } else if (this.state.selectedFilterIndex == 3) {
       return (<View>
         {this.renderCategoryView()}
       </View>)
@@ -678,10 +678,10 @@ export default class Filter extends Component {
     var snapPoint = '50%';
     let maxHeight = '100%'
     var viewHeight = windowHeight/ 3;
-    if (this.state.selectedFilterIndex == 2) {
+    if (this.state.selectedFilterIndex == 1) {
       snapPoint = '40%'
       viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 5) {
+    }else if (this.state.selectedFilterIndex == 3) {
       snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }
@@ -769,6 +769,7 @@ const styles = StyleSheet.create({
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
+    elevation: 10,
     shadowRadius: 2,
     borderRadius: 20,
   },

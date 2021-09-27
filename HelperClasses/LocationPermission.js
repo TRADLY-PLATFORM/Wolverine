@@ -28,16 +28,16 @@ export default class CurrentLocation extends Component {
           Alert.alert('Location request timed out');
         }
         if (code === 'UNAUTHORIZED') {
-          Alert.alert(
-            'Authorization denied', "",
-            [
-              {
-                text: "OK", onPress: () => {
-                  GetLocation.openAppSettings();  
-                }
-              }
-            ],
-          );
+          // Alert.alert(
+          //   'Authorization denied Location', "",
+          //   [
+          //     {
+          //       text: "OK", onPress: () => {
+          //         GetLocation.openAppSettings();  
+          //       }
+          //     }
+          //   ],
+          // );
         }
         // this.setState({
         //   location: null,

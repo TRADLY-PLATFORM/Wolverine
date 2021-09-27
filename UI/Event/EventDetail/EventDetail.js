@@ -581,11 +581,15 @@ export default class EventDetail extends Component {
   }
   renderHeaderView = () => {
     var likeView = [];
+    var moreView = [];
     if (!this.state.itsOwnEvent) {
       let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
-      likeView.push(
-        <Image style={{width: 30, height: 30, marginTop: -3}} source={icon} />
-      )
+      likeView.push(<Image style={{width: 30, height: 30, marginTop: -3}} source={icon} />)
+    }
+    if (this.state.itsOwnEvent) {
+      moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
+      </TouchableOpacity>)
     }
     return (<View> 
       <View style={commonStyles.headerViewStyle}>
@@ -603,9 +607,7 @@ export default class EventDetail extends Component {
           {likeView}
         </TouchableOpacity>
         <View style={{width: 10}}/>
-        <TouchableOpacity onPress={() => this.moreBtnAction()}>
-          <Image style={commonStyles.backBtnStyle} resizeMode='contain'  source={menuIcon} />
-        </TouchableOpacity>
+          {moreView}
         </View>
         </View>
       </View>
@@ -686,6 +688,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
   },
   selectedImageStyle: {
     width: 140,
@@ -703,6 +706,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
+    elevation: 10,
     borderRadius: 20,
   },
   createDateViewStyle:{

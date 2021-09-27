@@ -102,14 +102,21 @@ export default class More extends Component {
       ],
     );
   }
+  // rateAppBtnAction() {
+  //   Linking.canOpenURL(link).then(supported => {
+  //     supported && Linking.openURL(link);
+  //   }, (err) => console.log(err));
+  // }
   didSelectList = ({ index }) => {
-    if (index == 4) {
+    console.log('appConstant.loggedIn ==> ', appConstant.loggedIn);
+
+    if (index == 5) {
       Linking.openURL(appConstant.termCondition);
     }
-    else if (index == 5) {
+    else if (index == 6) {
       Linking.openURL(appConstant.privacyURL);
     }
-    else if (index == 6) {
+    else if (index == 7) {
       this.props.navigation.navigate(NavigationRoots.InviteFriend);
     } else {
       if (appConstant.loggedIn) {
@@ -129,13 +136,13 @@ export default class More extends Component {
           }
         } else if (index == 2) {
           this.props.navigation.navigate(NavigationRoots.MyOrders);
-        } else if (index == 3) {
+        } else if (index == 4) {
           if (this.state.accountId != 0) {
             this.props.navigation.navigate(NavigationRoots.MySale);
           } else {
             this.props.navigation.navigate(NavigationRoots.CreateStore);
           }
-        }else if (index == 42) {
+        }else if (index == 3) {
           if (this.state.accountId != 0) {
             this.props.navigation.navigate(NavigationRoots.MyOrders,{
               title:constantArrays.menuArray[index]
@@ -244,6 +251,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 5,
+    elevation: 10,
     flexDirection: 'row',
     borderRadius: 10,
   }

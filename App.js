@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
+import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
@@ -103,7 +103,7 @@ export default class App extends Component {
       return <SafeAreaView style={styles.container}>
         <View>
           {/* <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} /> */}
-           <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} /> 
+          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} />
           <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>

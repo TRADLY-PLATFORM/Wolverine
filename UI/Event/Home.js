@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  RefreshControl,
+  RefreshControl,StatusBar,
   FlatList,
   Text,Image,View,
   StyleSheet, SafeAreaView,
@@ -24,8 +24,12 @@ import {firebaseAuth} from '../../Firebase/FirebaseAuth'
 import LocationPermission from '../../HelperClasses/LocationPermission';
 import moreSVG from '../../assets/more.svg';
 import SvgUri from 'react-native-svg-uri';
+import backIcon from '../../assets/back.png'
+import notificationIcon from '../../assets/notificationIcon.png';
+import heartEmptyIcon from '../../assets/heartEmpty.png'
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default class Home extends Component {
   constructor(props) {
@@ -110,9 +114,10 @@ export default class Home extends Component {
   }
   /*  Buttons   */
   favouriteBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.EventList,{
-      favourite:true,
-    });
+    this.props.navigation.navigate(NavigationRoots.EventList,{favourite:true});
+  }
+  notificationBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.Notifications);
   }
   didSelectCategory(item,index) {
     if (index == 7) {
@@ -145,6 +150,7 @@ export default class Home extends Component {
           renderItem={this.renderGridViewCellItem}
           numColumns={4}
           keyExtractor={(item, index) =>  'C' + index}
+          key={'G'}
         />
       </View>)
   }
@@ -181,6 +187,7 @@ export default class Home extends Component {
         keyExtractor={(item, index) => index}
         showsVerticalScrollIndicator={false}
         style={{aspectRatio: 16/9}}
+        key={'P'}
       />
     </View>
     } else {
@@ -205,6 +212,7 @@ export default class Home extends Component {
           extraData={this.state}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
+          key={'E'}
         />
       </View>
     } else {
@@ -244,6 +252,7 @@ export default class Home extends Component {
           extraData={this.state}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
+          key={'H'}
         />
       </View>
     } else {
@@ -252,7 +261,6 @@ export default class Home extends Component {
   }
   renderHorizontalCellItem = ({ item, index }) => {
     var photo = item['images'] ? item['images'] : [];
-
     if(item['user']) {
       var profilePic = item['user']['profile_pic'].length == 0 ? dummy : {uri:item['user']['profile_pic']}
       return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
@@ -275,13 +283,36 @@ export default class Home extends Component {
       }
     }
   }
+  renderHeaderView = () => {
+    return (<View> 
+      <View style={commonStyles.headerViewStyle}>
+        <StatusBar barStyle="light-content" />
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+          <View>
+            <Text style={commonStyles.headerTitleStyle}>{appConstant.appHomeTitle}</Text>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => this.notificationBtnAction()}>
+              <Image style={{ width: 30, height: 30 }} source={notificationIcon} />
+            </TouchableOpacity>
+            <View style={{ width: 10 }} />
+            <TouchableOpacity onPress={() => this.favouriteBtnAction()}>
+              <Image style={{ width: 30, height: 30 }} source={heartEmptyIcon} />
+
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>)
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={appConstant.appHomeTitle} showDoneBtn={true} doneBtnTitle={'Favourite'} doneBtnAction={() => this.favouriteBtnAction()} />
+        <this.renderHeaderView />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView
+          showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
           style={{backgroundColor: colors.LightBlueColor}}
           refreshControl={
@@ -329,6 +360,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     flexDirection: 'row',
   },
   horizontalCellItemStyle: {
@@ -341,6 +373,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
   },
   selectedImageStyle: {
     height: windowWidth/2.25,

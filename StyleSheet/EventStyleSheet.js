@@ -77,6 +77,7 @@ module.exports = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 2,
     borderRadius: 20,
+    elevation: 10,
   },
   applyBtnViewStyle: {
     borderRadius: 4,
@@ -127,6 +128,7 @@ module.exports = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     backgroundColor: colors.AppWhite,
   },
   headerViewStyle: {
@@ -179,6 +181,8 @@ module.exports = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 5,
     borderRadius: 20,
+    elevation: 10,
+  
   },
   containerMapStyle: {
     margin:0,

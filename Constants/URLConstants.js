@@ -5,7 +5,7 @@ module.exports = {
     BaseURL: 'https://api.tradly.app/',
     token: 'v1/users/token/refresh',
     config: `v1/tenants/${appConstant.tenantID}/configs`,
-    configList: `v1/configs/?key_group=`,
+    configList: `v1/configs?key_group=`,
     register: 'v1/users/register',
     login: 'v1/users/login',
     verify: 'v1/users/verify',
@@ -36,6 +36,7 @@ module.exports = {
     transaction: 'v1/transactions?per_page=30&super_type=2&page=',
     like: '/likes',
     follow: '/follow',
+    activities: 'v1/activities?page='
 
   }
 }
