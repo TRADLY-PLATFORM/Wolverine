@@ -44,6 +44,9 @@ export default class More extends Component {
           this.getUserDetailApi();
           this.getMyStoreApi();
           // this.setState({updateUI: !this.state.updateUI})
+      }else {
+        this.state.profilePic = ''
+        this.setState({updateUI: !this.state.updateUI})
       }
     });
   }
@@ -64,8 +67,10 @@ export default class More extends Component {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
+      console.log('coming here or not');
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
+        appConstant.accountID = acctData[0]['id'];
         this.setState({ accountId: acctData[0]['id'] })
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false})
@@ -108,8 +113,6 @@ export default class More extends Component {
   //   }, (err) => console.log(err));
   // }
   didSelectList = ({ index }) => {
-    console.log('appConstant.loggedIn ==> ', appConstant.loggedIn);
-
     if (index == 5) {
       Linking.openURL(appConstant.termCondition);
     }
