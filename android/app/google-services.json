@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "379071078531",
-    "firebase_url": "https://tradly-social.firebaseio.com",
-    "project_id": "tradly-social",
-    "storage_bucket": "tradly-social.appspot.com"
+    "project_number": "194464839382",
+    "firebase_url": "https://classbubs-b0345-default-rtdb.firebaseio.com",
+    "project_id": "classbubs-b0345",
+    "storage_bucket": "classbubs-b0345.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:379071078531:android:1e2088ce5ff62f6b24bbb6",
+        "mobilesdk_app_id": "1:194464839382:android:95cc6c5b16cc050cc5fb77",
         "android_client_info": {
-          "package_name": "com.tradly.edutech"
+          "package_name": "com.classbubs.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
+          "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBOUsu6NllkVNKczD6clQcnQIVvLgMzJgY"
+          "current_key": "AIzaSyBETvY--ptbtTFPy04YP-agNmFtDiwli-4"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
+              "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "379071078531-cpd0ep6tsmm671fphb54v9tgquqd2tb7.apps.googleusercontent.com",
+              "client_id": "194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "tradly.social.dev"
+                "bundle_id": "com.classbubs.app"
               }
             }
           ]
@@ -44,71 +44,34 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:379071078531:android:c5da992675fe50d324bbb6",
+        "mobilesdk_app_id": "1:194464839382:android:b394be0dbb8e22cac5fb77",
         "android_client_info": {
-          "package_name": "tradly.social"
+          "package_name": "com.tradly.classbubs"
         }
       },
       "oauth_client": [
         {
-          "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
+          "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBOUsu6NllkVNKczD6clQcnQIVvLgMzJgY"
+          "current_key": "AIzaSyBETvY--ptbtTFPy04YP-agNmFtDiwli-4"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
+              "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "379071078531-cpd0ep6tsmm671fphb54v9tgquqd2tb7.apps.googleusercontent.com",
+              "client_id": "194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "tradly.social.dev"
-              }
-            }
-          ]
-        }
-      },
-      "admob_app_id": "ca-app-pub-8594798438140915~1531243672"
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:379071078531:android:502fa829016f231f24bbb6",
-        "android_client_info": {
-          "package_name": "tradly.social.dev"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBOUsu6NllkVNKczD6clQcnQIVvLgMzJgY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "379071078531-2g0vshilobq18a2sn8v8ku2l487fpu43.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "379071078531-cpd0ep6tsmm671fphb54v9tgquqd2tb7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "tradly.social.dev"
+                "bundle_id": "com.classbubs.app"
               }
             }
           ]

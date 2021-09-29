@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.tradlyevent">
+  package="com.classbubs.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION"/>
@@ -13,7 +13,7 @@
       android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"/>
+            android:value="AIzaSyDYF4YEAIf6uubdImG2nP3dLTNfeshOTEg"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
