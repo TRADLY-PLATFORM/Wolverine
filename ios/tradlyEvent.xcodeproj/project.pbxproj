@@ -540,8 +540,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F3Y3NZRWNC;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 59G7JX38F6;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -553,12 +553,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = tradly.social.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.classbubs.app;
 				PRODUCT_NAME = tradlyEvent;
 				SWIFT_OBJC_BRIDGING_HEADER = "tradlyEvent-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -574,8 +575,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F3Y3NZRWNC;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 59G7JX38F6;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-range-slider/ios/**",
@@ -586,12 +587,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = tradly.social.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.classbubs.app;
 				PRODUCT_NAME = tradlyEvent;
 				SWIFT_OBJC_BRIDGING_HEADER = "tradlyEvent-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
