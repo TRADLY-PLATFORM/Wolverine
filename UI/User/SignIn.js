@@ -58,6 +58,8 @@ export default class SignIn extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
+        const udata = responseJson['data']['user'];
+        appConstant.userId = udata['id'];
         userModel.userData(responseJson);
         this.updateDeviceInfoAPI();
         this.getMyStoreApi();

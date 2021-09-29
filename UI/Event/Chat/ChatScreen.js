@@ -29,7 +29,7 @@ import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
 
 
-const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : -200
+const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
 export default class ChatScreen extends Component {
@@ -182,7 +182,7 @@ export default class ChatScreen extends Component {
           <TextInput
             value={this.state.message}
             onChangeText={txt => this.setState({message: txt})}
-            style={styles.msgViewStyle}
+            style={styles.msgTextStyle}
             placeholder={'Write here ...'}/>
         </View>
         {/* <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
@@ -207,7 +207,7 @@ export default class ChatScreen extends Component {
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
           <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={keyboardVerticalOffset}>
             <View style={{height: '100%', justifyContent: 'space-between' }}>
-            <View style={{ flex: 1}}>
+            <View style={{ flex: 1 }}>
               <this.renderChatView />
             </View>
             <View>
@@ -303,12 +303,6 @@ const styles = StyleSheet.create({
    },
    photoViewStyle: {
     width:180, height: 200, marginBottom: 5 
-   },
-   msgViewStyle:{
-    fontSize: 16,
-    color: colors.AppGray,
-    paddingLeft: 5,
-    height: 60,
-  },
+   }
 });
 

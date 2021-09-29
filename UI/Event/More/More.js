@@ -44,6 +44,9 @@ export default class More extends Component {
           this.getUserDetailApi();
           this.getMyStoreApi();
           // this.setState({updateUI: !this.state.updateUI})
+      }else {
+        this.state.profilePic = ''
+        this.setState({updateUI: !this.state.updateUI})
       }
     });
   }
@@ -64,8 +67,10 @@ export default class More extends Component {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
+      console.log('coming here or not');
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
+        appConstant.accountID = acctData[0]['id'];
         this.setState({ accountId: acctData[0]['id'] })
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false})
@@ -108,8 +113,6 @@ export default class More extends Component {
   //   }, (err) => console.log(err));
   // }
   didSelectList = ({ index }) => {
-    console.log('appConstant.loggedIn ==> ', appConstant.loggedIn);
-
     if (index == 5) {
       Linking.openURL(appConstant.termCondition);
     }
@@ -177,7 +180,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{height: 20, fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
+      <Text style={{fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {
