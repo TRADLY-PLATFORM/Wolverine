@@ -1,4 +1,4 @@
-package com.tradlyevent;
+package com.tradlyEvent;
 
 import com.facebook.react.ReactActivity;
 
