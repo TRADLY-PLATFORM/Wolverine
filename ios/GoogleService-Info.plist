@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>379071078531-cpd0ep6tsmm671fphb54v9tgquqd2tb7.apps.googleusercontent.com</string>
+	<string>194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.379071078531-cpd0ep6tsmm671fphb54v9tgquqd2tb7</string>
+	<string>com.googleusercontent.apps.194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAsjLG7gZCKq8LRxLfmfqpgEiaNoNzoWMw</string>
+	<string>AIzaSyCyuDItaFT8h6I_kgXkiB95rXGYhdloeag</string>
 	<key>GCM_SENDER_ID</key>
-	<string>379071078531</string>
+	<string>194464839382</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>tradly.social.dev</string>
+	<string>com.classbubs.app</string>
 	<key>PROJECT_ID</key>
-	<string>tradly-social</string>
+	<string>classbubs-b0345</string>
 	<key>STORAGE_BUCKET</key>
-	<string>tradly-social.appspot.com</string>
+	<string>classbubs-b0345.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:379071078531:ios:5eaffb6c9f1f604224bbb6</string>
+	<string>1:194464839382:ios:feb6781a16b03ab5c5fb77</string>
 	<key>DATABASE_URL</key>
-	<string>https://tradly-social.firebaseio.com</string>
+	<string>https://classbubs-b0345-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>
