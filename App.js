@@ -15,7 +15,7 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
 import appConstant from './Constants/AppConstants';
-import logoIcon from './assets/classbubslogo.png';
+import logoIcon from './assets/classbubslogo.jpg';
 import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';

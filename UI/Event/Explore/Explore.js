@@ -163,7 +163,7 @@ export default class Explore extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['nearest_distance','price_high_to_low', 'price_low_to_high', 'relevance'];
+        let sortKey  = ['nearest_distance','price_low_to_high','price_high_to_low'];
         this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
       }
       this.callApi(this.state.params);
