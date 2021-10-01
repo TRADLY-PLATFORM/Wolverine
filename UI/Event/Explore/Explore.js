@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
+  StatusBar,
   Text,
   Image,
   View,
@@ -163,7 +163,7 @@ export default class Explore extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['nearest_distance','price_high_to_low', 'price_low_to_high', 'relevance'];
+        let sortKey  = ['nearest_distance','price_low_to_high','price_high_to_low'];
         this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
       }
       this.callApi(this.state.params);
@@ -269,27 +269,27 @@ export default class Explore extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View style={{backgroundColor: 'green'}}>
+      return (<View>
         <ScrollBottomSheet
           componentType="ScrollView"
-          snapPoints={['40%', "40%", maxHeight]}
+          snapPoints={['50%', "50%", maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={true}
           animationType={'timing'}
           renderHandle={() => (
             <View style={eventStyles.header}>
               <View style={eventStyles.panelHandle} />
-              <View style={{ backgroundColor: colors.AppWhite, height: windowHeight/ 2, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
+              <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
+                <View style={{justifyContent: 'center' }}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort</Text>
                 </View>
-                <View style={{height: '58%', marginTop: 10}}>
+                <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
-                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
+                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -303,44 +303,6 @@ export default class Explore extends Component {
     } else {
       return <View />
     }
-  }
-  renderListView = () => {
-    if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
-        <FlatList
-          data={this.state.eventsArray}
-          renderItem={this.renderListCellItem}
-          keyExtractor={(item, index) => index + 3245}
-          key={'L'}
-          horizontal={this.state.showMap ? true : false}
-          onEndReachedThreshold={0}
-          onEndReached={this.paginationMethod}
-          onRefresh={this._handleRefresh}
-          refreshing={this.state.isVisible}
-        />
-      </View>)
-    } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
-      </View>
-    }
-  }
-  renderListCellItem = ({ item, index }) => {
-    return (<TouchableOpacity onPress={() => this.didSelectEventList(item, index)}>
-      <ExploreListItem data={item} />
-    </TouchableOpacity>)
-  }
-  renderHeaderView = () => {
-    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
-        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
-        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
-      </TouchableOpacity>
-    </View>)
   }
   renderDateListView = () => {
     return (<View style={{ margin: 5, height: 35 }}>
@@ -389,25 +351,63 @@ export default class Explore extends Component {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
       let coordinate = objc['coordinates'];
-      // console.log('objc', coordinate)
-      markerView.push(<Marker
-        coordinate={coordinate}
-        image = {require('../../../assets/mapPin.png')} 
-        title={objc['title']}
-      />);
+      if (coordinate != undefined) {
+        markerView.push(<Marker
+          coordinate={coordinate}
+          image={require('../../../assets/mapPin.png')}
+          title={objc['title']}
+        />);
+      }
     }
     return markerView;
    }
+   renderListView = () => {
+    if (this.state.eventsArray.length != 0) {
+      return (<View style={{ margin: 5, height: '100%' }}>
+        <FlatList
+          data={this.state.eventsArray}
+          renderItem={this.renderListCellItem}
+          keyExtractor={(item, index) => index + 3245}
+          key={'L'}
+          horizontal={this.state.showMap ? true : false}
+          onEndReachedThreshold={0}
+          onEndReached={this.paginationMethod}
+          onRefresh={this._handleRefresh}
+          refreshing={this.state.isVisible}
+        />
+      </View>)
+    } else {
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
+      </View>
+    }
+  }
+  renderListCellItem = ({ item, index }) => {
+    return (<TouchableOpacity onPress={() => this.didSelectEventList(item, index)}>
+      <ExploreListItem data={item} />
+    </TouchableOpacity>)
+  }
+  renderHeaderView = () => {
+    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
+      </TouchableOpacity>
+    </View>)
+  }
   renderMainView = () => {
     return (<View style={{ flex: 1 }}>
-      <View>
-        {this.renderHeaderView()}
-        {this.renderDateListView()}
-      </View>
-      <View style={{ height: windowHeight / 1.32 }}>
+      {this.renderHeaderView()}
+      {this.renderDateListView()}
+      <View style={{ flex: 1 }}>
         {this.renderListView()}
         {this.renderViewMaBtnView()}
       </View>
+      <View style={{ height: 0, width: '100%' }} />
     </View>)
   }
   renderSearchBar = () => {
@@ -466,8 +466,8 @@ export default class Explore extends Component {
       <SafeAreaView style={styles.Container}>
         {this.renderSearchBar()}
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ flex:1, backgroundColor: colors.LightBlueColor }}>
-          <View style={{ zIndex: 5, position: 'absolute'}}>
+        <View style={{ backgroundColor: colors.LightBlueColor, flex: 1 }}>
+          <View style={{ zIndex: 5, position: 'absolute', height: '100%'}}>
             <this.renderMainView />
           </View>
           <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>

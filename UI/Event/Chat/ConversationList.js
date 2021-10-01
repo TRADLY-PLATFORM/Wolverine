@@ -69,7 +69,10 @@ export default class ConversationList extends Component {
         }
       }
       this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
-    });
+    }).catch(error => {
+      console.log('error', error)
+      this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
+    })
   }
   /*  Buttons   */
   chatBtnAction(item) {
@@ -121,7 +124,7 @@ export default class ConversationList extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Chats'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '93%', backgroundColor: colors.AppWhite }}>
+        <View style={{ flex:1, backgroundColor: colors.AppWhite }}>
           <this.renderConversationListView />
           <View style={{height: 10}}/>
         </View>

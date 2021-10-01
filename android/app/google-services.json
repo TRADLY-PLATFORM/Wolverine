@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "194464839382",
+    "firebase_url": "https://classbubs-b0345-default-rtdb.firebaseio.com",
+    "project_id": "classbubs-b0345",
+    "storage_bucket": "classbubs-b0345.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194464839382:android:95cc6c5b16cc050cc5fb77",
+        "android_client_info": {
+          "package_name": "com.classbubs.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBETvY--ptbtTFPy04YP-agNmFtDiwli-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.classbubs.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194464839382:android:b394be0dbb8e22cac5fb77",
+        "android_client_info": {
+          "package_name": "com.tradly.classbubs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBETvY--ptbtTFPy04YP-agNmFtDiwli-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "194464839382-jgfvic2idp3k0t2v7b20bqcit28bcjlc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "194464839382-joi6p3oba57arej7q0ahtr0tf8r51df5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.classbubs.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

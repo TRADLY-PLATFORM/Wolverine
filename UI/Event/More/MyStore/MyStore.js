@@ -227,6 +227,7 @@ export default class MyStore extends Component {
       review = reRate['review_count'] || '0';
     }
     var photo = this.state.storeDetail['images'] ? this.state.storeDetail['images'] : [];
+    console.log('photo', photo)
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
@@ -533,7 +534,7 @@ export default class MyStore extends Component {
 
   renderTabActionView = () => {
     if (this.state.segmentIndex == 0) {
-      return (<View>
+      return (<View style={{alignItems: 'center'}}>
         {this.renderEventView()}
       </View>)
     } else {
@@ -551,29 +552,22 @@ export default class MyStore extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={''} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View>
-          <View style={{ position: 'relative', flexDirection: 'column', height:'100%'}}>
-            <View style={{ backgroundColor: colors.AppTheme, height: 100}}>
+        <View style={{ position: 'relative', flexDirection: 'column', height:'100%'}}>
+          <View style={{ backgroundColor: colors.LightBlueColor, marginTop: 100 }}>
+            <View style={styles.headerContainerViewStyle} >
+              <this.renderProfileView />
             </View>
-            <View style={{ backgroundColor: colors.LightBlueColor, height: windowHeight / 1.36 }}>
-              <View style={styles.headerContainerViewStyle} >
-                <this.renderProfileView />
-              </View>
-              <View>
-                <this.renderSegmentBar />
-              </View>
-              <View style={{flex: 1}}>
-              <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-                <this.renderFilterView />
-                <View style={{ height: 10 }} />
-                <View style={{flex:1}}>
-                  <this.renderTabActionView />
-                </View>
-              </View>
-              </View>
-            </View>
-            <View style={{height: 40,backgroundColor: colors.LightBlueColor }}/>
+            <this.renderSegmentBar />
           </View>
+          <View style={{ flex: 1,backgroundColor: colors.LightBlueColor}}>
+            <this.renderFilterView />
+            <View style={{ height: 10 }} />
+            <View style={{ flex: 1 }}>
+              <this.renderTabActionView />
+            </View>
+            <View style={{ height: 20, backgroundColor: colors.LightBlueColor,width:'100%'}} />
+          </View>
+          <View style={{ height: 45, backgroundColor: colors.LightBlueColor,width:'100%'}} />
         </View>
       </SafeAreaView>
     );

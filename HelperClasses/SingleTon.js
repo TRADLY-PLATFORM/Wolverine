@@ -1,6 +1,21 @@
-import React, {Component} from 'react';
 import moment from 'moment';
+var React = require('react-native');
 
+var {Dimensions,Platform, PixelRatio  } = React;
+const {
+  width: SCREEN_WIDTH,
+  height: SCREEN_HEIGHT,
+} = Dimensions.get('window');
+const scale = SCREEN_WIDTH / 320;
+
+export function normalize(size) {
+  const newSize = size * scale
+  if (Platform.OS === 'ios') {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) 
+  } else {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+  }
+}
 export function dateConversionFromTimeStamp(bDate) {
   var ctime = new Date(bDate * 1000);
   let frmt = 'DD-MM-YYYY HH:mm';
