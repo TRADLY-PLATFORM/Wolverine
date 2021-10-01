@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import {
   FlatList, Alert, Linking, Text, Image, View,
-  StyleSheet, SafeAreaView, TouchableOpacity, ScrollView
+  StyleSheet, SafeAreaView, TouchableOpacity, ScrollView,Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../CommonClasses/AppColor';
@@ -19,6 +19,7 @@ import appMsg from '../../../Constants/AppMessages';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
+const windowHeight = Dimensions.get('window').height;
 
 export default class More extends Component {
   constructor(props) {
@@ -180,7 +181,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
+      <Text style={{height: 20,fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {
@@ -204,28 +205,26 @@ export default class More extends Component {
   }
   render() {
     return (
-        // <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
-          <SafeAreaView style={styles.Container}>
-          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-          <View style={{ position: 'relative', flexDirection: 'column' }}>
-            <View style={{ height: 200 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20, }}>
-                <FastImage source={this.state.profilePic.length == 0 ? sample : { uri:this.state.profilePic}} 
-                   style={{height: 60, width: 60, borderRadius: 30 }} />
-                <this.renderUserInfo />
-              </View>
-            </View>
-            <View style={{ backgroundColor: colors.LightBlueColor, height: '74%', justifyContent: 'space-between'}}>
-              <View style={styles.listContainerView} >
-                <this.renderListView />
-              </View>
-              <View style={{height: 50,alignItems: 'center'}}>
-                <Text>{appConstant.appVersion}</Text>
-              </View>
+      <SafeAreaView style={styles.Container}>
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+        <View style={{position: 'relative', flexDirection: 'column', height: '100%'}}>
+          <View style={{ height: '30%'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
+              <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
+                style={{ height: 60, width: 60, borderRadius: 30 }} />
+              <this.renderUserInfo />
             </View>
           </View>
-          </SafeAreaView>
-        // </LinearGradient>
+          <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'space-between', height: '70%'}}>
+            <View style={styles.listContainerView} >
+              <this.renderListView />
+            </View>
+            <View style={{ height: 50, alignItems: 'center' }}>
+              <Text>{appConstant.appVersion}</Text>
+            </View>
+          </View>
+        </View>
+      </SafeAreaView>
     );
   }
 }
@@ -247,7 +246,7 @@ const styles = StyleSheet.create({
   },
   listContainerView: {
     height: '90%',
-    marginTop: -100,
+    marginTop: '-20%',
     backgroundColor: colors.AppWhite,
     margin: 20,
     shadowColor: 'gray',

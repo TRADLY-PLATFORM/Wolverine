@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform} from 'react-native';
+import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform,StatusBar} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
@@ -15,7 +15,8 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
 import appConstant from './Constants/AppConstants';
-import logoIcon from './assets/classbubslogo.png';
+// import logoIcon from './assets/classbubslogo.png';
+import androidLogoIcon from './assets/classbubslogo.jpg';
 import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
@@ -101,9 +102,10 @@ export default class App extends Component {
   render() {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}>
+        <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
         <View>
           {/* <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} /> */}
-          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={logoIcon} />
+          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={Platform.OS === 'ios' ? androidLogoIcon : androidLogoIcon} />
           <StripeProvider publishableKey={appConstant.stripePublishKey} />
         </View>
       </SafeAreaView>

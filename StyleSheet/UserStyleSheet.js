@@ -1,10 +1,24 @@
 
 'use strict';
 var React = require('react-native');
-var { StyleSheet, } = React;
+var { StyleSheet,Dimensions,Platform, PixelRatio  } = React;
 import colors from '../CommonClasses/AppColor';
 import appConstant from '../Constants/AppConstants';
 
+const {
+  width: SCREEN_WIDTH,
+  height: SCREEN_HEIGHT,
+} = Dimensions.get('window');
+const scale = SCREEN_WIDTH / 320;
+
+export function normalize(size) {
+  const newSize = size * scale
+  if (Platform.OS === 'ios') {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) 
+  } else {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+  }
+}
 module.exports = StyleSheet.create({
   logoImageViewStyle:{
     width: 100,
@@ -75,7 +89,6 @@ module.exports = StyleSheet.create({
     width: 20,
   },
   headerViewStyle: {
-    height: 60,
     backgroundColor: appConstant.AppTheme,
     justifyContent: 'space-between',
     padding: 16,
@@ -83,9 +96,13 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleStyle: {
-    fontSize: 22,
+    fontSize: normalize(20),
     fontWeight: '600',
     color: colors.AppWhite,
+  },
+  gridTitleStyle: {
+    fontSize: 12,
+    textAlign: 'center'
   },
   themeBtnStyle: {
     backgroundColor: colors.AppTheme,

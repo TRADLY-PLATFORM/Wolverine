@@ -27,6 +27,7 @@ import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../assets/back.png'
 import notificationIcon from '../../assets/notificationIcon.png';
 import heartEmptyIcon from '../../assets/heartEmpty.png'
+import {normalize} from '../../HelperClasses/SingleTon';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -155,19 +156,21 @@ export default class Home extends Component {
       </View>)
   }
   renderGridViewCellItem = ({item, index}) => {
+    let hw = normalize(20);
     if (index < 8) {
       if (this.state.categoryArray[index]){
         let dic = this.state.categoryArray[index];
+        var profilePic = dic['image_path'].length == 0 ? dummy : {uri:dic['image_path']}
         var imageView = [];
         if (index == 7) {
-          imageView.push( <SvgUri width={30} height={30} source={moreSVG} fill={colors.AppTheme}/>)
+          imageView.push( <SvgUri width={hw} height={hw} aspectRatio={1} source={moreSVG} fill={colors.AppTheme}/>)
         } else {
-          imageView.push(<Image style={styles.imageThumbnail} source={{url: dic['image_path']}} resizeMode={'contain'}/>)
+          imageView.push(<FastImage style={styles.imageThumbnail} source={profilePic} resizeMode={'contain'}/>)
         }
         return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(dic,index)}>
             {imageView}
           <View style={{height: 5}}/>
-          <Text style={{textAlign: 'center', fontSize: 12}}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
+          <Text style={commonStyles.gridTitleStyle}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
         </TouchableOpacity>)
       } else {
         return <View />
@@ -178,7 +181,7 @@ export default class Home extends Component {
   }
   renderPromoView = () => {
     if (this.state.promoBannerArray != 0) {
-    return <View style={{ backgroundColor: colors.LightBlueColor, marginBottom: -10}}>
+    return <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'center', paddingTop: 10, paddingBottom: 10}}>
       <FlatList
         data={this.state.promoBannerArray}
         horizontal={true}
@@ -186,7 +189,7 @@ export default class Home extends Component {
         extraData={this.state}
         keyExtractor={(item, index) => index}
         showsVerticalScrollIndicator={false}
-        style={{aspectRatio: 16/9}}
+        // style={styles.promoViewStyle}
         key={'P'}
       />
     </View>
@@ -197,7 +200,7 @@ export default class Home extends Component {
   renderPromoCellItem = ({item, index}) => {
     var photo = item['image_path']
     return (<View style={styles.promoCellStyle}>
-      <FastImage style={{ aspectRatio: 16/9, borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
+      <FastImage style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
       </View>)
    }
   renderEventView = () => {
@@ -264,7 +267,7 @@ export default class Home extends Component {
     if(item['user']) {
       var profilePic = item['user']['profile_pic'].length == 0 ? dummy : {uri:item['user']['profile_pic']}
       return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
-        <Image style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
+        <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
         <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
         <View style={{flexDirection: 'row', marginTop: 10}}>
@@ -287,7 +290,7 @@ export default class Home extends Component {
     return (<View> 
       <View style={commonStyles.headerViewStyle}>
         <StatusBar barStyle="light-content" />
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%', alignItems: 'center' }}>
           <View>
             <Text style={commonStyles.headerTitleStyle}>{appConstant.appHomeTitle}</Text>
           </View>
@@ -298,7 +301,6 @@ export default class Home extends Component {
             <View style={{ width: 10 }} />
             <TouchableOpacity onPress={() => this.favouriteBtnAction()}>
               <Image style={{ width: 30, height: 30 }} source={heartEmptyIcon} />
-
             </TouchableOpacity>
           </View>
         </View>
@@ -308,6 +310,7 @@ export default class Home extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
+        <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
         <this.renderHeaderView />
         <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
@@ -338,8 +341,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppTheme
   },
   imageThumbnail : {
-    width: 30,
-    height: 30,
+    width: '30%',
+    height: undefined,
+    aspectRatio:1,
   },
   gridViewStyle:{
     flexDirection: 'column', 
@@ -351,11 +355,17 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: colors.BorderColor
   },
+  promoViewStyle: {
+    height: windowHeight/4.2,
+    // aspectRatio: 16/9,
+  },
   promoCellStyle: {
     margin: 10,
     borderRadius: 10,
     backgroundColor: colors.AppWhite,
-    aspectRatio: 16/9,
+    // aspectRatio: 16/9,
+    height: windowHeight/5, 
+    width: windowWidth - 70,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
