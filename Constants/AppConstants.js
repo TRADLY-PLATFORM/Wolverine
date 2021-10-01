@@ -1,8 +1,8 @@
 module.exports = {
-  loggedIn:false,
+  loggedIn: false,
   appInstalled: false,
-  lat:30.76,
-  long:76.56,
+  lat: 30.76,
+  long: 76.56,
   authKey: '',
   refreshKey: '',
   termCondition: '',
