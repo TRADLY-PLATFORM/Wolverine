@@ -14,7 +14,6 @@ import dummy from './../../assets/dummy.png';
 import appConstant from './../../Constants/AppConstants';
 import APPURL from './../../Constants/URLConstants';
 import networkService from './../../NetworkManager/NetworkManager';
-import HeaderView from '../../Component/Header'
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import NavigationRoots from '../../Constants/NavigationRoots';
@@ -24,10 +23,10 @@ import {firebaseAuth} from '../../Firebase/FirebaseAuth'
 import LocationPermission from '../../HelperClasses/LocationPermission';
 import moreSVG from '../../assets/more.svg';
 import SvgUri from 'react-native-svg-uri';
-import backIcon from '../../assets/back.png'
 import notificationIcon from '../../assets/notificationIcon.png';
 import heartEmptyIcon from '../../assets/heartEmpty.png'
 import {normalize} from '../../HelperClasses/SingleTon';
+import eventStyles from '../../StyleSheet/EventStyleSheet';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -163,7 +162,7 @@ export default class Home extends Component {
         var profilePic = dic['image_path'].length == 0 ? dummy : {uri:dic['image_path']}
         var imageView = [];
         if (index == 7) {
-          imageView.push( <SvgUri width={hw} height={hw} aspectRatio={1} source={moreSVG} fill={colors.AppTheme}/>)
+          imageView.push( <SvgUri width={30} height={30} aspectRatio={1} source={moreSVG} fill={colors.AppTheme}/>)
         } else {
           imageView.push(<FastImage style={styles.imageThumbnail} source={profilePic} resizeMode={'contain'}/>)
         }
@@ -266,8 +265,8 @@ export default class Home extends Component {
     var photo = item['images'] ? item['images'] : [];
     if(item['user']) {
       var profilePic = item['user']['profile_pic'].length == 0 ? dummy : {uri:item['user']['profile_pic']}
-      return (<TouchableOpacity style={styles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
-        <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
+      return (<TouchableOpacity style={eventStyles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
+        <FastImage style={eventStyles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
         <View style={{padding: 10}}>
         <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
         <View style={{flexDirection: 'row', marginTop: 10}}>
@@ -341,9 +340,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppTheme
   },
   imageThumbnail : {
-    width: '30%',
-    height: undefined,
-    aspectRatio:1,
+    width: 30,
+    height:30
+    // aspectRatio:1,
   },
   gridViewStyle:{
     flexDirection: 'column', 
@@ -353,7 +352,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderBottomWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.BorderColor
+    borderColor: colors.BorderColor,
   },
   promoViewStyle: {
     height: windowHeight/4.2,
@@ -372,24 +371,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 10,
     flexDirection: 'row',
-  },
-  horizontalCellItemStyle: {
-    width: windowWidth/2.25,
-    // height: windowWidth/2 - 25,
-    margin: 10,
-    backgroundColor: colors.AppWhite,
-    borderRadius: 10,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-    elevation: 10,
-  },
-  selectedImageStyle: {
-    height: windowWidth/2.25,
-    width: windowWidth/2.25,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
   },
   eventCellItemStyle: {
     backgroundColor: colors.AppTheme,
