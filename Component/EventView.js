@@ -25,8 +25,8 @@ export default class EventView extends Component {
     let item = this.props.data;
     let price = item['list_price'];
     var photo = item['images'] ? item['images'] : [];
-    return (<View style={styles.horizontalCellItemStyle}>
-      <FastImage style={styles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
+    return (<View style={eventStyles.horizontalCellItemStyle}>
+      <FastImage style={eventStyles.selectedImageStyle} source={photo.length == 0 ? sample : { uri: photo[0] }} />
       <View style={{ padding: 2 }}>
         <Text style={{ fontWeight: '600', fontSize: 12, padding: 3 }} numberOfLines={1}>{item['title']}</Text>
         <View style={{ height: 5 }} />
@@ -51,28 +51,3 @@ export default class EventView extends Component {
       </View>)
   }
 }
-const styles = StyleSheet.create({
-  horizontalCellItemStyle: {
-    // height: 250,
-    width: windowWidth/2.25,
-    margin: 10,
-    backgroundColor: colors.AppWhite,
-    borderRadius: 10,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-    elevation: 10,
-  },
-  selectedImageStyle: {
-    height: windowWidth/2.25,
-    width: windowWidth/2.25,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  cellItemTextStyle: {
-    fontWeight: '500',
-    fontSize: 10,
-    padding: 3
-  },
-});

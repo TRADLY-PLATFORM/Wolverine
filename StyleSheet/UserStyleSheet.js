@@ -96,7 +96,7 @@ module.exports = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleStyle: {
-    fontSize: normalize(20),
+    fontSize: 24,
     fontWeight: '600',
     color: colors.AppWhite,
   },

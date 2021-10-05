@@ -1,10 +1,30 @@
 
 'use strict';
 var React = require('react-native');
-var { StyleSheet, } = React;
+var { StyleSheet, Dimensions} = React;
 import colors from '../CommonClasses/AppColor';
+const windowWidth = Dimensions.get('window').width;
+
+let customWidth = windowWidth > 720 ? 220 : windowWidth/2.25
 
 module.exports = StyleSheet.create({
+  horizontalCellItemStyle: {
+    width: customWidth,
+    margin: 10,
+    backgroundColor: colors.AppWhite,
+    borderRadius: 10,
+    shadowColor: 'gray',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 2,
+    elevation: 10,
+  },
+  selectedImageStyle: {
+    height: customWidth,
+    width: customWidth,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
   followContainerStyle: {
     backgroundColor: colors.AppTheme,
     paddingLeft: 10,

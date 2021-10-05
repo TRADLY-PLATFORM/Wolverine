@@ -506,22 +506,21 @@ export default class MyStore extends Component {
       </View>
     </View>)
   }
-  renderEventView = () => {
+
+  renderEventView() {
+    var view = [];
     if (this.state.eventsArray.length != 0) {
-    return <View style={{ backgroundColor: colors.lightTransparent,}}>
-      <FlatList
-        data={this.state.eventsArray}
-        numColumns={2}
-        renderItem={this.renderEventCellItem}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => index + 9287373}
-        key={'E'}
-        onEndReachedThreshold={2}
-        onEndReached={this.paginationMethod}
-      />
-    </View>
-    }else {
-      return <View style={{height: '100%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+      for (let a = 0; a <= this.state.eventsArray.length - 1; a++) {
+        let item = this.state.eventsArray[a];
+        view.push(
+          <TouchableOpacity onPress={() => this.didSelectEvent(item)}>
+            <EventView data={item} />
+          </TouchableOpacity>,
+        );
+      }
+      return view;
+    } else {
+      <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor }}>
         <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
       </View>
     }
@@ -534,9 +533,11 @@ export default class MyStore extends Component {
 
   renderTabActionView = () => {
     if (this.state.segmentIndex == 0) {
-      return (<View style={{alignItems: 'center'}}>
-        {this.renderEventView()}
-      </View>)
+      return ( <ScrollView>
+          <View style={styles.containerView}>
+            {this.renderEventView()}
+          </View>
+        </ScrollView>)
     } else {
       return (<View>
         <ScrollView>
@@ -580,7 +581,6 @@ const styles = StyleSheet.create({
   },
   headerContainerViewStyle: {
     marginTop: -100,
-    // backgroundColor: colors.AppWhite,
     flexDirection: 'row',
     margin: 20,
     borderRadius: 5,
@@ -589,7 +589,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: colors.BorderColor,
     borderWidth: 1,
-    // height: 200,
     backgroundColor: colors.AppWhite,
     width: '100%'
   },
@@ -642,6 +641,13 @@ const styles = StyleSheet.create({
     color: colors.AppGray,
     fontSize: 12,
     fontWeight: '400',
+  },
+  containerView: {
+    flexDirection:'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    width: windowWidth,
+    justifyContent: 'center'
   },
 });
 

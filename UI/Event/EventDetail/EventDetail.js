@@ -8,12 +8,14 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ScrollView,
   Dimensions,
   ActionSheetIOS,
   StatusBar,
   NativeModules,
   Platform,
+  Modal,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
@@ -39,7 +41,7 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp,timeAgo} from '../../../HelperClasses/SingleTon'
+import {getTimeFormat,changeDateFormat} from '../../../HelperClasses/SingleTon'
 import appMsg from '../../../Constants/AppMessages';
 import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
@@ -71,6 +73,8 @@ export default class EventDetail extends Component {
       loadData: false,
       itsLiked:false,
       itsOwnEvent:true,
+      previewImageBool:false,
+      photoIndex:0,
     }
   }
 
@@ -213,25 +217,40 @@ export default class EventDetail extends Component {
     );
   }
   /*  UI   */
-
   renderImageSlider = () => {
     var views = []
-    var cDate = "";
     for (let a = 0; a < this.state.imagesArray.length; a++) {
-      views.push(<View style={{backgroundColor: colors.LightUltraGray}}>
+      views.push(<TouchableOpacity 
+        onPress={() => this.setState({previewImageBool:!this.state.previewImageBool,photoIndex: a})}
+        style={{backgroundColor: colors.LightUltraGray}}>
         <FastImage 
           resizeMode={'contain'}
-          style={{ aspectRatio: 1 / 1 }} 
+          style={{ height: 300, width: '100%'}} 
           source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
-      </View>)
-      cDate = changeDateFormat(this.state.eventDetailData['created_at'] * 1000, 'ddd, MMM D');
-
+      </TouchableOpacity>)
     }
-   
-    return (<View style={{ aspectRatio: 1 / 1 }}>
+    return (<View style={{ height: 300, width: '100%'}} >
       <Pages>
         {views}
       </Pages>
+    </View>)
+  }
+  previewImageRender = () => {
+    return (<View>
+      <Modal
+        animationType={'fade'}
+        transparent={true}
+        onRequestClose={() => this.setState({ previewImageBool: !this.state.previewImageBool })}
+        visible={this.state.previewImageBool} >
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback onPress={() => this.setState({ previewImageBool: !this.state.previewImageBool })}>
+            <FastImage
+              resizeMode={'contain'}
+              style={{ flex: 1, marginLeft: 10, marginRight:10}}
+              source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[this.state.photoIndex] }} />
+          </TouchableWithoutFeedback>
+        </View>
+      </Modal>
     </View>)
   }
   renderEventDetail = () => {
@@ -622,6 +641,7 @@ export default class EventDetail extends Component {
             <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
               <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
                 {this.renderImageSlider()}
+                {this.previewImageRender()}
                 <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
                   {this.renderMainView()}
                 </View>
@@ -716,6 +736,10 @@ const styles = StyleSheet.create({
      flexDirection: 'row', 
      width: '100%',
      marginTop:statusBarHeight + 30,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
   }
 });
 
