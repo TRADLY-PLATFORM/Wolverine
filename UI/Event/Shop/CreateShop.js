@@ -429,7 +429,9 @@ export default class CreateShop extends Component {
   }
   /*  Buttons   */
   createBtnAction() {
-    if (this.state.name.length == 0) {
+    if (this.state.photo == null) {    
+      Alert.alert('Please select image')
+    } else if (this.state.name.length == 0) {
       Alert.alert('Name field should not be empty')
     } else if (Object.keys(this.state.selectedCatData).length == 0) {
       Alert.alert('Category field should not be empty')

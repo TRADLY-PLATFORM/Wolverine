@@ -377,7 +377,7 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
         <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
       </View>
     }

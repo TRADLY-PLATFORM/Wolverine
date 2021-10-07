@@ -371,9 +371,6 @@ export default class AddEvent extends Component {
     if (this.state.imagesArray.length != 0) {
       dict['images'] = this.state.uploadImageURL;;
     }
-    if (this.state.imagesArray.length != 0) {
-      dict['images'] = this.state.uploadImageURL;;
-    }
     if (this.state.eventPrice.length != 0) {
       dict['list_price'] = this.state.eventPrice;
     }
@@ -675,7 +672,9 @@ export default class AddEvent extends Component {
     this.props.navigation.goBack();
   }
   createBtnAction() {
-    if (this.state.name.length == 0) {
+    if (this.state.imagesArray.length == 0) {
+      Alert.alert('Please select atleast one image')
+    } else if (this.state.name.length == 0) {
       Alert.alert('Name field should not be empty')
     } else if (this.state.eventPrice.length == 0) {
       Alert.alert('Price field should not be empty')
@@ -1232,7 +1231,6 @@ export default class AddEvent extends Component {
     </TouchableOpacity>
   }
   renderOfferView = () => {
-    console.log('this.state.hideOfferPrice', this.state.hideOfferPrice);
     if (this.state.hideOfferPrice) {
       return (<View style={{ marginTop: 20 }}>
         <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>

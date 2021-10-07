@@ -91,7 +91,7 @@ export default class EventDetail extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${id}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let eData = responseJson['data']['listing'];
-      console.log('eData ==> ', eData['liked']);
+      console.log('eData ==> ', eData);
       this.state.eventDetailData = eData;
       this.state.itsLiked = eData['liked'];
       this.state.imagesArray = eData['images'];
@@ -219,15 +219,24 @@ export default class EventDetail extends Component {
   /*  UI   */
   renderImageSlider = () => {
     var views = []
-    for (let a = 0; a < this.state.imagesArray.length; a++) {
-      views.push(<TouchableOpacity 
-        onPress={() => this.setState({previewImageBool:!this.state.previewImageBool,photoIndex: a})}
-        style={{backgroundColor: colors.LightUltraGray}}>
-        <FastImage 
+    if (this.state.imagesArray.length != 0) {
+      for (let a = 0; a < this.state.imagesArray.length; a++) {
+        views.push(<TouchableOpacity
+          onPress={() => this.setState({ previewImageBool: !this.state.previewImageBool, photoIndex: a })}
+          style={{ backgroundColor: colors.LightUltraGray }}>
+          <FastImage
+            resizeMode={'contain'}
+            style={{ height: 300, width: '100%' }}
+            source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
+        </TouchableOpacity>)
+      }
+    }else {
+      views.push(<View style={{ backgroundColor: colors.LightUltraGray }}>
+        <FastImage
           resizeMode={'contain'}
-          style={{ height: 300, width: '100%'}} 
+          style={{ height: 300, width: '100%' }}
           source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
-      </TouchableOpacity>)
+      </View>)
     }
     return (<View style={{ height: 300, width: '100%'}} >
       <Pages>
