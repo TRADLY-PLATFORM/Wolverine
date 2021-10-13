@@ -16,12 +16,11 @@ import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
 import appConstant from './Constants/AppConstants';
 // import logoIcon from './assets/classbubslogo.png';
-import androidLogoIcon from './assets/classbubslogo.jpg';
+// import androidLogoIcon from './assets/classbubslogo.jpg';
+import classbubsLogo from './assets/classbubsLogoTransparent.png'
 import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
-import Spinner from 'react-native-loading-spinner-overlay';
-import commonStyles from './StyleSheet/UserStyleSheet'
 
 
 export default class App extends Component {
@@ -32,6 +31,7 @@ export default class App extends Component {
       loggedIn: 'false',
       reload: false,
       isVisible: false,
+      stripePublishKey: '',
     }
   }
   componentDidMount() {
@@ -72,7 +72,7 @@ export default class App extends Component {
     }
   }
   configListApi = async()  => {
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding', 'get','',appConstant.bToken,'')
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
       console.log('into -- = >', into)
@@ -80,6 +80,7 @@ export default class App extends Component {
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
+      this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
       // colors.AppTheme = into['app_color_primary'] || colors.AppTheme;
       // colors.GradientBottom = into['app_color_primary'] || colors.AppTheme;
       // colors.GradientTop = into['app_color_secondary'] || colors.GradientTop;
@@ -105,12 +106,12 @@ export default class App extends Component {
         <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
         <View>
           {/* <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} /> */}
-          <Image style={{ width: 200, height: 200, borderRadius: 0 }} source={Platform.OS === 'ios' ? androidLogoIcon : androidLogoIcon} />
-          <StripeProvider publishableKey={appConstant.stripePublishKey} />
+          <Image style={{ width: 180, height: 180, borderRadius: 0 }} source={Platform.OS === 'ios' ? classbubsLogo : classbubsLogo} />
         </View>
       </SafeAreaView>
     } else {
       return (<View style={styles.navigationContainer}>
+          <StripeProvider publishableKey={this.state.stripePublishKey} />
         <Route/>
       </View>
       );

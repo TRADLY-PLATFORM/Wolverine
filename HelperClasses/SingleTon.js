@@ -1,12 +1,23 @@
 import moment from 'moment';
 var React = require('react-native');
 
-var {Dimensions,Platform, PixelRatio  } = React;
+var {Dimensions,Platform, PixelRatio,Alert,Linking} = React;
 const {
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT,
 } = Dimensions.get('window');
 const scale = SCREEN_WIDTH / 320;
+
+export function photosPermissionAlert() {
+  Alert.alert(
+    'Please Allow Photos Permission', "",
+    [
+      {
+        text: "OK", onPress: () => {Linking.openURL('app-settings://')}
+      }
+    ],
+  );
+}
 
 export function normalize(size) {
   const newSize = size * scale

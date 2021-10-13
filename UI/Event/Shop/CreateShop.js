@@ -33,6 +33,7 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../Component/SuccessView';
 import cancelIcon from '../../../assets/cancel.png';
+import { photosPermissionAlert } from '../../../HelperClasses/SingleTon';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -548,6 +549,11 @@ export default class CreateShop extends Component {
         this.state.photo = image;
       }
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {

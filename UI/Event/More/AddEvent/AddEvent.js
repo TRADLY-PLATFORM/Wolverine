@@ -78,11 +78,11 @@ export default class AddEvent extends Component {
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.props.navigation.addListener('focus', () => {
+    // this.props.navigation.addListener('focus', () => {
       this.loadCategoryApi()
       this.loadConfigApi()
       this.getCurrencyApi()
-    })
+    // })
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
@@ -115,9 +115,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       var configs = responseJson['data']['configs'];
-      console.log('configs ==>', configs);
       this.setState({hideOfferPrice: configs['hide_offer_percent'] || false});
-
     }
     this.setState({dataLoad: true});
   };
@@ -222,7 +220,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let aData = responseJson['data']['attributes'];
-      console.log('aData == >.',JSON.stringify(aData))
+      // console.log('aData == >.',JSON.stringify(aData))
       this.state.attributeArray = aData
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -234,7 +232,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
-      console.log('vData', vData)
+      // console.log('vData', vData)
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -260,7 +258,7 @@ export default class AddEvent extends Component {
         fDict['uploadParm'] = dic2;
         fDict['currency'] = this.state.selectedCurrency;
         this.state.selectVariantArray.push(fDict)
-        console.log('fDict == ', fDict);
+        // console.log('fDict == ', fDict);
 
         // let vvv = this.state.selectVariantArray[0];
         // let dc = vvv['variantType'];
@@ -532,11 +530,11 @@ export default class AddEvent extends Component {
       dict['start_at'] = startTimestamp;
       dict['end_at'] = endTimestamp;
     }
-    console.log('dict', dict);
+    // console.log('dict', dict);
     let path = this.state.isEditing ? `/${this.state.listingID}` : ''
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
       this.state.isEditing ? 'patch' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+    // console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
@@ -564,12 +562,10 @@ export default class AddEvent extends Component {
           this.addVariantUploadServiceMethod(index + 1)
         } else {
           this.setState({ showCAlert: true })
-          // Alert.alert('SuccessFull');
         }
       }
     }else {
       this.setState({ showCAlert: true })
-      // Alert.alert('SuccessFull');
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -625,8 +621,6 @@ export default class AddEvent extends Component {
   }
   addVariantTypeApi = async (images, index) => {
     let dic = this.state.selectVariantArray[index];
-    console.log('dic',dic);
-    console.log('dic', dic);
     var dict = dic['uploadParm'];
     dict['images'] = images;
     let item = dic['variantType']
@@ -634,8 +628,8 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(dict['id']){
-       path = '/variants/' + dict['id'];
+    if(dic['id']){
+       path = '/variants/' + dic['id'];
        reqMethod = 'PUT';
     }
     console.log('path == >', path, reqMethod,)
@@ -775,11 +769,9 @@ export default class AddEvent extends Component {
   }
   /*  Delegates  */
   getDeleteVariant = data => {
-
     let { listingID } = this.props.route.params;
     if (listingID != undefined) {
       if (this.state.selectVariantArray[data]['id']){
-        console.log('this.state.selectVariantArray == >',this.state.selectVariantArray[data]['id']);
         this.deleteEventAPI(this.state.selectVariantArray[data]['id'])
       }
     }
@@ -787,7 +779,20 @@ export default class AddEvent extends Component {
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariant = data => {
-    this.state.selectVariantArray = data;
+    var vAray = [... this.state.selectVariantArray];
+    this.state.selectVariantArray = [];
+    for (let a = 0; a < data.length; a++) {
+      if (vAray[a]) {
+        let vdic = vAray[a];
+        if (vdic['variantType']['id'] == data[a]['id']) {
+          this.state.selectVariantArray.push(vdic)
+        }else {
+        }
+      }else {
+        this.state.selectVariantArray.push(data[a])
+      }
+    }
+    // this.state.selectVariantArray = data;
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariantTypeUploadValue = (data, index) => {
@@ -814,7 +819,6 @@ export default class AddEvent extends Component {
     this.loadAttributeApi(data['id'])
   }
   getCurrencyData = (data) => {
-    console.log('data => ', data);
     this.setState({ selectedCurrency: data[0]})
   }
   onTagChanges(data, id) {
@@ -871,7 +875,7 @@ export default class AddEvent extends Component {
       width: 200,
       cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.7,
+      compressImageQuality: 0.8,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -879,6 +883,11 @@ export default class AddEvent extends Component {
         this.state.imagesArray.push(image)
       }
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {

@@ -181,7 +181,7 @@ export default class More extends Component {
   }
   renderListCellItem = ({ item, index }) => {
     return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{height: 20,fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
+      <Text style={{height: 16,fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {
@@ -215,11 +215,11 @@ export default class More extends Component {
               <this.renderUserInfo />
             </View>
           </View>
-          <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'space-between', height: '70%'}}>
+          <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'space-between', height: '75%'}}>
             <View style={styles.listContainerView} >
               <this.renderListView />
             </View>
-            <View style={{ height: 50, alignItems: 'center' }}>
+            <View style={{ height: 70, alignItems: 'center' }}>
               <Text>{appConstant.appVersion}</Text>
             </View>
           </View>

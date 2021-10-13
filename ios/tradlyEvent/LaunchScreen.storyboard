@@ -21,16 +21,16 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="YpO-Th-CRi">
-                                <rect key="frame" x="87.5" y="233.5" width="200" height="200"/>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tlogo" translatesAutoresizingMaskIntoConstraints="NO" id="YpO-Th-CRi">
+                                <rect key="frame" x="97.5" y="243.5" width="180" height="180"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="Wl9-f4-Q7i"/>
-                                    <constraint firstAttribute="height" constant="200" id="bfc-wt-OIW"/>
+                                    <constraint firstAttribute="width" constant="180" id="Wl9-f4-Q7i"/>
+                                    <constraint firstAttribute="height" constant="180" id="bfc-wt-OIW"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                        <color key="backgroundColor" red="0.074509803921568626" green="0.70980392156862748" blue="0.5490196078431373" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="YpO-Th-CRi" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Nlc-IS-KZ2"/>
                             <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="MN2-I3-ftu" secondAttribute="bottom" constant="20" id="OZV-Vh-mqD"/>
@@ -46,6 +46,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="logo" width="512" height="512"/>
+        <image name="tlogo" width="512" height="512"/>
     </resources>
 </document>
