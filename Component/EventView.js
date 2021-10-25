@@ -28,7 +28,6 @@ export default class EventView extends Component {
     let profilePic = sample;
     if(item['account']['user']) {
       let user =  item['account']['user'];
-      console.log('user',user);
       profilePic = user['profile_pic'].length == 0 ? sample : {uri:user['profile_pic']}
     }
     return (<View style={eventStyles.horizontalCellItemStyle}>

@@ -22,7 +22,6 @@ import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
 
-
 export default class App extends Component {
 
   constructor(props) {
@@ -36,6 +35,7 @@ export default class App extends Component {
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
+
     DefaultPreference.get('installed').then(function (val) {
       if (val == undefined) {
         DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });

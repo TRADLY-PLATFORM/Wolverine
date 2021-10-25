@@ -74,6 +74,7 @@ export default class AddEvent extends Component {
       showCAlert:false,
       coordinates:{},
       hideOfferPrice:false,
+      hideAddressField:false,
     }
   }
   componentDidMount() {
@@ -115,7 +116,11 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       var configs = responseJson['data']['configs'];
-      this.setState({hideOfferPrice: configs['hide_offer_percent'] || false});
+      console.log('configs -==>', configs)
+      this.setState({
+        hideOfferPrice: configs['hide_offer_percent'] || false,
+        hideAddressField: configs['listing_address_enabled'] || false
+      });
     }
     this.setState({dataLoad: true});
   };
@@ -258,11 +263,6 @@ export default class AddEvent extends Component {
         fDict['uploadParm'] = dic2;
         fDict['currency'] = this.state.selectedCurrency;
         this.state.selectVariantArray.push(fDict)
-        // console.log('fDict == ', fDict);
-
-        // let vvv = this.state.selectVariantArray[0];
-        // let dc = vvv['variantType'];
-        // // console.log('dc == ', dc['values']);
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -559,7 +559,11 @@ export default class AddEvent extends Component {
         this.uploadVariantImages(uploadDic, index);
       } else {
         if (this.state.selectVariantArray.length > index) {
-          this.addVariantUploadServiceMethod(index + 1)
+          if (this.state.isEditing){
+            this.addVariantUploadServiceMethod(index)
+          } else {
+            this.addVariantUploadServiceMethod(index + 1)
+          }
         } else {
           this.setState({ showCAlert: true })
         }
@@ -632,14 +636,18 @@ export default class AddEvent extends Component {
        path = '/variants/' + dic['id'];
        reqMethod = 'PUT';
     }
-    console.log('path == >', path, reqMethod,)
+    // console.log('path == >', path, reqMethod, index)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        this.addVariantUploadServiceMethod(index + 1)
+        if (!this.state.isEditing) {
+          this.addVariantUploadServiceMethod(index + 1)
+        } else {
+          this.setState({ showCAlert: true });
+        }
       } else {
         Alert.alert(responseJson)
       }
@@ -796,6 +804,7 @@ export default class AddEvent extends Component {
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariantTypeUploadValue = (data, index) => {
+    this.state.selectedVariantIndex = index;
     this.state.selectVariantArray[index] = data;
     this.setState({ updateUI: !this.state.updateUI });
     if (this.state.isEditing) {
@@ -871,11 +880,10 @@ export default class AddEvent extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.8,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -1093,6 +1101,8 @@ export default class AddEvent extends Component {
     return views;
   }
   renderAddressView = () => {
+
+    if (this.state.hideAddressField) {
     var value = 'Select Address'
     if (this.state.selectAddress['formatted_address'] !== undefined) {
       value = this.state.selectAddress['formatted_address'];
@@ -1110,6 +1120,9 @@ export default class AddEvent extends Component {
         </TouchableOpacity>
       </View>
     </View>
+    }else {
+      return <View />
+    }
   }
   renderEventDateTimeView = () => {
     return (<View style={styles.mainViewStyle}>

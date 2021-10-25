@@ -3,7 +3,7 @@ import { Linking, Platform } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 export function firebaseAuth(token) {
-  console.log('waiting',Platform.OS,  token);
+  // console.log('waiting',Platform.OS,  token);
   if (token != undefined) {
     auth()
       .signInWithCustomToken(token)

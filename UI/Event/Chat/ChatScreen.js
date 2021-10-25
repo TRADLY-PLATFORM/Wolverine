@@ -111,8 +111,8 @@ export default class ChatScreen extends Component {
   /*  UI   */
   imagePicker() {
     ImagePicker.openPicker({
-      height: 300,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {

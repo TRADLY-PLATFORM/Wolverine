@@ -88,7 +88,7 @@ export default class AddVariantValue extends Component {
       }
     }
     let {index,variantData} = this.props.route.params;
-    console.log('variantData', variantData);
+    // console.log('variantData', variantData);
     let uploadDic = {
       uploadParm: dict,
       currency:this.state.selectedCurrency,
@@ -137,8 +137,8 @@ export default class AddVariantValue extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {

@@ -117,8 +117,8 @@ export default class EditProfile extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {

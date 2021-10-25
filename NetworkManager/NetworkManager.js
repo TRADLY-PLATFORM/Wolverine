@@ -143,10 +143,8 @@ class NetworkManager {
       }),
     );
     if (err) {
-      console.log('response error', err);
       return false;
     } else {
-      // console.log('response uploadFileWithSignedURL', response);
       return true;
     }
   }
