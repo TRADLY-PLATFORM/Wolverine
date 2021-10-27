@@ -39,8 +39,12 @@ export default class OrderDetail extends Component {
     this.getOrderDetailApi();
   }
   getOrderDetailApi = async () => {
-    let {orderId} = this.props.route.params;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.orderDetail}${orderId}`, 'get','',appConstant.bToken,appConstant.authKey)
+    let {orderId,account} = this.props.route.params;
+    var path = `${APPURL.URLPaths.orderDetail}${orderId}`;
+    if (account) {
+      path = `${path}?account_id=${appConstant.accountID}`;
+    }
+    const responseJson = await networkService.networkCall(path, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['order'];
       this.state.orderDetailData = pData;

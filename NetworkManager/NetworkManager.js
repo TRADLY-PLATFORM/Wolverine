@@ -23,7 +23,6 @@ class NetworkManager {
     headers['x-auth-key'] = auth;
     if (currency != undefined) {
       headers['X-Currency'] = currency;
-      console.log('currency header ',headers);
     }
     [err, response] = await to(fetch(url, {
       method: method,

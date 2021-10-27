@@ -36,6 +36,8 @@ import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
 import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.svg';
+import selectedradio from '../../../../assets/radioChecked.svg';
 
 var viewload = false;
 
@@ -75,6 +77,7 @@ export default class AddEvent extends Component {
       coordinates:{},
       hideOfferPrice:false,
       hideAddressField:false,
+      online:false,
     }
   }
   componentDidMount() {
@@ -682,6 +685,8 @@ export default class AddEvent extends Component {
       Alert.alert('Price field should not be empty')
     } else if (this.state.ticketLimit.length == 0) {
       Alert.alert('Ticket Limits field should not be empty')
+    } else if (this.state.hideAddressField && !this.state.online && this.state.selectAddress['formatted_address'] == undefined) {
+      Alert.alert('Address field should not be empty')
     } else if (Object.keys(this.state.selectedCatData).length == 0) {
       Alert.alert('Category field should not be empty')
     } else {
@@ -702,7 +707,9 @@ export default class AddEvent extends Component {
       });
     }
   }
-  doneBtnAction() {
+  onlineBtnAction() {
+    this.state.selectAddress = {};
+    this.setState({online:!this.state.online});
   }
   deleteImageButtonAction(id) {
     this.state.imagesArray.splice(id, 1)
@@ -910,9 +917,6 @@ export default class AddEvent extends Component {
           photoPath = photo; 
         }
       }
-      // if (this.state.imagesArray[i]) {
-      //   imageObj = this.state.imagesArray[i];
-      // }
       if (this.state.imagesArray[i]) {
         views.push(
           <View style={styles.imageSelectedStyle}>
@@ -1101,26 +1105,45 @@ export default class AddEvent extends Component {
     return views;
   }
   renderAddressView = () => {
-
     if (this.state.hideAddressField) {
-    var value = 'Select Address'
-    if (this.state.selectAddress['formatted_address'] !== undefined) {
-      value = this.state.selectAddress['formatted_address'];
-    }
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <View style={{ width: '100%', zIndex: 10 }}>
-        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
-          <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
-          <Image style={commonStyles.nextIconStyle}
-            resizeMode="contain"
-            source={forwardIcon}
-          />
+      var onLineView = [];
+      onLineView.push(<View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Offline</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={!this.state.online ? selectedradio : radio}
+            fill={!this.state.online ? colors.AppTheme : colors.Lightgray} />
         </TouchableOpacity>
+        <TouchableOpacity style={{ flexDirection: 'row',marginLeft: 20}} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Online</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={this.state.online ? selectedradio : radio}
+            fill={this.state.online ? colors.AppTheme : colors.Lightgray} />
+        </TouchableOpacity>
+      </View>)
+      var value = 'Select Address'
+      if (this.state.selectAddress['formatted_address'] !== undefined) {
+        value = this.state.selectAddress['formatted_address'];
+      }
+      var addressView = [];
+      if (!this.state.online) {
+        addressView.push(<View>
+          <View style={{ height: 20 }} />
+          <Text style={commonStyles.textLabelStyle}>Address</Text>
+          <View style={{ width: '100%', zIndex: 10 }}>
+            <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
+              <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
+              <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>)
+      }
+      return <View>
+        <View style={{ height: 20 }} />
+          {onLineView}
+          {addressView}
       </View>
-    </View>
-    }else {
+    } else {
       return <View />
     }
   }
