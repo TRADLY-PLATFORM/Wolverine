@@ -60,12 +60,20 @@ export default class EventList extends Component {
     if (this.props.route.params) {
       let {categoryID} = this.props.route.params;
       if (categoryID != undefined){
-        this.state.params = '&category_id=' + categoryID;
+        this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+        let strtD = `${this.state.selectedDate}T00:00:00Z`;
+        this.state.params = '&category_id=' + categoryID + `&start_at=${strtD}`;
         this.callApi(this.state.params);
       }else {
-        this.callApi('');
+        this.initApi()
       }
     }
+  }
+  initApi() {
+    this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+    let strtD = `${this.state.selectedDate}T00:00:00Z`;
+    this.state.params = `&start_at=${strtD}`;
+    this.callApi(this.state.params);
   }
   callApi(param) {
     this.state.eventsArray = [];
@@ -135,8 +143,9 @@ export default class EventList extends Component {
       this.state.params = `&start_at=${strtD}&end_at=${endD}`;
       this.callApi(this.state.params);
     } else {
-      this.state.params = ``;
-      this.callApi(this.state.params);
+      // this.state.params = ``;
+      // this.callApi(this.state.params);
+      this.initApi()
     }
   }
 
@@ -162,31 +171,54 @@ export default class EventList extends Component {
         let ct = changeDateFormat(dData['created_to'], 'YYYY-MM-DDThh:mm:ss')
         queryParams = queryParams + `&created_from=${cf}Z&created_to=${ct}Z`;
       } 
-      if (objc['rating']) {
-        let rObjc = objc['rating']
-        queryParams = queryParams + `&rating=${rObjc['rating']}`;
+        if (objc['rating']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }        let rObjc = objc['rating']
+        queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['distance']
-        queryParams = queryParams + `&max_distance=${dObjc['distance']}`;
+        queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['category']
-        queryParams = queryParams + `&category_id=${dObjc['id']}`;
+        queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
       }
       if (objc['price']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }   
         let dObjc = objc['price']
-        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
       }
       if (objc['attribute']) {
         let nObj = objc['attribute']
         let dObjc = nObj['values'];
-        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
+          queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
       }
     }
     this.state.filterArray = data
     this.state.params = queryParams;
-    this.callApi(this.state.params);
+    if (this.state.filterArray == 0) {
+      this.initApi()
+    } else {
+      this.callApi(this.state.params)
+    }
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;

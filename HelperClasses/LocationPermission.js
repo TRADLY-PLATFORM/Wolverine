@@ -17,7 +17,7 @@ export default class CurrentLocation extends Component {
       })
       .catch(ex => {
         const { code, message } = ex;
-        // console.warn(code, message);
+        console.warn(code, message);
         // if (code === 'CANCELLED') {
         //   // Alert.alert('Location cancelled by user or by another request');
         // }
@@ -28,16 +28,16 @@ export default class CurrentLocation extends Component {
           Alert.alert('Location request timed out');
         }
         if (code === 'UNAUTHORIZED') {
-          // Alert.alert(
-          //   'Authorization denied Location', "",
-          //   [
-          //     {
-          //       text: "OK", onPress: () => {
-          //         GetLocation.openAppSettings();  
-          //       }
-          //     }
-          //   ],
-          // );
+          Alert.alert(
+            'Authorization denied Location', "",
+            [
+              {
+                text: "OK", onPress: () => {
+                  GetLocation.openAppSettings();  
+                }
+              }
+            ],
+          );
         }
         // this.setState({
         //   location: null,
