@@ -11,7 +11,7 @@ export default class CurrentLocation extends Component {
         enableHighAccuracy: true,
         timeout: 150000,
       }) .then(location => {
-        console.log('appConstant =location> ',location);
+        // console.log('appConstant =location> ',location);
         appConstant.lat = location['latitude'];
         appConstant.long = location['longitude'];
       })

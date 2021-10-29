@@ -75,14 +75,14 @@ export default class Explore extends Component {
   }
   componentDidMount() {
     // this.refs.searchBar.focus()
+    this.state.datesArray = getDatesArray();
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
       lp._requestLocation();
       this.setState({showSearchBar: false})
+      this.initApi()
     });
-    this.state.datesArray = getDatesArray();
-    this.initApi()
   }
   componentWillUnmount() {
     this.state.dataLoad = true

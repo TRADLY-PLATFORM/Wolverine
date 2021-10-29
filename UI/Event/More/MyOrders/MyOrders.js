@@ -12,8 +12,6 @@ import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
 import commonStyles from '../../../../StyleSheet/UserStyleSheet';
-import tickIcon from '../../../../assets/tick.png';
-import emptyIcon from '../../../../assets/empty.png';
 import appConstant from '../../../../Constants/AppConstants';
 import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
@@ -22,7 +20,7 @@ import sample from '../../../../assets/dummy.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
+import {getTimeFormat,changeDateFormat} from '../../../../HelperClasses/SingleTon'
 
 export default class MyOrders extends Component {
   constructor(props) {
@@ -83,17 +81,24 @@ export default class MyOrders extends Component {
   }
   /*  UI   */
   renderOrderListView = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center'}}>
-      <FlatList
-        data={this.state.myOrderArray}
-        renderItem={this.renderOrderLisCellItem}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => index + 9287373}
-        key={'E'}
-        onEndReachedThreshold={2}
-        onEndReached={this.paginationMethod}
-      />
-    </View>
+    if (this.state.myOrderArray.length !== 0) {
+      return (<View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center' }}>
+        <FlatList
+          data={this.state.myOrderArray}
+          renderItem={this.renderOrderLisCellItem}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => index + 9287373}
+          key={'E'}
+          onEndReachedThreshold={2}
+          onEndReached={this.paginationMethod}
+        />
+      </View>)
+    } else {
+      return (<View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: '100%'}}>
+      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? 'No booking found' : ''}</Text>
+    </View>)
+    }
+    
   }
   renderOrderLisCellItem= ({item, index}) => {
     let listD = item['order_details'][0]['listing'];
