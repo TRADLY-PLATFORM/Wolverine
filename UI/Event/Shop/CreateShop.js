@@ -33,6 +33,7 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../Component/SuccessView';
 import cancelIcon from '../../../assets/cancel.png';
+import { photosPermissionAlert } from '../../../HelperClasses/SingleTon';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -429,7 +430,9 @@ export default class CreateShop extends Component {
   }
   /*  Buttons   */
   createBtnAction() {
-    if (this.state.name.length == 0) {
+    if (this.state.photo == null) {    
+      Alert.alert('Please select image')
+    } else if (this.state.name.length == 0) {
       Alert.alert('Name field should not be empty')
     } else if (Object.keys(this.state.selectedCatData).length == 0) {
       Alert.alert('Category field should not be empty')
@@ -534,8 +537,8 @@ export default class CreateShop extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {
@@ -546,6 +549,11 @@ export default class CreateShop extends Component {
         this.state.photo = image;
       }
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {

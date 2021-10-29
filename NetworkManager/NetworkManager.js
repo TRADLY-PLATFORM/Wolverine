@@ -23,7 +23,6 @@ class NetworkManager {
     headers['x-auth-key'] = auth;
     if (currency != undefined) {
       headers['X-Currency'] = currency;
-      console.log('currency header ',headers);
     }
     [err, response] = await to(fetch(url, {
       method: method,
@@ -33,7 +32,7 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'server error')
       return error
     } else {
       const json = await response.json();
@@ -43,7 +42,7 @@ class NetworkManager {
           return  this.refreshKeyCall(path,method,param,token,auth,currency)
         } else {
           console.log('error => errror json ', json)
-          let error = errorHandler.errorHandle(json['error']['code']);
+          let error = errorHandler.errorHandle(json['error']['code'],json['error']['message']);
           return error
         }
       }else {
@@ -73,7 +72,7 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'Server error')
       return error
     } else {
       const json = await response.json();
@@ -84,7 +83,6 @@ class NetworkManager {
           appConstant.loggedIn = false
           DefaultPreference.set('loggedIn', 'false').then(function () { console.log('done loggedIn') });
         }
-        let error = errorHandler.errorHandle(json['error']['code']);
         return json
       }else {
         const auth_key = json['data']['user']['key']['auth_key'];
@@ -123,7 +121,7 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'Server Error')
       return error
     } else {
       console.log('response backend', response)
@@ -143,10 +141,8 @@ class NetworkManager {
       }),
     );
     if (err) {
-      console.log('response error', err);
       return false;
     } else {
-      // console.log('response uploadFileWithSignedURL', response);
       return true;
     }
   }

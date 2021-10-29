@@ -36,6 +36,8 @@ import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
 import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.svg';
+import selectedradio from '../../../../assets/radioChecked.svg';
 
 var viewload = false;
 
@@ -74,15 +76,17 @@ export default class AddEvent extends Component {
       showCAlert:false,
       coordinates:{},
       hideOfferPrice:false,
+      hideAddressField:false,
+      online:false,
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.props.navigation.addListener('focus', () => {
+    // this.props.navigation.addListener('focus', () => {
       this.loadCategoryApi()
       this.loadConfigApi()
       this.getCurrencyApi()
-    })
+    // })
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
@@ -115,9 +119,11 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       var configs = responseJson['data']['configs'];
-      console.log('configs ==>', configs);
-      this.setState({hideOfferPrice: configs['hide_offer_percent'] || false});
-
+      console.log('configs -==>', configs)
+      this.setState({
+        hideOfferPrice: configs['hide_offer_percent'] || false,
+        hideAddressField: configs['listing_address_enabled'] || false
+      });
     }
     this.setState({dataLoad: true});
   };
@@ -222,7 +228,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let aData = responseJson['data']['attributes'];
-      console.log('aData == >.',JSON.stringify(aData))
+      // console.log('aData == >.',JSON.stringify(aData))
       this.state.attributeArray = aData
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -234,7 +240,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
-      console.log('vData', vData)
+      // console.log('vData', vData)
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -260,11 +266,6 @@ export default class AddEvent extends Component {
         fDict['uploadParm'] = dic2;
         fDict['currency'] = this.state.selectedCurrency;
         this.state.selectVariantArray.push(fDict)
-        console.log('fDict == ', fDict);
-
-        // let vvv = this.state.selectVariantArray[0];
-        // let dc = vvv['variantType'];
-        // // console.log('dc == ', dc['values']);
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -367,9 +368,6 @@ export default class AddEvent extends Component {
       'type': 'events',
       'currency_id': this.state.selectedCurrency['id'],
       'account_id': this.state.accountId,
-    }
-    if (this.state.imagesArray.length != 0) {
-      dict['images'] = this.state.uploadImageURL;;
     }
     if (this.state.imagesArray.length != 0) {
       dict['images'] = this.state.uploadImageURL;;
@@ -535,11 +533,11 @@ export default class AddEvent extends Component {
       dict['start_at'] = startTimestamp;
       dict['end_at'] = endTimestamp;
     }
-    console.log('dict', dict);
+    // console.log('dict', dict);
     let path = this.state.isEditing ? `/${this.state.listingID}` : ''
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
       this.state.isEditing ? 'patch' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+    // console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
@@ -564,15 +562,17 @@ export default class AddEvent extends Component {
         this.uploadVariantImages(uploadDic, index);
       } else {
         if (this.state.selectVariantArray.length > index) {
-          this.addVariantUploadServiceMethod(index + 1)
+          if (this.state.isEditing){
+            this.addVariantUploadServiceMethod(index)
+          } else {
+            this.addVariantUploadServiceMethod(index + 1)
+          }
         } else {
           this.setState({ showCAlert: true })
-          // Alert.alert('SuccessFull');
         }
       }
     }else {
       this.setState({ showCAlert: true })
-      // Alert.alert('SuccessFull');
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -628,8 +628,6 @@ export default class AddEvent extends Component {
   }
   addVariantTypeApi = async (images, index) => {
     let dic = this.state.selectVariantArray[index];
-    console.log('dic',dic);
-    console.log('dic', dic);
     var dict = dic['uploadParm'];
     dict['images'] = images;
     let item = dic['variantType']
@@ -637,18 +635,22 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(dict['id']){
-       path = '/variants/' + dict['id'];
+    if(dic['id']){
+       path = '/variants/' + dic['id'];
        reqMethod = 'PUT';
     }
-    console.log('path == >', path, reqMethod,)
+    // console.log('path == >', path, reqMethod, index)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
     console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        this.addVariantUploadServiceMethod(index + 1)
+        if (!this.state.isEditing) {
+          this.addVariantUploadServiceMethod(index + 1)
+        } else {
+          this.setState({ showCAlert: true });
+        }
       } else {
         Alert.alert(responseJson)
       }
@@ -675,12 +677,16 @@ export default class AddEvent extends Component {
     this.props.navigation.goBack();
   }
   createBtnAction() {
-    if (this.state.name.length == 0) {
+    if (this.state.imagesArray.length == 0) {
+      Alert.alert('Please select atleast one image')
+    } else if (this.state.name.length == 0) {
       Alert.alert('Name field should not be empty')
     } else if (this.state.eventPrice.length == 0) {
       Alert.alert('Price field should not be empty')
     } else if (this.state.ticketLimit.length == 0) {
       Alert.alert('Ticket Limits field should not be empty')
+    } else if (this.state.hideAddressField && !this.state.online && this.state.selectAddress['formatted_address'] == undefined) {
+      Alert.alert('Address field should not be empty')
     } else if (Object.keys(this.state.selectedCatData).length == 0) {
       Alert.alert('Category field should not be empty')
     } else {
@@ -701,7 +707,9 @@ export default class AddEvent extends Component {
       });
     }
   }
-  doneBtnAction() {
+  onlineBtnAction() {
+    this.state.selectAddress = {};
+    this.setState({online:!this.state.online});
   }
   deleteImageButtonAction(id) {
     this.state.imagesArray.splice(id, 1)
@@ -776,11 +784,9 @@ export default class AddEvent extends Component {
   }
   /*  Delegates  */
   getDeleteVariant = data => {
-
     let { listingID } = this.props.route.params;
     if (listingID != undefined) {
       if (this.state.selectVariantArray[data]['id']){
-        console.log('this.state.selectVariantArray == >',this.state.selectVariantArray[data]['id']);
         this.deleteEventAPI(this.state.selectVariantArray[data]['id'])
       }
     }
@@ -788,10 +794,24 @@ export default class AddEvent extends Component {
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariant = data => {
-    this.state.selectVariantArray = data;
+    var vAray = [... this.state.selectVariantArray];
+    this.state.selectVariantArray = [];
+    for (let a = 0; a < data.length; a++) {
+      if (vAray[a]) {
+        let vdic = vAray[a];
+        if (vdic['variantType']['id'] == data[a]['id']) {
+          this.state.selectVariantArray.push(vdic)
+        }else {
+        }
+      }else {
+        this.state.selectVariantArray.push(data[a])
+      }
+    }
+    // this.state.selectVariantArray = data;
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariantTypeUploadValue = (data, index) => {
+    this.state.selectedVariantIndex = index;
     this.state.selectVariantArray[index] = data;
     this.setState({ updateUI: !this.state.updateUI });
     if (this.state.isEditing) {
@@ -815,7 +835,6 @@ export default class AddEvent extends Component {
     this.loadAttributeApi(data['id'])
   }
   getCurrencyData = (data) => {
-    console.log('data => ', data);
     this.setState({ selectedCurrency: data[0]})
   }
   onTagChanges(data, id) {
@@ -868,11 +887,10 @@ export default class AddEvent extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.7,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -880,6 +898,11 @@ export default class AddEvent extends Component {
         this.state.imagesArray.push(image)
       }
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {
@@ -894,9 +917,6 @@ export default class AddEvent extends Component {
           photoPath = photo; 
         }
       }
-      // if (this.state.imagesArray[i]) {
-      //   imageObj = this.state.imagesArray[i];
-      // }
       if (this.state.imagesArray[i]) {
         views.push(
           <View style={styles.imageSelectedStyle}>
@@ -1085,23 +1105,47 @@ export default class AddEvent extends Component {
     return views;
   }
   renderAddressView = () => {
-    var value = 'Select Address'
-    if (this.state.selectAddress['formatted_address'] !== undefined) {
-      value = this.state.selectAddress['formatted_address'];
-    }
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <View style={{ width: '100%', zIndex: 10 }}>
-        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
-          <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
-          <Image style={commonStyles.nextIconStyle}
-            resizeMode="contain"
-            source={forwardIcon}
-          />
+    if (this.state.hideAddressField) {
+      var onLineView = [];
+      onLineView.push(<View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Offline</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={!this.state.online ? selectedradio : radio}
+            fill={!this.state.online ? colors.AppTheme : colors.Lightgray} />
         </TouchableOpacity>
+        <TouchableOpacity style={{ flexDirection: 'row',marginLeft: 20}} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Online</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={this.state.online ? selectedradio : radio}
+            fill={this.state.online ? colors.AppTheme : colors.Lightgray} />
+        </TouchableOpacity>
+      </View>)
+      var value = 'Select Address'
+      if (this.state.selectAddress['formatted_address'] !== undefined) {
+        value = this.state.selectAddress['formatted_address'];
+      }
+      var addressView = [];
+      if (!this.state.online) {
+        addressView.push(<View>
+          <View style={{ height: 20 }} />
+          <Text style={commonStyles.textLabelStyle}>Address</Text>
+          <View style={{ width: '100%', zIndex: 10 }}>
+            <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
+              <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
+              <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>)
+      }
+      return <View>
+        <View style={{ height: 20 }} />
+          {onLineView}
+          {addressView}
       </View>
-    </View>
+    } else {
+      return <View />
+    }
   }
   renderEventDateTimeView = () => {
     return (<View style={styles.mainViewStyle}>
@@ -1232,7 +1276,6 @@ export default class AddEvent extends Component {
     </TouchableOpacity>
   }
   renderOfferView = () => {
-    console.log('this.state.hideOfferPrice', this.state.hideOfferPrice);
     if (this.state.hideOfferPrice) {
       return (<View style={{ marginTop: 20 }}>
         <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>

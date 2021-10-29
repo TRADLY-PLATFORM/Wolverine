@@ -61,7 +61,6 @@ export default class MySale extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.earning}${appConstant.accountID}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let eData = responseJson['data']['total_sales'];
-      console.log('eData ==>',eData);
       this.state.earningData = eData;
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {

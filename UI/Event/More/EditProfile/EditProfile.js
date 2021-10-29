@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  FlatList,
+  Alert,
   TextInput,
   Text,
   Image,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Linking,
 } from 'react-native';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
@@ -21,6 +22,8 @@ import FastImage from 'react-native-fast-image'
 import cameraIcon from '../../../../assets/camera.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
+import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
+
 // const windowWidth = Dimensions.get('window').width;
 
 export default class EditProfile extends Component {
@@ -114,13 +117,18 @@ export default class EditProfile extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {
       this.state.photo = image;
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {

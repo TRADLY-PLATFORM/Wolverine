@@ -60,7 +60,7 @@ export default class MyStore extends Component {
   componentDidMount() {
     // this.apiCalls();
     this.props.navigation.addListener('focus', () => {
-      this.setState({ isVisible: false })
+      this.setState({ isVisible: true })
       this.apiCalls();
     });
   }
@@ -71,7 +71,6 @@ export default class MyStore extends Component {
     this.state.pageNo = 1;
     this.setState({ updateUI: !this.state.updateUI })
     this.getMyStoreDetailApi();
-    this.getEventsApi();
   }
   getMyStoreDetailApi = async () => {
     const { accId } = this.props.route.params;
@@ -81,7 +80,8 @@ export default class MyStore extends Component {
       this.state.storeDetail = acctData;
       this.state.itsFollowing = acctData['following'];
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: true })
+      this.getEventsApi();
     } else {
       this.setState({ isVisible: false })
     }
@@ -227,7 +227,6 @@ export default class MyStore extends Component {
       review = reRate['review_count'] || '0';
     }
     var photo = this.state.storeDetail['images'] ? this.state.storeDetail['images'] : [];
-    console.log('photo', photo)
     return (<View style={styles.headerContainderStyle}>
       <View style={{ flexDirection: 'column' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', margin: 16 }}>
@@ -520,9 +519,9 @@ export default class MyStore extends Component {
       }
       return view;
     } else {
-      <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor }}>
+      return (<View style={{ height: windowHeight/2, justifyContent: 'center', alignItems: 'center',width: '100%'  }}>
         <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
-      </View>
+      </View>)
     }
   }
   renderEventCellItem = ({ item, index }) => {
@@ -645,9 +644,9 @@ const styles = StyleSheet.create({
   containerView: {
     flexDirection:'row',
     flexWrap: 'wrap',
-    alignItems: 'center',
+    // alignItems: 'center',
     width: windowWidth,
-    justifyContent: 'center'
+    // justifyContent: 'center'
   },
 });
 

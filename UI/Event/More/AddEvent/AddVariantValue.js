@@ -27,6 +27,7 @@ import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import cancelIcon from '../../../../assets/cancel.png';
 import FastImage from 'react-native-fast-image'
+import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
 
 
 const keyAry = ['title','description','list_price', 'stock','offer_percent'];
@@ -87,6 +88,7 @@ export default class AddVariantValue extends Component {
       }
     }
     let {index,variantData} = this.props.route.params;
+    // console.log('variantData', variantData);
     let uploadDic = {
       uploadParm: dict,
       currency:this.state.selectedCurrency,
@@ -97,8 +99,11 @@ export default class AddVariantValue extends Component {
       uploadDic['variantType'] = variantData;
     }
     if (variantData['id']) {
-      uploadDic['id'] = variantData['id'];
+      if (variantData['variantType']) {
+          uploadDic['id'] = variantData['id'];
+      }
     }
+    // console.log('uploadDic variant ==> ',uploadDic);
     this.props.route.params.getVariantTypeUploadValue(uploadDic,index)
     this.props.navigation.goBack()
   }
@@ -132,14 +137,19 @@ export default class AddVariantValue extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
+      height: 1000,
+      width: 1000,
       cropping: true,
       includeBase64: true,
     }).then(image => {
       // this.state.photo = image;
       this.state.imagesArray.push(image);
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {

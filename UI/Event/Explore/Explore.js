@@ -75,18 +75,25 @@ export default class Explore extends Component {
   }
   componentDidMount() {
     // this.refs.searchBar.focus()
+    this.state.datesArray = getDatesArray();
     this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
       lp._requestLocation();
       this.setState({showSearchBar: false})
+      this.initApi()
     });
-    this.state.datesArray = getDatesArray();
-    this.state.selectedDate = this.state.datesArray[0];
-    this.callApi(this.state.params);
   }
-  componentWillUnmount(){
-
+  componentWillUnmount() {
+    this.state.dataLoad = true
+  }
+  initApi() {
+    if (this.state.datesArray.length != 0){
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+      let strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+      this.state.params = `${strtD}`;
+    }
+    this.callApi(this.state.params);
   }
   callApi(param) {
     this.setState({ dataLoad: false })
@@ -181,8 +188,7 @@ export default class Explore extends Component {
       this.state.params = `&start_at=${strtD}&end_at=${endD}`;
       this.callApi(this.state.params);
     } else {
-      this.state.params = ``;
-      this.callApi(this.state.params);
+      this.initApi()
     }
   }
 
@@ -194,6 +200,7 @@ export default class Explore extends Component {
   }
   /*  Delegate   */
   getFilterData = data => {
+    console.log('data ==>', data);
     var queryParams = '';
     for (let objc of data) {
       if (objc['time']) {
@@ -209,31 +216,54 @@ export default class Explore extends Component {
         queryParams = queryParams + `&created_from=${cf}Z&created_to=${ct}Z`;
       } 
       if (objc['rating']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }  
         let rObjc = objc['rating']
-        queryParams = queryParams + `&rating=${rObjc['rating']}`;
+        queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['distance']
-        queryParams = queryParams + `&max_distance=${dObjc['distance']}`;
+        queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['category']
-        queryParams = queryParams + `&category_id=${dObjc['id']}`;
+        queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
       }
       if (objc['price']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }   
         let dObjc = objc['price']
-        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}`;
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
       }
       if (objc['attribute']) {
         let nObj = objc['attribute']
         let dObjc = nObj['values'];
-        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}`;
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
+        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
       }
     }
     this.state.filtersArray = data
     this.state.params = queryParams;
-    this.callApi(this.state.params);
-
+    if (this.state.filtersArray == 0) {
+      this.initApi()
+    } else {
+      this.callApi(this.state.params)
+    }
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
@@ -377,7 +407,7 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
         <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
       </View>
     }

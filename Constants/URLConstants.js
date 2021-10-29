@@ -2,7 +2,7 @@ import appConstant from './AppConstants';
 
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.dev.tradly.app/',
+    BaseURL: 'https://api.tradly.app/',
     token: 'v1/users/token/refresh',
     config: `v1/tenants/${appConstant.tenantID}/configs`,
     configList: `v1/configs?key_group=`,
@@ -37,7 +37,6 @@ module.exports = {
     like: '/likes',
     follow: '/follow',
     activities: 'v1/activities?page='
-
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

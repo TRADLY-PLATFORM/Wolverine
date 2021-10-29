@@ -125,7 +125,6 @@ export default class Home extends Component {
         categoryList: this.state.categoryArray,
       });
     } else {
-      // console.log('item', item['id'])
       this.props.navigation.navigate(NavigationRoots.EventList,{
         categoryID:item['id'],
         categoryName: item['name'],

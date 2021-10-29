@@ -79,6 +79,7 @@ export default class EventDetail extends Component {
   }
 
   componentDidMount() {
+        this.setState({ isVisible: true })
     this.props.navigation.addListener('focus', () => {
       this.setState({updateUI: !this.state.updateUI})
       this.getEventDetailApi();
@@ -86,12 +87,10 @@ export default class EventDetail extends Component {
   }
   /*  APIs   */
   getEventDetailApi = async () => {
-    this.setState({ isVisible: true })
     let {id} = this.props.route.params;
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${id}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let eData = responseJson['data']['listing'];
-      console.log('eData ==> ', eData['liked']);
       this.state.eventDetailData = eData;
       this.state.itsLiked = eData['liked'];
       this.state.imagesArray = eData['images'];
@@ -219,17 +218,26 @@ export default class EventDetail extends Component {
   /*  UI   */
   renderImageSlider = () => {
     var views = []
-    for (let a = 0; a < this.state.imagesArray.length; a++) {
-      views.push(<TouchableOpacity 
-        onPress={() => this.setState({previewImageBool:!this.state.previewImageBool,photoIndex: a})}
-        style={{backgroundColor: colors.LightUltraGray}}>
-        <FastImage 
-          resizeMode={'contain'}
-          style={{ height: 300, width: '100%'}} 
+    if (this.state.imagesArray.length != 0) {
+      for (let a = 0; a < this.state.imagesArray.length; a++) {
+        views.push(<TouchableOpacity
+          onPress={() => this.setState({ previewImageBool: !this.state.previewImageBool, photoIndex: a })}
+          style={{ backgroundColor: colors.LightUltraGray }}>
+          <FastImage
+            // resizeMode={'contain'}
+            style={{ height: windowwidth, width: windowwidth }}
+            source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
+        </TouchableOpacity>)
+      }
+    }else {
+      views.push(<View style={{ backgroundColor: colors.LightUltraGray }}>
+        <FastImage
+          // resizeMode={'contain'}
+          style={{ height: windowwidth, width: windowwidth }}
           source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
-      </TouchableOpacity>)
+      </View>)
     }
-    return (<View style={{ height: 300, width: '100%'}} >
+    return (<View style={{ height: windowwidth, width: windowwidth}} >
       <Pages>
         {views}
       </Pages>
@@ -463,6 +471,7 @@ export default class EventDetail extends Component {
       var views = [];
       for (let a = 0; a < attributesAry.length; a++) {
         let item = attributesAry[a];
+        console.log('item ==>', item)
         var values = [];
         if (item['field_type'] == 1 || item['field_type'] == 2) {
           for (let obj of item['values']) {
@@ -471,13 +480,14 @@ export default class EventDetail extends Component {
         } else {
           values = item['values']
         }
+        console.log('values', values)
         if (item['field_type'] == 5) {
           views.push(<View style={{ flexDirection: 'row'}}>
             <View style={{ width: '40%', height: 40,justifyContent: 'center' }}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
             <TouchableOpacity style={{ width: '60%', height: 40,justifyContent: 'center' }}>
-              <Text style={styles.greenLinkStyle}>{values.toString()}</Text>
+              <Text>{values.join(' ')}</Text>
             </TouchableOpacity>
           </View>)
         } else {
@@ -486,7 +496,7 @@ export default class EventDetail extends Component {
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
             <View style={{ width: '60%', height: 40, justifyContent: 'center' }}>
-              <Text style={styles.textStyle}>{values.toString()}</Text>
+              <Text>{values.join('  ')}</Text>
             </View>
           </View>)
         }

@@ -118,8 +118,6 @@ export default class AddVariant extends Component {
   }
   getVariantTypeValues = data => {
     this.state.selectedVariantTypeValues = data[0];
-    console.log('data[0]',data[0])
-    console.log('selectedVariantArray',this.state.selectedVariantArray)
     var value = data
     if (value.length != 0) {
       var nameAry = [];
@@ -128,9 +126,7 @@ export default class AddVariant extends Component {
         nameAry.push(value[o]['name'])
         vtid = value[o]['id'];
       }
-      console.log('nameAry ==>', nameAry);
       let index = this.state.selectedVariantArray.findIndex(x => x['values']['id'] == vtid)
-      console.log('index ==>', index);
       if (index == -1){
         this.setState({ updateUI: !this.state.updateUI, variantTypeValues: nameAry.toString() })
         this.setState({ disableAddBtn: false})
