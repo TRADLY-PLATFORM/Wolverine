@@ -65,7 +65,7 @@ export default class SignUp extends Component {
   /*  Buttons   */
   sendBtnAction() {
     if (this.state.email.length == 0) {
-        Alert.alert('enter email id');
+        Alert.alert('enter email');
     } else if (this.state.password.length == 0) {
       Alert.alert('enter password')
     } else if (this.state.confirmPassword.length != this.state.password.length ) {
@@ -107,7 +107,7 @@ export default class SignUp extends Component {
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}
-                placeholder="Email Id"
+                placeholder="Email"
                 placeholderTextColor={colors.AppWhite}
                 onChangeText={email => this.setState({ email: email })}
               />

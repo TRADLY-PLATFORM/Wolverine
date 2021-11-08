@@ -185,6 +185,7 @@ export default class CreateShop extends Component {
     if (this.state.photo != null) {
       let fileName = this.state.photo.data;
       if (fileName != null) {
+        this.state.photoURLPath = '';
         var splashDict = {
           name: this.state.photo['filename'],
           type: this.state.photo['mime'],
@@ -208,7 +209,6 @@ export default class CreateShop extends Component {
         imgParm.push(androidIconDict);
       }
     }
-    console.log('imgParm',imgParm)
     if (imgParm != 0) {
       const responseJson = await networkService.networkCall(
         APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );

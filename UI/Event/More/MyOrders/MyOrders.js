@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
@@ -21,6 +22,7 @@ import timeIcon from '../../../../assets/timeIcon.png';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import {getTimeFormat,changeDateFormat} from '../../../../HelperClasses/SingleTon'
+const windowWidth = Dimensions.get('window').width;
 
 export default class MyOrders extends Component {
   constructor(props) {
@@ -82,7 +84,7 @@ export default class MyOrders extends Component {
   /*  UI   */
   renderOrderListView = () => {
     if (this.state.myOrderArray.length !== 0) {
-      return (<View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center' }}>
+      return (<View style={{ backgroundColor: colors.lightTransparent,}}>
         <FlatList
           data={this.state.myOrderArray}
           renderItem={this.renderOrderLisCellItem}

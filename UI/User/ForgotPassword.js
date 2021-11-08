@@ -4,14 +4,11 @@ import {Alert, TextInput, Text, Image, View, StyleSheet, SafeAreaView, Touchable
 import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
 import commonStyle from '../../StyleSheet/UserStyleSheet';
-import NavigationRoots from '../../Constants/NavigationRoots';
 import DefaultPreference from 'react-native-default-preference';
 import networkService from './../../NetworkManager/NetworkManager';
 import APPURL from './../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
-import { getUniqueId } from 'react-native-device-info';
 import Spinner from 'react-native-loading-spinner-overlay';
-import errorHandler from '../../NetworkManager/ErrorHandle'
 
 export default class ForgotPassword extends Component {
   constructor(props) {
@@ -44,7 +41,7 @@ export default class ForgotPassword extends Component {
   /*  Buttons   */
   sendBtnAction() {
     if (this.state.email.length == 0) {
-        Alert.alert('enter email id');
+        Alert.alert('enter email');
     } else {
       this.forgotPasswordApi()
     }
@@ -66,7 +63,7 @@ export default class ForgotPassword extends Component {
             <View style={commonStyle.roundView}>
               <TextInput
                 style={commonStyle.txtFieldStyle}
-                placeholder="Email Id"
+                placeholder="Email"
                 placeholderTextColor={colors.AppWhite}
                 onChangeText={email => this.setState({email: email })}
               />
