@@ -8,7 +8,6 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
   Dimensions,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
@@ -39,8 +38,6 @@ import LocationPermission from '../../../HelperClasses/LocationPermission';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
-const origin = { latitude: 30.6225, longitude: 76.6224 };
-const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
 const windowWidth = Dimensions.get('window').width;
 
@@ -125,7 +122,6 @@ export default class Explore extends Component {
     }
   }
   _handleRefresh = () => {
-    this.state.params = '';
     this.setState({ isVisible: true })
     this.callApi(this.state.params);
   }

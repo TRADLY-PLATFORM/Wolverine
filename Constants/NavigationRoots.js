@@ -33,4 +33,5 @@ module.exports  = {
   PayoutsScreen: 'PayoutsScreen',
   InviteFriend: 'InviteFriend',
   Notifications:'Notifications' ,
+  Schedule:'Schedule',
 }

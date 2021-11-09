@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
   Text,
   Image,
   View,
@@ -45,7 +44,7 @@ export default class MyStore extends Component {
     this.state = {
       eventsArray: [],
       isVisible: true,
-      updateUI: false,
+      refresh:true,
       segmentIndex: 0,
       storeDetail: {},
       activeSatus: false,
@@ -69,7 +68,6 @@ export default class MyStore extends Component {
     this.state.eventsArray = []
     this.state.stopPagination = false
     this.state.pageNo = 1;
-    this.setState({ updateUI: !this.state.updateUI })
     this.getMyStoreDetailApi();
   }
   getMyStoreDetailApi = async () => {
@@ -80,7 +78,7 @@ export default class MyStore extends Component {
       this.state.storeDetail = acctData;
       this.state.itsFollowing = acctData['following'];
       this.state.activeSatus = acctData['active'];
-      this.setState({ updateUI: !this.state.updateUI, isVisible: true })
+      this.setState({isVisible: true })
       this.getEventsApi();
     } else {
       this.setState({ isVisible: false })
@@ -99,9 +97,9 @@ export default class MyStore extends Component {
       } else {
         this.state.stopPagination = true
       }
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false,dataLoad: true  })
+      this.setState({isVisible: false,dataLoad: true,refresh:false  })
     } else {
-      this.setState({ isVisible: false,dataLoad: true  })
+      this.setState({ isVisible: false,dataLoad: true,refresh:false   })
     }
   }
   updateStatusAPI = async () => {
@@ -114,7 +112,7 @@ export default class MyStore extends Component {
       JSON.stringify({ account: dict }), appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       this.state.activeSatus = !this.state.activeSatus;
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
@@ -127,7 +125,7 @@ export default class MyStore extends Component {
     method,'', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       this.state.itsFollowing = !this.state.itsFollowing;
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
@@ -157,7 +155,6 @@ export default class MyStore extends Component {
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
-    
   }
   editBtnAction() {
     const { accId } = this.props.route.params;
@@ -210,6 +207,13 @@ export default class MyStore extends Component {
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
       id: item['id'],
     });
+  }
+  _handleRefresh = () => {
+    this.state.eventsArray = []
+    this.state.stopPagination = false
+    this.state.pageNo = 1;
+    this.setState({refresh:true, dataLoad: false,isVisible: true})
+    this.getEventsApi()
   }
   /*  UI   */
 
@@ -509,14 +513,20 @@ export default class MyStore extends Component {
   renderEventView() {
     var view = [];
     if (this.state.eventsArray.length != 0) {
-      for (let a = 0; a <= this.state.eventsArray.length - 1; a++) {
-        let item = this.state.eventsArray[a];
         view.push(
-          <TouchableOpacity onPress={() => this.didSelectEvent(item)}>
-            <EventView data={item} />
-          </TouchableOpacity>,
+          <View>
+             <FlatList
+              data={this.state.eventsArray}
+              renderItem={this.renderEventCellItem}
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item, index) => index + 3245}
+              key={'Y'}
+              numColumns={2}
+              onRefresh={this._handleRefresh}
+              refreshing={this.state.refresh}
+            />
+          </View>,
         );
-      }
       return view;
     } else {
       return (<View style={{ height: windowHeight/2, justifyContent: 'center', alignItems: 'center',width: '100%'  }}>
@@ -532,11 +542,11 @@ export default class MyStore extends Component {
 
   renderTabActionView = () => {
     if (this.state.segmentIndex == 0) {
-      return ( <ScrollView>
+      return ( <View>
           <View style={styles.containerView}>
             {this.renderEventView()}
           </View>
-        </ScrollView>)
+        </View>)
     } else {
       return (<View>
         <ScrollView>

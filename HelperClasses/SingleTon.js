@@ -60,7 +60,10 @@ export function getNextDate(startDate) {
   nxtDt.setDate(nxtDt.getDate() + 1);
   return nxtDt
 }
-
+export function convertTimeinto24Hrs(time) {
+  const number = moment(time, ["h:mm A"]).format("HH:mm");
+  return number
+}
 Date.prototype.addDays = function(days) {
   var dat = new Date(this.valueOf())
   dat.setDate(dat.getDate() + days);

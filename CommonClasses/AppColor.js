@@ -11,7 +11,7 @@ export default {
   AppGray:'#212121',
   BorderColor: 'rgba(222, 227, 230, 1)',
   LightBlueColor:'rgba(246, 249, 255, 1)',
-  LightGreenColor:'#B2E7DA',
+  LightGreenColor:'#E3F4F0',
   AppWhite:'white',
   LightGreen:'#EAF7F4',
   GradientTop: '#2BDBC0',

@@ -156,7 +156,7 @@ export default class EventDetail extends Component {
   }
   bookBtnAction () {
     if (appConstant.loggedIn){
-      this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
+      this.props.navigation.navigate(NavigationRoots.Schedule,{
         eventData:this.state.eventDetailData,
         variantData: this.state.selectedVariant,
       });
@@ -300,6 +300,7 @@ export default class EventDetail extends Component {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData['account'];
       var photo = item['images'] ? item['images'] : [];
+      console.log('photo --=', photo);
       return (<TouchableOpacity onPress={() => this.userBtnAction(item['id'])}>
         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
           <View style={{ flexDirection: 'row', alignItems : 'center'}}>
@@ -659,7 +660,6 @@ export default class EventDetail extends Component {
               <View>
                 <View style={{ height: 0 }} />
                 {this.renderBottomBtnView()}
-                {/* <View style={{ height: 50 }} /> */}
               </View>
             </View>
           </View>

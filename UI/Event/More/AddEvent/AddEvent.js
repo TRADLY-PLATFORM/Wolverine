@@ -32,7 +32,7 @@ import editGreen from '../../../../assets/editGreen.svg';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
+import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp,convertTimeinto24Hrs} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
 import SvgUri from 'react-native-svg-uri';
@@ -542,12 +542,14 @@ export default class AddEvent extends Component {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
         let dictData = responseJson['data']['listing'];
+        this.state.listingID = dictData['id'] ;
         this.setState({ listingID: dictData['id'] })
         if (!this.state.isEditing){
           this.addVariantUploadServiceMethod(0);
         }else {
         // Alert.alert('Update SuccessFully')
-        this.setState({ showCAlert: true })
+        // this.setState({ showCAlert: true })
+        this.scheduleAPI();
         }
       } else {
         Alert.alert(responseJson)
@@ -568,11 +570,13 @@ export default class AddEvent extends Component {
             this.addVariantUploadServiceMethod(index + 1)
           }
         } else {
-          this.setState({ showCAlert: true })
+          // this.setState({ showCAlert: true })
+          this.scheduleAPI();
         }
       }
     }else {
-      this.setState({ showCAlert: true })
+      // this.setState({ showCAlert: true })
+      this.scheduleAPI();
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -649,8 +653,47 @@ export default class AddEvent extends Component {
         if (!this.state.isEditing) {
           this.addVariantUploadServiceMethod(index + 1)
         } else {
-          this.setState({ showCAlert: true });
+          // this.setState({ showCAlert: true });
+          this.scheduleAPI();
         }
+      } else {
+        Alert.alert(responseJson)
+      }
+    }
+  }
+  scheduleAPI = async () => {
+    this.setState({ isVisible: true })
+    var uploadDic = []
+    for (let obj of this.state.eventDateArray) {
+      let dd = obj['date'];
+      let scheduledate = changeDateFormat(dd, 'yyyy-MM-DD')
+      let strt = convertTimeinto24Hrs(obj['startTime']);
+      let endt = convertTimeinto24Hrs(obj['endTime']);
+      var dic = {
+        'start_at': scheduledate,
+        'start_time': strt,
+        'end_time': endt,
+        'active': true,
+      }
+      dic['schedule_type'] = 1;
+      if (obj['repeatClass']) {
+        dic['schedule_type'] = obj['repeatClass']['name'] ? 2 : 1;
+        if (obj['repeatClass']['name']) {
+          dic['repeat_days'] = [obj['repeatClass']['id']];
+        }
+      }
+      uploadDic.push(dic);
+    }  
+
+    var path = APPURL.URLPaths.schedules;
+    let reqMethod = 'PUT';
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
+     JSON.stringify({ schedules: uploadDic}), appConstant.bToken, appConstant.authKey)
+    console.log(" responseJson =  ", responseJson)
+    if (responseJson) {
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.setState({ showCAlert: true })
       } else {
         Alert.alert(responseJson)
       }
@@ -692,8 +735,6 @@ export default class AddEvent extends Component {
     } else {
       this.uploadFilesAPI()
     }
-    // this.uploadFilesAPI()
-    // this.createEventApi();
   }
   selectDateTimeBtnAction(isEdit) {
     if (isEdit) {
@@ -1173,7 +1214,14 @@ export default class AddEvent extends Component {
     </View>)
   }
   renderListCellItem = ({ item, index }) => {
-    // console.log('item', item)
+    var views = []
+    if (item['repeatClass']) {
+      if (item['repeatClass']['name']) {
+      views.push(<View>
+        <Text style={eventStyles.subTitleStyle}>{item['repeatClass']['name'] || ''}</Text>
+      </View>)
+      }
+    }
     return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.calendarViewStyle}>
@@ -1182,7 +1230,7 @@ export default class AddEvent extends Component {
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
-            <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
+            <TouchableOpacity style={{marginLeft: 5}} onPress={() => this.selectDateTimeBtnAction(true)}>
               <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
             </TouchableOpacity>
           </View>
@@ -1191,6 +1239,7 @@ export default class AddEvent extends Component {
             <View style={{ width: 5 }} />
             <Text style={eventStyles.subTitleStyle}>{`${item['startTime']} to ${item['endTime']}`}</Text>
           </View>
+          {views}
         </View>
       </View>
       <TouchableOpacity onPress={() => this.deleteEventDateTimeBtnAction(index)}>
@@ -1372,7 +1421,7 @@ const styles = StyleSheet.create({
     width: 40, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    backgroundColor: colors.AppTheme,
+    backgroundColor: colors.AppWhite,
      borderRadius: 20
   },
   imageSelectedStyle: {
