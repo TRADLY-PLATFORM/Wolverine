@@ -59,7 +59,7 @@ export default class ConfirmBooking extends Component {
       let acctData = responseJson['data']['user'];
       this.state.stripConnected = acctData['metadata']['stripe_connected'];
       this.state.stripConnectedOnboarding = acctData['metadata']['stripe_connect_onboarding'];
-      console.log('acctData',acctData);
+      // console.log('acctData',acctData);
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
       this.setState({ isVisible: false })
@@ -101,7 +101,7 @@ export default class ConfirmBooking extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.createExpressLoginLink}`, 'post', JSON.stringify(dict),appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data'];
-      console.log('acctData',acctData)
+      // console.log('acctData',acctData)
       if (acctData['login_link']) {
         this.state.loginLink = acctData['login_link'];
       }

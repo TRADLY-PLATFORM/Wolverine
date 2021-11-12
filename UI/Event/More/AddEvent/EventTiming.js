@@ -26,14 +26,7 @@ import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-const weekDays = [
-  {'name':'Sun','id':1},
-  {'name':'Mon','id':2},
-  {'name':'Tue','id':3},
-  {'name':'Wed','id':4},
-  {'name':'Thu','id':5},
-  {'name':'Fri','id':6},
-  {'name':'Sat','id':7}]
+
 export default class EventTiming extends Component {
   constructor(props) {
     super(props);
@@ -51,24 +44,33 @@ export default class EventTiming extends Component {
       showCustomView: false,
       selectedWeekDay: [],
       weekDayValue: '',
+      id:-1,
     }
   }
   componentDidMount() {
-    let {eventDateTime} = this.props.route.params;
+    let {eventDateTime,id} = this.props.route.params;
     if (eventDateTime != undefined) {
+      this.state.id = id;
       this.state.selectedDate = eventDateTime['date'];
       let dsds = changeDateFormat(eventDateTime['date'],'yyyy-MM-DD')
       this.state.initialDate = new Date(dsds);
       this.state.selectStartTime = eventDateTime['startTime'];
       this.state.selectEndTime = eventDateTime['endTime'];
-      this.state.repeatValue = eventDateTime['repeatClass'] || '';
+      if (eventDateTime['repeatClass']) {
+        this.state.repeatValue = eventDateTime['repeatClass'] || '';
+        if (this.state.repeatValue['repeatIndex']) {
+          this.state.repeatSelectedIndex = this.state.repeatValue['repeatIndex'];
+        }
+      }
+    }else {
+      this.state.selectedDate = changeDateFormat(Date(),'ddd, D MMM yy');
     }
     this.setState({updateUI: !this.state.updateUI})
   }
   /*  Buttons   */
   doneBtnAction() {
     if (this.state.selectedDate.length == 0) {
-      Alert.alert('Please select Date time')
+      Alert.alert('Please select Date')
     } else if (this.state.selectStartTime.length == 0) {
       Alert.alert('Please select Start time')
     } else if (this.state.selectEndTime.length == 0) {
@@ -78,7 +80,9 @@ export default class EventTiming extends Component {
         date: this.state.selectedDate,
         startTime: this.state.selectStartTime,
         endTime: this.state.selectEndTime,
-        repeatClass: this.state.repeatValue
+        repeatClass: this.state.repeatValue,
+        repeatIndex:this.state.repeatSelectedIndex,
+        id:this.state.id,
       }
       this.props.route.params.getDateTime(dict);
       this.props.navigation.goBack();
@@ -90,6 +94,7 @@ export default class EventTiming extends Component {
   }
   onDateChange(date) {
     this.state.selectedDate = changeDateFormat(date,'ddd, D MMM yy')
+    // console.log('this.state.selectedDate ',this.state.selectedDate );
     this.setState({updateUI: !this.state.updateUI})
   }
   handleConfirmTime(time){
@@ -125,7 +130,8 @@ export default class EventTiming extends Component {
         }
         let dic = {
           'name':vv.toString(),
-          'id':ids.toString()
+          'id':ids.toString(),
+          'repeatIndex':this.state.repeatSelectedIndex,
         }
         this.state.repeatValue = dic;
         this.setState({showCustomView: false, showRepeatView: false});
@@ -133,7 +139,9 @@ export default class EventTiming extends Component {
         this.setState({showCustomView: true});
       }
     } else {
-      this.state.repeatValue = ConstantArrays.repeatArray[this.state.repeatSelectedIndex];
+      var rptValue = ConstantArrays.repeatArray[this.state.repeatSelectedIndex];
+      rptValue['repeatIndex'] = this.state.repeatSelectedIndex;
+      this.state.repeatValue = rptValue;
       this.setState({showRepeatView: false});
     }
   }
@@ -204,7 +212,7 @@ export default class EventTiming extends Component {
         <Text style={{fontSize: 14, fontWeight: '400'}}>Set Days</Text>
         <View style={{marginTop: 20}}>
           <FlatList
-            data={weekDays}
+            data={ConstantArrays.weekDays}
             horizontal={true}
             numColumns={1}
             renderItem={this.renderCustomItemCell}

@@ -43,7 +43,7 @@ export default class PayoutsScreen extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.transaction}${this.state.pageNo}&account_id=${appConstant.accountID}&type=9`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['transactions'];
-      console.log('pData',pData);
+      // console.log('pData',pData);
       if (pData.length != 0) {
         for(let objc of pData){
           this.state.myTransactionsArray.push(objc);

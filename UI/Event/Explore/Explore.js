@@ -196,7 +196,6 @@ export default class Explore extends Component {
   }
   /*  Delegate   */
   getFilterData = data => {
-    console.log('data ==>', data);
     var queryParams = '';
     for (let objc of data) {
       if (objc['time']) {

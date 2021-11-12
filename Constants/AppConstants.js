@@ -6,6 +6,7 @@ module.exports = {
   authKey: '',
   refreshKey: '',
   termCondition: '',
+  fcmToken:'',
   privacyURL: '',
   bToken: '',
   userId: '',

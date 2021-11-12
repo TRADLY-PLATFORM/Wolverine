@@ -16,6 +16,7 @@ import DefaultPreference from 'react-native-default-preference';
 import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import appMsg from '../../../Constants/AppMessages';
+import DeviceInfo from 'react-native-device-info';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
@@ -72,7 +73,10 @@ export default class More extends Component {
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
         appConstant.accountID = acctData[0]['id'];
-        this.setState({ accountId: acctData[0]['id'] })
+        this.setState({accountId: acctData[0]['id']})
+      }else {
+        this.state.accountId = '';
+        appConstant.accountID = '';
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false})
     } else {
@@ -220,7 +224,7 @@ export default class More extends Component {
               <this.renderListView />
             </View>
             <View style={{ height: 70, alignItems: 'center' }}>
-              <Text>{appConstant.appVersion}</Text>
+              <Text>{`${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`}</Text>
             </View>
           </View>
         </View>

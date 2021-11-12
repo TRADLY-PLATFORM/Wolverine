@@ -33,9 +33,20 @@ export function dateConversionFromTimeStamp(bDate) {
   var formatted = moment(ctime).format(frmt);
   return formatted;
 }
+export function getTimeDifference(sTime, etime) {
+  var mm = moment.utc(moment(etime, "HH:mm").diff(moment(sTime, "HH:mm")))
+  var d = moment.duration(mm);
+  let min = d.asMinutes();
+  return min;
+}
 export function changeDateFormat(bDate, format) {
   var ctime = new Date(bDate);
   var formatted = moment(ctime).format(format);
+  return formatted;
+}
+export function changeUTCFormat(bDate) {
+  var ctime = new Date(bDate);
+  var formatted = moment(ctime, "YYYY-MM-DDTHH:mm").utc();
   return formatted;
 }
 export function getTimeFormat(bDate) {

@@ -38,6 +38,7 @@ import SuccessView from '../../../../Component/SuccessView';
 import SvgUri from 'react-native-svg-uri';
 import radio from '../../../../assets/radio.svg';
 import selectedradio from '../../../../assets/radioChecked.svg';
+import ConstantArrays from '../../../../Constants/ConstantArrays';
 
 var viewload = false;
 
@@ -119,7 +120,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       var configs = responseJson['data']['configs'];
-      console.log('configs -==>', configs)
+      // console.log('configs -==>', configs)
       this.setState({
         hideOfferPrice: configs['hide_offer_percent'] || false,
         hideAddressField: configs['listing_address_enabled'] || false
@@ -133,9 +134,9 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let listData = responseJson['data']['listing'];
+      console.log('dsds ===-=- =-', JSON.stringify(listData));
       this.state.name = listData['title'];
       this.state.description = listData['description'];
-      console.log('description ==> ',this.state.description);
       this.state.selectAddress = listData['location'];
       this.state.coordinates = listData['coordinates']
       this.state.eventPrice = listData['list_price']['amount'];
@@ -146,17 +147,50 @@ export default class AddEvent extends Component {
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
       this.loadAttributeApi(this.state.selectedCatData['id'])
-      let eventStart = dateConversionFromTimeStamp(listData['start_at']);
-      let sTime = getTimeFormat(listData['start_at']);
-      let eTime = getTimeFormat(listData['end_at']);
-      let dd = (listData['start_at'] * 1000);
-      let eventdate = changeDateFormat(dd,'ddd, D MMM yy')
-      let dict = {
-        date: eventdate,
-        startTime: sTime,
-        endTime: eTime,
+      //  let sTime = getTimeFormat(listData['start_at']);
+      // let eTime = getTimeFormat(listData['end_at']);
+      // let dd = (listData['start_at'] * 1000);
+      // let eventdate = changeDateFormat(dd,'ddd, D MMM yy')
+      let schedules = listData['schedules'];
+    
+      for (let scObj of schedules) {
+        console.log('scObj',scObj);
+        let eventdate = changeDateFormat(scObj['start_date'], 'ddd, D MMM yy')
+        let sTime = scObj['start_time'];
+        let eTime = scObj['end_time'];
+        if (scObj['repeat_days']) {
+          let repeatClass = scObj['repeat_days'];
+          var repeatIDs = '1,7';
+          var repeatName = '';
+          var repeatIndex = 0;
+          repeatIDs = repeatClass.toString()
+          let index = ConstantArrays.repeatArray.findIndex(x => x.id == repeatIDs);
+          if (index == -1) {
+            repeatIndex = 3;
+            var nameary = [];
+            for (let objc of repeatClass) {
+              let ind = ConstantArrays.weekDays.findIndex(x => x.id == objc);
+              nameary.push(ConstantArrays.weekDays[ind].name)
+            }
+            if (nameary.length != 0) {
+              repeatName = nameary.toString()
+            }
+          } else {
+            repeatIndex = index;
+            repeatName = ConstantArrays.repeatArray[index].name;
+          }
+        }
+        console.log('repeatName', repeatName);
+        let dict = {
+          date: eventdate,
+          startTime: sTime,
+          endTime: eTime,
+          repeatClass: { 'id': repeatIDs, 'name': repeatName, 'repeatIndex': repeatIndex },
+        }
+        this.state.eventDateArray.push(dict);
       }
-      this.state.eventDateArray.push(dict);
+      console.log('this.state.eventDateArray === - ', this.state.eventDateArray)
+      
       for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
@@ -165,7 +199,6 @@ export default class AddEvent extends Component {
             valueDic['valueId'] = item['id'];
             valueDic['data'] = item['values'];
             this.state.singleSelectedArray.push(valueDic);
-            // this.state.singleSelectedArray = item['values'];
           }
         }
         if (fieldType == 2) {
@@ -174,7 +207,6 @@ export default class AddEvent extends Component {
             valueDic['valueId'] = item['id'];
             valueDic['data'] = item['values'];
             this.state.multipleSelectedsArray.push(valueDic);
-            // this.state.multipleSelectedsArray = item['values'];
           }
         }
         if (fieldType == 3) {
@@ -524,15 +556,15 @@ export default class AddEvent extends Component {
     if (attributeAry != 0) {
       dict['attributes'] = attributeAry
     }
-    if (this.state.eventDateArray != 0) {
-      let dateDict = this.state.eventDateArray[0];
-      let startDate = dateDict['date'] + ` ${dateDict['startTime']}`
-      let endDate = dateDict['date'] + ` ${dateDict['endTime']}`
-      let startTimestamp = new Date(startDate).getTime() / 1000;
-      let endTimestamp = new Date(endDate).getTime() / 1000;
-      dict['start_at'] = startTimestamp;
-      dict['end_at'] = endTimestamp;
-    }
+    // if (this.state.eventDateArray != 0) {
+    //   let dateDict = this.state.eventDateArray[0];
+    //   let startDate = dateDict['date'] + ` ${dateDict['startTime']}`
+    //   let endDate = dateDict['date'] + ` ${dateDict['endTime']}`
+    //   let startTimestamp = new Date(startDate).getTime() / 1000;
+    //   let endTimestamp = new Date(endDate).getTime() / 1000;
+    //   dict['start_at'] = startTimestamp;
+    //   dict['end_at'] = endTimestamp;
+    // }
     // console.log('dict', dict);
     let path = this.state.isEditing ? `/${this.state.listingID}` : ''
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
@@ -646,7 +678,7 @@ export default class AddEvent extends Component {
     // console.log('path == >', path, reqMethod, index)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+    // console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
@@ -665,12 +697,13 @@ export default class AddEvent extends Component {
     this.setState({ isVisible: true })
     var uploadDic = []
     for (let obj of this.state.eventDateArray) {
+      console.log('obj', obj);
       let dd = obj['date'];
       let scheduledate = changeDateFormat(dd, 'yyyy-MM-DD')
       let strt = convertTimeinto24Hrs(obj['startTime']);
       let endt = convertTimeinto24Hrs(obj['endTime']);
       var dic = {
-        'start_at': scheduledate,
+        'start_date': scheduledate,
         'start_time': strt,
         'end_time': endt,
         'active': true,
@@ -679,17 +712,23 @@ export default class AddEvent extends Component {
       if (obj['repeatClass']) {
         dic['schedule_type'] = obj['repeatClass']['name'] ? 2 : 1;
         if (obj['repeatClass']['name']) {
-          dic['repeat_days'] = [obj['repeatClass']['id']];
+          let dsd = obj['repeatClass']['id'];
+          const usingSplit = dsd.split(',');
+          var ids = [];
+          for(let imp of usingSplit) {
+            ids.push(Number(imp));
+          }
+          dic['repeat_days'] = ids;
         }
       }
       uploadDic.push(dic);
+      console.log('uploadDic', uploadDic)
     }  
-
     var path = APPURL.URLPaths.schedules;
     let reqMethod = 'PUT';
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
      JSON.stringify({ schedules: uploadDic}), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+    // console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
@@ -711,6 +750,7 @@ export default class AddEvent extends Component {
   }
   successAlert() {
     this.clearExitData();
+    this.setState({ isVisible: false })
     this.setState({showCAlert: false});
     this.props.navigation.goBack();
   }
@@ -736,11 +776,12 @@ export default class AddEvent extends Component {
       this.uploadFilesAPI()
     }
   }
-  selectDateTimeBtnAction(isEdit) {
-    if (isEdit) {
+  selectDateTimeBtnAction(index) {
+    if (index != undefined) {
       this.props.navigation.navigate(NavigationRoots.EventTiming, {
         eventDateTime: this.state.eventDateArray[0],
-        getDateTime: this.getEventDateTime
+        getDateTime: this.getEventDateTime,
+        id:index,
       });
     } else {
       this.props.navigation.navigate(NavigationRoots.EventTiming, {
@@ -867,8 +908,12 @@ export default class AddEvent extends Component {
     this.setState({ selectAddress: data });
   }
   getEventDateTime = data => {
-    this.state.eventDateArray = [];
-    this.state.eventDateArray.push(data);
+    if (data['id'] != -1) {
+      this.state.eventDateArray[data['id']] = data;
+    }else {
+      // this.state.eventDateArray = [];
+      this.state.eventDateArray.push(data);
+    }
     this.setState({ updateUI: !this.state.updateUI });
   }
   getSelectedCategoryID = data => {
@@ -1230,7 +1275,7 @@ export default class AddEvent extends Component {
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
-            <TouchableOpacity style={{marginLeft: 5}} onPress={() => this.selectDateTimeBtnAction(true)}>
+            <TouchableOpacity style={{marginLeft: 5}} onPress={() => this.selectDateTimeBtnAction(index)}>
               <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
             </TouchableOpacity>
           </View>

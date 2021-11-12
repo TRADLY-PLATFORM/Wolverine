@@ -33,17 +33,22 @@ export default class ExploreListItem extends Component {
     var rattingAvg = '';
     var price = '';
     var time = '';
+    let profilePic = sample;
+    if(item['account']['images']) {
+      let images = item['account']['images'] ? item['account']['images'] : [];
+      profilePic = images.length == 0 ? sample : {uri:images[0]}
+    }
     if(item['title']){
       title = item['title'];
       price = item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     if (item['rating_data']) {
       rattingAvg = item['rating_data']['rating_average']
     }
     if (item['list_price']) {
       price = item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     var photo = item['images'] ? item['images'] : [];
     let icon = item['liked'] ? favouriteIcon :  heartIcon
@@ -51,24 +56,29 @@ export default class ExploreListItem extends Component {
     return (<View style={styles.variantCellViewStyle}>
     <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }}  source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{ margin: 5 }}>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          {/* <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} /> */}
-          {/* <View style={{ width: 5 }} /> */}
-          <Text style={eventStyles.titleStyle} numberOfLines={1}>{time}</Text>
-        </View>
-        <View style={{ margin: 5, width: '80%'}}>
+        <View style={{ margin: 5 }}>
+          <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
+            {/* <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} /> */}
+            {/* <View style={{ width: 5 }} /> */}
+            <Text style={eventStyles.titleStyle} numberOfLines={1}>{title}</Text>
+          </View>
+          {/* <View style={{ margin: 5, width: '80%'}}>
           <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
+        </View> */}
+          <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
+            <Image style={{ width: 15, height: 15, marginTop: -3 }} source={starIcon} />
+            <View style={{ width: 5 }} />
+            <Text style={eventStyles.subTitleStyle}>{`${rattingAvg}`}</Text>
+          </View>
+          <View style={{ margin: 5, marginTop: 5 }}>
+            <Text style={eventStyles.titleStyle}>{price}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+            <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic}/>
+            <Text numberOfLines={1} style={{color: colors.Lightgray, fontSize: 12, padding: 5,fontWeight: '400'}}>
+              {item['account']['name']}</Text>
+          </View>
         </View>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15, marginTop: -3 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg}`}</Text>
-        </View>
-        <View style={{ margin: 5, marginTop: 5}}>
-        <Text style={eventStyles.titleStyle}>{price}</Text>
-        </View>
-      </View>
       <View>
         </View>
     </View>

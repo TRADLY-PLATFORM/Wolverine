@@ -57,7 +57,7 @@ export default class AddressList extends Component {
    this.setState({
       typingTimeout: setTimeout(function () {
         this.searchApi(this.state.searchKey);
-      }.bind(this), 5000)
+      }.bind(this), 1000)
     })
   }
   /*  Buttons   */

@@ -108,7 +108,6 @@ export default class EventList extends Component {
   }
   /*  Buttons   */
   didSelectEventList(item, index) {
-    console.log('dsdsddsds calling')
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
       id :item['id'],
     });

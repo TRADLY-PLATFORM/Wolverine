@@ -47,6 +47,7 @@ export default class OrderDetail extends Component {
     const responseJson = await networkService.networkCall(path, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['order'];
+      console.log('pDataOrder ==>', JSON.stringify(pData));
       this.state.orderDetailData = pData;
       let nextStatus = this.state.orderDetailData['next_status'];
       console.log('nextStatus', nextStatus)
@@ -116,12 +117,26 @@ export default class OrderDetail extends Component {
     if (this.state.orderDetailData['created_at']) {
       let item = this.state.orderDetailData['order_details'][0]['listing'];
       let dt = dateConversionFromTimeStamp(item['created_at']);
-      let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
       let location = this.state.orderDetailData['account']['location'];
-      return (<View style={{flexDirection: 'row'}}>
-        <View style={{width: '75%'}}>
-          <View style={{ flexDirection: 'row'}}>
+      var lView = [];
+      if (location['formatted_address']) {
+        lView.push(<View>
+          {/* <View style={{ height: 20 }} /> */}
+          <View style={{ flexDirection: 'row' }}>
+            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
+            <View style={{ width: 10 }} />
+            <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
+          </View>
+        </View>)
+      }
+      if (location['formatted_address']) {
+        return (
+          <View style={styles.commonViewStyle}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: '75%' }}>
+                {/* <View style={{ flexDirection: 'row'}}>
             <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={calendarIcon} />
             <View style={{ width: 10 }} />
             <View>
@@ -129,28 +144,19 @@ export default class OrderDetail extends Component {
               <View style={{ height: 5 }} />
               <Text style={eventStyles.subTitleStyle}>{time}</Text>
             </View>
-          </View>
-          <View style={{ height: 20 }} />
-          <View style={{ flexDirection: 'row'}}>
-            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
-            <View style={{ width: 10 }} />
-            <View>
-              {/* <Text style={eventStyles.commonTxtStyle}>{location['locality']}</Text> */}
-              {/* <View style={{ height: 5 }} /> */}
-              <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
+          </View> */}
+                {lView}
+              </View>
             </View>
-          </View>
-        </View>
-        <View>
-          {/* <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme, marginTop:10}}>
-            {'View Schedules'}
-          </Text> */}
-        </View>
-      </View>)
+          </View>)
+      } else {
+        return <View />
+      }
     } else {
       return <View />
     }
   }
+  
   renderUserDetail = () => {
     if (this.state.orderDetailData['account']) {
       let item = this.state.orderDetailData['account'];
@@ -194,9 +200,9 @@ export default class OrderDetail extends Component {
               {this.renderUserDetail()}
             </View>
             <View style={{ height: 10 }} />
-            <View style={styles.commonViewStyle}>
+            {/* <View style={styles.commonViewStyle}> */}
               {this.renderTimeAddressDetail()}
-            </View>
+            {/* </View> */}
           </ScrollView>
           <View>
             {this.renderBottomBtnView()}

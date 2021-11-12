@@ -104,24 +104,26 @@ export default class MyOrders extends Component {
   }
   renderOrderLisCellItem= ({item, index}) => {
     let listD = item['order_details'][0]['listing'];
-    let dateFr = changeDateFormat(listD['start_at']  * 1000, 'ddd, MMM D');
-    time = getTimeFormat(listD['start_at']) + ` to ` +  getTimeFormat(listD['end_at']) 
+    // let dateFr = changeDateFormat(listD['start_at']  * 1000, 'ddd, MMM D');
+    // time = getTimeFormat(listD['start_at']) + ` to ` +  getTimeFormat(listD['end_at']) 
     var photo = listD['images'] ? listD['images'] : [];
+    let payment = item['payment_method'] ? item['payment_method']['name'] : ''
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelect(item)}>
     <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 60, height: 60, borderRadius: 2 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View >
-        <View style={{ marginLeft: 10, width: '80%'}}>
+      <View style={{flex:1}}>
+        <View style={{ marginLeft: 10, flex:1}}>
           <Text style={eventStyles.titleStyle}>{listD['title']}</Text>
           <View style={{height: 5}} />
           <Text style={eventStyles.subTitleStyle} numberOfLines={2}>{listD['description']}</Text>
           <View style={{height: 5}} />
-          <View style={{flexDirection: 'row'}}>
+          <Text style={eventStyles.subTitleStyle} numberOfLines={1}>{payment}</Text>
+          {/* <View style={{flexDirection: 'row'}}>
             <Text style={eventStyles.subTitleStyle}>{dateFr}</Text>
             <View style={{height: 16, width: 1, backgroundColor: colors.BorderColor, marginLeft: 5, marginRight: 5}} />
             <Image style={{ width: 15, height: 15, marginRight: 5 }} resizeMode='center' source={timeIcon} />
             <Text style={eventStyles.subTitleStyle}>{time}</Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </View>

@@ -37,7 +37,8 @@ module.exports = {
     like: '/likes',
     follow: '/follow',
     activities: 'v1/activities?page=',
-    schedules: '/schedules'
+    schedules: '/schedules',
+    schedulesPerDay: 'schedules_per_day?',
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

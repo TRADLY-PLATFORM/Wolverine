@@ -103,6 +103,7 @@ export default class EventDetail extends Component {
 
       this.setState({updateUI: !this.state.updateUI, loadData: true,isVisible: false})
     } else {
+      Alert.alert(responseJson)
       this.setState({ isVisible: false })
     }
   }
@@ -156,9 +157,11 @@ export default class EventDetail extends Component {
   }
   bookBtnAction () {
     if (appConstant.loggedIn){
+      const { id } = this.props.route.params;
       this.props.navigation.navigate(NavigationRoots.Schedule,{
         eventData:this.state.eventDetailData,
         variantData: this.state.selectedVariant,
+        id: id,
       });
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
@@ -300,7 +303,7 @@ export default class EventDetail extends Component {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData['account'];
       var photo = item['images'] ? item['images'] : [];
-      console.log('photo --=', photo);
+      // console.log('photo --=', photo);
       return (<TouchableOpacity onPress={() => this.userBtnAction(item['id'])}>
         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
           <View style={{ flexDirection: 'row', alignItems : 'center'}}>
@@ -317,12 +320,26 @@ export default class EventDetail extends Component {
   renderTimeAddressDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData;
-      let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
       let location = item['location'];
-      return (<View style={{flexDirection: 'row'}}>
-        <View style={{width: '75%'}}>
-          <View style={{ flexDirection: 'row'}}>
+      var lView = [];
+      if (location['formatted_address']) {
+        lView.push(<View>
+          {/* <View style={{ height: 20 }} /> */}
+          <View style={{ flexDirection: 'row' }}>
+            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
+            <View style={{ width: 10 }} />
+            <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
+          </View>
+        </View>)
+      }
+      if (location['formatted_address']) {
+        return (
+          <View style={styles.commonViewStyle}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: '75%' }}>
+                {/* <View style={{ flexDirection: 'row'}}>
             <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={calendarIcon} />
             <View style={{ width: 10 }} />
             <View>
@@ -330,17 +347,14 @@ export default class EventDetail extends Component {
               <View style={{ height: 5 }} />
               <Text style={eventStyles.subTitleStyle}>{time}</Text>
             </View>
-          </View>
-          <View style={{ height: 20 }} />
-          <View style={{ flexDirection: 'row'}}>
-            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
-            <View style={{ width: 10 }} />
-            <View>
-              <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
+          </View> */}
+                {lView}
+              </View>
             </View>
-          </View>
-        </View>
-      </View>)
+          </View>)
+      }else {
+        return <View />
+      }
     } else {
       return <View />
     }
@@ -472,7 +486,7 @@ export default class EventDetail extends Component {
       var views = [];
       for (let a = 0; a < attributesAry.length; a++) {
         let item = attributesAry[a];
-        console.log('item ==>', item)
+        // console.log('item ==>', item)
         var values = [];
         if (item['field_type'] == 1 || item['field_type'] == 2) {
           for (let obj of item['values']) {
@@ -481,7 +495,7 @@ export default class EventDetail extends Component {
         } else {
           values = item['values']
         }
-        console.log('values', values)
+        // console.log('values', values)
         if (item['field_type'] == 5) {
           views.push(<View style={{ flexDirection: 'row'}}>
             <View style={{ width: '40%', height: 40,justifyContent: 'center' }}>
@@ -592,9 +606,9 @@ export default class EventDetail extends Component {
           {this.renderUserDetail()}
         </View>
         <View style={{ height: 10 }} />
-        <View style={styles.commonViewStyle}>
+        {/* <View style={styles.commonViewStyle}> */}
           {this.renderTimeAddressDetail()}
-        </View>
+        {/* </View> */}
         <View style={{ height: 0 }} />
         <View>
           {this.renderArrtibutes()}

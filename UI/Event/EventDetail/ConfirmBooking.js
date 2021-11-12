@@ -48,11 +48,17 @@ export default class ConfirmBooking extends Component {
       customerId: '',
       clientSecretkey: '',
       showCAlert: false,
+      startTime:'',
+      endTime:'',
+      selectedDate:''
     }
   }
-
   componentDidMount() {
-    let {eventData} = this.props.route.params;
+    let {eventData,startTime,endTime,date} = this.props.route.params;
+    this.state.startTime = startTime;
+    this.state.endTime = endTime;
+    this.state.selectedDate = date;
+
     this.state.eventDetailData = eventData
     this.state.listPrice = this.state.eventDetailData['offer_price']['amount'];
     this.setState({updateUI: !this.state.updateUI})
@@ -63,7 +69,7 @@ export default class ConfirmBooking extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['payment_methods'];
-      console.log('pData', pData)
+      // console.log('pData', pData)
       this.state.paymentArray = pData
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
@@ -89,6 +95,8 @@ export default class ConfirmBooking extends Component {
       'payment_method_id': this.state.selectedPaymentId,
       'quantity': this.state.countPrice,
       'type': 'events',
+      'start_at':`${this.state.selectedDate} ${this.state.startTime}:00`,
+      'end_at':`${this.state.selectedDate} ${this.state.endTime}:00`
     }
     if (variantData['id']) {
       dict['variant_id'] = variantData['id'];
@@ -103,7 +111,8 @@ export default class ConfirmBooking extends Component {
       if (this.state.selectedPaymentType == pType) {
         this.getpaymentIntentApi(cData['order_reference']);
       } else {
-        this.setState({ showCAlert: true,isVisible: false })
+        this.setState({isVisible: false })
+        this.setState({showCAlert: true})
       }
       // this.successAlert();
       // this.setState({updateUI: !this.state.updateUI,isVisible: false })
@@ -124,9 +133,9 @@ export default class ConfirmBooking extends Component {
     }
   }
   successAlert() {
-    this.setState({ showCAlert: false,isVisible: false })
+    this.setState({isVisible: false })
+    this.setState({ showCAlert: false})
     this.props.navigation.navigate(NavigationRoots.MyOrders);
-    
   }
   /*  Stripe Payment Gateway */
   initializePaymentSheet = async () => {
@@ -180,9 +189,22 @@ export default class ConfirmBooking extends Component {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData;
       let price = this.state.eventDetailData['list_price']['formatted'];
-      let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      let dateFr = changeDateFormat(this.state.selectedDate, 'ddd, MMM D');
+      time = this.state.startTime + ` to ` +  this.state.endTime
       let location = item['location'];
+      var lView = [];
+      if (location['formatted_address']) {
+        lView.push(<View>
+          <View style={{ height: 20 }} />
+          <View style={{ flexDirection: 'row' }}>
+            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
+            <View style={{ width: 10 }} />
+            <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
+          </View>
+        </View>)
+      }
       return (<View>
         <View style={{flexDirection: 'row', justifyContent: 'space-between',alignItems: 'center'}}>
           <Text style={eventStyles.titleStyle}>{this.state.eventDetailData['title']}</Text>
@@ -199,12 +221,7 @@ export default class ConfirmBooking extends Component {
               <Text style={eventStyles.subTitleStyle}>{time}</Text>
             </View>
           </View>
-          <View style={{ height: 20 }} />
-          <View style={{ flexDirection: 'row'}}>
-            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={locationPin} />
-            <View style={{ width: 10 }} />
-            <Text style={eventStyles.commonTxtStyle}>{location['formatted_address']}</Text>
-          </View>
+          {lView}
         </View>
       </View>)
     } else {

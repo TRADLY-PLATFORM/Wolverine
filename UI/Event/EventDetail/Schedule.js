@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Alert,
+  Dimensions,
 } from 'react-native';
 
 import appConstant from '../../../Constants/AppConstants';
@@ -22,64 +22,75 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
-import {getNextDate,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
+import {changeUTCFormat,changeDateFormat,getDatesArray, getTimeDifference} from '../../../HelperClasses/SingleTon'
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SvgUri from 'react-native-svg-uri';
 import timeIcon from '../../../assets/timeIcon.png';
 
+const windowHeight = Dimensions.get('window').height;
 
 export default class Schedule extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isVisible: false,
+      isVisible: true,
       updateUI: false,
       selectedPaymentId: 0,
       selectedDateIndex: 0,
       datesArray: [],
       selectedDate:'',
       selectedTimeIndex: -1,
+      scheduleArray: [],
     }
   }
 
   componentDidMount() {
-    this.state.datesArray = getDatesArray();
+    let cdate = getDatesArray();
+    this.state.selectedDate = changeDateFormat(cdate[0], 'YYYY-MM-DD');
     this.setState({updateUI: !this.state.updateUI})
+    this.getScheduleApi();
   }
-  getPaymentMethodsApi = async () => {
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
+  getScheduleApi = async () => {
+    const {id} = this.props.route.params;
+    let path = `${APPURL.URLPaths.listings}/${id}/`
+    const responseJson = await networkService.networkCall(path + `${APPURL.URLPaths.schedulesPerDay}days=31&start_at=${this.state.selectedDate}`, 'get',
+      '',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
-      let pData = responseJson['data']['payment_methods'];
-      console.log('pData', pData)
-      this.state.paymentArray = pData
+      let pData = responseJson['data']['schedules_per_day']
+      console.log('sasasas', JSON.stringify(pData));
+      for (let obj of pData) {
+        this.state.datesArray.push(obj['day'])
+      }
+      this.state.scheduleArray = pData
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
       this.setState({ isVisible: false })
     }
   }
   
-  /*  Stripe Payment Gateway */
-  
-
   /*  Buttons   */
   continueBookingBtnAction() {
+    var scheduleData = [];
+    let ssData = this.state.scheduleArray[this.state.selectedDateIndex]
+    scheduleData = ssData['schedules'];
+    let sttimes = scheduleData[this.state.selectedTimeIndex]['start_time'];
+    let edtimes = scheduleData[this.state.selectedTimeIndex]['end_time'];
     let {eventData,variantData} = this.props.route.params;
     this.props.navigation.navigate(NavigationRoots.ConfirmBooking,{
       eventData:eventData,
-      variantData: variantData
+      variantData: variantData,
+      startTime:sttimes,
+      endTime:edtimes,
+      date:ssData['day'],
     });
   }
   didSelectDate(index) {
+    this.state.selectedTimeIndex = -1;
     this.state.selectedDateIndex = index
-    console.log('');
-    this.state.selectedDate = changeDateFormat(this.state.datesArray[index - 1], 'YYYY-MM-DD');
-    let nxtDate = getNextDate(this.state.datesArray[index])
-    let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
+    this.state.selectedDate = changeDateFormat(this.state.datesArray[index], 'YYYY-MM-DD');
     this.setState({ updateUI: !this.state.updateUI })
-    let strtD = `${this.state.selectedDate}T00:00:00Z`;
-    let endD = `${nxt}T00:00:00Z`;
   }
   didSelectTime(index) {
     this.state.selectedTimeIndex = index;
@@ -126,21 +137,32 @@ export default class Schedule extends Component {
     }
   }
   renderTimeListView = () => {
-    return (<View style={{backgroundColor: colors.LightBlueColor }}>
-      <View>
-        <FlatList
-          data={[1,1]}
-          renderItem={this.renderTimeListViewCellItem}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item, index) => index + 999}
-          key={'Q'}
-        />
-      </View>
-      <View style={{ height: 10 }} />
+    var scheduleData = [];
+    if (this.state.scheduleArray[this.state.selectedDateIndex] !== undefined) {
+        scheduleData = this.state.scheduleArray[this.state.selectedDateIndex]['schedules']
+    }
+    if (scheduleData.length != 0) {
+      return (<View style={{ backgroundColor: colors.LightBlueColor }}>
+        <View>
+          <FlatList
+            data={scheduleData}
+            renderItem={this.renderTimeListViewCellItem}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item, index) => index + 999}
+            key={'Q'}
+          />
+        </View>
+        <View style={{ height: 10 }} />
+      </View>)
+    } else {
+      return (<View style={{ height: windowHeight/2, justifyContent: 'center', alignItems: 'center'}}>
+      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? 'No schedule avialable' : ''}</Text>
     </View>)
+    }
   }
   renderTimeListViewCellItem = ({item,index}) => {
     let check = index == this.state.selectedTimeIndex ? true : false;
+    let duration = getTimeDifference(item['start_time'],item['end_time'])
     return (<View style={styles.timeListViewStyle}>
       <TouchableOpacity style={{flexDirection: 'row',justifyContent: 'space-between'}} onPress={() => this.didSelectTime(index)}>
         <View style={{ width: '90%',justifyContent: 'center'}}>
@@ -148,50 +170,11 @@ export default class Schedule extends Component {
             <Image style={{width: 18, height: 18}}  source={timeIcon} />
             <View style={{ width: 10 }} />
             <View>
-              <Text style={{color: colors.Lightgray, fontWeight: '600'}}>{`10:00 AM to 07:00 PM`}</Text>
+              <Text style={eventStyles.titleStyle}>
+                {`${item['start_time']} to ${item['end_time']}`}
+              </Text>
               <View style={{ height: 5 }} />
-              <Text style={eventStyles.subTitleStyle}>{`60 mins`}</Text>
-            </View>
-          </View>
-        </View>
-        <View style={{ alignItems: 'center',justifyContent: 'center', marginTop: -7}}>
-          <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={22} height={22} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
-          </View>
-        </View>
-      </TouchableOpacity>
-    </View>)
-  }
-  renderVariantListView = () => {
-    return (<View style={{ backgroundColor: colors.LightBlueColor }}>
-      <View>
-        <FlatList
-          data={[1, 1]}
-          renderItem={this.renderVariantListViewCellItem}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item, index) => index + 999}
-          key={'W'}
-        />
-      </View>
-      <View style={{ height: 10 }} />
-    </View>)
-  }
-  renderVariantListViewCellItem = ({item,index}) => {
-    let check = false;
-    return (<View style={eventStyles.variantListViewStyle}>
-      <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between' }} onPress={() => this.didSelectVariant(item)}>
-        <View style={{ width: '90%' }}>
-          <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>
-            {`5 tickets left`}
-          </Text>
-          <View style={{ height: 16 }} />
-          <View style={{flexDirection: 'row'}}>
-            <Image style={{width: 16, height: 16}}  source={timeIcon} />
-            <View style={{ width: 10 }} />
-            <View>
-              <Text style={eventStyles.titleStyle}>{`10:00 AM`}</Text>
-              <View style={{ height: 5 }} />
-              <Text style={eventStyles.subTitleStyle}>{`60 mins`}</Text>
+              <Text style={eventStyles.subTitleStyle}>{`${duration} mins`}</Text>
             </View>
           </View>
         </View>
@@ -206,8 +189,8 @@ export default class Schedule extends Component {
   renderBottomBtnView = () => {
     return (<View>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.continueBookingBtnAction()}
-       disabled={this.state.selectedPaymentId != 0}>
-        <View style={this.state.selectedPaymentId != 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.applyBtnViewStyle } >
+       disabled={this.state.selectedTimeIndex == -1}>
+        <View style={this.state.selectedTimeIndex == -1 ? eventStyles.disableApplyBtnViewStyle : eventStyles.applyBtnViewStyle } >
           <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Continue Booking</Text>
         </View>
       </TouchableOpacity>
@@ -226,9 +209,6 @@ export default class Schedule extends Component {
               <View>
                 {this.renderTimeListView()}
               </View>
-              <View>
-                {this.renderVariantListView()}
-              </View>
             </View>
           </ScrollView>
           <View style={{padding: 16}}>
@@ -244,16 +224,6 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
-  },
-  commonViewStyle: {
-    padding: 16,
-    backgroundColor: colors.AppWhite,
-    borderWidth: 1, 
-    borderColor: colors.LightUltraGray,
-  },
-  incrementBtnStye: {
-    flex:1, justifyContent: 'center',
-     alignItems: 'center',
   },
   bottomBtnViewStyle: {
     width: '100%',
