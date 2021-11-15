@@ -226,7 +226,7 @@ module.exports = StyleSheet.create({
   },
   selectedSegmentViewStyle: {
     flex: 1,
-    height: 60,
+    height: 50,
     borderBottomWidth: 3,
     borderBottomColor: colors.AppTheme,
     justifyContent: 'center',
@@ -234,7 +234,7 @@ module.exports = StyleSheet.create({
   },
   segmentViewStyle: {
     flex: 1,
-    height: 60,
+    height: 50,
     borderBottomWidth: 3,
     borderBottomColor: colors.BorderColor,
     justifyContent: 'center',

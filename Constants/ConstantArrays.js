@@ -1,7 +1,7 @@
 module.exports = {
   filterArray: ['Time', 'Rating', 'Distance', 'Category'],
   sortingArray: ['Nearest by Distance', 'Price - Low to High', 'Price - High to Low'],
-  menuArray: ['My Account', 'Payment', 'My Bookings', 'My Account Bookings', 'My Sales', 'Terms & Conditions', 'Privacy Policy', 'Invite Friend', 'Logout'],
+  menuArray: ['My Account','My Account Bookings', 'My Sales','Payment','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
   repeatArray: [
     { 'name': 'Daily', 'id': '1,2,3,4,5,6,7' },
     { 'name': 'Weekdays (Mon-Fri)', 'id': '2,3,4,5,6' },
@@ -14,5 +14,6 @@ module.exports = {
     { 'name': 'Wed', 'id': 4 },
     { 'name': 'Thu', 'id': 5 },
     { 'name': 'Fri', 'id': 6 },
-    { 'name': 'Sat', 'id': 7 }]
+    { 'name': 'Sat', 'id': 7 }],
+  customerMenuArray:['My Orders','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
 }

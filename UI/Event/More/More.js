@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import {
   FlatList, Alert, Linking, Text, Image, View,
-  StyleSheet, SafeAreaView, TouchableOpacity, ScrollView,Dimensions,
+  StyleSheet, SafeAreaView, TouchableOpacity, ScrollView,Dimensions, Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../CommonClasses/AppColor';
@@ -17,6 +17,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import appMsg from '../../../Constants/AppMessages';
 import DeviceInfo from 'react-native-device-info';
+import eventStyles from '../../../StyleSheet/EventStyleSheet';
+import SvgUri from 'react-native-svg-uri';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
@@ -34,6 +36,7 @@ export default class More extends Component {
       profilePic: '',
       loadData: false,
       userDetailData: {},
+      segmentIndex: 0,
     }
   }
   componentDidMount() {
@@ -69,7 +72,7 @@ export default class More extends Component {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
-      console.log('coming here or not');
+      // console.log('coming here or not');
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
         appConstant.accountID = acctData[0]['id'];
@@ -112,52 +115,84 @@ export default class More extends Component {
       ],
     );
   }
-  // rateAppBtnAction() {
-  //   Linking.canOpenURL(link).then(supported => {
-  //     supported && Linking.openURL(link);
-  //   }, (err) => console.log(err));
-  // }
+  rateAppBtnAction() {
+    let link = Platform.OS =='ios' ? appConstant.appStoreLink : appConstant.playStoreLink;
+    Linking.canOpenURL(link).then(supported => {
+      supported && Linking.openURL(link);
+    }, (err) => console.log(err));
+  }
   didSelectList = ({ index }) => {
-    if (index == 5) {
+    if (this.state.segmentIndex == 0) {
+      this.customerCellDidSelect(index)
+    } else {
+      if (index == 4) {
+        Linking.openURL(appConstant.termCondition);
+      }
+      else if (index == 5) {
+        Linking.openURL(appConstant.privacyURL);
+      }
+      else if (index == 6) {
+        this.props.navigation.navigate(NavigationRoots.InviteFriend);
+      } else if (index == 7) {
+        this.rateAppBtnAction()
+      } else {
+        if (appConstant.loggedIn) {
+          if (index == constantArrays.menuArray.length - 1) {
+            this.logoutBtnAction()
+          } else if (index == 0) {
+            if (this.state.accountId != 0) {
+              this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
+            } else {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            }
+          } else if (index == 3) {
+            if (this.state.accountId == 0) {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            } else {
+              this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+            }
+          } else if (index == 2) {
+            if (this.state.accountId != 0) {
+              this.props.navigation.navigate(NavigationRoots.MySale);
+            } else {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            }
+          } else if (index == 1) {
+            if (this.state.accountId != 0) {
+              this.props.navigation.navigate(NavigationRoots.MyOrders, {
+                title: constantArrays.menuArray[index]
+              });
+            } else {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            }
+          }
+        } else {
+          this.props.navigation.navigate(NavigationRoots.SignIn)
+        }
+      }
+    }
+  }
+  customerCellDidSelect(index) {
+    let  mArray = this.state.segmentIndex == 1 ? constantArrays.menuArray : constantArrays.customerMenuArray;
+    if (!appConstant.loggedIn) {
+      mArray = mArray.slice(0,-1)
+     }
+    if (index == 1) {
       Linking.openURL(appConstant.termCondition);
     }
-    else if (index == 6) {
+    else if (index == 2) {
       Linking.openURL(appConstant.privacyURL);
     }
-    else if (index == 7) {
+    else if (index == 3) {
       this.props.navigation.navigate(NavigationRoots.InviteFriend);
+    } else if (index == 4) {
+      this.rateAppBtnAction()
     } else {
       if (appConstant.loggedIn) {
-        if (index == constantArrays.menuArray.length - 1) {
+        if (index == mArray.length - 1) {
           this.logoutBtnAction()
         } else if (index == 0) {
-          if (this.state.accountId != 0) {
-            this.props.navigation.navigate(NavigationRoots.MyStore, { accId: this.state.accountId });
-          } else {
-            this.props.navigation.navigate(NavigationRoots.CreateStore);
-          }
-        } else if (index == 1) {
-          if (this.state.accountId == 0) {
-            this.props.navigation.navigate(NavigationRoots.CreateStore);
-          } else {
-            this.props.navigation.navigate(NavigationRoots.PaymentScreen);
-          }
-        } else if (index == 2) {
           this.props.navigation.navigate(NavigationRoots.MyOrders);
-        } else if (index == 4) {
-          if (this.state.accountId != 0) {
-            this.props.navigation.navigate(NavigationRoots.MySale);
-          } else {
-            this.props.navigation.navigate(NavigationRoots.CreateStore);
-          }
-        }else if (index == 3) {
-          if (this.state.accountId != 0) {
-            this.props.navigation.navigate(NavigationRoots.MyOrders,{
-              title:constantArrays.menuArray[index]
-            });
-          } else {
-            this.props.navigation.navigate(NavigationRoots.CreateStore);
-          }
         }
       } else {
         this.props.navigation.navigate(NavigationRoots.SignIn)
@@ -165,13 +200,34 @@ export default class More extends Component {
     }
   }
   /*  UI   */
+  renderSegmentBar = () => {
+    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+      <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
+        style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
+        <View style={{ height: 5 }} />
+        <Text style={{ fontSize: 14, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
+          Customer
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
+        style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
+        <View style={{ height: 5 }} />
+        <Text style={{ fontSize: 14, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
+          Account
+        </Text>
+      </TouchableOpacity>
+    </View>)
+  }
   renderListView = () => {
-    let  mArray = constantArrays.menuArray;
+    let  mArray = this.state.segmentIndex == 1 ? constantArrays.menuArray : constantArrays.customerMenuArray;
     if (!appConstant.loggedIn) {
       mArray = mArray.slice(0,-1)
      }
     return (
       <View style={{ width: '100%' }}>
+        <View>
+          {this.renderSegmentBar()}
+        </View>
         <FlatList
           style={{ margin: 10 }}
           data={mArray}
@@ -249,7 +305,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   listContainerView: {
-    height: '90%',
+    height: '95%',
     marginTop: '-20%',
     backgroundColor: colors.AppWhite,
     margin: 20,

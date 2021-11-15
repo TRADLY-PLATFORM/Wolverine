@@ -161,10 +161,14 @@ export default class MyOrders extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={value} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <View style={{height: '94%'}}>
-          <this.renderOrderListView />
+        <View style={{ height:'100%'}}>
+        <View style={{flex:1,backgroundColor: colors.LightBlueColor }}>
+          <View style={{flex:1}}>
+            <this.renderOrderListView />
           </View>
+          <View style={{ height: 20, backgroundColor: colors.LightBlueColor,width:'100%'}} />
+        </View>
+        <View style={{ height: 45, backgroundColor: colors.LightBlueColor,width:'100%'}} />
         </View>
       </SafeAreaView>
     );
@@ -172,7 +176,7 @@ export default class MyOrders extends Component {
 }
 const styles = StyleSheet.create({
   Container: {
-    flex: 1,
+    height: '100%',
     backgroundColor: colors.AppTheme
   },
   variantCellViewStyle: {

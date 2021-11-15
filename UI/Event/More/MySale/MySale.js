@@ -85,7 +85,7 @@ export default class MySale extends Component {
   /*  UI   */
   renderTransactionListView = () => {
     if (this.state.myTransactionsArray != 0) {
-      return <View style={{ backgroundColor: colors.lightTransparent }}>
+      return <View style={{ backgroundColor: colors.lightTransparent, flex: 1 }}>
         <FlatList
           data={this.state.myTransactionsArray}
           renderItem={this.renderTransactionListCellItem}
@@ -111,22 +111,28 @@ export default class MySale extends Component {
     let amount = this.state.earningData['formatted'];
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Balance'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={'Balance'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={styles.headerViewStyle}>
-          <View style={{ height: 10 }} />
-          <Text style={{ color: colors.AppWhite }}>Your Balance</Text>
-          <View style={{ height: 10 }} />
-          <Text style={{ color: colors.AppWhite, fontSize: 20, fontWeight: '600' }}>{amount}</Text>
-          <TouchableOpacity style={styles.seePayoutsStyle} onPress={() =>this.seePayoutBtnAction()}>
-            <Text style={{ color: colors.AppWhite }}>See Payouts</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <View style={{margin:16}}>
-            <Text style={eventStyles.titleStyle}>Transactions</Text>
+        <View style={{ height: '100%' }}>
+          <View style={styles.headerViewStyle}>
+            <View style={{ height: 10 }} />
+            <Text style={{ color: colors.AppWhite }}>Your Balance</Text>
+            <View style={{ height: 10 }} />
+            <Text style={{ color: colors.AppWhite, fontSize: 20, fontWeight: '600' }}>{amount}</Text>
+            <TouchableOpacity style={styles.seePayoutsStyle} onPress={() => this.seePayoutBtnAction()}>
+              <Text style={{ color: colors.AppWhite }}>See Payouts</Text>
+            </TouchableOpacity>
           </View>
-          <this.renderTransactionListView />
+          <View style={{ flex: 1, backgroundColor: colors.LightBlueColor }}>
+            <View style={{ margin: 16 }}>
+              <Text style={eventStyles.titleStyle}>Transactions</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <this.renderTransactionListView />
+            </View>
+            <View style={{ height: 20, backgroundColor: colors.LightBlueColor, width: '100%' }} />
+          </View>
+          <View style={{ height: 45, backgroundColor: colors.LightBlueColor, width: '100%' }} />
         </View>
       </SafeAreaView>
     );

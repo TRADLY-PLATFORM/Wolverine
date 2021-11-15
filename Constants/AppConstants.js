@@ -19,9 +19,11 @@ module.exports = {
   intoScreen: [],
   accountID: '',
   hideTabbar: true,
+  playStoreLink: 'https://play.google.com/store/apps/details?id=com.classbubs.app',
+  appStoreLink: 'https://apps.apple.com/us/app/classbubs/id1574291475',
   appSharePath: 'classbubs://',
   apiVersion: '2020-08-27',
   dsnSentry: 'https://a36e7a2a75764b44aacc1400414d0fca@o396771.ingest.sentry.io/5896058',
   firebaseChatPath: '/classbubs_prod/',
-  tenantID:'tradlysocial',
+  tenantID:'classbubs',
 }
