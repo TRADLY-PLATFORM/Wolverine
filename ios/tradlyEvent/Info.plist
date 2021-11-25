@@ -53,7 +53,7 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow permission to access your camera to capture photos</string>
+	<string>Allow permission to access your camera to capture photos for profile and classes/campss</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -61,9 +61,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow permission to your photo library to choose photos</string>
+	<string>Allow permission to your photo library to choose photos for profile and classes/camps</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow permission to your photo library to choose photos</string>
+	<string>Allow permission to your photo library to choose photos for profile and classes/camps</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

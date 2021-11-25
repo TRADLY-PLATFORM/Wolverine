@@ -697,7 +697,6 @@ export default class AddEvent extends Component {
     this.setState({ isVisible: true })
     var uploadDic = []
     for (let obj of this.state.eventDateArray) {
-      console.log('obj', obj);
       let dd = obj['date'];
       let scheduledate = changeDateFormat(dd, 'yyyy-MM-DD')
       let strt = convertTimeinto24Hrs(obj['startTime']);
@@ -722,7 +721,6 @@ export default class AddEvent extends Component {
         }
       }
       uploadDic.push(dic);
-      console.log('uploadDic', uploadDic)
     }  
     var path = APPURL.URLPaths.schedules;
     let reqMethod = 'PUT';
