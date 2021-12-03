@@ -19,13 +19,15 @@ import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
-import Slider from "react-native-sliders";
+import Slider from '@react-native-community/slider';
+
 import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SvgUri from 'react-native-svg-uri';
+// import RangeSlider from '@jesster2k10/react-native-range-slider';
 
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
@@ -40,7 +42,7 @@ export default class Filter extends Component {
       selectedFilterIndex: -1,
       timeValue: [0,24.0],
       timeApplied: false,
-      distanceValue: [0],
+      distanceValue: 0,
       priceValue: [0, 300],
       selectedDatePostedIndex: -1,
       selectedRatingIndex: -1,
@@ -51,6 +53,8 @@ export default class Filter extends Component {
       selectAttributeIds:[],
       selectedAtriValueIds: []
     }
+    this.onChangeTimeSlider =  this.onChangeTimeSlider.bind(this);
+
   }
 
   componentDidMount() {
@@ -80,7 +84,7 @@ export default class Filter extends Component {
         }
         if (objc['distance']) {
           let dObjc = objc['distance']
-          this.state.distanceValue[0] = Number(`${dObjc['distance']}.0`);
+          this.state.distanceValue = Number(`${dObjc['distance']}.0`);
         }
         if (objc['price']) {
           let dObjc = objc['price']
@@ -252,7 +256,7 @@ export default class Filter extends Component {
       this.addValueInArray(aIndx,dic)
     } else if (this.state.selectedFilterIndex == 2){
       let dDict = {
-        'distance': this.state.distanceValue[0].toFixed(0),
+        'distance': this.state.distanceValue.toFixed(0),
       }
       let dic = {distance: dDict}
       var aIndx = -1
@@ -395,8 +399,8 @@ export default class Filter extends Component {
       }
     }
     else if (index == 2) {
-      if (this.state.distanceValue[0] != 0) {
-        let value = this.state.distanceValue[0].toFixed(0)
+      if (this.state.distanceValue != 0) {
+        let value = this.state.distanceValue.toFixed(0)
         views.push(<View>
           <Text style={styles.textValueStyle}> {`${value} KM`} </Text>
         </View>)
@@ -472,14 +476,34 @@ export default class Filter extends Component {
       </TouchableOpacity>
     </View>)
   }
-  
+  onChangeTimeSlider(min, max){
+    this.state.timeValue[0]=min;
+    this.state.timeValue[1]=max;
+    // this.setState({updateUI: !this.state.updateUI})
+  }
   renderTimeView = () => {
     var strt = '';
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={{ padding: 20 }}>
         <Text style={eventStyles.commonTxtStyle}>12:00 AM - 12:00 PM</Text>
       </View>
-      <Slider
+      {/* <RangeSlider
+        style={{ width: '90%', marginLeft: 16}}
+        type="range" // ios only
+        min={0}
+        max={24}
+        lineHeight={2}
+        selectedMinimum={this.state.timeValue[0]} // ios only
+        selectedMaximum={this.state.timeValue[1]} // ios only
+        tintColor={colors.LightUltraGray}
+        minLabelColor={colors.AppTheme}
+        maxLabelColor={colors.AppTheme}
+        handleColor={colors.AppTheme}
+        handlePressedColor={colors.LightUltraGray}
+        tintColorBetweenHandles={colors.AppTheme}
+        onChange={(min,max) => this.onChangeTimeSlider(min,max)}
+      /> */}
+      {/* <Slider
         value={this.state.timeValue}
         style={{ width: '90%', marginLeft: 20 }}
         minimumValue={0}
@@ -488,11 +512,11 @@ export default class Filter extends Component {
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
         minimumTrackTintColor={colors.AppTheme}
-      />
-      <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
+      /> */}
+      {/* <View style={{ padding: 20, paddingTop: 0, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[0].toFixed(0)}</Text>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[1].toFixed(0)}</Text>
-      </View>
+      </View> */}
     </View>)
   }
   renderDatePostedView = () => {
@@ -561,14 +585,14 @@ export default class Filter extends Component {
         style={{ width: '90%', marginLeft: 20 }}
         minimumValue={0}
         maximumValue={10}
-        onValueChange={value => this.setState({ distanceValue: value })}
+        onSlidingComplete={value => this.setState({ distanceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
         minimumTrackTintColor={colors.AppTheme}
       />
-      <View style={{ padding: 20, justifyContent: 'space-between', flexDirection: 'row' }}>
+      <View style={{ padding: 20, paddingTop: -10, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{0}</Text>
-        <Text style={eventStyles.commonTxtStyle}>{this.state.distanceValue[0].toFixed(0) + ` KM` }</Text>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.distanceValue.toFixed(0) + ` KM` }</Text>
       </View>
     </View>)
   }

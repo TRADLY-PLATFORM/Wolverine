@@ -60,7 +60,9 @@ module.exports = StyleSheet.create({
     color: colors.AppWhite,
     textAlign: "left",
     paddingLeft: 10,
-    width: "66%"
+    width: "95%",
+    marginLeft: 5,
+    height: '80%'
   },
   loginBtnStyle: {
     backgroundColor: colors.AppWhite,

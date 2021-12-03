@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-native-community/masked-view": "^0.1.11",
+    "@react-native-community/slider": "^4.1.12",
     "@react-native-firebase/app": "^12.5.0",
     "@react-native-firebase/auth": "^12.5.0",
     "@react-native-firebase/database": "^12.5.0",
@@ -49,7 +50,6 @@
     "react-native-screens": "^3.4.0",
     "react-native-scroll-bottom-sheet": "^0.7.0",
     "react-native-search-bar": "^3.5.1",
-    "react-native-sliders": "^1.1.1",
     "react-native-svg": "^12.1.1",
     "react-native-svg-uri": "^1.2.3",
     "react-native-tags": "^2.2.0",
