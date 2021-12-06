@@ -20,6 +20,7 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Slider from '@react-native-community/slider';
+// import {Slider} from '@miblanchard/react-native-slider';
 
 import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
@@ -27,7 +28,9 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SvgUri from 'react-native-svg-uri';
-// import RangeSlider from '@jesster2k10/react-native-range-slider';
+import RangeSlider from '@jesster2k10/react-native-range-slider';
+// import RangeSlider from 'rn-range-slider';
+// import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
@@ -487,7 +490,8 @@ export default class Filter extends Component {
       <View style={{ padding: 20 }}>
         <Text style={eventStyles.commonTxtStyle}>12:00 AM - 12:00 PM</Text>
       </View>
-      {/* <RangeSlider
+
+      <RangeSlider
         style={{ width: '90%', marginLeft: 16}}
         type="range" // ios only
         min={0}
@@ -502,7 +506,7 @@ export default class Filter extends Component {
         handlePressedColor={colors.LightUltraGray}
         tintColorBetweenHandles={colors.AppTheme}
         onChange={(min,max) => this.onChangeTimeSlider(min,max)}
-      /> */}
+      />
       {/* <Slider
         value={this.state.timeValue}
         style={{ width: '90%', marginLeft: 20 }}
@@ -582,15 +586,16 @@ export default class Filter extends Component {
       </View>
       <Slider
         value={this.state.distanceValue}
-        style={{ width: '90%', marginLeft: 20 }}
+        style={{ width: '90%', marginLeft: 20,height: 40}}
         minimumValue={0}
         maximumValue={10}
         onSlidingComplete={value => this.setState({ distanceValue: value })}
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
         minimumTrackTintColor={colors.AppTheme}
+        minimumValue={0}
       />
-      <View style={{ padding: 20, paddingTop: -10, justifyContent: 'space-between', flexDirection: 'row' }}>
+      <View style={{ padding: 20, paddingTop: 10, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{0}</Text>
         <Text style={eventStyles.commonTxtStyle}>{this.state.distanceValue.toFixed(0) + ` KM` }</Text>
       </View>
