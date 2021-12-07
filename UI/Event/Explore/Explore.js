@@ -87,8 +87,8 @@ export default class Explore extends Component {
   initApi() {
     if (this.state.datesArray.length != 0){
       this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-      let strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-      this.state.params = `${strtD}`;
+      let strtD = '' //`&start_at=${this.state.selectedDate}T00:00:00Z`;
+      // this.state.params = `${strtD}`;
     }
     this.callApi(this.state.params);
   }
@@ -123,7 +123,7 @@ export default class Explore extends Component {
   }
   _handleRefresh = () => {
     this.setState({ isVisible: true })
-    this.callApi(this.state.params);
+    // this.callApi(this.state.params);
   }
   onSearchChanges = () => {
     if (this.state.typingTimeout) {
@@ -213,7 +213,7 @@ export default class Explore extends Component {
       if (objc['rating']) {
         var strtD = '';
         if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+          //  strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
         }  
         let rObjc = objc['rating']
         queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
@@ -221,7 +221,7 @@ export default class Explore extends Component {
       if (objc['distance']) {
         var strtD = '';
         if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+          //  strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
         }
         let dObjc = objc['distance']
         queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
@@ -229,7 +229,7 @@ export default class Explore extends Component {
       if (objc['category']) {
         var strtD = '';
         if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+          //  strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
         }
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
@@ -237,7 +237,7 @@ export default class Explore extends Component {
       if (objc['price']) {
         var strtD = '';
         if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+          //  strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
         }   
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
@@ -247,9 +247,11 @@ export default class Explore extends Component {
         let dObjc = nObj['values'];
         var strtD = '';
         if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+          //  strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
         }
-        queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
+        if (dObjc.length != 0) {
+          queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
+        }
       }
     }
     this.state.filtersArray = data

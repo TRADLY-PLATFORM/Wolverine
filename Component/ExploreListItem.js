@@ -5,8 +5,6 @@ import {
   Text,
   View,
   Image,
-  StatusBar,
-  TouchableOpacity,
   Dimensions,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -33,8 +31,10 @@ export default class ExploreListItem extends Component {
     var rattingAvg = '';
     var price = '';
     var time = '';
+    var name = '';
     let profilePic = sample;
-    if(item['account']['images']) {
+    if(item['account']) {
+      name = item['account']['name'];
       let images = item['account']['images'] ? item['account']['images'] : [];
       profilePic = images.length == 0 ? sample : {uri:images[0]}
     }
@@ -57,7 +57,7 @@ export default class ExploreListItem extends Component {
     <View style={{flexDirection: 'row', width: '80%'}}>
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }}  source={photo.length == 0 ? sample : { uri: photo[0] }} />
         <View style={{ margin: 5 }}>
-          <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center',width: '85%' }}>
             {/* <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} /> */}
             {/* <View style={{ width: 5 }} /> */}
             <Text style={eventStyles.titleStyle} numberOfLines={1}>{title}</Text>
@@ -76,7 +76,7 @@ export default class ExploreListItem extends Component {
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
             <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic}/>
             <Text numberOfLines={1} style={{color: colors.Lightgray, fontSize: 12, padding: 5,fontWeight: '400'}}>
-              {item['account']['name']}</Text>
+              {name}</Text>
           </View>
         </View>
       <View>
