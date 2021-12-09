@@ -28,7 +28,7 @@ export default class TrasnactionList extends Component {
     let dateFr = changeDateFormat(item['created_at'] * 1000, 'D, MMM HH:MM');
     let price = item['amount']['formatted'];
     let type = transactionEnum.code(item['type']);
-    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelect(item)}>
+    return <View style={styles.variantCellViewStyle}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={eventStyles.titleStyle}>{item['transaction_number']}</Text>
         <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{price}</Text>
@@ -37,7 +37,7 @@ export default class TrasnactionList extends Component {
         <Text style={eventStyles.subTitleStyle}>{type}</Text>
         <Text style={{ fontWeight: '500', fontSize: 12 }}>{dateFr}</Text>
       </View>
-    </TouchableOpacity>
+    </View>
   }
   render() {
     return (<View>

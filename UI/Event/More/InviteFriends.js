@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Share,
 } from 'react-native';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
