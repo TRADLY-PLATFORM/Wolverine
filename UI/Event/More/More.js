@@ -213,7 +213,7 @@ export default class More extends Component {
         style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 14, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
-          Account
+          Business
         </Text>
       </TouchableOpacity>
     </View>)
