@@ -68,7 +68,7 @@ export function getDatesArray() {
 }
 export function getNextDate(startDate) {
   let  nxtDt = new Date(startDate);;
-  nxtDt.setDate(nxtDt.getDate() + 1);
+  nxtDt.setDate(nxtDt.getDate() + 0);
   return nxtDt
 }
 export function convertTimeinto24Hrs(time) {

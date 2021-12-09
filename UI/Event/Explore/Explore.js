@@ -111,6 +111,7 @@ export default class Explore extends Component {
       let events = responseJson['data']['listings'];
       if (events.length != 0) {
         for(let objc of events){
+          console.log('objc =>', objc);
           this.state.eventsArray.push(objc);
         }
       }else {
