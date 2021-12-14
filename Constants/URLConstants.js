@@ -2,7 +2,7 @@ import appConstant from './AppConstants';
 
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.tradly.app/',
+    BaseURL: 'https://api.dev.tradly.app/',
     token: 'v1/users/token/refresh',
     config: `v1/tenants/${appConstant.tenantID}/configs`,
     configList: `v1/configs?key_group=`,
@@ -25,7 +25,7 @@ module.exports = {
     home: 'products/v1/home',
     paymentMethod: '/v1/tenants/payment_methods',
     checkOut: '/checkout',
-    myOrders: 'products/v1/orders?type=events&page=',
+    myOrders: 'products/v1/orders?page=',
     orderDetail:'products/v1/orders/',
     createAccountLink: 'v1/payments/stripe/connect/account_links',
     createExpressLoginLink: 'v1/payments/stripe/connect/login_links',
@@ -39,6 +39,8 @@ module.exports = {
     activities: 'v1/activities?page=',
     schedules: '/schedules',
     schedulesPerDay: 'schedules_per_day?',
+    cart: 'products/v1/cart',
+    addresses: 'v1/addresses'
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

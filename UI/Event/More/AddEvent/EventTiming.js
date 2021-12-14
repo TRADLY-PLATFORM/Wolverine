@@ -39,7 +39,7 @@ export default class EventTiming extends Component {
       selectedDate: '',
       initialDate: Date(),
       showRepeatView:  false,
-      repeatSelectedIndex:-1,
+      repeatSelectedIndex:999,
       repeatValue: {},
       showCustomView: false,
       selectedWeekDay: [],
