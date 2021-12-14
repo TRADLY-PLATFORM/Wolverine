@@ -109,7 +109,7 @@ export default class Verification extends Component {
             </TouchableOpacity>
             <View style={{ height: 60 }} />
             <View  style={{width: '90%', alignSelf: 'center'}}>
-            <Text style={commonStyle.titleStyle}>Phone Verification</Text>
+            <Text style={commonStyle.titleStyle}>Email Verification</Text>
             <Text style={commonStyle.subTitleStyle}>Verification code has been sent to below {emailID}</Text>
             <Text style={commonStyle.subTitleStyle}>Enter your OTP code here</Text>
             </View>

@@ -426,11 +426,11 @@ export default class EventDetail extends Component {
   }
   renderEventDescriptionView = () => {
     var description = '';
-    if (this.state.selectedVariantId != 0) {
-      description = this.state.selectedVariant['description'];
-    } else {
+    // if (this.state.selectedVariantId != 0) {
+    //   description = this.state.selectedVariant['description'];
+    // } else {
       description = this.state.eventDetailData['description'];
-    }
+    // }
     if (description.length != 0) {
       return (<View style={styles.commonViewStyle}>
         <Text style={eventStyles.commonTxtStyle}>Event description</Text>
