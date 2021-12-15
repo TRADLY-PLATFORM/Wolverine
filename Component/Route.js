@@ -95,6 +95,8 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,
+          gesturesEnabled: true,
+
         }} />
         <Stack.Screen name={NavigationRoots.Profile} component={Profile} options={{
           title: '',

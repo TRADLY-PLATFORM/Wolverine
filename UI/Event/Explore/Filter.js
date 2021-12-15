@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component,useCallback } from 'react';
 import {
   FlatList,
   TextInput,
@@ -21,6 +21,7 @@ import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Slider from '@react-native-community/slider';
 // import {Slider} from '@miblanchard/react-native-slider';
+import cancelIcon from '../../../assets/cancel.png';
 
 import starIcon from '../../../assets/star.png';
 import APPURL from '../../../Constants/URLConstants';
@@ -28,9 +29,13 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SvgUri from 'react-native-svg-uri';
-import RangeSlider from '@jesster2k10/react-native-range-slider';
+// import RangeSlider from '@jesster2k10/react-native-range-slider';
 // import RangeSlider from 'rn-range-slider';
 // import MultiSlider from '@ptomasroos/react-native-multi-slider';
+// import { MaterialSlider } from 'react-multi-thumb-slider';
+import Slider2 from "react-native-sliders";
+
+
 
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
@@ -54,7 +59,8 @@ export default class Filter extends Component {
       attributesArray: [],
       selectedAttributeArray: [],
       selectAttributeIds:[],
-      selectedAtriValueIds: []
+      selectedAtriValueIds: [],
+      showTimeBool:false,
     }
     this.onChangeTimeSlider =  this.onChangeTimeSlider.bind(this);
 
@@ -140,10 +146,14 @@ export default class Filter extends Component {
       this.state.selectAttributeIds.push(item['id']);
       this.state.selectedAttributeArray = item['values'];
     }
-    this.setState({showFilterView: !this.state.showFilterView})
+    if (index == 0) {
+      this.setState({showTimeBool: true})
+    }else {
+      this.setState({showFilterView: !this.state.showFilterView})
+    }
   }
   doneBtnAction () {
-    this.setState({showFilterView: false})
+    this.setState({showFilterView: false, showTimeBool: false})
     if (this.state.selectedFilterIndex == 0){
       this.state.timeApplied = true;
       let stTime = this.state.timeValue[0].toFixed(0);
@@ -484,30 +494,14 @@ export default class Filter extends Component {
     this.state.timeValue[1]=max;
     // this.setState({updateUI: !this.state.updateUI})
   }
+
   renderTimeView = () => {
     var strt = '';
     return (<View style={{ backgroundColor: colors.AppWhite }}>
       <View style={{ padding: 20 }}>
         <Text style={eventStyles.commonTxtStyle}>12:00 AM - 12:00 PM</Text>
       </View>
-
-      <RangeSlider
-        style={{ width: '90%', marginLeft: 16}}
-        type="range" // ios only
-        min={0}
-        max={24}
-        lineHeight={2}
-        selectedMinimum={this.state.timeValue[0]} // ios only
-        selectedMaximum={this.state.timeValue[1]} // ios only
-        tintColor={colors.LightUltraGray}
-        minLabelColor={colors.AppTheme}
-        maxLabelColor={colors.AppTheme}
-        handleColor={colors.AppTheme}
-        handlePressedColor={colors.LightUltraGray}
-        tintColorBetweenHandles={colors.AppTheme}
-        onChange={(min,max) => this.onChangeTimeSlider(min,max)}
-      />
-      {/* <Slider
+      <Slider2
         value={this.state.timeValue}
         style={{ width: '90%', marginLeft: 20 }}
         minimumValue={0}
@@ -516,11 +510,11 @@ export default class Filter extends Component {
         trackStyle={styles.track}
         thumbStyle={styles.thumb}
         minimumTrackTintColor={colors.AppTheme}
-      /> */}
-      {/* <View style={{ padding: 20, paddingTop: 0, justifyContent: 'space-between', flexDirection: 'row' }}>
+      />
+      <View style={{ padding: 20, paddingTop: 0, justifyContent: 'space-between', flexDirection: 'row' }}>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[0].toFixed(0)}</Text>
         <Text style={eventStyles.commonTxtStyle}>{this.state.timeValue[1].toFixed(0)}</Text>
-      </View> */}
+      </View>
     </View>)
   }
   renderDatePostedView = () => {
@@ -714,28 +708,38 @@ export default class Filter extends Component {
       snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }
-    if (this.state.showFilterView) {
+    if (this.state.showTimeBool) {
+      return (<View style={{marginTop:'100%', backgroundColor: colors.AppWhite,height:windowHeight/ 2}}>
+        {this.renderSliderTimeView()}
+      </View>)
+    }
+    else if (this.state.showFilterView) {
       var title  = ''
       if (this.state.attributesArray[this.state.selectedFilterIndex]['name']) {
         title = this.state.attributesArray[this.state.selectedFilterIndex]['name']
       } else {
         title = this.state.attributesArray[this.state.selectedFilterIndex]
       }
-      return (<View style={{backgroundColor: 'green'}}>
+    
+      return (<View>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={[snapPoint, snapPoint, maxHeight]}
           initialSnapIndex={1}
-          scrollEnabled={true}
+          scrollEnabled={false}
           animationType={'timing'}
           renderHandle={() => (
+            <View style={{ backgroundColor: colors.AppWhite, height:windowHeight/ 2, width: '100%' }}>
             <View style={styles.header}>
               <View style={styles.panelHandle} />
-              <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center'}}>
-                <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{title}</Text>
-                </View>
-                <View style={{height: '58%', marginTop: 10}}>
+              <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 10 }}>
+                <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{title}</Text>
+                    <TouchableOpacity onPress={() => this.setState({ showFilterView: false })}>
+                      <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
+                    </TouchableOpacity>
+                  </View>
+                <View style={{height: '60%', marginTop: 10}}>
                   {this.renderSelectedType()}
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
@@ -747,6 +751,7 @@ export default class Filter extends Component {
                 </View>
               </View>
             </View>
+            </View>
           )} topInset={false}
           contentContainerStyle={styles.contentContainerStyle}
           onSettle={index => { if (index == 2) { this.setState({showFilterView: false}) }}}
@@ -755,6 +760,32 @@ export default class Filter extends Component {
     } else {
       return <View />
     }
+  }
+  renderSliderTimeView = () => {
+    var viewHeight = windowHeight/ 3;
+    return (<View>
+      <View style={styles.header}>
+        <View style={styles.panelHandle} />
+        <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 15 }}>
+          <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', paddingLeft: 20 }}>{'Time'}</Text>
+            <TouchableOpacity onPress={() => this.setState({ showTimeBool: false})}>
+              <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ height: '58%', marginTop: 10 }}>
+            {this.renderSelectedType()}
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
+            <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.doneBtnAction()}>
+              <View style={eventStyles.applyBtnViewStyle}>
+                <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>)
   }
   render() {
     return (
@@ -767,7 +798,7 @@ export default class Filter extends Component {
             <this.renderButtonView />
             {/* <View style={{height: 20,backgroundColor: 'red', width: 200}} /> */}
           </View>
-          <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height: this.state.showFilterView ? '100%' : 0}}>
+          <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height: this.state.showTimeBool || this.state.showFilterView ? '100%' : 0}}>
             <this.renderSelectFilterView />
           </View>
         </View>

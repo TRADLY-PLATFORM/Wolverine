@@ -15,9 +15,6 @@ target 'tradlyEvent' do
   pod 'react-native-google-maps', :path => rn_maps_path
   pod 'RNSearchBar', :path => '../node_modules/react-native-search-bar'
   pod 'react-native-location', :path => '../node_modules/react-native-location'
-
-  pod 'jesster2k10-react-native-range-slider', :path => '../node_modules/@jesster2k10/react-native-range-slider'
-
   target 'tradlyEventTests' do
     inherit! :complete
     # Pods for testing

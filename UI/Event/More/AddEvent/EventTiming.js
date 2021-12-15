@@ -139,10 +139,12 @@ export default class EventTiming extends Component {
         this.setState({showCustomView: true});
       }
     } else {
-      var rptValue = ConstantArrays.repeatArray[this.state.repeatSelectedIndex];
-      rptValue['repeatIndex'] = this.state.repeatSelectedIndex;
-      this.state.repeatValue = rptValue;
-      this.setState({showRepeatView: false});
+      if (ConstantArrays.repeatArray[this.state.repeatSelectedIndex]) {
+        var rptValue = ConstantArrays.repeatArray[this.state.repeatSelectedIndex];
+        rptValue['repeatIndex'] = this.state.repeatSelectedIndex;
+        this.state.repeatValue = rptValue;
+        this.setState({showRepeatView: false});
+      }
     }
   }
   didSelectCustomViewCell(item) {

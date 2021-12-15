@@ -1,7 +1,7 @@
 module.exports = {
   filterArray: ['Time', 'Rating', 'Distance', 'Category'],
   sortingArray: ['Nearest by Distance', 'Price - Low to High', 'Price - High to Low'],
-  menuArray: ['My Account','My Account Bookings', 'My Sales','Payment','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
+  menuArray: ['My Account','My Account Orders', 'Transactions','Payment','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
   repeatArray: [
     { 'name': 'Daily', 'id': '1,2,3,4,5,6,7' },
     { 'name': 'Weekdays (Mon-Fri)', 'id': '2,3,4,5,6' },

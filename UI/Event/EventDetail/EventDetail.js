@@ -41,11 +41,12 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat} from '../../../HelperClasses/SingleTon'
+import { getTimeFormat, changeDateFormat } from '../../../HelperClasses/SingleTon'
 import appMsg from '../../../Constants/AppMessages';
 import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
 import menuIcon from '../../../assets/menu.png'
+import AppMessages from '../../../Constants/AppMessages';
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -54,8 +55,8 @@ const { StatusBarManager } = NativeModules;
 var statusBarHeight = 20;
 if (Platform.OS === 'android') {
   statusBarHeight = StatusBar.currentHeight;
-}else {
-  StatusBarManager.getHeight((sbH)=>{
+} else {
+  StatusBarManager.getHeight((sbH) => {
     statusBarHeight = sbH['height'];
   })
 }
@@ -65,43 +66,45 @@ export default class EventDetail extends Component {
     this.state = {
       updateUI: false,
       selectIndex: 0,
-      selectedVariantId:0,
-      selectedVariant:{},
-      isVisible:false,
+      selectedVariantId: 0,
+      selectedVariant: {},
+      isVisible: false,
       imagesArray: [],
       eventDetailData: {},
       loadData: false,
-      itsLiked:false,
-      itsOwnEvent:true,
-      previewImageBool:false,
-      photoIndex:0,
+      itsLiked: false,
+      itsOwnEvent: true,
+      previewImageBool: false,
+      photoIndex: 0,
+      inCartBool: false,
     }
   }
 
   componentDidMount() {
-        this.setState({ isVisible: true })
+    this.setState({ isVisible: true })
     this.props.navigation.addListener('focus', () => {
-      this.setState({updateUI: !this.state.updateUI})
+      this.setState({ updateUI: !this.state.updateUI })
       this.getEventDetailApi();
     })
   }
   /*  APIs   */
   getEventDetailApi = async () => {
-    let {id} = this.props.route.params;
+    let { id } = this.props.route.params;
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${id}`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let eData = responseJson['data']['listing'];
       this.state.eventDetailData = eData;
       this.state.itsLiked = eData['liked'];
+      this.state.inCartBool = eData['in_cart'];
       this.state.imagesArray = eData['images'];
       this.state.itsOwnEvent = this.state.eventDetailData['account']['id'] == appConstant.accountID ? true : false;
       let variants = this.state.eventDetailData['variants'];
-      if (variants.length != 0){
+      if (variants.length != 0) {
         this.state.selectedVariantId = variants[0]['id'];
         this.state.selectedVariant = variants[0];
       }
 
-      this.setState({updateUI: !this.state.updateUI, loadData: true,isVisible: false})
+      this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
     } else {
       Alert.alert(responseJson)
       this.setState({ isVisible: false })
@@ -111,8 +114,8 @@ export default class EventDetail extends Component {
     this.setState({ isVisible: true })
     const { id } = this.props.route.params;
     let method = this.state.itsLiked ? 'DELETE' : 'POST';
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}/${APPURL.URLPaths.like}`, 
-    method,'', appConstant.bToken, appConstant.authKey)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}/${APPURL.URLPaths.like}`,
+      method, '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       this.state.itsLiked = !this.state.itsLiked;
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
@@ -122,17 +125,46 @@ export default class EventDetail extends Component {
   }
   deleteEventAPI = async () => {
     this.setState({ isVisible: true })
-    const {id} = this.props.route.params;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}`,'DELETE','', appConstant.bToken, appConstant.authKey)
+    const { id } = this.props.route.params;
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${id}`, 'DELETE', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
-      this.setState({isVisible: false })
+      this.setState({ isVisible: false })
       this.succesDeleted()
     } else {
       this.setState({ isVisible: false })
     }
   }
+ 
+  addToCartAPI = async () => {
+    this.setState({ isVisible: true })
+    const { id } = this.props.route.params;
+    let dic = {
+      'listing_id': id,
+      'quantity': 1,
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.cart}`, 'POST',
+      JSON.stringify({ cart: dic }), appConstant.bToken, appConstant.authKey)
+    this.setState({ isVisible: false })
+    console.log('responseJson', responseJson);
+    if (responseJson['status'] == true) {
+      this.props.navigation.navigate(NavigationRoots.MyCart);
+    } else {
+      if(responseJson == AppMessages.multiSellerCartNotSupported) {
+        this.clearCartAlert()
+      } 
+    }
+  }
+  deleteCartAPI = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.cart}`, 'DELETE', '', appConstant.bToken, appConstant.authKey)
+    if (responseJson['status'] == true) {
+      this.addToCartAPI()
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
   succesDeleted() {
-    this.setState({isVisible: false })
+    this.setState({ isVisible: false })
     Alert.alert("Deleted", "",
       [
         {
@@ -143,14 +175,41 @@ export default class EventDetail extends Component {
       ],
     );
   }
+  clearCartAlert() {
+    Alert.alert(
+      AppMessages.clearCartInfo, "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "Clear Cart", onPress: () => {
+            this.deleteCartAPI();
+          }
+        }
+      ],
+    );
+  }
   /*  Buttons   */
   didSelectVariant(item) {
     this.state.selectedVariant = item,
-    this.setState({selectedVariantId: item['id']})
+      this.setState({ selectedVariantId: item['id'] })
   }
-  likeBtnAction () {
-    if (appConstant.loggedIn){
+  likeBtnAction() {
+    if (appConstant.loggedIn) {
       this.LikesAPI();
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
+  }
+  addToCartBtnAction() {
+    if (appConstant.loggedIn) {
+      if (this.state.inCartBool) {
+        this.props.navigation.navigate(NavigationRoots.MyCart);
+      } else {
+        this.addToCartAPI()
+      }
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
@@ -167,17 +226,18 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
+
   chatBtnAction() {
-    if (appConstant.loggedIn){
-      this.props.navigation.navigate(NavigationRoots.ChatScreen,{
-        receiverData:this.state.eventDetailData['account']['user'],
+    if (appConstant.loggedIn) {
+      this.props.navigation.navigate(NavigationRoots.ChatScreen, {
+        receiverData: this.state.eventDetailData['account']['user'],
       });
     } else {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
   userBtnAction(id) {
-    this.props.navigation.navigate(NavigationRoots.MyStore, {accId :id});
+    this.props.navigation.navigate(NavigationRoots.MyStore, { accId: id });
   }
   moreBtnAction() {
     if (appConstant.loggedIn) {
@@ -212,7 +272,7 @@ export default class EventDetail extends Component {
         },
         {
           text: "Yes", onPress: () => {
-             this.deleteEventAPI();
+            this.deleteEventAPI();
           }
         }
       ],
@@ -232,7 +292,7 @@ export default class EventDetail extends Component {
             source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
         </TouchableOpacity>)
       }
-    }else {
+    } else {
       views.push(<View style={{ backgroundColor: colors.LightUltraGray }}>
         <FastImage
           // resizeMode={'contain'}
@@ -240,7 +300,7 @@ export default class EventDetail extends Component {
           source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[a] }} />
       </View>)
     }
-    return (<View style={{ height: windowwidth, width: windowwidth}} >
+    return (<View style={{ height: windowwidth, width: windowwidth }} >
       <Pages>
         {views}
       </Pages>
@@ -257,7 +317,7 @@ export default class EventDetail extends Component {
           <TouchableWithoutFeedback onPress={() => this.setState({ previewImageBool: !this.state.previewImageBool })}>
             <FastImage
               resizeMode={'contain'}
-              style={{ flex: 1, marginLeft: 10, marginRight:10}}
+              style={{ flex: 1, marginLeft: 10, marginRight: 10 }}
               source={this.state.imagesArray.length == 0 ? sample : { uri: this.state.imagesArray[this.state.photoIndex] }} />
           </TouchableWithoutFeedback>
         </View>
@@ -271,21 +331,21 @@ export default class EventDetail extends Component {
     var title = '';
 
     if (this.state.eventDetailData['title']) {
-      if (this.state.selectedVariantId != 0){
+      if (this.state.selectedVariantId != 0) {
         let item = this.state.selectedVariant;
         let variant_values = item['variant_values'];
         var vValue = [];
-        for (let obj of variant_values){
+        for (let obj of variant_values) {
           vValue.push(obj['variant_type_value']['name']);
         }
         title = vValue.join(' | ');
         price = item['list_price']['formatted'];
-        ticket = `Only ${item['stock']} tickets left`;
+        ticket = `Only ${item['stock']} left`;
 
       } else {
         rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
         price = this.state.eventDetailData['list_price']['formatted'];
-        ticket = `Only ${this.state.eventDetailData['stock']} tickets left`;
+        ticket = `Only ${this.state.eventDetailData['stock']} left`;
         title = this.state.eventDetailData['title']
       }
       return (<View>
@@ -293,7 +353,7 @@ export default class EventDetail extends Component {
         <View style={{ height: 5 }} />
         <Text style={eventStyles.titleStyle}>{price}</Text>
         <View style={{ height: 5 }} />
-        <Text style={{ fontSize: 12, fontWeight: '500', color:colors.AppTheme }}>{ticket}</Text>
+        <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme }}>{ticket}</Text>
       </View>)
     } else {
       return <View />
@@ -305,8 +365,8 @@ export default class EventDetail extends Component {
       var photo = item['images'] ? item['images'] : [];
       // console.log('photo --=', photo);
       return (<TouchableOpacity onPress={() => this.userBtnAction(item['id'])}>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-          <View style={{ flexDirection: 'row', alignItems : 'center'}}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
             <View style={{ width: 10 }} />
             <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
@@ -320,8 +380,6 @@ export default class EventDetail extends Component {
   renderTimeAddressDetail = () => {
     if (this.state.eventDetailData['title']) {
       let item = this.state.eventDetailData;
-      // let dateFr = changeDateFormat(item['start_at']  * 1000, 'ddd, MMM D');
-      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
       let location = item['location'];
       var lView = [];
       if (location['formatted_address']) {
@@ -339,20 +397,11 @@ export default class EventDetail extends Component {
           <View style={styles.commonViewStyle}>
             <View style={{ flexDirection: 'row' }}>
               <View style={{ width: '75%' }}>
-                {/* <View style={{ flexDirection: 'row'}}>
-            <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={calendarIcon} />
-            <View style={{ width: 10 }} />
-            <View>
-              <Text style={eventStyles.commonTxtStyle}>{dateFr}</Text>
-              <View style={{ height: 5 }} />
-              <Text style={eventStyles.subTitleStyle}>{time}</Text>
-            </View>
-          </View> */}
                 {lView}
               </View>
             </View>
           </View>)
-      }else {
+      } else {
         return <View />
       }
     } else {
@@ -362,7 +411,7 @@ export default class EventDetail extends Component {
   renderVariantListView = () => {
     let variants = this.state.eventDetailData['variants'];
     if (variants != undefined && variants.length != 0) {
-      return (<View style={{backgroundColor: colors.LightBlueColor}}>
+      return (<View style={{ backgroundColor: colors.LightBlueColor }}>
         <View>
           <FlatList
             data={variants}
@@ -378,11 +427,11 @@ export default class EventDetail extends Component {
       return <View />
     }
   }
-  renderVariantListViewCellItem = ({item,index}) => {
+  renderVariantListViewCellItem = ({ item, index }) => {
     let check = item['id'] == this.state.selectedVariantId;
     let variant_values = item['variant_values'];
     var vValue = [];
-    for (let obj of variant_values){
+    for (let obj of variant_values) {
       vValue.push(obj['variant_type_value']['name']);
     }
     let title = vValue.join(' | ')
@@ -396,7 +445,7 @@ export default class EventDetail extends Component {
           <Text style={eventStyles.commonTxtStyle}>{title}</Text>
           <View style={{ height: 5 }} />
           <Text style={{ fontWeight: '400', fontSize: 12 }}>{item['list_price']['formatted']}</Text>
-          {/* <View style={{ height: 5 }} /> */}
+          <View style={{ height: 5 }} />
           {/* <Text style={eventStyles.subTitleStyle}>{item['description']}</Text> */}
         </View>
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
@@ -409,20 +458,20 @@ export default class EventDetail extends Component {
   }
   renderShareView = () => {
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>Share</Text>
-        <View style={{height: 10}}/>
-        <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-          <View style={styles.whatsappViewStyle}>
-            <Image style={{height: 20, width: 20}} resizeMode={'center'} source={whatsappIcon}/>
-          </View>
-          <View style={styles.whatsappViewStyle}>
-            <Image style={{height: 20, width: 20}} resizeMode={'center'} source={copy}/>
-          </View>
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <SvgUri width={20} height={20} source={share} fill={colors.AppTheme} />
-          </View>
+      <Text style={eventStyles.commonTxtStyle}>Share</Text>
+      <View style={{ height: 10 }} />
+      <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
+        <View style={styles.whatsappViewStyle}>
+          <Image style={{ height: 20, width: 20 }} resizeMode={'center'} source={whatsappIcon} />
         </View>
-      </View>)
+        <View style={styles.whatsappViewStyle}>
+          <Image style={{ height: 20, width: 20 }} resizeMode={'center'} source={copy} />
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <SvgUri width={20} height={20} source={share} fill={colors.AppTheme} />
+        </View>
+      </View>
+    </View>)
   }
   renderEventDescriptionView = () => {
     var description = '';
@@ -433,8 +482,8 @@ export default class EventDetail extends Component {
     }
     if (description.length != 0) {
       return (<View style={styles.commonViewStyle}>
-        <Text style={eventStyles.commonTxtStyle}>Event description</Text>
-        <View style={{ height: 10 }} />
+        {/* <Text style={eventStyles.commonTxtStyle}>Event description</Text>
+        <View style={{ height: 10 }} /> */}
         <Text style={eventStyles.subTitleStyle}>{description}</Text>
       </View>)
     } else {
@@ -443,15 +492,15 @@ export default class EventDetail extends Component {
   }
   renderOtherEventView = () => {
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>Other Events</Text>
-        <View style={{height: 10}}/>
-        {this.renderOthersListView()}
-      </View>)
+      <Text style={eventStyles.commonTxtStyle}>Other Events</Text>
+      <View style={{ height: 10 }} />
+      {this.renderOthersListView()}
+    </View>)
   }
   renderOthersListView = () => {
-    return (<View> 
-      <FlatList 
-        data={[1,1,1,1,1,1,1,1,1]}
+    return (<View>
+      <FlatList
+        data={[1, 1, 1, 1, 1, 1, 1, 1, 1]}
         renderItem={this.renderOthersListViewCellItem}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index + 9909}
@@ -466,16 +515,16 @@ export default class EventDetail extends Component {
         <View>
           <Image style={styles.selectedImageStyle} source={sample} />
         </View>
-        <View style={{justifyContent: 'space-between', position: 'absolute', padding: 5, flexDirection: 'row', width: '100%'}} >
-          <Text style={{ fontWeight: '600', fontSize: 11, color:colors.AppWhite}}>15 hours ago</Text>
-          <Image style={{width: 30, height: 30}} source={heartIcon} />
+        <View style={{ justifyContent: 'space-between', position: 'absolute', padding: 5, flexDirection: 'row', width: '100%' }} >
+          <Text style={{ fontWeight: '600', fontSize: 11, color: colors.AppWhite }}>15 hours ago</Text>
+          <Image style={{ width: 30, height: 30 }} source={heartIcon} />
         </View>
       </View>
-      <View style={{padding: 5}}>
-        <Text style={{ fontWeight: '600', fontSize: 13}}>Online Conferance </Text>
-        <View style={{height: 5}}/>
-        <Text style={{ fontWeight: '400', fontSize: 12}}>Mon, May 31</Text>
-        <View style={{height: 5}}/>
+      <View style={{ padding: 5 }}>
+        <Text style={{ fontWeight: '600', fontSize: 13 }}>Online Conferance </Text>
+        <View style={{ height: 5 }} />
+        <Text style={{ fontWeight: '400', fontSize: 12 }}>Mon, May 31</Text>
+        <View style={{ height: 5 }} />
         <Text style={eventStyles.subTitleStyle}>188 Attending</Text>
       </View>
     </View>)
@@ -497,17 +546,17 @@ export default class EventDetail extends Component {
         }
         // console.log('values', values)
         if (item['field_type'] == 5) {
-          views.push(<View style={{ flexDirection: 'row'}}>
-            <View style={{ width: '40%', height: 40,justifyContent: 'center' }}>
+          views.push(<View style={{ flexDirection: 'row' }}>
+            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <TouchableOpacity style={{ width: '60%', height: 40,justifyContent: 'center' }}>
+            <TouchableOpacity style={{ width: '60%', height: 40, justifyContent: 'center' }}>
               <Text>{values.join(' ')}</Text>
             </TouchableOpacity>
           </View>)
         } else {
-          views.push(<View style={{ flexDirection: 'row'}}>
-            <View style={{ width: '40%', height: 40,  justifyContent: 'center' }}>
+          views.push(<View style={{ flexDirection: 'row' }}>
+            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
             <View style={{ width: '60%', height: 40, justifyContent: 'center' }}>
@@ -518,25 +567,25 @@ export default class EventDetail extends Component {
       }
     }
     if (views.length != 0) {
-      return( <View style={styles.commonViewStyle}> 
-      <Text style={eventStyles.commonTxtStyle}>Details</Text>
+      return (<View style={styles.commonViewStyle}>
+        <Text style={eventStyles.commonTxtStyle}>Details</Text>
         {views}
       </View>)
     } else {
-      return<View />
+      return <View />
     }
   }
   renderReviewView = () => {
     return (<View>
-        <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
-        <View style={{height: 10}}/>
-        {this.renderReviewListView()}
-      </View>)
+      <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
+      <View style={{ height: 10 }} />
+      {this.renderReviewListView()}
+    </View>)
   }
   renderReviewListView = () => {
-    return (<View> 
-      <FlatList 
-        data={[1,1]}
+    return (<View>
+      <FlatList
+        data={[1, 1]}
         renderItem={this.renderReviewListViewCellItem}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index + 990989}
@@ -548,23 +597,23 @@ export default class EventDetail extends Component {
     var views = [];
     for (let a = 0; a < 5; a++) {
       views.push(<View>
-        <Image  style={{height: 10, width: 10}} source={a != 4 ? starIcon : emptyStar}/>
+        <Image style={{ height: 10, width: 10 }} source={a != 4 ? starIcon : emptyStar} />
       </View>)
     }
-    return (<View style={{marginTop: 20}}>
+    return (<View style={{ marginTop: 20 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={ sample} />
+        <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={sample} />
         <View style={{ width: 10 }} />
         <Text style={eventStyles.commonTxtStyle}>{'Saini'}</Text>
       </View>
-      <View style={{flexDirection: 'row',marginTop: 7, alignItems: 'center'}}>
+      <View style={{ flexDirection: 'row', marginTop: 7, alignItems: 'center' }}>
         {views}
-        <Text style={{marginLeft: 10, fontWeight: '400', fontSize: 11, color: colors.Lightgray }}>
+        <Text style={{ marginLeft: 10, fontWeight: '400', fontSize: 11, color: colors.Lightgray }}>
           June 15 2021
         </Text>
       </View>
       <View>
-        <Text style={{marginTop: 10, fontWeight: '400', fontSize: 12, color: colors.Lightgray}}>
+        <Text style={{ marginTop: 10, fontWeight: '400', fontSize: 12, color: colors.Lightgray }}>
           It's very nice . Soft fabric . Light weight .
           Not transparent. Colour looks elegant . I haven't washed yet .
           Very nice fit Neck is perfect not very deep . Only minus.
@@ -573,22 +622,22 @@ export default class EventDetail extends Component {
     </View>)
   }
   renderBottomBtnView = () => {
-    if (!this.state.itsOwnEvent){
-    return (<View style={styles.commonViewStyle}>
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
-        <View style={eventStyles.clearBtnViewStyle}>
-          <Text style={{ color:colors.AppTheme,fontWeight: '600'}}>Book Now</Text>
+    if (!this.state.itsOwnEvent) {
+      return (<View style={styles.commonViewStyle}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.chatBtnAction()}>
+            <View style={eventStyles.applyBtnViewStyle}>
+              <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Chat to Buy</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.bookBtnAction()}>
+            <View style={eventStyles.clearBtnViewStyle}>
+              <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{'Book Now'}</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={ () => this.chatBtnAction()}>
-        <View style={eventStyles.applyBtnViewStyle}>
-          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Chat</Text>
-        </View>
-      </TouchableOpacity>
-      </View>
-    </View>)
-    }else {
+      </View>)
+    } else {
       return <View />
     }
   }
@@ -607,7 +656,7 @@ export default class EventDetail extends Component {
         </View>
         <View style={{ height: 10 }} />
         {/* <View style={styles.commonViewStyle}> */}
-          {this.renderTimeAddressDetail()}
+        {this.renderTimeAddressDetail()}
         {/* </View> */}
         <View style={{ height: 0 }} />
         <View>
@@ -627,32 +676,32 @@ export default class EventDetail extends Component {
     var likeView = [];
     var moreView = [];
     if (!this.state.itsOwnEvent) {
-      let icon = this.state.itsLiked ? favouriteIcon :  heartIcon
-      likeView.push(<Image style={{width: 30, height: 30, marginTop: -3}} source={icon} />)
+      let icon = this.state.itsLiked ? favouriteIcon : heartIcon
+      likeView.push(<Image style={{ width: 30, height: 30, marginTop: -3 }} source={icon} />)
     }
     if (this.state.itsOwnEvent) {
       moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
       </TouchableOpacity>)
     }
-    return (<View> 
+    return (<View>
       <View style={commonStyles.headerViewStyle}>
         <StatusBar barStyle="light-content" />
-        <View style={{justifyContent: 'space-between', flexDirection: 'row', width: '100%'}}>
-        <View>
-        <TouchableOpacity style={{left:0}} onPress={() => this.props.navigation.goBack()}>
-          <Image 
-            style={commonStyles.backBtnStyle} resizeMode="contain" source={backIcon} />
-        </TouchableOpacity>
-        <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => this.likeBtnAction()}>
-          {likeView}
-        </TouchableOpacity>
-        <View style={{width: 10}}/>
-          {moreView}
-        </View>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+          <View>
+            <TouchableOpacity style={{ left: 0 }} onPress={() => this.props.navigation.goBack()}>
+              <Image
+                style={commonStyles.backBtnStyle} resizeMode="contain" source={backIcon} />
+            </TouchableOpacity>
+            <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => this.likeBtnAction()}>
+              {likeView}
+            </TouchableOpacity>
+            <View style={{ width: 10 }} />
+            {moreView}
+          </View>
         </View>
       </View>
     </View>)
@@ -677,7 +726,7 @@ export default class EventDetail extends Component {
               </View>
             </View>
           </View>
-          <View style={{zIndex: 12, position:'absolute', marginTop: statusBarHeight}}>
+          <View style={{ zIndex: 12, position: 'absolute', marginTop: statusBarHeight }}>
             <this.renderHeaderView />
           </View>
         </View>
@@ -704,7 +753,7 @@ const styles = StyleSheet.create({
   commonViewStyle: {
     padding: 16,
     backgroundColor: colors.AppWhite,
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: colors.LightUltraGray,
   },
   clearViewStyle: {
@@ -753,13 +802,13 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderRadius: 20,
   },
-  createDateViewStyle:{
-    justifyContent: 'space-between', 
+  createDateViewStyle: {
+    justifyContent: 'space-between',
     position: 'absolute',
-     padding: 10, 
-     flexDirection: 'row', 
-     width: '100%',
-     marginTop:statusBarHeight + 30,
+    padding: 10,
+    flexDirection: 'row',
+    width: '100%',
+    marginTop: statusBarHeight + 30,
   },
   overlay: {
     flex: 1,

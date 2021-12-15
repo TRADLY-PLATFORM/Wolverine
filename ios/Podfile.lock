@@ -142,8 +142,6 @@ PODS:
   - GoogleUtilities/UserDefaults (7.5.2):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.7.0)
-  - jesster2k10-react-native-range-slider (0.3.1):
-    - React
   - leveldb-library (1.22.1)
   - libevent (2.1.12)
   - libwebp (1.2.1):
@@ -456,7 +454,7 @@ PODS:
     - Firebase/Database (= 8.5.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (12.7.2):
+  - RNFBMessaging (14.0.0):
     - Firebase/Messaging (= 8.5.0)
     - React-Core
     - RNFBApp
@@ -558,7 +556,6 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (~> 0.75.1)
   - FlipperKit/SKIOSNetworkPlugin (~> 0.75.1)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - "jesster2k10-react-native-range-slider (from `../node_modules/@jesster2k10/react-native-range-slider`)"
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -657,8 +654,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
-  jesster2k10-react-native-range-slider:
-    :path: "../node_modules/@jesster2k10/react-native-range-slider"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -781,7 +776,6 @@ SPEC CHECKSUMS:
   GoogleMaps: 32ca02de09de357a10ac773f2c70f1986751392d
   GoogleUtilities: 8de2a97a17e15b6b98e38e8770e2d129a57c0040
   GTMSessionFetcher: 43748f93435c2aa068b1cbe39655aaf600652e91
-  jesster2k10-react-native-range-slider: 960dc65207f85df1b67d42595959838c5f0829e6
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 98a37e597e40bfdb4c911fc98f2c53d0b12d05fc
@@ -825,7 +819,7 @@ SPEC CHECKSUMS:
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4
   RNFBAuth: dad93f1e8db2d02f3d470778a7922b75693d318a
   RNFBDatabase: 045d1c6fff7c76d2a5fc01fbefe5c67e76e22877
-  RNFBMessaging: 2d5cbe208f3bd5502975537fef327461916a6e1b
+  RNFBMessaging: aeb58659cdc6bac43a24815454c21de5b2bd8eff
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNImageCropPicker: 35a3ceb837446fa11547704709bb22b5fac6d584
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
@@ -843,6 +837,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 77ac906c02a992d4e3009e6d14c73fe2e700606e
+PODFILE CHECKSUM: caf7cd20017440a92a9e45935e3e179656f86607
 
 COCOAPODS: 1.11.2
