@@ -1,10 +1,24 @@
 
 'use strict';
 var React = require('react-native');
-var { StyleSheet, } = React;
+var { StyleSheet,Dimensions,Platform, PixelRatio  } = React;
 import colors from '../CommonClasses/AppColor';
+import appConstant from '../Constants/AppConstants';
 
+const {
+  width: SCREEN_WIDTH,
+  height: SCREEN_HEIGHT,
+} = Dimensions.get('window');
+const scale = SCREEN_WIDTH / 320;
 
+export function normalize(size) {
+  const newSize = size * scale
+  if (Platform.OS === 'ios') {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) 
+  } else {
+    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+  }
+}
 module.exports = StyleSheet.create({
   logoImageViewStyle:{
     width: 100,
@@ -12,6 +26,7 @@ module.exports = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
   },
+  closeBtnStyle:{height: 20, alignItems: 'flex-end', padding: 20},
   titleStyle: {
     marginTop: 40,
     fontSize: 24,
@@ -45,7 +60,9 @@ module.exports = StyleSheet.create({
     color: colors.AppWhite,
     textAlign: "left",
     paddingLeft: 10,
-    width: "66%"
+    width: "95%",
+    marginLeft: 5,
+    height: '80%'
   },
   loginBtnStyle: {
     backgroundColor: colors.AppWhite,
@@ -74,17 +91,20 @@ module.exports = StyleSheet.create({
     width: 20,
   },
   headerViewStyle: {
-    height: 60,
-    backgroundColor: colors.AppTheme,
+    backgroundColor: appConstant.AppTheme,
     justifyContent: 'space-between',
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerTitleStyle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
     color: colors.AppWhite,
+  },
+  gridTitleStyle: {
+    fontSize: 12,
+    textAlign: 'center'
   },
   themeBtnStyle: {
     backgroundColor: colors.AppTheme,

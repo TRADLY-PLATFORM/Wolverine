@@ -11,11 +11,9 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import forwardIcon from '../../../assets/forward.png';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
 
@@ -54,8 +52,11 @@ export default class AttributeList extends Component {
     this.setState({updateUI: !this.state.updateUI})
   }
   doneBtnAction () {
-    const {singleSelect} = this.props.route.params;
-    this.props.route.params.getAtriValue(this.state.selectedAttributes,singleSelect);
+    const {singleSelect,valueId} = this.props.route.params;
+    var valueDic = {};
+    valueDic['valueId'] = valueId;
+    valueDic['data'] = this.state.selectedAttributes;
+    this.props.route.params.getAtriValue([valueDic],singleSelect);
     this.props.navigation.goBack();
   }
   /*  UI   */
@@ -69,7 +70,9 @@ export default class AttributeList extends Component {
       views.push(
         <TouchableOpacity onPress={() => this.didSelect(item, a)}>
           <View style={styles.listViewStyle}>
-            <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
+            <Text style={{textAlign: 'left', fontSize: 16, color: colors.AppGray, width: '85%'}}>
+              {item['name']}
+            </Text>
             <Image style={commonStyles.nextIconStyle} source={check ? emptyIcon : tickIcon} />
           </View>
         </TouchableOpacity>

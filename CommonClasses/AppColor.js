@@ -1,5 +1,5 @@
 export default {
-  AppTheme:'#13B58C',
+  AppTheme:'#83f0c8',
   Lightgray:'rgba(167, 167, 167, 1)',
   LightUltraGray: '#EEEEEE',
   lightTransparent:'rgba(1, 1, 1, 0)',
@@ -11,11 +11,14 @@ export default {
   AppGray:'#212121',
   BorderColor: 'rgba(222, 227, 230, 1)',
   LightBlueColor:'rgba(246, 249, 255, 1)',
-  LightGreenColor:'#B2E7DA',
+  LightGreenColor:'#E3F4F0',
   AppWhite:'white',
-  LightGreen:'rgba(223, 251, 244, 1)',
-  GradientTop: '#2BDBC0',
-  GradientBottom: '#13B58C',
+  LightGreen:'#EAF7F4',
+  GradientTop: '#83f0c8',
+  GradientBottom: '#17d275',
   AppBlack:'rgba(1, 1, 1, 1)',
-
+  softGreen: '#DFFBF4',
+  softGray: '#606A7B',
 };
+
+//60e4ad client theme

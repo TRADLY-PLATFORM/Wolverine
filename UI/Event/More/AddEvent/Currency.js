@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
@@ -65,7 +66,10 @@ export default class Currency extends Component {
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
           showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
-          <this.renderListView />
+          <ScrollView>
+            <this.renderListView />
+            <View style={{height: 100}}/>
+          </ScrollView>
         </View>
       </SafeAreaView>
     );

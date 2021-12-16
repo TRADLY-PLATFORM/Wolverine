@@ -26,14 +26,25 @@ import cancelIcon from '../../../../assets/cancel.png';
 import forwardIcon from '../../../../assets/forward.png';
 import upload from '../../../../assets/upload.png';
 import Tags from "react-native-tags";
-import calendarIcon from '../../../../assets/calendarIcon.png';
+import calendarIcon from '../../../../assets/calendar.png';
 import deleteIcon from '../../../../assets/deleteIcon.png';
-import editGreen from '../../../../assets/editGreen.png';
+import editGreen from '../../../../assets/editGreen.svg';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-import {changeDateFormat,getTimeFormat} from '../../../../HelperClasses/SingleTon'
+import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp,convertTimeinto24Hrs} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
+import SuccessView from '../../../../Component/SuccessView';
+import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.svg';
+import selectedradio from '../../../../assets/radioChecked.svg';
+import ConstantArrays from '../../../../Constants/ConstantArrays';
+
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../../HelperClasses/SingleTon';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
+var viewload = false;
 
 export default class AddEvent extends Component {
   constructor(props) {
@@ -50,7 +61,7 @@ export default class AddEvent extends Component {
       attributeArray: [],
       singleSelectedArray: [],
       multipleSelectedsArray: [],
-      singleValue: '',
+      singleValueArray: [],
       tagsArray: [],
       eventDateArray: [],
       selectAddress: {},
@@ -67,72 +78,233 @@ export default class AddEvent extends Component {
       listingID: 0,
       isEditing: false,
       selectedVariantIndex: 0,
+      showCAlert:false,
+      coordinates:{},
+      hideOfferPrice:false,
+      hideAddressField:false,
+      online:false,
+      translationDic:{},
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.loadCategoryApi()
-    this.getCurrencyApi();
-    let {listingID} = this.props.route.params;
-    // console.log('listingID', listingID);
-    if (listingID) {
+    // this.props.navigation.addListener('focus', () => {
+      this.loadCategoryApi()
+      this.loadConfigApi()
+      this.getCurrencyApi()
+    // })
+    if (this.props.route.params) {
       let {listingID} = this.props.route.params;
-      this.state.listingID = listingID
-      this.setState({isEditing: true})
-      this.loadEventDetailApi();
-      this.loadVariantTypeApi();
+      if (listingID != undefined) {
+        this.state.listingID = listingID
+        this.setState({isEditing: true})
+        this.loadEventDetailApi();
+        this.loadVariantTypeApi();
+      }
     }
+  }
+  clearExitData() {
+    this.state.imagesArray = [];
+    this.state.name = '';
+    this.state.description = '';
+    this.state.offerPrice = '';
+    this.state.eventPrice = '';
+    this.state.ticketLimit = '';
+    this.state.selectedCatData = {};
+    this.state.categoryName = 'Select Category';
+    this.state.attributeArray = [];
+    this.state.eventDateArray = [];
+    this.state.selectVariantArray = [];
+    this.state.isEditing = false;
+
+    this.setState({ updateUI: !this.state.updateUI})
   }
 
   /*  APIS Methods */
+  langifyAPI = async () => {
+    let addProD = await tradlyDb.getDataFromDB(LangifyKeys.addproduct);
+    if (addProD != undefined) {
+      this.addProductTranslationData(addProD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.addproduct}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.addproduct, objc)
+      this.addProductTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  addProductTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      console.log('obj',obj);
+      if ('addproduct.add_produc' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('addproduct.update_product' == obj['key']) {
+        this.state.translationDic['updateTitle'] = obj['value'];
+      }
+      if ('addproduct.title' == obj['key']) {
+        this.state.translationDic['name'] = obj['value'];
+      }
+      if ('addproduct.description' == obj['key']) {
+        this.state.translationDic['description'] =  obj['value'];
+      }
+      if ('addproduct.price' == obj['key']) {
+        this.state.translationDic['price'] =  obj['value'];
+      }
+      if ('addproduct.price_validation' == obj['key']) {
+        this.state.translationDic['priceValidation'] =  obj['value'];
+      }
+      if ('addproduct.offer_percent' == obj['key']) {
+        this.state.translationDic['offerPercent'] =  obj['value'];
+      }
+      if ('addproduct.addproduct_max_quantity' == obj['key']) {
+        this.state.translationDic['quantity'] =  obj['value'];
+      }
+      if ('addproduct.alert_message_max_quantity' == obj['key']) {
+        this.state.translationDic['quantityValidation'] =  obj['value'];
+      }
+      if ('addproduct.category' == obj['key']) {
+        this.state.translationDic['category'] = obj['value'];
+      }
+      if ('addproduct.alert_message_choose_category' == obj['key']) {
+        this.state.translationDic['chooseCategory'] =  obj['value'];
+      }
+      if ('addproduct.address' == obj['key']) {
+        this.state.translationDic ['address'] =  obj['value'];
+      }
+      if ('addproduct.alert_please_select_address' == obj['key']) {
+        this.state.translationDic['selectAddress'] = obj['value'];
+      }
+      if ('addproduct.create' == obj['key']) {
+        this.state.translationDic['createBtn'] =  obj['value'];
+      }
+      if ('addproduct.alert_ok' == obj['key']) {
+        this.state.translationDic['alertOk'] =  obj['value'];
+      }
+      if ('addproduct.add_product_photo' == obj['key']) {
+        this.state.translationDic['image'] =  obj['value'];
+      }
+      if ('addproduct.update_product' == obj['key']) {
+        this.state.translationDic['updateBtn'] =  obj['value'];
+      }
+    }
+  }
+  loadConfigApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      var configs = responseJson['data']['configs'];
+      // console.log('configs -==>', configs)
+      this.setState({
+        hideOfferPrice: configs['hide_offer_percent'] || false,
+        hideAddressField: configs['listing_address_enabled'] || false
+      });
+    }
+    this.setState({dataLoad: true});
+  };
   loadEventDetailApi = async () => {
     this.setState({ isVisible: true })
     const {accId} = this.props.route.params;
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let listData = responseJson['data']['listing'];
+      console.log('dsds ===-=- =-', JSON.stringify(listData));
       this.state.name = listData['title'];
       this.state.description = listData['description'];
       this.state.selectAddress = listData['location'];
+      this.state.coordinates = listData['coordinates']
       this.state.eventPrice = listData['list_price']['amount'];
       this.state.offerPrice = listData['offer_percent'];
       this.state.ticketLimit = listData['stock'];
-      this.state.attributeArray =  listData['attributes'];
+      let attributeArray =  listData['attributes'];
       this.state.categoryName = listData['categories'][0]['name'];
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
-      let sTime = getTimeFormat(listData['start_at']);
-      let eTime = getTimeFormat(listData['end_at']);
-      let eventdate = changeDateFormat(eventStart,'ddd, D MMM yy')
-      let dict = {
-        date: eventdate,
-        startTime: sTime,
-        endTime: eTime,
+      this.loadAttributeApi(this.state.selectedCatData['id'])
+
+      let schedules = listData['schedules'];
+    
+      for (let scObj of schedules) {
+        console.log('scObj',scObj);
+        let eventdate = changeDateFormat(scObj['start_date'], 'ddd, D MMM yy')
+        let sTime = scObj['start_time'];
+        let eTime = scObj['end_time'];
+        if (scObj['repeat_days']) {
+          let repeatClass = scObj['repeat_days'];
+          var repeatIDs = '1,7';
+          var repeatName = '';
+          var repeatIndex = 0;
+          repeatIDs = repeatClass.toString()
+          let index = ConstantArrays.repeatArray.findIndex(x => x.id == repeatIDs);
+          if (index == -1) {
+            repeatIndex = 3;
+            var nameary = [];
+            for (let objc of repeatClass) {
+              let ind = ConstantArrays.weekDays.findIndex(x => x.id == objc);
+              nameary.push(ConstantArrays.weekDays[ind].name)
+            }
+            if (nameary.length != 0) {
+              repeatName = nameary.toString()
+            }
+          } else {
+            repeatIndex = index;
+            repeatName = ConstantArrays.repeatArray[index].name;
+          }
+        }
+        console.log('repeatName', repeatName);
+        let dict = {
+          date: eventdate,
+          startTime: sTime,
+          endTime: eTime,
+          repeatClass: { 'id': repeatIDs, 'name': repeatName, 'repeatIndex': repeatIndex },
+        }
+        this.state.eventDateArray.push(dict);
       }
-      this.state.eventDateArray.push(dict);
-      for (let item of this.state.attributeArray) {
+      console.log('this.state.eventDateArray === - ', this.state.eventDateArray)
+      
+      for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
           if (item['values'].length != 0) {
-            this.state.singleSelectedArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.singleSelectedArray.push(valueDic);
           }
         }
         if (fieldType == 2) {
           if (item['values'].length != 0) {
-            this.state.multipleSelectedsArray = item['values'];
+            var valueDic = {};
+            valueDic['valueId'] = item['id'];
+            valueDic['data'] = item['values'];
+            this.state.multipleSelectedsArray.push(valueDic);
           }
         }
         if (fieldType == 3) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.singleValue = item['values'][0];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['text'] = item['values'][0];
+              this.state.singleValueArray.push(valueDic);
+              // this.state.singleValue = item['values'][0];
             }
           }
         }
         if (fieldType == 4) {
           if (item['values']) {
             if (item['values'].length != 0) {
-              this.state.tagsArray = item['values'];
+              var valueDic = {};
+              valueDic['valueId'] = item['id'];
+              valueDic['data'] = item['values'];
+              this.state.tagsArray.push(valueDic);
             }
           }
         }
@@ -165,8 +337,9 @@ export default class AddEvent extends Component {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.attribute + cid}&type=listings`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
-      let cData = responseJson['data']['attributes'];
-      this.state.attributeArray = cData
+      let aData = responseJson['data']['attributes'];
+      // console.log('aData == >.',JSON.stringify(aData))
+      this.state.attributeArray = aData
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
       this.setState({ isVisible: false })
@@ -177,6 +350,7 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}/variants`, 'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let vData = responseJson['data']['variants'];
+      // console.log('vData', vData)
       for (let objc of vData){
         let v1 = objc['variant_values'][0];
         let dic1 = {
@@ -202,9 +376,6 @@ export default class AddEvent extends Component {
         fDict['uploadParm'] = dic2;
         fDict['currency'] = this.state.selectedCurrency;
         this.state.selectVariantArray.push(fDict)
-        let vvv = this.state.selectVariantArray[0];
-        let dc = vvv['variantType'];
-        console.log('dc == ', dc['values']);
       }
       this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     } else {
@@ -280,9 +451,13 @@ export default class AddEvent extends Component {
               if (this.state.documentFile != null) {
                 this.setState({ attributeFilePath: imageP[imageP.length - 1] })
                 imageP.splice(imageP.length - 1, 1)
-                this.state.uploadImageURL = imageP;
+                for (let a = 0; a < imageP.length; a++){
+                  this.state.uploadImageURL.push(imageP[a]);
+                }
               } else {
-                this.state.uploadImageURL = imageP;
+                for (let a = 0; a < imageP.length; a++){
+                  this.state.uploadImageURL.push(imageP[a]);
+                }
               }
               this.createEventApi()
             }
@@ -290,7 +465,7 @@ export default class AddEvent extends Component {
         }
       } else {
         this.setState({ isVisible: false })
-        Alert.alert(responseJson)
+        AppAlert(responseJson,appConstant.okTitle);
       }
     } else {
       this.createEventApi()
@@ -307,9 +482,6 @@ export default class AddEvent extends Component {
     if (this.state.imagesArray.length != 0) {
       dict['images'] = this.state.uploadImageURL;;
     }
-    if (this.state.description.length != 0) {
-      dict['description'] = this.state.description;
-    }
     if (this.state.eventPrice.length != 0) {
       dict['list_price'] = this.state.eventPrice;
     }
@@ -319,53 +491,134 @@ export default class AddEvent extends Component {
     if (this.state.ticketLimit.length != 0) {
       dict['stock'] = this.state.ticketLimit;
     }
+    if (this.state.description.length != 0) {
+      dict['description'] = this.state.description;
+    }
     if (this.state.selectAddress['formatted_address'] !== undefined) {
-      latitude = this.state.selectAddress['latitude'];
-      longitude = this.state.selectAddress['longitude'];
-      dict['coordinates'] = { 'latitude': latitude, 'longitude': longitude };
+      dict['coordinates'] = this.state.coordinates;
     }
 
     var attributeAry = [];
     for (let objc of this.state.attributeArray) {
       let fieldType = objc['field_type'];
       if (fieldType == 1) {
+        var localAry = []
         if (this.state.singleSelectedArray.length != 0) {
-          let atrDic = {
-            values: [this.state.singleSelectedArray[0]['id']],
-            id: objc['id'],
+          let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleSelectedArray[obj]['data']
+            let atrDic = {
+              values:[data[0]['id']],
+              id: this.state.singleSelectedArray[obj]['valueId'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 2) {
+        var localAry = []
         if (this.state.multipleSelectedsArray.length != 0) {
-          var idAry = [];
-          for (let obj of this.state.multipleSelectedsArray) {
-            idAry.push(obj['id'])
+          let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.multipleSelectedsArray[obj]['data']
+            var idAry = [];
+            for (let ob of data) {
+              idAry.push(ob['id'])
+            }
+            let atrDic = {
+              values:idAry,
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          let atrDic = {
-            values: idAry,
-            id: objc['id'],
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
           }
-          attributeAry.push(atrDic)
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 3) {
-        if (this.state.singleValue.length != 0) {
-          let atrDic = {
-            values: [this.state.singleValue],
-            id: objc['id'],
+        var localAry = [];
+        if (this.state.singleValueArray.length != 0) {
+          let obj = this.state.singleValueArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.singleValueArray[obj]['text']
+            let atrDic = {
+              values: [data],
+              id: objc['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 4) {
+        var localAry = [];
         if (this.state.tagsArray.length != 0) {
-          let atrDic = {
-            values: this.state.tagsArray,
-            id: objc['id'],
+          let obj = this.state.tagsArray.findIndex(x => x.valueId === objc['id'])
+          if (obj != -1) {
+            let data = this.state.tagsArray[obj]['data']
+            let atrDic = {
+              values:data,
+              id: data[0]['id'],
+            }
+            localAry.push(atrDic)
           }
-          attributeAry.push(atrDic)
+        }
+        if (objc['optional'] == false) {
+          if (localAry.length == 0) {
+            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+          }else {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
+        }else {
+          if (localAry.length != 0) {
+            for (let a = 0; a < localAry.length; a++) {
+              attributeAry.push(localAry[a])
+            }
+          }
         }
       }
       if (fieldType == 5) {
@@ -381,31 +634,25 @@ export default class AddEvent extends Component {
     if (attributeAry != 0) {
       dict['attributes'] = attributeAry
     }
-    if (this.state.eventDateArray != 0) {
-      let dateDict = this.state.eventDateArray[0];
-      let startDate = dateDict['date'] + ` ${dateDict['startTime']}`
-      let endDate = dateDict['date'] + ` ${dateDict['endTime']}`
-      let startTimestamp = new Date(startDate).getTime() / 1000;
-      let endTimestamp = new Date(endDate).getTime() / 1000;
-      dict['start_at'] = startTimestamp;
-      dict['end_at'] = endTimestamp;
-    }
     let path = this.state.isEditing ? `/${this.state.listingID}` : ''
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + path, 
-      this.state.isEditing ? 'put' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+      this.state.isEditing ? 'patch' : 'post', JSON.stringify({ listing: dict }), appConstant.bToken, appConstant.authKey)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
         let dictData = responseJson['data']['listing'];
+        this.state.listingID = dictData['id'] ;
         this.setState({ listingID: dictData['id'] })
         if (!this.state.isEditing){
           this.addVariantUploadServiceMethod(0);
         }else {
-        Alert.alert('Update SuccessFully')
+        // Alert.alert('Update SuccessFully')
+        // this.setState({ showCAlert: true })
+        this.scheduleAPI();
         }
       } else {
         Alert.alert(responseJson)
+        AppAlert(responseJson,appConstant.okTitle);
       }
     }
   }
@@ -417,13 +664,19 @@ export default class AddEvent extends Component {
         this.uploadVariantImages(uploadDic, index);
       } else {
         if (this.state.selectVariantArray.length > index) {
-          this.addVariantUploadServiceMethod(index + 1)
+          if (this.state.isEditing){
+            this.addVariantUploadServiceMethod(index)
+          } else {
+            this.addVariantUploadServiceMethod(index + 1)
+          }
         } else {
-          Alert.alert('SuccessFull');
+          // this.setState({ showCAlert: true })
+          this.scheduleAPI();
         }
       }
     }else {
-      Alert.alert('SuccessFull');
+      // this.setState({ showCAlert: true })
+      this.scheduleAPI();
     }
   }
   uploadVariantImages = async (uploadImageArray, index) => {
@@ -431,7 +684,7 @@ export default class AddEvent extends Component {
     var imgParm = [];
     var uploadBase64 = [];
     var imageFileURI = [];
-    if (uploadImageArray.length != 0) {
+    if (uploadImageArray != undefined) {
       for (let p = 0; p < uploadImageArray.length; p++) {
         let photo = uploadImageArray[p]
         let fileName = photo.data;
@@ -471,7 +724,7 @@ export default class AddEvent extends Component {
         }
       } else {
         this.setState({ isVisible: false })
-        Alert.alert(responseJson)
+        AppAlert(responseJson,appConstant.okTitle);
       }
     } else {
       this.addVariantTypeApi(imageFileURI, index)
@@ -486,31 +739,115 @@ export default class AddEvent extends Component {
     dict['variant_values'] = variantvalues;
     var path = '/variants'
     var reqMethod = 'POST';
-    if(item['id']){
-       path = '/variants/' + item['id'];
+    if(dic['id']){
+       path = '/variants/' + dic['id'];
        reqMethod = 'PUT';
     }
-    console.log('path == >', path)
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod, JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
-    console.log(" responseJson =  ", responseJson)
+    // console.log('path == >', path, reqMethod, index)
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
+     JSON.stringify({ variant: dict }), appConstant.bToken, appConstant.authKey)
+    // console.log(" responseJson =  ", responseJson)
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        this.addVariantUploadServiceMethod(index + 1)
+        if (!this.state.isEditing) {
+          this.addVariantUploadServiceMethod(index + 1)
+        } else {
+          // this.setState({ showCAlert: true });
+          this.scheduleAPI();
+        }
       } else {
-        Alert.alert(responseJson)
+        AppAlert(responseJson,appConstant.okTitle);
       }
     }
   }
-  /*  Buttons   */
-  createBtnAction() {
-    this.uploadFilesAPI()
+  scheduleAPI = async () => {
+    this.setState({ isVisible: true })
+    var uploadDic = []
+    for (let obj of this.state.eventDateArray) {
+      let dd = obj['date'];
+      let scheduledate = changeDateFormat(dd, 'yyyy-MM-DD')
+      let strt = convertTimeinto24Hrs(obj['startTime']);
+      let endt = convertTimeinto24Hrs(obj['endTime']);
+      var dic = {
+        'start_date': scheduledate,
+        'start_time': strt,
+        'end_time': endt,
+        'active': true,
+      }
+      dic['schedule_type'] = 1;
+      if (obj['repeatClass']) {
+        dic['schedule_type'] = obj['repeatClass']['name'] ? 2 : 1;
+        if (obj['repeatClass']['name']) {
+          let dsd = obj['repeatClass']['id'];
+          const usingSplit = dsd.split(',');
+          var ids = [];
+          for(let imp of usingSplit) {
+            ids.push(Number(imp));
+          }
+          dic['repeat_days'] = ids;
+        }
+      }
+      uploadDic.push(dic);
+    }  
+    var path = APPURL.URLPaths.schedules;
+    let reqMethod = 'PUT';
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${this.state.listingID}${path}`,reqMethod,
+     JSON.stringify({ schedules: uploadDic}), appConstant.bToken, appConstant.authKey)
+    // console.log(" responseJson =  ", responseJson)
+    if (responseJson) {
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.setState({ showCAlert: true })
+      } else {
+        AppAlert(responseJson,appConstant.okTitle);
+      }
+    }
   }
-  selectDateTimeBtnAction(isEdit) {
-    if (isEdit) {
+  deleteEventAPI = async (id) => {
+    this.setState({ isVisible: true })
+      let { listingID } = this.props.route.params;
+      const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${listingID}/variants/${id}`, 'DELETE', '', appConstant.bToken, appConstant.authKey)
+      if (responseJson['status'] == true) {
+        this.setState({ isVisible: false })
+      } else {
+        this.setState({ isVisible: false })
+      }
+  }
+  successAlert() {
+    this.clearExitData();
+    this.setState({ isVisible: false })
+    this.setState({showCAlert: false});
+    this.props.navigation.goBack();
+  }
+  /*  Buttons   */
+  backBtnAction(){
+    this.clearExitData();
+    this.props.navigation.goBack();
+  }
+  createBtnAction() {
+    if (this.state.imagesArray.length == 0) {
+      AppAlert(this.state.translationDic['image'],appConstant.okTitle);
+    } else if (this.state.name.length == 0) {
+      AppAlert(this.state.translationDic['name'],appConstant.okTitle);
+    } else if (this.state.eventPrice.length == 0) {
+      AppAlert(this.state.translationDic['priceValidation'],appConstant.okTitle);
+    } else if (this.state.ticketLimit.length == 0) {
+      AppAlert(this.state.translationDic['quantityValidation'],appConstant.okTitle);
+    } else if (this.state.hideAddressField && !this.state.online && this.state.selectAddress['formatted_address'] == undefined) {
+      AppAlert(this.state.translationDic['selectAddress'],appConstant.okTitle);
+    } else if (Object.keys(this.state.selectedCatData).length == 0) {
+      AppAlert(this.state.translationDic['chooseCategory'],appConstant.okTitle);
+    } else {
+      this.uploadFilesAPI()
+    }
+  }
+  selectDateTimeBtnAction(index) {
+    if (index != undefined) {
       this.props.navigation.navigate(NavigationRoots.EventTiming, {
         eventDateTime: this.state.eventDateArray[0],
-        getDateTime: this.getEventDateTime
+        getDateTime: this.getEventDateTime,
+        id:index,
       });
     } else {
       this.props.navigation.navigate(NavigationRoots.EventTiming, {
@@ -518,7 +855,9 @@ export default class AddEvent extends Component {
       });
     }
   }
-  doneBtnAction() {
+  onlineBtnAction() {
+    this.state.selectAddress = {};
+    this.setState({online:!this.state.online});
   }
   deleteImageButtonAction(id) {
     this.state.imagesArray.splice(id, 1)
@@ -531,7 +870,13 @@ export default class AddEvent extends Component {
     });
   }
   categoryBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.Category, {
+    this.state.singleSelectedArray = [];
+    this.state.multipleSelectedsArray = [];
+    this.state.singleValueArray = [];
+    this.state.tagsArray = [];
+    this.state.documentFile = null;
+
+    this.props.navigation.navigate(NavigationRoots.CategoryList, {
       categoryArray: this.state.categoryArray,
       getCatID: this.getSelectedCategoryID,
     });
@@ -541,6 +886,7 @@ export default class AddEvent extends Component {
     let singleSelect = item['field_type'] == 1 ? true : false
     this.props.navigation.navigate(NavigationRoots.AttributeList, {
       attributeArray: item['values'],
+      valueId:item['id'],
       getAtriValue: this.getAttributeSelectedValues,
       singleSelect: singleSelect,
     });
@@ -586,14 +932,34 @@ export default class AddEvent extends Component {
   }
   /*  Delegates  */
   getDeleteVariant = data => {
+    let { listingID } = this.props.route.params;
+    if (listingID != undefined) {
+      if (this.state.selectVariantArray[data]['id']){
+        this.deleteEventAPI(this.state.selectVariantArray[data]['id'])
+      }
+    }
     this.state.selectVariantArray.splice(data, 1);
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariant = data => {
-    this.state.selectVariantArray = data;
+    var vAray = [... this.state.selectVariantArray];
+    this.state.selectVariantArray = [];
+    for (let a = 0; a < data.length; a++) {
+      if (vAray[a]) {
+        let vdic = vAray[a];
+        if (vdic['variantType']['id'] == data[a]['id']) {
+          this.state.selectVariantArray.push(vdic)
+        }else {
+        }
+      }else {
+        this.state.selectVariantArray.push(data[a])
+      }
+    }
+    // this.state.selectVariantArray = data;
     this.setState({ updateUI: !this.state.updateUI });
   }
   getVariantTypeUploadValue = (data, index) => {
+    this.state.selectedVariantIndex = index;
     this.state.selectVariantArray[index] = data;
     this.setState({ updateUI: !this.state.updateUI });
     if (this.state.isEditing) {
@@ -601,11 +967,19 @@ export default class AddEvent extends Component {
     }
   }
   getAddress = data => {
+    this.state.coordinates = {
+      'latitude':data['latitude'],
+      'longitude':data['longitude'],
+    }
     this.setState({ selectAddress: data });
   }
   getEventDateTime = data => {
-    this.state.eventDateArray = [];
-    this.state.eventDateArray.push(data);
+    if (data['id'] != -1) {
+      this.state.eventDateArray[data['id']] = data;
+    }else {
+      // this.state.eventDateArray = [];
+      this.state.eventDateArray.push(data);
+    }
     this.setState({ updateUI: !this.state.updateUI });
   }
   getSelectedCategoryID = data => {
@@ -613,29 +987,62 @@ export default class AddEvent extends Component {
     this.loadAttributeApi(data['id'])
   }
   getCurrencyData = (data) => {
-    // console.log('data => ', data);
-    this.setState({ selectedCurrency: data })
+    this.setState({ selectedCurrency: data[0]})
   }
-  onTagChanges(data) {
-    this.state.tagsArray = data
+  onTagChanges(data, id) {
+    let index = this.state.tagsArray.findIndex(x => x.valueId === id) 
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['data'] = data;
+    if (index != -1) {
+      this.state.tagsArray[index] = valueDic;
+    } else {
+      this.state.tagsArray.push(valueDic);
+    }
+    // this.state.tagsArray = data
+    this.setState({ updateUI: !this.state.updateUI })
+  }
+  onChangeTextValue(text, id){
+    let index = this.state.singleValueArray.findIndex(x => x.valueId === id)
+    var valueDic = {};
+    valueDic['valueId'] = id;
+    valueDic['text'] = text;
+    if (index != -1) {
+      this.state.singleValueArray[index] = valueDic;
+    } else {
+      this.state.singleValueArray.push(valueDic);
+    }
+    // console.log('valueDic',valueDic);
+    // this.state.tagsArray = data
     this.setState({ updateUI: !this.state.updateUI })
   }
   getAttributeSelectedValues = (data, singleSelect) => {
     if (singleSelect) {
-      this.state.singleSelectedArray = data
+      let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.singleSelectedArray[obj] = data[0];
+      }else {
+        this.state.singleSelectedArray.push(data[0]);
+      }
     } else {
-      this.state.multipleSelectedsArray = data
+      let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === data[0]['valueId']) 
+      if (obj != -1) {
+        this.state.multipleSelectedsArray[obj] = data[0];
+      }else {
+        this.state.multipleSelectedsArray.push(data[0]);
+      }
+      // this.state.multipleSelectedsArray = data
+      // console.log('this.state.multipleSelectedsArray',this.state.multipleSelectedsArray);
     }
     this.setState({ updateUI: !this.state.updateUI })
   }
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
-      cropping: false,
+      height: 1000,
+      width: 1000,
+      cropping: true,
       includeBase64: true,
-      compressImageQuality: 0.2,
     }).then(image => {
       if (id == 2) {
         this.state.documentFile = image;
@@ -643,6 +1050,11 @@ export default class AddEvent extends Component {
         this.state.imagesArray.push(image)
       }
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {
@@ -652,30 +1064,19 @@ export default class AddEvent extends Component {
       var photoPath = ''
       if (photo) {
         if (photo['sourceURL']) {
-           photoPath = photo.sourceURL;
+           photoPath = photo.path;
         }else {
           photoPath = photo; 
         }
       }
-      // if (this.state.imagesArray[i]) {
-      //   imageObj = this.state.imagesArray[i];
-      // }
       if (this.state.imagesArray[i]) {
         views.push(
           <View style={styles.imageSelectedStyle}>
             <TouchableOpacity onPress={() => this.imagePicker()}>
               <View>
-                <FastImage
-                  source={{ uri: photoPath }}
-                  style={styles.SelectedImageStyle}
-                  resizeMode={'cover'}
-                />
-                <TouchableOpacity
-                  style={styles.deleteViewStyle}
-                  onPress={() => this.deleteImageButtonAction(i)}>
-                  <Image resizeMode={'center'} style={{ height: 20, width: 20 }}
-                    source={cancelIcon}
-                  />
+                <FastImage source={{ uri: photoPath }} style={styles.SelectedImageStyle} resizeMode={'cover'} />
+                <TouchableOpacity style={styles.deleteViewStyle} onPress={() => this.deleteImageButtonAction(i)}>
+                  <Image resizeMode={'center'} style={{ height: 20, width: 20 }} source={cancelIcon}  />
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -685,15 +1086,11 @@ export default class AddEvent extends Component {
         if (this.state.imagesArray.length < 4) {
           views.push(
             <View>
-              <View style={styles.dottedViewStyle}>
-                <TouchableOpacity onPress={() => this.imagePicker()}>
-                  <View style={{ justifyContent: 'center' }}>
-                    <Image source={cameraIcon}
-                      style={{ width: 30, height: 30, alignSelf: 'center' }}
-                    />
-                  </View>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+                <View style={{ justifyContent: 'center' }}>
+                  <Image source={cameraIcon} style={{width: 30, height: 30, alignSelf: 'center' }}/>
+                </View>
+              </TouchableOpacity>
             </View>,
           );
         } else {
@@ -744,20 +1141,42 @@ export default class AddEvent extends Component {
           var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
-              value = this.state.singleSelectedArray[0]['name']
+              let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
+              if (obj != -1) {
+                let data = this.state.singleSelectedArray[obj]['data']
+                value = data[0]['name']
+              }
             }
           } else {
             if (this.state.multipleSelectedsArray.length != 0) {
-              var nameAry = [];
-              for (let obj of this.state.multipleSelectedsArray) {
-                nameAry.push(obj['name'])
+              let obj = this.state.multipleSelectedsArray.findIndex(x => x.valueId === item['id'])
+              // console.log('obj', obj);
+              if (obj != -1) {
+                let data = this.state.multipleSelectedsArray[obj]['data']
+                var nameAry = [];
+                for (let obj of data) {
+                  nameAry.push(obj['name'])
+                }
+                value = nameAry.join(', ')
               }
-              value = nameAry.join()
             }
+          }
+
+          let titleAray = [];
+          if (item['optional'] == false) {
+            titleAray.push(<View>
+               {this.renderTitleLbl({title:item['name']})}
+            </View>)
+          } else {
+            titleAray.push( <View>
+              <Text style={commonStyles.textLabelStyle}>{item['name']}
+              </Text>
+              </View>
+            )
           }
           views.push(<View>
             <View style={{ height: 20 }} />
-            <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
+            {titleAray}
             <View style={{ width: '100%', zIndex: 10 }}>
               <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.valueBtnAction(a)}>
                 <Text style={commonStyles.txtFieldWithImageStyle} numberOfLines={1}>{value}</Text>
@@ -766,25 +1185,39 @@ export default class AddEvent extends Component {
             </View>
           </View>)
         } else if (fieldType == 3) {
+          var value = ''
+          if (this.state.singleValueArray.length !== 0) {
+            let obj = this.state.singleValueArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              value = this.state.singleValueArray[obj]['text']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <TextInput
               style={commonStyles.addTxtFieldStyle}
               placeholder={'Enter Value'}
-              value={this.state.singleValue}
-              onChangeText={value => this.setState({ singleValue: value })}
+              value={value}
+              onChangeText={value => this.onChangeTextValue(value ,item['id'])}
             />
           </View>)
         } else if (fieldType == 4) {
+          var tagAry = [];
+          if (this.state.tagsArray.length !== 0) {
+            let obj = this.state.tagsArray.findIndex(x => x.valueId === item['id'])
+            if (obj != -1) {
+              tagAry = this.state.tagsArray[obj]['data']
+            }
+          }
           views.push(<View>
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <Tags
               tagContainerStyle={{ backgroundColor: colors.LightGreenColor }}
               inputContainerStyle={{ backgroundColor: '#f5f5f5' }}
-              initialTags={this.state.tagsArray}
-              onChangeTags={tags => this.onTagChanges(tags)}
+              initialTags={tagAry}
+              onChangeTags={tags => this.onTagChanges(tags, item['id'])}
             />
           </View>)
         } else if (fieldType == 5) {
@@ -814,23 +1247,47 @@ export default class AddEvent extends Component {
     return views;
   }
   renderAddressView = () => {
-    var value = 'Select Address'
-    if (this.state.selectAddress['formatted_address'] !== undefined) {
-      value = this.state.selectAddress['formatted_address'];
-    }
-    return <View>
-      <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
-      <View style={{ width: '100%', zIndex: 10 }}>
-        <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
-          <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
-          <Image style={commonStyles.nextIconStyle}
-            resizeMode="contain"
-            source={forwardIcon}
-          />
+    if (this.state.hideAddressField) {
+      var onLineView = [];
+      onLineView.push(<View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Offline</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={!this.state.online ? selectedradio : radio}
+            fill={!this.state.online ? colors.AppTheme : colors.Lightgray} />
         </TouchableOpacity>
+        <TouchableOpacity style={{ flexDirection: 'row',marginLeft: 20}} onPress={() => this.onlineBtnAction()}>
+          <Text style={{ fontSize: 16 }}>Online</Text>
+          <View style={{ width: 5 }} />
+          <SvgUri width={20} height={20} source={this.state.online ? selectedradio : radio}
+            fill={this.state.online ? colors.AppTheme : colors.Lightgray} />
+        </TouchableOpacity>
+      </View>)
+      var value = 'Select Address'
+      if (this.state.selectAddress['formatted_address'] !== undefined) {
+        value = this.state.selectAddress['formatted_address'];
+      }
+      var addressView = [];
+      if (!this.state.online) {
+        addressView.push(<View>
+          <View style={{ height: 20 }} />
+          <Text style={commonStyles.textLabelStyle}>Address</Text>
+          <View style={{ width: '100%', zIndex: 10 }}>
+            <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
+              <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
+              <Image style={commonStyles.nextIconStyle} resizeMode="contain" source={forwardIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>)
+      }
+      return <View>
+        <View style={{ height: 20 }} />
+          {onLineView}
+          {addressView}
       </View>
-    </View>
+    } else {
+      return <View />
+    }
   }
   renderEventDateTimeView = () => {
     return (<View style={styles.mainViewStyle}>
@@ -858,22 +1315,32 @@ export default class AddEvent extends Component {
     </View>)
   }
   renderListCellItem = ({ item, index }) => {
-    // console.log('item', item)
+    var views = []
+    if (item['repeatClass']) {
+      if (item['repeatClass']['name']) {
+      views.push(<View>
+        <Text style={eventStyles.subTitleStyle}>{item['repeatClass']['name'] || ''}</Text>
+      </View>)
+      }
+    }
     return <View style={{ flexDirection: 'row', marginTop: 16, borderWidth: 1, borderColor: colors.BorderColor, padding: 5, justifyContent: 'space-between', borderRadius: 5 }}>
       <View style={{ flexDirection: 'row' }}>
-        <Image style={{ width: 40, height: 40 }} resizeMode='center' source={calendarIcon} />
+        <View style={styles.calendarViewStyle}>
+            <Image style={{ width: 20, height:23, marginRight:1, marginTop: -2}} source={calendarIcon} />
+        </View>
         <View>
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
-            <TouchableOpacity onPress={() => this.selectDateTimeBtnAction(true)}>
-              <Image style={{ width: 12, height: 12, marginLeft: 10 }} resizeMode='center' source={editGreen} />
+            <TouchableOpacity style={{marginLeft: 5}} onPress={() => this.selectDateTimeBtnAction(index)}>
+              <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-            <Image style={{ width: 12, height: 12 }} resizeMode='center' source={timeIcon} />
+            <Image style={{ width: 12, height: 12 }}  source={timeIcon} />
             <View style={{ width: 5 }} />
             <Text style={eventStyles.subTitleStyle}>{`${item['startTime']} to ${item['endTime']}`}</Text>
           </View>
+          {views}
         </View>
       </View>
       <TouchableOpacity onPress={() => this.deleteEventDateTimeBtnAction(index)}>
@@ -922,21 +1389,24 @@ export default class AddEvent extends Component {
       if(value['values']) {
         title = value['values']['name'];
       }
-      let pp = item['uploadParm']['list_price'];
-        let curency = item['currency']['format']
-        console.log('curency = > ', curency);
-      if(curency != undefined) {
+      let pp = item['uploadParm']['list_price'] || '';
+      let curency = item['currency']['format']
+      if (curency != undefined) {
         price = curency.replace('{amount}', ` ${pp}`)
       } else {
         price = `$ ${pp}`
       }
-      stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
+      if (item['uploadParm']['stock']){
+        stock = item['uploadParm']['stock'].length == 0 ? '0' : item['uploadParm']['stock'];
+      }
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
-      if (photos['sourceURL']) { 
-        photos = photos[0]['sourceURL'];
-      } else {
-        photos = photos[0];
+      if (photos.length != 0) {
+        if (photos[0]['sourceURL']) { 
+          photos = photos[0]['path'];
+        } else {
+          photos = photos[0];
+        }
       }
     }
     return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectVariant(index)}>
@@ -955,13 +1425,29 @@ export default class AddEvent extends Component {
       </View>
     </TouchableOpacity>
   }
+  renderOfferView = () => {
+    if (this.state.hideOfferPrice) {
+      return (<View style={{ marginTop: 20 }}>
+        <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
+        <TextInput
+          style={commonStyles.addTxtFieldStyle}
+          placeholder={'Enter Offer Percentage'}
+          value={this.state.offerPrice.toString()}
+          keyboardType={'number-pad'}
+          onChangeText={value => this.setState({ offerPrice: value })}
+        />
+      </View>)
+    } else {
+      return <View />
+    }
+  }
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Add Event'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} showDoneBtn={false} />
+        <HeaderView title= {this.state.isEditing ? this.state.translationDic['updateTitle'] ?? 'Update Product' : this.state.translationDic['title'] ?? 'Add Product'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} showDoneBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             <View style={{ padding: 16 }}>
               <ScrollView horizontal={true}>
                 <View style={{ width: '100%', height: 130, flexDirection: 'row-reverse', marginTop: 10, alignContent: 'center' }}>
@@ -971,46 +1457,37 @@ export default class AddEvent extends Component {
               <Text style={eventStyles.subTitleStyle}>Maximum 4 Images</Text>
             </View>
             <View style={styles.mainViewStyle}>
-              <this.renderTitleLbl title={'Name'} />
+              <this.renderTitleLbl title={this.state.translationDic['name']} />
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter Name'}
+                placeholder={this.state.translationDic['name']}
                 value={this.state.name}
                 onChangeText={value => this.setState({ name: value })}
               />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Description</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['description']}</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
-                placeholder={'Enter Description'}
+                placeholder={this.state.translationDic['description']}
                 value={this.state.description}
                 onChangeText={value => this.setState({ description: value })}
                 multiline={true} />
               <View style={{ marginTop: 20 }}>
-                <this.renderTitleLbl title={'Price'} />
+                <this.renderTitleLbl title={this.state.translationDic['price'] ?? 'Price'}  />
                 <this.renderPriceView />
               </View>
-              <View style={{ marginTop: 20 }}>
-                <Text style={commonStyles.textLabelStyle}>Offer Price</Text>
-                <TextInput
-                  style={commonStyles.addTxtFieldStyle}
-                  placeholder={'Enter Offer Price'}
-                  value={this.state.offerPrice.toString()}
-                  keyboardType={'number-pad'}
-                  onChangeText={value => this.setState({ offerPrice: value })}
-                />
-              </View>
+              <this.renderOfferView />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Ticket Limits'} />
+              <this.renderTitleLbl title={this.state.translationDic['quantity'] ?? 'Tickets'}  />
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter Ticket Limits'}
+                placeholder={this.state.translationDic['quantity']}
                 keyboardType={'number-pad'}
                 value={this.state.ticketLimit.toString()}
                 onChangeText={value => this.setState({ ticketLimit: value })}
               />
               <View style={{ marginTop: 20 }} >
-                <this.renderTitleLbl title={'Category'} />
+                <this.renderTitleLbl title={this.state.translationDic['category'] ?? 'Category'} />
                 <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.categoryBtnAction()}>
                   <Text style={commonStyles.txtFieldWithImageStyle}>{this.state.categoryName}</Text>
                   <Image style={commonStyles.backBtnStyle} resizeMode='center' source={forwardIcon} />
@@ -1025,9 +1502,10 @@ export default class AddEvent extends Component {
             <this.renderVariantsView />
             <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? 'Editing' : 'Create'}</Text>
+              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? this.state.translationDic['quantity'] : this.state.translationDic['quantity']} </Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
+            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -1038,6 +1516,14 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.AppTheme
+  },
+  calendarViewStyle:{
+    height: 40,
+    width: 40, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: colors.AppWhite,
+     borderRadius: 20
   },
   imageSelectedStyle: {
     height: 120,
@@ -1085,4 +1571,5 @@ const styles = StyleSheet.create({
     height: 70,
   }
 });
+
 

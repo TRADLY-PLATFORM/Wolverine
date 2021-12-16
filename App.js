@@ -7,37 +7,22 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView ,LogBox,View} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform,StatusBar} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 import colors from './CommonClasses/AppColor';
-import NavigationRoots from './Constants/NavigationRoots';
-
-import OnBoarding from './UI/User/OnBoarding';
-import Signin from './UI/User/SignIn';
-import Signup from './UI/User/SignUp';
-import Verifications from './UI/User/Verification';
-import ForgotPassword from './UI/User/ForgotPassword';
-import bottomBar from './Component/BottomTabbar';
-import CategoryList from './UI/Event/Shop/CategoryList';
-import AttributesList from './UI/Event/Shop/AttributeList';
-import AddressList from './UI/Event/Shop/AddressList';
-import MyStore from './UI/Event/More/MyStore/MyStore';
-import Profile from './UI/Event/More/EditProfile/EditProfile';
-import CreateStore from './UI/Event/Shop/CreateShop';
-import AddEvent from './UI/Event/More/AddEvent/AddEvent';
-import Currency from './UI/Event/More/AddEvent/Currency';
-import EventTimings from './UI/Event/More/AddEvent/EventTiming';
-import AddVariant from './UI/Event/More/AddEvent/AddVariant';
-import VariantList from './UI/Event/More/AddEvent/VariantList';
-import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
-import Filter from './UI/Event/Explore/Filter';
-import Category from './UI/Event/Explore/Category';
-import EventDetail from './UI/Event/EventDetail/EventDetail';
-
-
-const Stack = createStackNavigator();
+import DefaultPreference from 'react-native-default-preference';
+import networkService from './NetworkManager/NetworkManager';
+import APPURL from './Constants/URLConstants';
+import appConstant from './Constants/AppConstants';
+// import logoIcon from './assets/classbubslogo.png';
+// import androidLogoIcon from './assets/classbubslogo.jpg';
+import logoIcon from './assets/appIcon.png'
+import * as Sentry from "@sentry/react-native";
+import {StripeProvider} from '@stripe/stripe-react-native';
+import Route from './Component/Route';
+import tradlyDb from './TradlyDB/TradlyDB';
+import LangifyKeys from './Constants/LangifyKeys';
 
 export default class App extends Component {
 
@@ -45,76 +30,134 @@ export default class App extends Component {
     super(props);
     this.state = {
       loggedIn: 'false',
-      reload: true,
+      reload: false,
+      isVisible: false,
+      stripePublishKey: '',
     }
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
 
+    DefaultPreference.get('installed').then(function (val) {
+      if (val == undefined) {
+        DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });
+        appConstant.appInstalled = false
+      } else {
+        appConstant.appInstalled = true
+      }
+    }.bind(this))
+    
+    Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
+    this.fcmNotification()
+    this.configApi();
+    this.getSavedValues();
   }
-  navigationReturn = () => {
-    return <NavigationContainer>
-      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
-        headerShown: false}}>
-        <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
-        <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
-          options={{
-            title: '',
-            ...TransitionPresets.ModalSlideFromBottomIOS,
-          }} />
-         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
-        <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
-        <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
-        <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
-        <Stack.Screen name={NavigationRoots.Category} component={CategoryList} />
-        <Stack.Screen name={NavigationRoots.AttributeList} component={AttributesList} />
-        <Stack.Screen name={NavigationRoots.AddressList} component={AddressList} />
-        <Stack.Screen name={NavigationRoots.MyStore} component={MyStore} />
-        <Stack.Screen name={NavigationRoots.Currency} component={Currency} />
-        <Stack.Screen name={NavigationRoots.EventTiming} component={EventTimings} />
-        <Stack.Screen name={NavigationRoots.AddVariant} component={AddVariant} />
-        <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
-        <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
-        <Stack.Screen name={NavigationRoots.Sort} component={Category} />
-        <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
+  getSavedValues() {
+    DefaultPreference.get('appLanguage').then(function (la) {
+      if (la != undefined) {
+        appConstant.appLanguage = la
+      }
+    }.bind(this))
+  }
+  fcmNotification() {
+    messaging().onMessage(async remoteMessage => {
+      console.log('M', remoteMessage);
+    });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log( 'N',  remoteMessage);
+    });
+  }
+  configApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
+    if (responseJson['status'] == true) {     
+      let keyd = responseJson['data']['key']['app_key'];
+      let into = responseJson['data']['configs']
+      console.log('configs  == >', into);
+      appConstant.intoScreen = into['intro_screens'];
+      appConstant.bToken = keyd;
+      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
+      this.configListApi()
+    }
+  }
+  configListApi = async()  => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments', 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let into = responseJson['data']['configs']
+      console.log('into -- = >', into)
+      appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
+      appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
+      appConstant.appHomeTitle = into['app_title_home'] || 'Tradly';
+      appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
+      this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
+      this.langifyAPI()
+      this.getCurrencyApi()
+    }
+  }
+  langifyAPI = async () => {
+    let homeData = await tradlyDb.getDataFromDB(LangifyKeys.home);
+    if (homeData != undefined) {
+      this.bottomTarTranslationData(homeData);
+    } 
+    let group = `&group=${LangifyKeys.home}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      console.log('home => ', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.home, objc)
+      this.bottomTarTranslationData(objc);
+      this.setState({ reload: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  getCurrencyApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.currencies, 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let ccData = responseJson['data']['currencies']
+      for (let obj of ccData) {
+        if (obj['default'] == true) {
+          appConstant.defaultCurrencyCode = obj['code'];
+          appConstant.defaultCurrency = obj['format'];
+        }
+      }
 
-        <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}/>
-        <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}/>
-        <Stack.Screen name={NavigationRoots.CreateStore} component={CreateStore} options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }} />
-         <Stack.Screen name={NavigationRoots.AddEvent} component={AddEvent} options={{
-          title: '',
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }} />
-        {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
-        <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
-        <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
-        <Stack.Screen name={NavigationRoots.Target}component={Target} />
-        <Stack.Screen name={NavigationRoots.SetTarget}component={SetTarget} />
-        <Stack.Screen name={NavigationRoots.CollectionHistory}component={CollectionHistory} />
-        <Stack.Screen name={NavigationRoots.AddRecycleItem}component={AddRecycleItems} />
-        <Stack.Screen name={NavigationRoots.RecycleGuide}component={RecycleGuides} />
-        <Stack.Screen name={NavigationRoots.ApplyGroup}component={ApplyGroups} />
-        <Stack.Screen name={NavigationRoots.InviteFriends}component={InviteFriends} />
-        <Stack.Screen name={NavigationRoots.AddBinMap}component={AddBinMaps} />
-        <Stack.Screen name={NavigationRoots.Notifications}component={Notifications} /> */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    }
   }
+  bottomTarTranslationData(object) {
+    for (let obj of object) {
+      if ('home.Home' == obj['key']) {
+        appConstant.bottomTabBarDic['home'] = obj['value'];
+      }
+      if ('home.chats' == obj['key']) {
+        appConstant.bottomTabBarDic['chats'] = obj['value'];
+      }
+      if ('home.more' == obj['key']) {
+        appConstant.bottomTabBarDic['more'] = obj['value'];
+      }
+      if ('home.sell' == obj['key']) {
+        appConstant.bottomTabBarDic['sell'] = obj['value'];
+      }
+      if ('home.social_feed' == obj['key']) {
+        appConstant.bottomTabBarDic['socialFeed'] = obj['value'];
+      }
+    }
+  }
+
+  //MARK:-- ------***** *******  UI ******* ******* *****
   render() {
     if (this.state.reload == false) {
-      return <SafeAreaView style={styles.container}></SafeAreaView>
+      return <SafeAreaView style={styles.container}>
+        <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
+        <View>
+          {/* <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} /> */}
+          <Image style={{ width: 180, height: 180, borderRadius: 0 }} source={Platform.OS === 'ios' ? logoIcon : logoIcon} />
+        </View>
+      </SafeAreaView>
     } else {
       return (<View style={styles.navigationContainer}>
-        <this.navigationReturn />
+          <StripeProvider publishableKey={this.state.stripePublishKey} />
+        <Route/>
       </View>
       );
     }
@@ -123,12 +166,12 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:colors.AppTheme,
+    backgroundColor: colors.AppTheme,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navigationContainer: {
     flex: 1,
-    backgroundColor:colors.AppTheme,
+    backgroundColor:  colors.AppTheme,
   },
 });

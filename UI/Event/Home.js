@@ -1,8 +1,6 @@
-
 import React, { Component } from 'react';
 import {
-  Alert,
-  StatusBar,
+  RefreshControl,StatusBar,
   FlatList,
   Text,Image,View,
   StyleSheet, SafeAreaView,
@@ -10,23 +8,51 @@ import {
 } from 'react-native';
 import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
-import commonStyle from './../../StyleSheet/UserStyleSheet'
+import commonStyles from './../../StyleSheet/UserStyleSheet'
 import DefaultPreference from 'react-native-default-preference';
 import dummy from './../../assets/dummy.png';
 import appConstant from './../../Constants/AppConstants';
 import APPURL from './../../Constants/URLConstants';
 import networkService from './../../NetworkManager/NetworkManager';
+import FastImage from 'react-native-fast-image'
+import Spinner from 'react-native-loading-spinner-overlay';
+import NavigationRoots from '../../Constants/NavigationRoots';
+import EventView from '../../Component/EventView';
+import Deeplinking from '../../HelperClasses/Deeplinking';
+import {firebaseAuth} from '../../Firebase/FirebaseAuth'
+import LocationPermission from '../../HelperClasses/LocationPermission';
+import moreSVG from '../../assets/more.svg';
+import SvgUri from 'react-native-svg-uri';
+import notificationIcon from '../../assets/notificationIcon.png';
+import heartEmptyIcon from '../../assets/heartEmpty.png'
+import {normalize} from '../../HelperClasses/SingleTon';
+import eventStyles from '../../StyleSheet/EventStyleSheet';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isVisible: false,
+      updateUI: false,
+      promoBannerArray: [],
+      categoryArray: [],
+      categoryArray: [],
+      collectionsArray: [],
+      showCAlert: false,
     }
   }
   componentDidMount() {
+    this.locationPermission()
+    this.getSavedData();
+  }
+  locationPermission() {
+    let lp = new LocationPermission();
+    lp._requestLocation();
+  }
+  getSavedData() {
     DefaultPreference.get('token').then(function (value) {
       appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
@@ -34,143 +60,246 @@ export default class Home extends Component {
         DefaultPreference.get('refreshKey').then(function (refreshKey) {
           appConstant.refreshKey = refreshKey;
         }.bind(this))
+        DefaultPreference.get('uName').then(function (uname) {
+          appConstant.userName = uname;
+        }.bind(this))
+        DefaultPreference.get('loggedIn').then(function (val) {
+          appConstant.loggedIn = val == 'true' ? true : false;
+          DefaultPreference.get('firebaseToken').then(function (fToken) {
+            appConstant.firebaseToken = fToken;
+            if (appConstant.loggedIn) {
+              firebaseAuth(fToken);
+            }
+          }.bind(this))
+        }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {
+          console.log('userId==>', userId);
           appConstant.userId = userId;
           this.getMyStoreApi()
+          this.getHomeDataApi()
         }.bind(this))
       }.bind(this))
     }.bind(this))
   }
 
   getMyStoreApi = async () => {
-    this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['accounts'];
       if (acctData.length != 0) {
         appConstant.accountID = acctData[0]['id'];
+      }else{
+        appConstant.accountID = '';
       }
+    }else {
+      // this.setState({ isVisible: false })
+    }
+  }
+  getHomeDataApi = async () => {
+    this.setState({ isVisible: true })
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.home}`, 'get','',appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+      let hData = responseJson['data'];
+      this.state.promoBannerArray = hData['promo_banners'];
+      this.state.categoryArray = hData['categories'];
+      this.state.collectionsArray = hData['collections'];
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
     }else {
       this.setState({ isVisible: false })
     }
   }
+  _handleRefresh = () => {
+    this.setState({ isVisible: true })
+    this.getHomeDataApi()
+  }
   /*  Buttons   */
-
+  favouriteBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.EventList,{favourite:true});
+  }
+  notificationBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.Notifications);
+  }
+  didSelectCategory(item,index) {
+    if (index == 7) {
+      this.props.navigation.navigate(NavigationRoots.Category,{
+        categoryList: this.state.categoryArray,
+      });
+    } else {
+      this.props.navigation.navigate(NavigationRoots.EventList,{
+        categoryID:item['id'],
+        categoryName: item['name'],
+      });
+    }
+  }
+  didSelectEvent(item,index) {
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id :item['id'],
+    });
+  }
+  didSelectAccount(item,index) {
+    this.props.navigation.navigate(NavigationRoots.MyStore, {
+      accId :item['id'],
+    });
+  }
   /*  UI   */
-  renderHeaderView = () => {
-    return <View style={commonStyle.headerViewStyle}>
-      <StatusBar barStyle="light-content" />
-      <Text style={commonStyle.headerTitleStyle}>{this.props.title}</Text>
-      <TouchableOpacity onPress={() => this.props.notificationBtnAction()}>
-        {/* <Image source={notificationIcon} style={commonStyle.backBtnStyle} /> */}
-      </TouchableOpacity>
-    </View>
-  }
-  renderRecyleValue = () => {
-    return (<View>
-       <FlatList
-          data={Items}
-          renderItem={({item}) => (
-            <View style={styles.gridViewStyle}>
-              <Image style={styles.imageThumbnail} source={item.image} resizeMode={'contain'}/>
-              <View style={{height: 5}}/>
-              <Text style={{textAlign: 'center', fontSize: 12}}>{`${item.name}`}</Text>
-            </View>
-          )}
-          numColumns={4}
-          keyExtractor={(item, index) => index}
-        />
-    </View>)
-  }
   renderGridView = () => {
     return (<View style={{backgroundColor:colors.AppWhite}}>
         <FlatList
-          data={Items}
-          renderItem={({item}) => (
-            <View style={styles.gridViewStyle}>
-              <Image style={styles.imageThumbnail} source={item.image} resizeMode={'contain'}/>
-              <View style={{height: 5}}/>
-              <Text style={{textAlign: 'center', fontSize: 12}}>{`${item.name}`}</Text>
-            </View>
-          )}
+          data={[1,1,1,1,1,1,1,1]}
+          renderItem={this.renderGridViewCellItem}
           numColumns={4}
-          keyExtractor={(item, index) => index}
+          keyExtractor={(item, index) =>  'C' + index}
+          key={'G'}
         />
       </View>)
   }
+  renderGridViewCellItem = ({item, index}) => {
+    let hw = normalize(20);
+    if (index < 8) {
+      if (this.state.categoryArray[index]){
+        let dic = this.state.categoryArray[index];
+        var profilePic = dic['image_path'].length == 0 ? dummy : {uri:dic['image_path']}
+        var imageView = [];
+        if (index == 7) {
+          imageView.push( <SvgUri width={30} height={30} aspectRatio={1} source={moreSVG} fill={colors.AppTheme}/>)
+        } else {
+          imageView.push(<FastImage style={styles.imageThumbnail} source={profilePic} resizeMode={'contain'}/>)
+        }
+        return (<TouchableOpacity style={styles.gridViewStyle} onPress={() => this.didSelectCategory(dic,index)}>
+            {imageView}
+          <View style={{height: 5}}/>
+          <Text style={commonStyles.gridTitleStyle}>{ index == 7 ? 'More' : `${dic['name']}`}</Text>
+        </TouchableOpacity>)
+      } else {
+        return <View />
+      }
+    } else {
+      return <View />
+    }
+  }
   renderPromoView = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent}}>
+    if (this.state.promoBannerArray != 0) {
+    return <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'center', paddingTop: 10, paddingBottom: 10}}>
       <FlatList
-        data={[1,1,1,1,1,1,1,1,1,1,1,1,1]}
+        data={this.state.promoBannerArray}
         horizontal={true}
         renderItem={this.renderPromoCellItem}
         extraData={this.state}
         keyExtractor={(item, index) => index}
         showsVerticalScrollIndicator={false}
+        // style={styles.promoViewStyle}
+        key={'P'}
       />
     </View>
+    } else {
+      return <View />
+    }
   }
   renderPromoCellItem = ({item, index}) => {
+    var photo = item['image_path']
     return (<View style={styles.promoCellStyle}>
-      {/* <View style={{backgroundColor: colors.AppWhite, flex: 1,borderTopLeftRadius: 10, borderBottomLeftRadius: 10,alignItems: 'center' ,justifyContent: 'center'}}>
-        <Text style={{fontSize: 14, fontWeight: '400'}}>Fitness for women</Text>
-        <View style={{}}> </View>
-      </View> */}
-      <View style={{backgroundColor: colors.AppYellow, flex: 1, borderRadius: 10}}/>
-       </View>)
+      <FastImage style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
+      </View>)
    }
   renderEventView = () => {
-    return <View style={{backgroundColor: colors.AppRed, margin: 0}}>
-      <FlatList
-        data={[1,1,1,1,1,1,1,1,1]}
-        horizontal={false}
-        renderItem={this.renderEventItemCell}
-        extraData={this.state}
-        keyExtractor={(item, index) => index}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
-  }
-  renderEventItemCell = () => {
-    return (<View style={{ backgroundColor: colors.AppWhite }}>
-      <View style={styles.eventCellItemStyle}>
-        <Text style={{fontSize: 14, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>Events in Chennai</Text>
-          <View style={styles.viewAllViewContainerStyle}>
-            <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme,}}>View All</Text>
-          </View>
+    if (this.state.collectionsArray != 0) {
+      return <View>
+        {/* <View style={{height: 10}} /> */}
+        <FlatList
+          data={this.state.collectionsArray}
+          horizontal={false}
+          initialNumToRender={7}
+          renderItem={this.renderEventItemCell}
+          extraData={this.state}
+          keyExtractor={(item, index) => index}
+          showsVerticalScrollIndicator={false}
+          key={'E'}
+        />
       </View>
-      <View style={{ backgroundColor: colors.AppWhite, height: 160, width: windowWidth}}>
-        <View style={{marginTop: -120}}>
-          {this.renderHorizontalList()}
+    } else {
+      return <View />
+    }
+  }
+  renderEventItemCell = ({item, index}) => {
+    if (item['scope_type'] == 1 || item['scope_type'] == 4) {
+      return (<View style={{ backgroundColor: colors.AppWhite}}>
+        <View style={styles.eventCellItemStyle}>
+          <Text style={{fontSize: 18, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>{item['title']}</Text>
         </View>
-      </View>
-    </View>)
+        <View style={{ backgroundColor: colors.AppWhite, width: windowWidth, paddingBottom: 10,}}>
+          <View style={{marginTop: -120}}>
+            {this.renderHorizontalList(item)}
+          </View>
+        </View>
+      </View>)
+    } else {
+      return <View />
+    }
   }
-  renderHorizontalList = () => {
-    return <View style={{ backgroundColor: colors.lightTransparent }}>
-      <FlatList
-        data={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
-        horizontal={true}
-        renderItem={this.renderHorizontalCellItem}
-        extraData={this.state}
-        keyExtractor={(item, index) => index}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+  renderHorizontalList = (item) => {
+    var listAry = []
+    if (item['scope_type'] == 1) {
+      listAry=  item['accounts'];
+    } 
+    if (item['scope_type'] == 4) {
+      listAry=  item['listings'];
+    }
+    if (listAry.length != 0) {
+      return <View style={{ backgroundColor: colors.lightTransparent }}>
+        <FlatList
+          data={listAry}
+          horizontal={true}
+          renderItem={this.renderHorizontalCellItem}
+          extraData={this.state}
+          keyExtractor={(item, index) => index}
+          showsVerticalScrollIndicator={false}
+          key={'H'}
+        />
+      </View>
+    } else {
+    return  <View />
+    }
   }
   renderHorizontalCellItem = ({ item, index }) => {
-    return (<View style={styles.horizontalCellItemStyle}>
-      <Image style={styles.selectedImageStyle} source={dummy} />
-      <Text style={{ fontWeight: '600', fontSize: 12, padding: 5 }}>Yoga Something course </Text>
-      <Text style={{ fontWeight: '500', fontSize: 14, padding: 5 }}>50$</Text>
-      <View style={{ padding: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-        <View style={{flexDirection: 'row'}}>
-          <Image style={{ height: 25, width: 25, borderRadius: 12.5 }} source={dummy} />
-          <Text style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>Yoga Club</Text>
+    var photo = item['images'] ? item['images'] : [];
+    if(item['user']) {
+      var profilePic = item['user']['profile_pic'].length == 0 ? dummy : {uri:item['user']['profile_pic']}
+      return (<TouchableOpacity style={eventStyles.horizontalCellItemStyle} onPress={() => this.didSelectAccount(item, index)}>
+        <FastImage style={eventStyles.selectedImageStyle} source={photo.length == 0 ? dummy : { uri: photo[0] }}/>
+        <View style={{padding: 10}}>
+        <Text style={{ fontWeight: '400', fontSize: 14}} numberOfLines={1}>{item['name']}</Text>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+          <FastImage style={{ height: 25, width: 25, borderRadius: 12.5 }} source={profilePic} />
+          <Text numberOfLines={2} style={{ color: colors.Lightgray, fontSize: 10, padding: 5 }}>{`${item['user']['first_name']} ${item['user']['last_name']}`}</Text>
         </View>
-        <View>
-          <View style={styles.followContainerStyle}>
-            <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppWhite, }}>Follow</Text>
+        </View>
+      </TouchableOpacity>)
+    } else {
+      if (item['list_price']) {
+        return (<TouchableOpacity onPress={() => this.didSelectEvent(item, index)}>
+          <EventView data={item} />
+        </TouchableOpacity>)
+      } else {
+        return <View />
+      }
+    }
+  }
+  renderHeaderView = () => {
+    return (<View> 
+      <View style={commonStyles.headerViewStyle}>
+        <StatusBar barStyle="light-content" />
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%', alignItems: 'center' }}>
+          <View>
+            <Text style={commonStyles.headerTitleStyle}>{appConstant.appHomeTitle}</Text>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => this.notificationBtnAction()}>
+              <Image style={{ width: 30, height: 30 }} source={notificationIcon} />
+            </TouchableOpacity>
+            <View style={{ width: 10 }} />
+            <TouchableOpacity onPress={() => this.favouriteBtnAction()}>
+              <Image style={{ width: 30, height: 30 }} source={heartEmptyIcon} />
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -179,61 +308,27 @@ export default class Home extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
+        <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
         <this.renderHeaderView />
-        <ScrollView>
+        <Deeplinking />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
+          style={{backgroundColor: colors.LightBlueColor}}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isVisible}
+              onRefresh={this._handleRefresh}
+            />
+          }>
           <View style={{backgroundColor: colors.LightBlueColor, height: '100%'}}>
             <View style={{ height: 10,backgroundColor: 'white'}} />
             <this.renderGridView />
-            <View style={{height: 10}} />
             <this.renderPromoView />
             <this.renderEventView />
           </View>
         </ScrollView>
-        {/* <View style={{ flex: 1, backgroundColor:colors.AppWhite}}>
-          <HeaderView
-            title={'Tradly'}
-            notificationBtnAction={() => this.props.navigation.navigate(NavigationRoots.Notifications)}/>
-          <ScrollView>
-            <View>
-              <View style={{ flex: 2, backgroundColor: colors.AppWhite }}>
-                <Image source={logo} style={styles.profileImageViewStyle} />
-                <Text style={styles.subTitleStyle}>
-                  Hello<Text style={styles.titleStyle}>{`, Recyclers`}</Text>
-                </Text>
-                <this.renderRecyleValue />
-                <View style={{ margin: 20 }}>
-                  <View style={styles.progressBackgroundStyle}>
-                    <View style={styles.progressSelectedStyle} />
-                  </View>
-                </View>
-                <Text style={styles.valueSubTitleStyle}>
-                  15 items left to achive your target
-              </Text>
-              </View>
-              <View style={{ backgroundColor: colors.LightBlueColor, marginTop: 40 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: -20 }}>
-                  <TouchableOpacity 
-                    style={styles.recycleGuideBtnStyle} 
-                    onPress={() => this.props.navigation.navigate(NavigationRoots.RecycleGuide)}>
-                    <Text style={{ color: colors.AppTheme, fontSize: 14, fontWeight: '500' }}>
-                      Recycling guide
-                  </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.seeTargetBtnStyle}
-                    onPress={() => this.props.navigation.navigate(NavigationRoots.Target)}>
-                    <Text style={{ color: colors.AppWhite, fontSize: 14, fontWeight: '500' }}>See Target</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={{ height: 20 }} />
-                <TouchableOpacity onPress={() => this.props.navigation.navigate(NavigationRoots.AddRecycleItem)}>
-                  <Text style={styles.recyleItemTxtStyle}>Recycle your item</Text>
-                </TouchableOpacity>
-                <View style={{ height: 20 }} />
-                <this.renderGridView />
-              </View>
-            </View>
-          </ScrollView>
-        </View> */}
       </SafeAreaView>
     );
   }
@@ -245,7 +340,8 @@ const styles = StyleSheet.create({
   },
   imageThumbnail : {
     width: 30,
-    height: 30,
+    height:30
+    // aspectRatio:1,
   },
   gridViewStyle:{
     flexDirection: 'column', 
@@ -255,36 +351,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderBottomWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.BorderColor
+    borderColor: colors.BorderColor,
+  },
+  promoViewStyle: {
+    height: windowHeight/4.2,
+    // aspectRatio: 16/9,
   },
   promoCellStyle: {
     margin: 10,
     borderRadius: 10,
     backgroundColor: colors.AppWhite,
-    height: 120,
-    width: windowWidth - 50,
+    // aspectRatio: 16/9,
+    height: windowHeight/5, 
+    width: windowWidth - 70,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
+    elevation: 10,
     flexDirection: 'row',
-  },
-  horizontalCellItemStyle: {
-    height: 250,
-    width: 200,
-    margin: 10,
-    backgroundColor: colors.AppWhite,
-    borderRadius: 10,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-  },
-  selectedImageStyle: {
-    height: 150,
-    width: 200,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
   },
   eventCellItemStyle: {
     backgroundColor: colors.AppTheme,
@@ -294,40 +379,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  viewAllViewContainerStyle: {
-    backgroundColor: colors.AppWhite,
-    width: 75,
-    height: 25,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  followContainerStyle: {
-    backgroundColor: colors.AppTheme,
-    width: 75,
-    height: 25,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
 });
-
-import bag from './../../assets/handbag.png';
-import dress from './../../assets/dress.png';
-import books from './../../assets/books.png';
-import paper from './../../assets/book.png';
-import tenis from './../../assets/tabletennis.png';
-import game from './../../assets/game.png';
-import notebookmousecursor from './../../assets/notebook.png';
-
-var Items = [
-  {name:'Bags',image: bag},
-  {name:'Clothes',image: dress},
-  {name:'Books',image: books},
-  {name:'Other Papers',image: paper},
-  {name:'Sports Equipments',image: tenis},
-  {name:'Electronics',image: notebookmousecursor},
-  {name:'Game & Toys',image: game},
-  {name:'More',image: bag},
-]

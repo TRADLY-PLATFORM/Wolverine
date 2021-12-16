@@ -16,11 +16,9 @@ import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
 import cameraIcon from '../../../../assets/camera.png';
-import upload from '../../../../assets/upload.png';
 import dropdownIcon from '../../../../assets/dropdown.png';
 import commonStyles from '../../../../StyleSheet/UserStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
-import errorHandler from '../../../../NetworkManager/ErrorHandle'
 import ImagePicker from 'react-native-image-crop-picker';
 import APPURL from '../../../../Constants/URLConstants';
 import DefaultPreference from 'react-native-default-preference';
@@ -29,6 +27,7 @@ import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import cancelIcon from '../../../../assets/cancel.png';
 import FastImage from 'react-native-fast-image'
+import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
 
 
 const keyAry = ['title','description','list_price', 'stock','offer_percent'];
@@ -58,12 +57,12 @@ export default class AddVariantValue extends Component {
     let {variantData} = this.props.route.params;
     if (variantData['variantType']) {
       let uploadParm = variantData['uploadParm'];
-      this.state.imagesArray = uploadParm['images'];
-      this.state.name = uploadParm[keyAry[0]];
-      this.state.description = uploadParm[keyAry[1]];
-      this.state.price = uploadParm[keyAry[2]];
-      this.state.ticketLimit = uploadParm[keyAry[3]];
-      this.state.offerPrice = uploadParm[keyAry[4]];
+      this.state.imagesArray = uploadParm['images'] || [];
+      this.state.name = uploadParm[keyAry[0]] || '';
+      this.state.description = uploadParm[keyAry[1]] || '';
+      this.state.price = uploadParm[keyAry[2]] || '';
+      this.state.ticketLimit = uploadParm[keyAry[3]] || '';
+      this.state.offerPrice = uploadParm[keyAry[4]] || '';
       this.state.selectedCurrency = variantData['currency'];
     } 
     this.setState({ updateUI: !this.state.updateUI })
@@ -89,6 +88,7 @@ export default class AddVariantValue extends Component {
       }
     }
     let {index,variantData} = this.props.route.params;
+    // console.log('variantData', variantData);
     let uploadDic = {
       uploadParm: dict,
       currency:this.state.selectedCurrency,
@@ -98,6 +98,12 @@ export default class AddVariantValue extends Component {
     }else {
       uploadDic['variantType'] = variantData;
     }
+    if (variantData['id']) {
+      if (variantData['variantType']) {
+          uploadDic['id'] = variantData['id'];
+      }
+    }
+    // console.log('uploadDic variant ==> ',uploadDic);
     this.props.route.params.getVariantTypeUploadValue(uploadDic,index)
     this.props.navigation.goBack()
   }
@@ -131,14 +137,19 @@ export default class AddVariantValue extends Component {
   /*  UI   */
   imagePicker(id) {
     ImagePicker.openPicker({
-      height: 200,
-      width: 200,
-      cropping: false,
+      height: 1000,
+      width: 1000,
+      cropping: true,
       includeBase64: true,
     }).then(image => {
       // this.state.photo = image;
       this.state.imagesArray.push(image);
       this.setState({ updateUI: !this.state.updateUI })
+    }).catch(error => {
+      let erData = JSON.stringify(error['message']);
+      if (erData == '"User did not grant library permission."') {
+        photosPermissionAlert()
+      }
     });
   }
   viewSelectedImages = () => {
@@ -148,7 +159,7 @@ export default class AddVariantValue extends Component {
       var photoPath = ''
       if (photo) {
         if (photo['sourceURL']) {
-           photoPath = photo.sourceURL;
+           photoPath = photo.path;
         }else {
           photoPath = photo; 
         }
@@ -177,15 +188,13 @@ export default class AddVariantValue extends Component {
       } else {
         views.push(
           <View>
-            <View style={styles.dottedViewStyle}>
-              <TouchableOpacity onPress={() => this.imagePicker()}>
-                <View style={{ justifyContent: 'center' }}>
-                  <Image source={cameraIcon}
-                    style={{ width: 30, height: 30, alignSelf: 'center' }}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+              <View style={{ justifyContent: 'center' }}>
+                <Image source={cameraIcon}
+                  style={{ width: 30, height: 30, alignSelf: 'center' }}
+                />
+              </View>
+            </TouchableOpacity>
           </View>,
         );
       }
@@ -226,7 +235,7 @@ export default class AddVariantValue extends Component {
         <HeaderView title={title}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}  showDoneBtn={true}
           doneBtnTitle={'Delete'} doneBtnAction={() => this.deleteBtnAction()}/>
-        <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyles.spinnerTextStyle} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ padding: 16 }}>

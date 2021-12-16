@@ -8,12 +8,29 @@ import explore from '../UI/Event/Explore/Explore'
 import colors from '../CommonClasses/AppColor';
 import More from '../UI/Event/More/More';
 import appConstant from '../Constants/AppConstants';
+import ConversationList from '../UI/Event/Chat/ConversationList';
+import Login from '../UI/User/SignIn';
+import SvgUri from 'react-native-svg-uri';
+import AppConstants from '../Constants/AppConstants';
 
 const Tab = createBottomTabNavigator();
 
 function AppTabbar() {
+  var centerTab = Login;
+  var chatS = Login;
 
- 
+  let home = AppConstants.bottomTabBarDic['home'] ?? 'Home';
+  let more = AppConstants.bottomTabBarDic['more'] ?? 'More'
+  let chat = AppConstants.bottomTabBarDic['chats'] ?? 'Chat'
+  let sell = AppConstants.bottomTabBarDic['sell'] ?? 'Sell'
+  let socialFeed = AppConstants.bottomTabBarDic['socialFeed'] ?? 'Social Feed'
+
+  if (appConstant.loggedIn) {
+    centerTab = appConstant.accountID.length == 0 ? shop : AddEvent
+  }
+  if (appConstant.loggedIn) {
+    chatS = ConversationList;
+  }
   return (
     <Tab.Navigator initialRouteName="Home" tabBarOptions={{
       activeTintColor: colors.AppTheme,
@@ -22,27 +39,33 @@ function AppTabbar() {
       
     }} screenOptions={({ route}) => ({
       tabBarIcon: ({ focused, color, size }) => {
-        // console.log('hideTabbar==', appConstant.hideTabbar)
         let iconName;
-        if (route.name === 'Home') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
-        } else if (route.name === 'Explore') {
-          iconName = focused ? require('../assets/feed.png') : require('../assets/feed.png');
-        } else if (route.name === 'Sell') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
-        } else if (route.name === 'Chat') {
-          iconName = focused ? require('../assets/chat.png') : require('../assets/chat.png');
-        } else if (route.name === 'More') {
-          iconName = focused ? require('../assets/profile.png') : require('../assets/profile.png');
+        let tabColor;
+        if (route.name === home) {
+          iconName = require('../assets/homeIcon.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
+        } else if (route.name === socialFeed) {
+
+          iconName = require('../assets/searchSvg.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
+        } else if (route.name === sell) {
+          iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
+          return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
+        } else if (route.name === chat) {
+          iconName = require('../assets/chatIcon.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
+        } else if (route.name === more) {
+          iconName = require('../assets/more.svg');
+          tabColor = focused ? colors.AppTheme : colors.AppGray
         }
-        return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
+        return  <SvgUri width={20} height={20} source={iconName} fill={tabColor} />
       },
     })}>
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
-      <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
-      <Tab.Screen name="Chat" component={Home} />
-      <Tab.Screen name="More" component={More} />
+      <Tab.Screen name={home} component={Home} />
+      <Tab.Screen name={socialFeed} component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
+      <Tab.Screen name={sell} component={centerTab} options={{tabBarVisible: false}}/>
+      <Tab.Screen name={chat} component={chatS}  options={{tabBarVisible: appConstant.loggedIn}}/>
+      <Tab.Screen name={more} component={More} />
     </Tab.Navigator>
   );
 }

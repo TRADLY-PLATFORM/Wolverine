@@ -6,55 +6,64 @@ import DefaultPreference from 'react-native-default-preference';
 
 
 class NetworkManager {
-  networkCall = async (path, method, param, token, auth) => {
+  networkCall = async (path, method, param, token, auth, currency) => {
     let url = APPURL.URLPaths.BaseURL + path;
     console.log('url == ', url)
     console.log('param == ', param)
     console.log('token == ', token)
     console.log('auth == ', auth)
     let err, response
+    let headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'x-agent': 1,
+    }
+    if (appConstant.appLanguage.length != 0) {
+      headers['x-language'] = appConstant.appLanguage
+    }
+    console.log(headers);
+    headers['Authorization'] = "Bearer " + token;
+    headers['x-auth-key'] = auth;
+    if (currency != undefined) {
+      headers['X-Currency'] = currency;
+    }
     [err, response] = await to(fetch(url, {
       method: method,
       dataType: 'json',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer " + token,
-        'x-agent': 1,
-        'x-auth-key': auth
-      },
+      headers: headers,
       body: param,
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'server error')
       return error
     } else {
       const json = await response.json();
       if(json["error"])
       {
         if(json["error"]['code'] == 401){
-          return  this.refreshKeyCall(path,method,param,token,auth)
+          return  this.refreshKeyCall(path,method,param,token,auth,currency)
         } else {
           console.log('error => errror json ', json)
-          let error = errorHandler.errorHandle(json['error']['code']);
+          console.log('error => errror json ', json['error']['errors'])
+          let error = errorHandler.errorHandle(json['error']['code'],json['error']['message']);
           return error
         }
       }else {
-        console.log('response actual', json)
+        // console.log('response actual', json);
+        // console.log('response actual', JSON.stringify(json));
         return json
       }
     }
   }
-  async refreshKeyCall(path, method, param,token,auth) {
+  async refreshKeyCall(path, method, param,token,auth,currency) {
     let url = APPURL.URLPaths.BaseURL + APPURL.URLPaths.token;
     console.log(' refreshKey url == ', url)
     console.log(' refreshKeyauth == ', auth)
     console.log(' refresh Key == ', appConstant.refreshKey)
-
     let err, response
     [err, response] = await to(fetch(url, {
-      method: method,
+      method: 'get',
       dataType: 'json',
       headers: {
         'Accept': 'application/json',
@@ -67,14 +76,17 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'Server error')
       return error
     } else {
       const json = await response.json();
       console.log('response actual', json)
       if(json["error"])
       {        
-        let error = errorHandler.errorHandle(json['error']['code']);
+        if(json["error"]['code'] == 401){
+          appConstant.loggedIn = false
+          DefaultPreference.set('loggedIn', 'false').then(function () { console.log('done loggedIn') });
+        }
         return json
       }else {
         const auth_key = json['data']['user']['key']['auth_key'];
@@ -83,7 +95,7 @@ class NetworkManager {
         appConstant.refreshKey = refresh_key;
         DefaultPreference.set('refreshKey', refresh_key).then();
         DefaultPreference.set('authKey', auth_key).then();
-        return this.networkCall(path, method, param,token ,auth_key)
+        return this.networkCall(path, method, param,token ,auth_key,currency)
       }
     }
   }
@@ -113,7 +125,7 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'])
+      let error = errorHandler.errorHandle(response['error']['code'],'Server Error')
       return error
     } else {
       console.log('response backend', response)
@@ -133,14 +145,11 @@ class NetworkManager {
       }),
     );
     if (err) {
-      console.log('response error', err);
       return false;
     } else {
-      console.log('response uploadFileWithSignedURL', response);
       return true;
     }
   }
-
 }
 const network = new NetworkManager();
 export default network;

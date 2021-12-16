@@ -20,12 +20,18 @@ DerivedData
 *.ipa
 *.xcuserstate
 
+
 # Android/IntelliJ
 #
 .idea
+google-services.json
+app/google-services.json
 .gradle
 local.properties
 *.iml
+
+#Android
+app/google-services.json
 
 # node.js
 #
@@ -55,6 +61,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+/ios/GoogleService-Info.plist
 
 # Env JS
 /src/env.js

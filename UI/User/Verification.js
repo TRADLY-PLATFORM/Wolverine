@@ -4,12 +4,16 @@ import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';
 import commonStyle from '../../StyleSheet/UserStyleSheet';
 import NavigationRoots from '../../Constants/NavigationRoots';
-import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../NetworkManager/NetworkManager';
 import APPURL from '../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
-import OTPTextView from 'react-native-otp-textinput';
-import errorHandler from '../../NetworkManager/ErrorHandle'
+import OTPInputView from '@twotalltotems/react-native-otp-input'
+import userModel  from '../../Model/UserModel'
+import DeviceInfo from 'react-native-device-info';
+import appConstant from './../../Constants/AppConstants';
+import LangifyKeys from '../../Constants/LangifyKeys';
+import tradlyDb from '../../TradlyDB/TradlyDB';
+import {AppAlert } from '../../HelperClasses/SingleTon';
 
 
 export default class Verification extends Component {
@@ -17,12 +21,73 @@ export default class Verification extends Component {
     super(props);
     this.state = {
       OTPvalue: '',
+      deviceName: '',
+      manufacturer:'',
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.getSystemDetail();
+    this.langifyAPI();
+  }
+  async getSystemDetail () {
+    DeviceInfo.getDeviceName().then((deviceName) => {
+      this.state.deviceName = deviceName;
+    })
+    DeviceInfo.getDeviceName().then((manufacturer) => {
+      this.state.manufacturer = manufacturer;
+    })
+  }
+  langifyAPI = async () => {
+    let forgotD = await tradlyDb.getDataFromDB(LangifyKeys.otp);
+    if (forgotD != undefined) {
+      this.verificationTranslationData(forgotD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.otp}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get',
+      '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.otp, objc)
+      this.verificationTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  verificationTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('otp.email_verification' == obj['key']) {
+        let text = obj['value'];
+        this.state.translationDic['title'] = text;
+      }
+      if ('otp.verify' == obj['key']) {
+        this.state.translationDic['verifyBtn'] = obj['value'];
+      }
+      if ('otp.otp_send_info' == obj['key']) {
+        let text = obj['value'];
+        let result = text.replace('{value}', '');
+        this.state.translationDic['subTitle'] = result;
+      }
+      if ('otp.enter_verification_code_here' == obj['key']) {
+        this.state.translationDic['enterCode'] = obj['value'];
+      }
+      if ('otp.resend_message' == obj['key']) {
+        this.state.translationDic['resendMessage'] = obj['value'];
+      }
+      if ('otp.please_enter_otp' == obj['key']) {
+        this.state.translationDic['emptyOTP'] = obj['value'];
+      }
+      if ('login.alert_ok' == obj['key']) {
+        this.state.translationDic['alertOk'] =  obj['value'];
+      }
+    }
   }
   verificationOTPApi = async () => {
-    console.log('this.state.OTPvalue', this.state.OTPvalue);
     const { verifyId, bToken } = this.props.route.params;
     const dict = JSON.stringify({
       'verify_id': verifyId,
@@ -32,12 +97,12 @@ export default class Verification extends Component {
     console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
-        this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+        userModel.userData(responseJson);
+        this.updateDeviceInfoAPI()
+        this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
       } else {
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        setTimeout(() => {
-          Alert.alert(error)
-        }, 50)
+        // let error = errorHandler.errorHandle(responseJson)
+        AppAlert(responseJson,appConstant.okTitle)
       }
     }
   }
@@ -47,26 +112,38 @@ export default class Verification extends Component {
     // console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
-        Alert.alert('OTP Sent!!!')
+        AppAlert(this.state.translationDic['resendMessage'],appConstant.okTitle)
       } else {
-        let error = errorHandler.errorHandle(responseJson['error']['code'])
-        setTimeout(() => {
-          Alert.alert(error)
-        }, 50)
+          AppAlert(responseJson,appConstant.okTitle)
       }
     }
   }
+  updateDeviceInfoAPI = async () => {
+    let dict = {
+      'device_name':this.state.deviceName ,
+      'device_manufacturer': this.state.manufacturer ,
+      'device_model': DeviceInfo.getModel(),
+      'app_version': DeviceInfo.getVersion(),
+      'os_version': DeviceInfo.getSystemVersion(),
+      'push_token': appConstant.fcmToken,
+      'language': 'en',
+      'client_type':  Platform.OS === 'ios' ? 1 : 2,
+    }
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.devices}`, 'put',JSON.stringify({ device_info: dict }),appConstant.bToken,appConstant.authKey)
+    if (responseJson['status'] == true) {
+    }else {
+      this.setState({ isVisible: false })
+    }
+  }
   /*  Buttons   */
-  verifyBtnAction = () => {
+  verifyBtnAction(code){
     Keyboard.dismiss()
-    const { otpInput = '' } = this.state;
-    if (otpInput) {
-        console.log("otpInput",otpInput)
-        this.setState({ OTPvalue: otpInput })
+    console.log(code);
+    if (code) {
+        this.state.OTPvalue = code;
         if (this.state.OTPvalue.length != 6) {
-            // Alert.alert('Invalid OTP')
+          AppAlert(this.state.translationDic['emptyOTP'],appConstant.okTitle)
         } else {
-        //     console.log("verif",this.state.OTPvalue)
           this.verificationOTPApi()
         }
     }
@@ -84,25 +161,25 @@ export default class Verification extends Component {
               </Image>
             </TouchableOpacity>
             <View style={{ height: 60 }} />
-            <Text style={commonStyle.titleStyle}>Phone Verification</Text>
-            <Text style={commonStyle.subTitleStyle}>Verification code has been sent to below {emailID}</Text>
-            <Text style={commonStyle.subTitleStyle}>Enter your OTP code here</Text>
+            <View  style={{width: '90%', alignSelf: 'center'}}>
+            <Text style={commonStyle.titleStyle}>{this.state.translationDic['title'] ?? 'Verification'}</Text>
+            <Text style={commonStyle.subTitleStyle}>{this.state.translationDic['subTitle']} {emailID}</Text>
+            <Text style={commonStyle.subTitleStyle}>{this.state.translationDic['enterCode'] ?? 'Enter Code here'}</Text>
+            </View>
             <View style={{ height: 50 }} />
             <View style={styles.otpView}>
-              <OTPTextView
-                ref={(e) => (this.input1 = e)}
-                handleTextChange={(text) => this.setState({ otpInput: text })}
-                inputCount={6}
-                keyboardType="numeric"
-                tintColor={colors.AppWhite}
-                offTintColor={colors.AppWhite}
-                containerStyle={styles.textInputContainer}
-                textInputStyle={styles.roundedTextInput}
+              <OTPInputView
+                style={{width: '80%', height: 40}}
+                pinCount={6}
+                autoFocusOnLoad
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled = {code => this.verifyBtnAction(code)}
               />
             </View>
             <View style={{ height: 50 }} />
             <TouchableOpacity style={commonStyle.loginBtnStyle} onPress={() => this.verifyBtnAction()} >
-              <Text style={commonStyle.btnTitleStyle}>Verification</Text>
+              <Text style={commonStyle.btnTitleStyle}>{this.state.translationDic['verifyBtn']}</Text>
             </TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
@@ -132,6 +209,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: colors.lightGray,
     color: colors.AppWhite
-
+  },
+  borderStyleBase: {
+    width: 30,
+    height: 45
+  },
+  borderStyleHighLighted: {
+    borderColor: colors.AppWhite,
+  },
+  underlineStyleBase: {
+    width: 30,
+    height: 45,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.AppWhite,
+  },
+  underlineStyleHighLighted: {
+    borderColor: "#03DAC6",
   },
 });
+

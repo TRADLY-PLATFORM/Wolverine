@@ -1,45 +1,43 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
+  StatusBar,
   Text,
   Image,
   View,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
   Dimensions,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
-import sample from '../../../assets/dummy.png';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import timeIcon from '../../../assets/timeIcon.png';
-import starIcon from '../../../assets/star.png';
-import heartIcon from '../../../assets/heartIcon.png';
 import filterGrayIcon from '../../../assets/filterGrayIcon.png';
 import sortIcon from '../../../assets/sortIcon.png';
-import viewMapIcon from '../../../assets/viewMapIcon.png';
+import viewMapIcon from '../../../assets/viewMap.svg';
 import APPURL from '../../../Constants/URLConstants';
+
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
-import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../../assets/radio.png';
-import selectedradio from '../../../assets/selectedradio.png';
-import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
+import radio from '../../../assets/radio.svg';
+import selectedradio from '../../../assets/radioChecked.svg';
+import searchSvg from '../../../assets/searchSvg.svg';
+
+import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
+import ExploreListItem from '../../../Component/ExploreListItem'
+import SearchBar from 'react-native-search-bar';
+import SvgUri from 'react-native-svg-uri';
 
 import constantArrays from '../../../Constants/ConstantArrays';
-
+import LocationPermission from '../../../HelperClasses/LocationPermission';
 const windowHeight = Dimensions.get('window').height;
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
-const origin = { latitude: 30.6225, longitude: 76.6224 };
-const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
 const windowWidth = Dimensions.get('window').width;
 
@@ -64,19 +62,38 @@ export default class Explore extends Component {
       selectedDateIndex: 0,
       datesArray: [],
       selectedDate:'',
-      filterArray: [],
+      filtersArray: [],
+      isVisible: false,
+      dataLoad: false,
+      showSearchBar: true,
+      searchKey:'',
+      typingTimeout: 0
     }
   }
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      appConstant.hideTabbar = true
-    });
+    // this.refs.searchBar.focus()
     this.state.datesArray = getDatesArray();
-    this.state.selectedDate = this.state.datesArray[0];
+    // this.props.navigation.addListener('focus', () => {
+      appConstant.hideTabbar = true
+      let lp = new LocationPermission();
+      lp._requestLocation();
+      this.setState({showSearchBar: false})
+      this.initApi()
+    // });
+  }
+  componentWillUnmount() {
+    this.state.dataLoad = true
+  }
+  initApi() {
+    if (this.state.datesArray.length != 0){
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+      let strtD = ''//`&start_at=${this.state.selectedDate}T00:00:00Z`;
+      this.state.params = `${strtD}`;
+    }
     this.callApi(this.state.params);
-
   }
   callApi(param) {
+    this.setState({ dataLoad: false })
     this.state.eventsArray = [];
     this.state.stopPagination = false
     this.state.pageNo = 1;
@@ -84,7 +101,10 @@ export default class Explore extends Component {
   }
   getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    var path = `&per_page=30&type=events&latitude=30.70&longitude=76.62` + param;
+    var path = '&per_page=30&type=events&';
+    if (appConstant.lat.length != 0) {
+      path = path + `latitude=${appConstant.lat}&longitude=${appConstant.long}` + param;
+    }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?page=${this.state.pageNo}${path}`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
@@ -96,12 +116,39 @@ export default class Explore extends Component {
       }else {
         this.state.stopPagination = true
       }
-      this.setState({ updateUI: !this.state.updateUI, isVisible: false })
+      this.setState({ updateUI: !this.state.updateUI, isVisible: false,dataLoad: true })
     } else {
-      this.setState({ isVisible: false })
+      this.setState({ isVisible: false,dataLoad: true  })
     }
   }
+  _handleRefresh = () => {
+    this.setState({ isVisible: true })
+    this.callApi(this.state.params);
+  }
+  onSearchChanges = () => {
+    if (this.state.typingTimeout) {
+      clearTimeout(this.state.typingTimeout);
+   }
+   this.setState({
+      typingTimeout: setTimeout(function () {
+        if (this.state.searchKey.length != 0) {
+          this.state.params = `&search_key=${this.state.searchKey}`;
+          this.setState({ isVisible: true })
+          this.callApi(this.state.params);
+        }
+        this.refs.searchBar.unFocus()
+        this.setState({showSearchBar: false })
+      }.bind(this), 10)
+    })
+  }
+  
   /*  Buttons   */
+  openSearchBarAction =  () => {
+    this.setState({showSearchBar: true, showMap: false })
+    setTimeout(function () {
+      this.refs.searchBar.focus()
+    }.bind(this), 100)
+  }
   didSelectEventList(item, index) {
     this.props.navigation.navigate(NavigationRoots.EventDetail, {
       id :item['id'],
@@ -109,8 +156,8 @@ export default class Explore extends Component {
   }
   filterBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Filter, {
-      filterArray :this.state.filterArray,
-      getFilterData: this.getFilterData,
+      filtersArray :this.state.filtersArray,
+      getFilterData :this.getFilterData,
     });
   }
   sortBtnAction(done) {
@@ -119,18 +166,28 @@ export default class Explore extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['newest_first','price_high_to_low', 'price_low_to_high', 'relevance'];
-        this.state.params = `${path}&sort=${sortKey[this.state.sortSelectedIndex]}`
+        let sortKey  = ['nearest_distance','price_low_to_high','price_high_to_low'];
+        this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
       }
-      this.callApi();
+      this.callApi(this.state.params);
     }
   }
   didSelectDate(index) {
     this.state.selectedDateIndex = index
-    this.state.selectedDate = this.state.datesArray[index];
-    this.setState({ updateUI: !this.state.updateUI})
+    if (index != 0) {
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[index - 1], 'YYYY-MM-DD');
+      let nxtDate = getNextDate(this.state.datesArray[index])
+      let nxt = changeDateFormat(nxtDate, 'YYYY-MM-DD')
+      this.setState({ updateUI: !this.state.updateUI })
+      let strtD = `${this.state.selectedDate}T00:00:00Z`;
+      let endD = `${nxt}T00:00:00Z`;
+      this.state.params = `&start_at=${strtD}&end_at=${endD}`;
+      this.callApi(this.state.params);
+    } else {
+      this.initApi()
+    }
   }
-  
+
   paginationMethod = () => {
     if (!this.state.stopPagination) {
       this.state.pageNo = this.state.pageNo + 1;
@@ -154,39 +211,73 @@ export default class Explore extends Component {
         queryParams = queryParams + `&created_from=${cf}Z&created_to=${ct}Z`;
       } 
       if (objc['rating']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }  
         let rObjc = objc['rating']
-        queryParams = queryParams + `&rating=${rObjc['rating']}`;
+        queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['distance']
-        queryParams = queryParams + `&max_distance=${dObjc['distance']}`;
+        queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['category']
-        queryParams = queryParams + `&category_id=${dObjc['id']}`;
+        queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
+      }
+      if (objc['price']) {
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }   
+        let dObjc = objc['price']
+        queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
+      }
+      if (objc['attribute']) {
+        let nObj = objc['attribute']
+        let dObjc = nObj['values'];
+        var strtD = '';
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
+        if (dObjc.length != 0) {
+          queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
+        }
       }
     }
-    this.state.filterArray = data
+    this.state.filtersArray = data
     this.state.params = queryParams;
-    this.callApi(this.state.params);
-
+    if (this.state.filtersArray == 0) {
+      this.initApi()
+    } else {
+      this.callApi(this.state.params)
+    }
   }
   convert12HoursFormat(time) {
     var timeString = `${time.length == 1 ? `0${time}`:time}:00:00`;
-    // const timeString12hr = new Date('1970-01-01T' + timeString) .toLocaleTimeString({timeZone:'en-US',hour12:true,hour:'numeric',minute:'numeric'});
-    // timeString12hr;
-    // let startDate = 'Tue Jul 27 2021' + ` ${timeString12hr}`
-    // let startTimestamp = new Date(startDate).getTime() / 1000;
     return timeString
   }
   /*  UI   */
   renderSortItemCell = ({item, index }) => {
     let check = index == this.state.sortSelectedIndex ? true : false
+    var views = [];
+    views.push(<View style={commonStyles.nextIconStyle}> 
+        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+    </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
-        <View style={styles.listViewStyle}>
+        <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          <Image style={commonStyles.nextIconStyle} source={check ? selectedradio : radio} />
+          {views}
         </View>
       </TouchableOpacity>
     )
@@ -205,114 +296,40 @@ export default class Explore extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View style={{backgroundColor: 'green'}}>
+      return (<View>
         <ScrollBottomSheet
           componentType="ScrollView"
-          snapPoints={['40%', "40%", maxHeight]}
+          snapPoints={['50%', "50%", maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={true}
           animationType={'timing'}
           renderHandle={() => (
-            <View style={styles.header}>
-              <View style={styles.panelHandle} />
-              <View style={{ backgroundColor: colors.AppWhite, height: windowHeight/ 2, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
+            <View style={eventStyles.header}>
+              <View style={eventStyles.panelHandle} />
+              <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
+                <View style={{justifyContent: 'center' }}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort</Text>
                 </View>
-                <View style={{height: '58%', marginTop: 10}}>
+                <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
-                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
+                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           )} topInset={false}
-          contentContainerStyle={styles.contentContainerStyle}
+          contentContainerStyle={eventStyles.contentContainerStyle}
           onSettle={index => { if (index == 2) {  this.sortBtnAction() }}}
         />
       </View>)
     } else {
       return <View />
     }
-  }
-  renderListView = () => {
-    if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
-        <FlatList
-          data={this.state.eventsArray}
-          numColumns={1}
-          renderItem={this.renderListCellItem}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => index}
-          horizontal={this.state.showMap ? true : false}
-          onEndReachedThreshold={0}
-          onEndReached={this.paginationMethod}
-        />
-      </View>)
-    } else {
-      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
-      </View>
-    }
-  }
-  renderListCellItem = ({ item, index }) => {
-    var title = '';
-    var rattingAvg = '';
-    var price = '';
-    var time = '';
-    if(item['title']){
-      title = item['title'];
-      rattingAvg =item['rating_data']['rating_average']
-      price =item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
-    }
-    var photo = item['images'] ? item['images'] : [];
-
-    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={() => this.didSelectEventList(item, index)}>
-    <View style={{ flexDirection: 'row' }}>
-      <FastImage style={{ width: 110, height: 130, borderRadius: 5 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
-      <View style={{ margin: 5 }}>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.titleStyle}>{time}</Text>
-        </View>
-        <View style={{ margin: 5}}>
-          <Text style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
-        </View>
-        <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ width: 15, height: 15 }} source={starIcon} />
-          <View style={{ width: 5 }} />
-          <Text style={eventStyles.subTitleStyle}>{`${rattingAvg} | 0 rating`}</Text>
-        </View>
-        <View style={{ margin: 5, marginTop: 15}}>
-        <Text style={eventStyles.titleStyle}>{price}</Text>
-        </View>
-      </View>
-      <View>
-        </View>
-    </View>
-    <View style={{ alignContent: 'center', padding: 10}}>
-      <Image style={{width: 40, height: 40, marginTop: 5}} resizeMode='center' source={heartIcon} />
-    </View>
-  </TouchableOpacity>
-  }
-  renderHeaderView = () => {
-    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <TouchableOpacity style={styles.headerViewStyle} onPress={() => this.sortBtnAction()}>
-        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.headerViewStyle} onPress={() => this.filterBtnAction()}>
-        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
-      </TouchableOpacity>
-    </View>)
   }
   renderDateListView = () => {
     return (<View style={{ margin: 5, height: 35 }}>
@@ -323,11 +340,15 @@ export default class Explore extends Component {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index}
         horizontal={true}
+
       />
     </View>)
   }
   renderDateListViewCellItem = ({item, index}) => {
-    let dt = index == 0 ? 'Today' : changeDateFormat(item, 'ddd D')
+    var dt = index == 1 ? 'Today' : changeDateFormat(this.state.datesArray[index - 1], 'ddd D')
+    if (index == 0) {
+      dt = "All";
+    }
     if (this.state.selectedDateIndex == index) {
       return(<View style={{margin: 5,marginLeft: 10, borderRadius: 15}}>
         <TouchableOpacity style={eventStyles.selectedBntViewStyle} onPress={() => this.didSelectDate(index)}>
@@ -345,43 +366,110 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<TouchableOpacity style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? 5 : -120, zIndex: 100}}
-       onPress={() => this.setState({showMap: !this.state.showMap})}>
-      <View style={styles.viewOnMapBtnStyle}>
-      <Image style={{ width: 20, height: 20 }} resizeMode={'contain'} source={viewMapIcon} />
-      <View style={{width: 5}}/>
-      <Text style={{fontWeight: '500', fontSize: 14, color:colors.AppTheme}}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
-      </View>
-  </TouchableOpacity>)
+    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
+      <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({ showMap: !this.state.showMap })}>
+        <SvgUri width={20} height={20} source={viewMapIcon} fill={colors.AppTheme} />
+        <View style={{ width: 5 }} />
+        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
+      </TouchableOpacity>
+  </View>)
   }
    renderMarker = () => {
      var markerView = [];
     for (let objc of this.state.eventsArray) {
-      // let objc = this.state.eventsArray[0];
       let coordinate = objc['coordinates'];
-      // console.log('objc', objc['coordinates'])
-      // let coordinate =  {
-      //   "latitude": 30.6892,
-      //   "longitude":76.6907,
-      // }
-      markerView.push(<Marker
-        coordinate={coordinate}
-        image = {require('../../../assets/mapPin.png')} 
-        title={objc['title']}
-      />);
+      if (coordinate != undefined) {
+        markerView.push(<Marker
+          coordinate={coordinate}
+          image={require('../../../assets/mapPin.png')}
+          title={objc['title']}
+        />);
+      }
     }
     return markerView;
    }
+   renderListView = () => {
+    if (this.state.eventsArray.length != 0) {
+      return (<View style={{ margin: 5, height: '100%' }}>
+        <FlatList
+          data={this.state.eventsArray}
+          renderItem={this.renderListCellItem}
+          keyExtractor={(item, index) => index + 3245}
+          key={'L'}
+          horizontal={this.state.showMap ? true : false}
+          onEndReachedThreshold={0}
+          onEndReached={this.paginationMethod}
+          onRefresh={this._handleRefresh}
+          refreshing={this.state.isVisible}
+        />
+      </View>)
+    } else {
+      return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
+      </View>
+    }
+  }
+  renderListCellItem = ({ item, index }) => {
+    return (<TouchableOpacity onPress={() => this.didSelectEventList(item, index)}>
+      <ExploreListItem data={item} />
+    </TouchableOpacity>)
+  }
+  renderHeaderView = () => {
+    return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
+        <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
+      </TouchableOpacity>
+    </View>)
+  }
   renderMainView = () => {
+    return (<View style={{ flex: 1 }}>
+      {this.renderHeaderView()}
+      {this.renderDateListView()}
+      <View style={{ flex: 1 }}>
+        {this.renderListView()}
+        {this.renderViewMaBtnView()}
+      </View>
+      <View style={{ height: 0, width: '100%' }} />
+    </View>)
+  }
+  renderSearchBar = () => {
+    if (this.state.showSearchBar) {
+      return (<View style={{ backgroundColor: colors.AppTheme, height: 60}} >
+        <SearchBar
+          ref="searchBar"
+          barTintColor={colors.AppWhite}
+          searchBarStyle={'minimal'}
+          tintColor={colors.AppWhite}
+          placeholderTextColor={colors.AppWhite}
+          textFieldBackgroundColor={colors.AppWhite}
+          style={{ borderColor: colors.AppWhite, height: 60 }}
+          textColor={colors.AppBlack}
+          onChangeText={text =>     this.setState({searchKey: text})        }
+          tintColor={colors.AppWhite}
+          onCancelButtonPress={() => this.setState({showSearchBar: false})}
+          onSearchButtonPress={() => this.onSearchChanges()}
+        />
+      </View>)
+    } else {
+      return <HeaderView title={'Search'} showDoneBtn={true} doneBtnTitle={'Search'} doneBtnAction={() => this.openSearchBarAction()} />
+    }
+  }
+
+  render() {
     if (this.state.showMap) {
-      return (<View style={{height: windowHeight - 180,width: windowWidth}}>
-        <View style={styles.containerMapStyle}>
+      return (<View style={{ flex:1 }}>
+        <View style={{flex: 1, zIndex:10, height: windowHeight}}>
           <MapView
             provider={PROVIDER_GOOGLE}
-            style={styles.mapStyle}
+            style={eventStyles.mapStyle}
             initialRegion={{
-              latitude: 30.68825,
-              longitude: 76.6924,
+              latitude: appConstant.lat,
+              longitude: appConstant.long,
               latitudeDelta: 0.015,
               longitudeDelta: 0.0121,
             }}
@@ -389,35 +477,27 @@ export default class Explore extends Component {
             {this.renderMarker()}
           </MapView>
         </View>
-        <View style={{marginTop: -220, flex: 1, zIndex: 12} }>
+        <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
+          <Text>Search..</Text>
+          <View>
+            <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
+          </View>
+        </TouchableOpacity>
+        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280}}>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
       </View>)
-    } else {
-      return (<View style={{ height: '100%'}}>
-        <View>
-          {this.renderHeaderView()}
-          {this.renderDateListView()}
-        </View>
-        <View style={{height: windowHeight - 180}}>
-          {this.renderListView()}
-        </View>
-        {this.renderViewMaBtnView()}
-      </View>)
     }
-  }
-
-  render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Explore'} showBackBtn={false} />
+        {this.renderSearchBar()}
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '92%', backgroundColor: colors.AppWhite }}>
-          <View style={{zIndex: 5, position: 'absolute'}}>
+        <View style={{ backgroundColor: colors.LightBlueColor, flex: 1 }}>
+          <View style={{ zIndex: 5, position: 'absolute', height: '100%'}}>
             <this.renderMainView />
           </View>
-          <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height:this.state.showSortView ? '100%' : 0}}>
+          <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
             <this.renderSortView />
           </View>
         </View>
@@ -430,20 +510,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
-  variantCellViewStyle: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    borderRadius: 5,
-    // overflow: 'hidden',
-    height: 130,
-    shadowColor: 'gray',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 2,
-    backgroundColor: colors.AppWhite,
-  },
   headerViewStyle: {
     width: '50%',
     height: 50,
@@ -452,19 +518,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.BorderColor,
-  },
-  viewOnMapBtnStyle: {
-    height: 40,
-    backgroundColor: colors.AppWhite,
-    flexDirection: 'row',
-    width: 130,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'gray',
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 5,
-    borderRadius: 20,
   },
   containerMapStyle: {
     margin:0,
@@ -514,6 +567,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+  searchBtnStyle: {
+    height: 40,
+    width: windowWidth - 40,
+    zIndex: 11,
+    position: 'absolute',
+    marginTop: 60,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 20,
+    backgroundColor: colors.AppWhite,
+    paddingRight: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    paddingLeft: 16, 
+  }
 
 });
 

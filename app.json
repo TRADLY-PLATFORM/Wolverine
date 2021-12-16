@@ -1,4 +1,5 @@
 {
   "name": "tradlyEvent",
-  "displayName": "tradlyEvent"
+  "displayName": "tradlyEvent" ,
+  "packagerOpts": { "config": "metro.config.js", "sourceExts": ["js","jsx","svg","ts","tsx"]}
 }
