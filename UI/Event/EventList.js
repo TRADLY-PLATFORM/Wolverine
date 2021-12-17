@@ -69,10 +69,42 @@ export default class EventList extends Component {
       }
     }
   }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.search);
+    if (searchD != undefined) {
+      this.searchTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.search}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.search, objc)
+      this.searchTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  searchTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('search.high_to_low' == obj['key']) {
+        constantArrays.sortingArray[2] = obj['value'];
+      }  
+      if ('search.low_to_high' == obj['key']) {
+        constantArrays.sortingArray[1] = obj['value'];
+      }  
+    }
+  }
   initApi() {
-    this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-    let strtD = `${this.state.selectedDate}T00:00:00Z`;
-    this.state.params = `&start_at=${strtD}`;
+    if (this.state.datesArray.length != 0){
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+      let strtD = ''//`&start_at=${this.state.selectedDate}T00:00:00Z`;
+      this.state.params = `${strtD}`;
+    }
     this.callApi(this.state.params);
   }
   callApi(param) {
@@ -123,7 +155,7 @@ export default class EventList extends Component {
     this.setState({showSortView: !this.state.showSortView})
     if (done){
       if (this.state.sortSelectedIndex != -1) {
-        let sortKey  = ['nearest_distance','price_high_to_low', 'price_low_to_high', 'relevance'];
+        let sortKey  = ['nearest_distance','price_low_to_high','price_high_to_low'];
         this.state.params = `${this.state.params}&sort=${sortKey[this.state.sortSelectedIndex]}`
         console.log('this.state.params', this.state.params)
       }

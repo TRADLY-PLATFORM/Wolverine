@@ -60,7 +60,7 @@ export default class App extends Component {
   componentDidMount() {
   }
   navigationReturn = () => {
-    let root = appConstant.appInstalled ? NavigationRoots.BottomTabbar : NavigationRoots.Language
+    let root = appConstant.appInstalled ? NavigationRoots.OnBoardings : NavigationRoots.Language
     return <NavigationContainer>
       <Stack.Navigator initialRouteName={root} screenOptions={{ headerShown: false }}>
         <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />

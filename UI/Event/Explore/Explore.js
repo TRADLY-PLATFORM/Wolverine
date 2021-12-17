@@ -35,7 +35,15 @@ import SvgUri from 'react-native-svg-uri';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
+
+import AppMessages from '../../../Constants/AppMessages';
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../HelperClasses/SingleTon';
+import AppConstants from '../../../Constants/AppConstants';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 const windowHeight = Dimensions.get('window').height;
+
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -67,11 +75,13 @@ export default class Explore extends Component {
       dataLoad: false,
       showSearchBar: true,
       searchKey:'',
-      typingTimeout: 0
+      typingTimeout: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
     // this.refs.searchBar.focus()
+    this.langifyAPI();
     this.state.datesArray = getDatesArray();
     // this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
@@ -91,6 +101,39 @@ export default class Explore extends Component {
       this.state.params = `${strtD}`;
     }
     this.callApi(this.state.params);
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.search);
+    if (searchD != undefined) {
+      this.searchTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.search}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.search, objc)
+      this.searchTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  searchTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('search.high_to_low' == obj['key']) {
+        constantArrays.sortingArray[2] = obj['value'];
+      }  
+      if ('search.low_to_high' == obj['key']) {
+        constantArrays.sortingArray[1] = obj['value'];
+      }  
+      if ('search.search' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+    }
   }
   callApi(param) {
     this.setState({ dataLoad: false })
@@ -456,7 +499,7 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <HeaderView title={'Search'} showDoneBtn={true} doneBtnTitle={'Search'} doneBtnAction={() => this.openSearchBarAction()} />
+      return <HeaderView title={this.state.translationDic['title'] ?? 'Search'} showDoneBtn={true} doneBtnTitle={this.state.translationDic['title'] ?? 'Search'} doneBtnAction={() => this.openSearchBarAction()} />
     }
   }
 
@@ -478,7 +521,7 @@ export default class Explore extends Component {
           </MapView>
         </View>
         <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
-          <Text>Search..</Text>
+          <Text>{this.state.translationDic['title']?? 'Search'}..</Text>
           <View>
             <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
           </View>

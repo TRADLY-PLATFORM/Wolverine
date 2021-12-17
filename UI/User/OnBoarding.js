@@ -86,7 +86,7 @@ export default class OnBoardings extends Component {
       <View style={styles.slide}>
         <View style={styles.imageViewStyle}>
           <Image source={item.image} style={styles.image} resizeMode={'contain'} />
-        <View style={{marginTop: '-50%'}}>
+        <View style={{marginTop: '-40%'}}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.text}>{item.text}</Text>
         </View>
@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
   },
   imageViewStyle: {
     margin: 20,
+    marginTop: -20,
     padding:20,
     width: '100%',
   },
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   text: {
+    marginTop: 5,
     color: colors.AppWhite,
     textAlign: 'center',
   },
@@ -177,7 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 22,
     fontWeight: '500',
-    color: colors.AppTheme,
+    color: 'pink',
     textAlign: 'center',
   },
   skipBtnViewStyle: {
