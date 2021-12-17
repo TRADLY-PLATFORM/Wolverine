@@ -49,10 +49,12 @@ export default class OnBoardings extends Component {
     return (
       <View style={styles.slide}>
         <View style={styles.imageViewStyle}>
-          <Image source={item.image} style={styles.image} resizeMode={'contain'}/>
+          <Image source={item.image} style={styles.image} resizeMode={'contain'} />
+        <View style={{marginTop: '-30%'}}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.text}>{item.text}</Text>
         </View>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.text}>{item.text}</Text>
+        </View>
       </View>
     );
   }
@@ -123,11 +125,11 @@ const styles = StyleSheet.create({
   imageViewStyle: {
     margin: 20,
     padding:20,
-    width: '100%'
+    width: '100%',
   },
   image: {
     width: '100%',
-    height: '70%',
+    height: '100%',
   },
   text: {
     color: colors.AppWhite,
