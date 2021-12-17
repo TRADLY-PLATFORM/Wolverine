@@ -23,6 +23,8 @@ import selectedradio from '../../../../assets/radioChecked.svg';
 import SvgUri from 'react-native-svg-uri';
 import ShipmentModel from '../../../../Model/ShipmentModel';
 import editGreen from '../../../../assets/editGreen.svg';
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -40,13 +42,69 @@ export default class Shipment extends Component {
       selectedShipmentType: '',
       pickUpAddress: '',
       selectedAddressId: 0,
+      translationDic:{},
 
     }
   }
   componentDidMount() {
+    this.langifyAPI()
     this.getShipmentMethodApi()
     this.getStoreDetailApi();
     this.getDeliveryAddressApi()
+  }
+  langifyAPI = async () => {
+    let shippingD = await tradlyDb.getDataFromDB(LangifyKeys.shipping);
+    if (shippingD != undefined) {
+      this.moreTranslationData(shippingD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.shipping}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.shipping, objc)
+      this.cartTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  cartTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('shipping.shipment_option' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('shipping.checkout' == obj['key']) {
+        this.state.translationDic['checkout'] = obj['value'];
+      } 
+      if ('shipping.you_pay' == obj['key']) {
+        this.state.translationDic['youPay'] = obj['value'];
+      }
+      if ('shipping.pickup_address' == obj['key']) {
+        this.state.translationDic['pickupAddress'] = obj['value'];
+      }
+      if ('shipping.delivery_address' == obj['key']) {
+        this.state.translationDic['deliveryAddress'] = obj['value'];
+      }
+      if ('shipping.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('shipping.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      } 
+      if ('shipping.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+      if ('shipping.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+      if ('shipping.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+    }
   }
   getShipmentMethodApi = async () => {
     const { accId } = this.props.route.params;
@@ -142,7 +200,7 @@ export default class Shipment extends Component {
     if (this.state.selectedShipmentType == ShipmentModel.pickUpType) {
       return (<View style={styles.commonViewStyle}>
         <View>
-          <Text style={eventStyles.titleStyle}>PickUp Address</Text>
+          <Text style={eventStyles.titleStyle}>{this.state.translationDic['pickupAddress']??'PickUp Address'}</Text>
           <View style={{height: 1,marginTop: 10 ,backgroundColor: colors.LightUltraGray}}/>
           <View style={{height: 10}}/>
           <Text style={eventStyles.commonTxtStyle}>{this.state.pickUpAddress}</Text>
@@ -158,7 +216,7 @@ export default class Shipment extends Component {
        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.bottomBtnViewStyle} >
           <View style={{alignItems: 'center'}}>
-            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>You Pay</Text>
+            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>{this.state.translationDic['youPay']??'You Pay'}</Text>
             <View style={{height: 5}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16  }}>{grandTotal}</Text>
           </View>
@@ -166,7 +224,7 @@ export default class Shipment extends Component {
         <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.checkoutBtnAction()}
            disabled={this.state.selectedShipmentId == 0}>
           <View style={this.state.selectedShipmentId == 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.applyBtnViewStyle } >
-            <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Checkout</Text>
+            <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{this.state.translationDic['checkout'] ?? 'Checkout'}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -178,7 +236,7 @@ export default class Shipment extends Component {
       adAry = [... this.state.addressesArray];
       adAry.push({ addNew: true })
       return (<View style={{ marginLeft: 16 }}>
-        <Text style={eventStyles.titleStyle} numberOfLines={1}>Select Pickup address</Text>
+        <Text style={eventStyles.titleStyle} numberOfLines={1}>{this.state.translationDic['deliveryAddress']?? 'Delivery Address'}</Text>
         <View style={{ height: 20 }} />
         <FlatList
           data={adAry}
@@ -227,7 +285,7 @@ export default class Shipment extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Shipment Option'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Shipment Option'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>

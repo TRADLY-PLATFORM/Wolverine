@@ -22,6 +22,11 @@ import SvgUri from 'react-native-svg-uri';
 
 import constantArrays from '../../../Constants/ConstantArrays';
 import FastImage from 'react-native-fast-image';
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
+
+
 const windowHeight = Dimensions.get('window').height;
 
 export default class More extends Component {
@@ -37,11 +42,13 @@ export default class More extends Component {
       loadData: false,
       userDetailData: {},
       segmentIndex: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
     // this.getUserDetailApi();
     // this.getMyStoreApi();
+    this.langifyAPI()
     this.props.navigation.addListener('focus', () => {
       if (appConstant.loggedIn) {
           this.setState({ isVisible: true })
@@ -54,6 +61,71 @@ export default class More extends Component {
         this.setState({updateUI: !this.state.updateUI})
       }
     });
+  }
+  langifyAPI = async () => {
+    let moreD = await tradlyDb.getDataFromDB(LangifyKeys.more);
+    if (moreD != undefined) {
+      this.moreTranslationData(moreD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.more}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.more, objc)
+      this.moreTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  moreTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('more.signin_signup' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('more.my_orders' == obj['key']) {
+        constantArrays.customerMenuArray[0] = obj['value'];
+      }
+      if ('more.my_store' == obj['key']) {
+        constantArrays.menuArray[0] = obj['value'];
+      }
+      if ('more.my_cart' == obj['key']) {
+        constantArrays.customerMenuArray[1] = obj['value'];
+      }
+      if ('more.my_store_orders' == obj['key']) {
+        constantArrays.menuArray[1] = obj['value'];
+      }
+      if ('more.my_sales' == obj['key']) {
+        constantArrays.menuArray[2] = obj['value'];
+      }
+      if ('more.payments' == obj['key']) {
+        constantArrays.menuArray[3] = obj['value'];
+      }
+      if ('more.terms_condition' == obj['key']) {
+        constantArrays.customerMenuArray[2] = obj['value'];
+        constantArrays.menuArray[4] = obj['value'];
+      }
+      if ('more.privacy_policy' == obj['key']) {
+        constantArrays.customerMenuArray[3] = obj['value'];
+        constantArrays.menuArray[5] = obj['value'];
+      }
+      if ('more.tell_a_friend' == obj['key']) {
+        constantArrays.customerMenuArray[4] = obj['value'];
+        constantArrays.menuArray[6] = obj['value'];
+      }
+      if ('more.rate_app' == obj['key']) {
+        constantArrays.customerMenuArray[5] = obj['value'];
+        constantArrays.menuArray[7] = obj['value'];
+      }
+      if ('more.logging_out' == obj['key']) {
+        constantArrays.customerMenuArray[6] = obj['value'];
+        constantArrays.menuArray[8] = obj['value'];
+      }
+    }
   }
   getUserDetailApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -260,7 +332,7 @@ export default class More extends Component {
     }else {
       return (<View>
         <TouchableOpacity style={{ marginLeft: 10}} onPress={() =>  this.props.navigation.navigate(NavigationRoots.SignIn)}>
-          <Text style={styles.titleStyle}>Sign in/Sign up</Text>
+          <Text style={styles.titleStyle}>{this.state.translationDic['title'] ?? 'Sign in/Sign up'}</Text>
         </TouchableOpacity>
       </View>)
     }

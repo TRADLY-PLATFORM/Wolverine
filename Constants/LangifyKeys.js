@@ -9,4 +9,11 @@ module.exports = {
   addstore: 'addstore',
   home: 'home',
   search: 'search',
+  addproduct: 'addproduct',
+  more:'more',
+  product:'product',
+  cart:'cart',
+  shipping:'shipping',
+  address: 'address',
+
 }

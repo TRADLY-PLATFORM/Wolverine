@@ -88,6 +88,7 @@ export default class AddEvent extends Component {
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
+    this.langifyAPI()
     // this.props.navigation.addListener('focus', () => {
       this.loadCategoryApi()
       this.loadConfigApi()
@@ -143,7 +144,6 @@ export default class AddEvent extends Component {
   addProductTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      console.log('obj',obj);
       if ('addproduct.add_produc' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }
@@ -165,7 +165,7 @@ export default class AddEvent extends Component {
       if ('addproduct.offer_percent' == obj['key']) {
         this.state.translationDic['offerPercent'] =  obj['value'];
       }
-      if ('addproduct.addproduct_max_quantity' == obj['key']) {
+      if ('addproduct_max_quantity' == obj['key']) {
         this.state.translationDic['quantity'] =  obj['value'];
       }
       if ('addproduct.alert_message_max_quantity' == obj['key']) {
@@ -183,7 +183,7 @@ export default class AddEvent extends Component {
       if ('addproduct.alert_please_select_address' == obj['key']) {
         this.state.translationDic['selectAddress'] = obj['value'];
       }
-      if ('addproduct.create' == obj['key']) {
+      if ('addproduct.add_product' == obj['key']) {
         this.state.translationDic['createBtn'] =  obj['value'];
       }
       if ('addproduct.alert_ok' == obj['key']) {
@@ -195,7 +195,12 @@ export default class AddEvent extends Component {
       if ('addproduct.update_product' == obj['key']) {
         this.state.translationDic['updateBtn'] =  obj['value'];
       }
+      if ('addproduct.alert_message_add_product_success' == obj['key']) {
+        this.state.translationDic['success'] =  obj['value'];
+      }
     }
+    console.log('this.state.translationDic', this.state.translationDic);
+    this.setState({ updateUI: true, isVisible: false })
   }
   loadConfigApi = async () => {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'listings', 'get','',appConstant.bToken,'')
@@ -1428,10 +1433,10 @@ export default class AddEvent extends Component {
   renderOfferView = () => {
     if (this.state.hideOfferPrice) {
       return (<View style={{ marginTop: 20 }}>
-        <Text style={commonStyles.textLabelStyle}>Offer Percentage</Text>
+        <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['offerPercent'] ?? 'Offer Percent'}</Text>
         <TextInput
           style={commonStyles.addTxtFieldStyle}
-          placeholder={'Enter Offer Percentage'}
+          placeholder={this.state.translationDic['offerPercent']}
           value={this.state.offerPrice.toString()}
           keyboardType={'number-pad'}
           onChangeText={value => this.setState({ offerPrice: value })}
@@ -1454,10 +1459,10 @@ export default class AddEvent extends Component {
                   <this.viewSelectedImages />
                 </View>
               </ScrollView>
-              <Text style={eventStyles.subTitleStyle}>Maximum 4 Images</Text>
+              <Text style={eventStyles.subTitleStyle}>{this.state.translationDic['image']}</Text>
             </View>
             <View style={styles.mainViewStyle}>
-              <this.renderTitleLbl title={this.state.translationDic['name']} />
+              <this.renderTitleLbl title={this.state.translationDic['name'] ?? 'Name'}/>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
                 placeholder={this.state.translationDic['name']}
@@ -1465,7 +1470,7 @@ export default class AddEvent extends Component {
                 onChangeText={value => this.setState({ name: value })}
               />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['description']}</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['description'] ?? 'Description'}</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
                 placeholder={this.state.translationDic['description']}
@@ -1502,10 +1507,10 @@ export default class AddEvent extends Component {
             <this.renderVariantsView />
             <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? this.state.translationDic['quantity'] : this.state.translationDic['quantity']} </Text>
+              <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? this.state.translationDic['updateBtn'] : this.state.translationDic['createBtn']} </Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
-            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView title={this.state.translationDic['success']?? 'Success'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
         </View>
       </SafeAreaView>

@@ -18,7 +18,6 @@ import {
   Modal,
 } from 'react-native';
 import NavigationRoots from '../../../Constants/NavigationRoots';
-import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
@@ -41,12 +40,16 @@ import emptyStar from '../../../assets/emptyStar.png';
 import radio from '../../../assets/radio.svg';
 import selectedradio from '../../../assets/radioChecked.svg';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getTimeFormat, changeDateFormat } from '../../../HelperClasses/SingleTon'
 import appMsg from '../../../Constants/AppMessages';
 import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
 import menuIcon from '../../../assets/menu.png'
 import AppMessages from '../../../Constants/AppMessages';
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../HelperClasses/SingleTon';
+import AppConstants from '../../../Constants/AppConstants';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -77,17 +80,49 @@ export default class EventDetail extends Component {
       previewImageBool: false,
       photoIndex: 0,
       inCartBool: false,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
     this.setState({ isVisible: true })
+    this.langifyAPI()
     this.props.navigation.addListener('focus', () => {
       this.setState({ updateUI: !this.state.updateUI })
       this.getEventDetailApi();
     })
   }
   /*  APIs   */
+  langifyAPI = async () => {
+    let productD = await tradlyDb.getDataFromDB(LangifyKeys.product);
+    if (productD != undefined) {
+      this.moreTranslationData(productD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.product}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.product, objc)
+      this.productTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  productTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('product.add_to_cart' == obj['key']) {
+        this.state.translationDic['addToCart'] = obj['value'];
+      }  
+      if ('product.go_to_cart' == obj['key']) {
+        this.state.translationDic['goToCart'] = obj['value'];
+      }  
+    }
+  }
   getEventDetailApi = async () => {
     let { id } = this.props.route.params;
     const responseJson = await networkService.networkCall(APPURL.URLPaths.listings + `/${id}`, 'get', '', appConstant.bToken, appConstant.authKey)
@@ -106,7 +141,7 @@ export default class EventDetail extends Component {
 
       this.setState({ updateUI: !this.state.updateUI, loadData: true, isVisible: false })
     } else {
-      Alert.alert(responseJson)
+      AppAlert(responseJson, appConstant.okTitle)
       this.setState({ isVisible: false })
     }
   }
@@ -619,7 +654,7 @@ export default class EventDetail extends Component {
           </TouchableOpacity>
           <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.addToCartBtnAction()}>
             <View style={eventStyles.clearBtnViewStyle}>
-              <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{this.state.inCartBool ? 'Go to cart' : 'Add to cart'}</Text>
+              <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{this.state.inCartBool ? this.state.translationDic['goToCart'] ?? 'Go to cart' : this.state.translationDic['addToCart'] ?? 'Add to cart'}</Text>
             </View>
           </TouchableOpacity>
         </View>

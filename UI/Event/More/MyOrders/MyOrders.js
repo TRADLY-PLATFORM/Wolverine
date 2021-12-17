@@ -144,7 +144,7 @@ export default class MyOrders extends Component {
     </View>)
   }
   render() {
-    var value = 'My Bookings';
+    var value = 'My Orders';
     if (this.props.route.params) {
       let { title } = this.props.route.params;
       value = title;

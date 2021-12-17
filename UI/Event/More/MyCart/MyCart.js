@@ -25,7 +25,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import radio from '../../../../assets/radio.svg';
 import selectedradio from '../../../../assets/radioChecked.svg';
 import SvgUri from 'react-native-svg-uri';
-
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -43,13 +44,70 @@ export default class MyCart extends Component {
       qunatitySelectedIndex:0,
       selectedListingID: -1,
       grandTotal: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI()
     this.props.navigation.addListener('focus', () => {
       this.callApi();
     })
   }
+  langifyAPI = async () => {
+    let cartD = await tradlyDb.getDataFromDB(LangifyKeys.cart);
+    if (cartD != undefined) {
+      this.moreTranslationData(cartD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.cart}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.cart, objc)
+      this.cartTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  cartTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('cart.header_title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('cart.shipment' == obj['key']) {
+        this.state.translationDic['shipping'] = obj['value'];
+      } 
+      if ('cart.you_pay' == obj['key']) {
+        this.state.translationDic['youPay'] = obj['value'];
+      }
+      if ('cart.remove' == obj['key']) {
+        this.state.translationDic['remove'] = obj['value'];
+      }
+      if ('cart.soldby' == obj['key']) {
+        this.state.translationDic['soldby'] = obj['value'];
+      }
+      if ('cart.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('cart.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      } 
+      if ('cart.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+      if ('cart.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+      if ('cart.quantity' == obj['key']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+    }
+  }
+
   callApi() {
     this.state.myCartArray = [];
     this.state.stopPagination = false
@@ -162,11 +220,11 @@ export default class MyCart extends Component {
           <View style={{ paddingLeft: 5, width: '100%' }}>
             <Text style={eventStyles.titleStyle} numberOfLines={1}>{title}</Text>
             <View style={{ height: 10 }} />
-            <Text style={styles.subTitleStyle} numberOfLines={1}>Sold by: {name}</Text>
+            <Text style={styles.subTitleStyle} numberOfLines={1}>{this.state.translationDic['soldby'] ?? 'Sold by'}: {name}</Text>
           </View>
           <View style={styles.qunntityContainerStyle}>
             <TouchableOpacity style={styles.qunatityDropView} onPress={() => this.didSelect(index)}>
-              <Text style={eventStyles.titleStyle}>Qty {item['quantity']}</Text>
+              <Text style={eventStyles.titleStyle}>{this.state.translationDic['quantity'] ?? 'Qty'} {item['quantity']}</Text>
               <Image style={{ margin: 5, height: 10, width: 10 }} resizeMode='center' source={dropdownIcon} />
             </TouchableOpacity>
             <Text style={eventStyles.titleStyle}>{price}</Text>
@@ -174,7 +232,7 @@ export default class MyCart extends Component {
           <View style={{ marginLeft: 5 }}>
             <View style={{height: 1, backgroundColor: colors.LightUltraGray }} />
             <TouchableOpacity style={{alignItems: 'center'}} onPress={() => this.removeBtnAction(index)}>
-              <Text style={styles.removeTextStyle}>Remove</Text>
+              <Text style={styles.removeTextStyle}>{this.state.translationDic['remove'] ?? 'Remove'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -196,7 +254,7 @@ export default class MyCart extends Component {
           <View style={{ padding: 10 }}>
             <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.doneBtnAction()}>
               <View style={eventStyles.applyBtnViewStyle}>
-                <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{this.state.translationDic['done'] ?? 'Done'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -226,14 +284,14 @@ export default class MyCart extends Component {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.bottomBtnViewStyle} >
           <View style={{alignItems: 'center'}}>
-            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>You Pay</Text>
+            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>{this.state.translationDic['youPay'] ?? 'You Pay'}</Text>
             <View style={{height: 5}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16 }}>{this.state.grandTotal}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.shipmenBtnAction()}>
           <View style={eventStyles.applyBtnViewStyle}>
-            <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Shipping</Text>
+            <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{this.state.translationDic['shipping'] ?? 'Shipping'}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -245,7 +303,7 @@ export default class MyCart extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'My Cart'} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
+        <HeaderView title={this.state.translationDic['title'] ?? 'My Cart'} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{justifyContent: 'space-between',height:'100%'}}>
           <View style={{flex:1}}>

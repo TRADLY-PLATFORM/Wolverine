@@ -21,6 +21,9 @@ import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -41,9 +44,11 @@ export default class AddAddress extends Component {
       zipcode: '',
       isVisible: false,
       isEditing: false,
+      translationDic:{},
     }
   }
   componentDidMount() { 
+    this.langifyAPI()
     let {addressData} = this.props.route.params 
     if (addressData != undefined) {
       this.state.name = addressData['name'];
@@ -56,6 +61,60 @@ export default class AddAddress extends Component {
     }
 
     this.setState({ updateUI: !this.state.updateUI})
+  }
+  langifyAPI = async () => {
+    let addressD = await tradlyDb.getDataFromDB(LangifyKeys.address);
+    if (addressD != undefined) {
+      this.addressTranslationData(addressD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.address}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.address, objc)
+      this.addressTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  addressTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('address.add_new_address' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('address.update_address' == obj['key']) {
+        this.state.translationDic['updateAddress'] = obj['value'];
+      } 
+      if ('address.name' == obj['key']) {
+        this.state.translationDic['name'] = obj['value'];
+      }
+      if ('address.phone' == obj['key']) {
+        this.state.translationDic['phone'] = obj['value'];
+      }
+      if ('address.address_one' == obj['key']) {
+        this.state.translationDic['address1'] = obj['value'];
+      }
+      if ('address.address_two' == obj['key']) {
+        this.state.translationDic['address2'] = obj['value'];
+      }
+      if ('address.state' == obj['key']) {
+        this.state.translationDic['state'] = obj['value'];
+      } 
+      if ('address.country' == obj['key']) {
+        this.state.translationDic['country'] = obj['value'];
+      }
+      if ('address.zipcode' == obj['zipcode']) {
+        this.state.translationDic['quantity'] = obj['value'];
+      }
+      if ('address.save' == obj['key']) {
+        this.state.translationDic['save'] = obj['value'];
+      }
+    }
   }
   addAddressAPI = async () => {
     this.setState({ isVisible: true })
@@ -123,22 +182,7 @@ export default class AddAddress extends Component {
       getAddress: this.getAddress,
     });
   }
-  /*  Delegates   */
-  onTagChanges(data, id) {
-   
-  }
-  getSelectedCategoryID = data => {
 
-  }
-  getAttributeSelectedValues = (data, singleSelect) => {
-    
-  }
-  getAddress = data => {
-
-  }
-
-  deleteImageButtonAction() {
-  }
   /*  UI   */
   imagePicker(id) {
     
@@ -156,7 +200,7 @@ export default class AddAddress extends Component {
     let {isEdit} = this.props.route.params;
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={isEdit ? 'Update address' : 'Add new address'}
+        <HeaderView title={isEdit ? this.state.translationDic['updateAddress'] ?? 'Update address' : this.state.translationDic['title'] ?? 'Add new address'}
           showBackBtn={false} showDoneBtn={true}
           doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
@@ -164,65 +208,65 @@ export default class AddAddress extends Component {
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ backgroundColor: colors.AppWhite, height: '100%', padding: 16 }}>
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Name'} />
+              <this.renderTitleLbl title={this.state.translationDic['name']??'Name'} />
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter name'}
+                placeholder={this.state.translationDic['name']}
                 value={this.state.name}
                 onChangeText={value => this.setState({name: value})}
                 />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Phone Number</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['phone'] ?? "Phone"}</Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter phone number'}
+                placeholder={this.state.translationDic['name']}
                 value={this.state.phoneNo}
                 onChangeText={value => this.setState({phoneNo: value})}
                 />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Address 1'} />
+              <this.renderTitleLbl title={this.state.translationDic['address1'] ?? "Address 1"} />
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter address 1'}
+                placeholder={this.state.translationDic['address1'] ?? "Address 1"}
                 value={this.state.address1}
                 onChangeText={value => this.setState({address1: value})}
               />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Address 2</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['address2'] ?? "Address 2"} </Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter address 2'}
+                placeholder={this.state.translationDic['address2'] ?? "Address 2"}
                 value={this.state.address2}
                 onChangeText={value => this.setState({address2: value})}
               />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'State'} />
+              <this.renderTitleLbl title={this.state.translationDic['state'] ?? "State"}/>
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter state'}
+                placeholder={this.state.translationDic['state'] ?? "State"}
                 value={this.state.state}
                 onChangeText={value => this.setState({state: value})}
                 />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Country'} />
+              <this.renderTitleLbl title={this.state.translationDic['country'] ?? "Country"} />
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter country'}
+                placeholder={this.state.translationDic['country'] ?? "Country"}
                 value={this.state.country}
                 onChangeText={value => this.setState({country: value})}
               />
               <View style={{ height: 20 }} />
-              <this.renderTitleLbl title={'Zip code'} />
+              <this.renderTitleLbl title={this.state.translationDic['zipcode'] ?? "Zip Code"} />
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter zipcode'}
+                placeholder={this.state.translationDic['zipcode'] ?? "Zip Code"}
                 value={this.state.zipcode}
                 onChangeText={value => this.setState({zipcode: value})}
               />
               <View style={{zIndex: 1}}>
                 <View style={{ height: 60 }} />
                 <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
-                  <Text style={commonStyles.themeTitleStyle}>{isEdit ? 'Update' : 'Add Address'}</Text>
+                  <Text style={commonStyles.themeTitleStyle}>{this.state.translationDic['save'] ?? 'Save'}</Text>
                 </TouchableOpacity>
                 <View style={{ height: 20 }} />
               </View>

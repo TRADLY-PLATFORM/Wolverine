@@ -175,7 +175,6 @@ export default class CreateShop extends Component {
   addStoreTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      console.log('obj',obj);
       if ('addstore.add_store' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }
@@ -208,6 +207,9 @@ export default class CreateShop extends Component {
       }
       if ('addstore.add_your_store_photo' == obj['key']) {
         this.state.translationDic['image'] =  obj['value'];
+      }
+      if ('addstore.added_success_message' == obj['key']) {
+        this.state.translationDic['success'] =  obj['value'];
       }
     }
   }
@@ -884,7 +886,7 @@ export default class CreateShop extends Component {
                 <View style={{ height: 60 }} />
               </View>
             </View>
-            <SuccessView show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView title={this.state.translationDic['success'] ?? 'SuccessFull'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView >
         </View>
       </SafeAreaView>
