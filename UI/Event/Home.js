@@ -125,10 +125,24 @@ export default class Home extends Component {
         categoryList: this.state.categoryArray,
       });
     } else {
-      this.props.navigation.navigate(NavigationRoots.EventList,{
-        categoryID:item['id'],
-        categoryName: item['name'],
-      });
+      if (item['sub_category']) {
+        if (item['sub_category'].length != 0) {
+          let catt = item['sub_category'];
+          this.props.navigation.navigate(NavigationRoots.Category,{
+            categoryList: catt,
+          });
+        } else {
+          this.props.navigation.navigate(NavigationRoots.EventList, {
+            categoryID: item['id'],
+            categoryName: item['name'],
+          });
+        }
+      } else {
+        this.props.navigation.navigate(NavigationRoots.EventList, {
+          categoryID: item['id'],
+          categoryName: item['name'],
+        });
+      }
     }
   }
   didSelectEvent(item,index) {

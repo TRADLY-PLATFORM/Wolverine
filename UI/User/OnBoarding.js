@@ -27,7 +27,7 @@ export default class OnBoardings extends Component {
         key: index,
         title: obj['text'],
         text: '',
-        image: {url:obj['image']},
+        image: {uri:obj['image']},
       }
       this.state.slides.push(dic)
     }

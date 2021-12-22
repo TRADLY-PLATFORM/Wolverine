@@ -30,6 +30,7 @@
     "moment": "^2.29.1",
     "react": "17.0.1",
     "react-native": "0.64.2",
+    "react-native-actionsheet": "^2.4.2",
     "react-native-app-intro-slider": "^4.0.4",
     "react-native-calendar-picker": "^7.1.2",
     "react-native-default-preference": "^1.4.3",

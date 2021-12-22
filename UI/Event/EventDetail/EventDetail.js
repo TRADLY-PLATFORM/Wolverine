@@ -47,6 +47,7 @@ import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
 import menuIcon from '../../../assets/menu.png'
 import AppMessages from '../../../Constants/AppMessages';
+import ActionSheet from 'react-native-actionsheet'
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -241,25 +242,7 @@ export default class EventDetail extends Component {
   }
   moreBtnAction() {
     if (appConstant.loggedIn) {
-      ActionSheetIOS.showActionSheetWithOptions({
-        options: ["Edit", "Delete", "Cancel"],
-        destructiveButtonIndex: 2,
-        cancelButtonIndex: 2,
-        userInterfaceStyle: 'light'
-      },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            const { id } = this.props.route.params;
-            this.props.navigation.navigate(NavigationRoots.AddEvent, {
-              accountId: appConstant.accountID,
-              listingID: id,
-            })
-          } else if (buttonIndex === 1) {
-            this.deleteEventBtnAction()
-          } else if (buttonIndex === 2) {
-            // setResult("🔮");
-          }
-        })
+      this.ActionSheet.show()
     }
   }
   deleteEventBtnAction() {
@@ -279,6 +262,30 @@ export default class EventDetail extends Component {
     );
   }
   /*  UI   */
+  renderActionSheet = () => {
+    return (
+      <View>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          title={''}
+          options={["Edit", "Delete", "Cancel"]}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={2}
+          onPress={(index) => { 
+            if (index === 0) {
+              const { id } = this.props.route.params;
+              this.props.navigation.navigate(NavigationRoots.AddEvent, {
+                accountId: appConstant.accountID,
+                listingID: id,
+              })
+            } else if (index === 1) {
+              this.deleteEventBtnAction()
+            }
+          }}
+        />
+      </View>
+    )
+  }
   renderImageSlider = () => {
     var views = []
     if (this.state.imagesArray.length != 0) {
@@ -545,21 +552,21 @@ export default class EventDetail extends Component {
           values = item['values']
         }
         // console.log('values', values)
-        if (item['field_type'] == 5) {
-          views.push(<View style={{ flexDirection: 'row' }}>
-            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
+       if (item['field_type'] == 5) {
+          views.push(<View style={{ flexDirection: 'row', margin: 5}}>
+            <View style={{ width: '40%',justifyContent: 'center'}}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <TouchableOpacity style={{ width: '60%', height: 40, justifyContent: 'center' }}>
+            <TouchableOpacity style={{ width: '60%',justifyContent: 'center' }}>
               <Text>{values.join(' ')}</Text>
             </TouchableOpacity>
           </View>)
         } else {
-          views.push(<View style={{ flexDirection: 'row' }}>
-            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
+          views.push(<View style={{ flexDirection: 'row', margin: 5 }}>
+            <View style={{width: '40%', justifyContent: 'center'}}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <View style={{ width: '60%', height: 40, justifyContent: 'center' }}>
+            <View style={{ width: '60%',justifyContent: 'center' }}>
               <Text>{values.join('  ')}</Text>
             </View>
           </View>)
@@ -682,6 +689,7 @@ export default class EventDetail extends Component {
     if (this.state.itsOwnEvent) {
       moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
+        {this.renderActionSheet()}
       </TouchableOpacity>)
     }
     return (<View>

@@ -700,14 +700,14 @@ export default class Filter extends Component {
   renderSelectFilterView = () => {
     var snapPoint = '50%';
     let maxHeight = '100%'
-    var viewHeight = windowHeight/ 3;
-    if (this.state.selectedFilterIndex == 1) {
-      snapPoint = '40%'
-      viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 3) {
-      snapPoint = '30%'
-      viewHeight = windowHeight/ 1.5;
-    }
+    var viewHeight = windowHeight/ 2.5;
+    // if (this.state.selectedFilterIndex == 1) {
+    //   snapPoint = '40%'
+    //   viewHeight = windowHeight/ 2;
+    // }else if (this.state.selectedFilterIndex == 3) {
+    //   snapPoint = '30%'
+    //   viewHeight = windowHeight/ 1.5;
+    // }
     if (this.state.showTimeBool) {
       return (<View style={{marginTop:'100%', backgroundColor: colors.AppWhite,height:windowHeight/ 2}}>
         {this.renderSliderTimeView()}
@@ -722,14 +722,14 @@ export default class Filter extends Component {
       }
     
       return (<View style={{flex:1}}>
-        <ScrollBottomSheet
+        {/* <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={[snapPoint, snapPoint, maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={false}
           animationType={'timing'}
-          renderHandle={() => (
-            <View style={{ backgroundColor: colors.AppWhite, height:windowHeight/ 2, width: '100%' }}>
+          renderHandle={() => ( */}
+            <View style={{ backgroundColor: colors.AppWhite, height:windowHeight/ 2, width: '100%', marginTop:viewHeight }}>
             <View style={styles.header}>
               <View style={styles.panelHandle} />
               <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 10 }}>
@@ -739,10 +739,10 @@ export default class Filter extends Component {
                       <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
                     </TouchableOpacity>
                   </View>
-                <View style={{height: '50%', marginTop: 10}}>
+                <View style={{height: '70%', marginTop: 10}}>
                   {this.renderSelectedType()}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
+                <View style={{paddingLeft: 16, paddingRight: 16,marginTop:10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.doneBtnAction()}>
                     <View style={eventStyles.applyBtnViewStyle}>
                       <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
@@ -752,10 +752,10 @@ export default class Filter extends Component {
               </View>
             </View>
             </View>
-          )} topInset={false}
+          {/* )} topInset={false}
           contentContainerStyle={styles.contentContainerStyle}
           onSettle={index => { if (index == 2) { this.setState({showFilterView: false}) }}}
-        />
+        /> */}
       </View>)
     } else {
       return <View />
@@ -868,10 +868,10 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
-    height: 30,
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 10,
+    paddingBottom:10,
   },
   textValueStyle: {
     textAlign: 'left',

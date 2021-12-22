@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
-    height: 130,
     elevation: 10,
   },
   selectedImageStyle: {
