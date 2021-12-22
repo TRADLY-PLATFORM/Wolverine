@@ -22,9 +22,8 @@ import sample from '../../../../assets/dummy.png';
 import dropdownIcon from '../../../../assets/Triangle.png';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
-import radio from '../../../../assets/radio.svg';
-import selectedradio from '../../../../assets/radioChecked.svg';
-import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.png';
+import selectedradio from '../../../../assets/radioChecked.png';
 import LangifyKeys from '../../../../Constants/LangifyKeys';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
 
@@ -56,7 +55,7 @@ export default class MyCart extends Component {
   langifyAPI = async () => {
     let cartD = await tradlyDb.getDataFromDB(LangifyKeys.cart);
     if (cartD != undefined) {
-      this.moreTranslationData(cartD);
+      this.cartTranslationData(cartD);
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
@@ -267,7 +266,7 @@ export default class MyCart extends Component {
     let check = index + 1 == this.state.qunatitySelectedIndex ? true : false
     var views = [];
     views.push(<View style={commonStyles.nextIconStyle}> 
-        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+        <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({qunatitySelectedIndex:index + 1})}>
@@ -279,13 +278,13 @@ export default class MyCart extends Component {
     )
   }
   renderBottomBtnView = () => {
-    if (this.state.myCartArray.length != 0) {
+    // if (this.state.myCartArray.length != 0) {
     return (<View style={eventStyles.bottomContainerViewStyle}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.bottomBtnViewStyle} >
-          <View style={{alignItems: 'center'}}>
-            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>{this.state.translationDic['youPay'] ?? 'You Pay'}</Text>
-            <View style={{height: 5}}/>
+          <View style={styles.youPayViewStyle}>
+            <Text style={{ color: colors.Lightgray, fontWeight: '400', fontSize: 12,marginTop:5 }}>{this.state.translationDic['youPay'] ?? 'You Pay'}</Text>
+            <View style={{height: 2}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16 }}>{this.state.grandTotal}</Text>
           </View>
         </View>
@@ -296,9 +295,9 @@ export default class MyCart extends Component {
         </TouchableOpacity>
       </View>
     </View>)
-    }else {
-      return <View />
-    }
+    // }else {
+    //   return <View />
+    // }
   }
   render() {
     return (
@@ -316,7 +315,7 @@ export default class MyCart extends Component {
           </View>
           <View>
             {this.renderBottomBtnView()}
-            <View style={{ height: 45, backgroundColor: colors.LightBlueColor,width:'100%'}} />
+            <View style={{ height: 50, backgroundColor: colors.LightBlueColor,width:'100%'}} />
           </View>
         </View>
       </SafeAreaView>
@@ -386,16 +385,24 @@ const styles = StyleSheet.create({
   },
   bottomBtnViewStyle: {
     width: '45%',
-    height: 60,
+    height:50,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
     shadowColor: 'gray',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 5 },
+    shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
-    elevation: 10,
+    elevation: 20,
     borderRadius: 20, 
+  },
+  youPayViewStyle: {
+    borderRadius: 4,
+    margin: 5,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.AppWhite,
   },
 });
 

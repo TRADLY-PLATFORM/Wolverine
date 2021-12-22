@@ -10,8 +10,9 @@ import More from '../UI/Event/More/More';
 import appConstant from '../Constants/AppConstants';
 import ConversationList from '../UI/Event/Chat/ConversationList';
 import Login from '../UI/User/SignIn';
-import SvgUri from 'react-native-svg-uri';
 import AppConstants from '../Constants/AppConstants';
+import Svg, { G, Path } from 'react-native-svg';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -42,23 +43,22 @@ function AppTabbar() {
         let iconName;
         let tabColor;
         if (route.name === home) {
-          iconName = require('../assets/homeIcon.svg');
+          iconName = require('../assets/home.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === socialFeed) {
-
-          iconName = require('../assets/searchSvg.svg');
+          iconName = require('../assets/search.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === sell) {
           iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
           return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
         } else if (route.name === chat) {
-          iconName = require('../assets/chatIcon.svg');
+          iconName = require('../assets/chat.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === more) {
-          iconName = require('../assets/more.svg');
+          iconName = require('../assets/more.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         }
-        return  <SvgUri width={20} height={20} source={iconName} fill={tabColor} />
+        return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18,tintColor: tabColor}} />
       },
     })}>
       <Tab.Screen name={home} component={Home} />

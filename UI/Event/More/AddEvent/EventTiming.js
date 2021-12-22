@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  Image,
 } from 'react-native';
 import HeaderView from '../../../../Component/Header'
 import colors from '../../../../CommonClasses/AppColor';
@@ -19,10 +20,8 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {changeDateFormat} from '../../../../HelperClasses/SingleTon'
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import ConstantArrays from '../../../../Constants/ConstantArrays';
-import radio from '../../../../assets/radio.svg';
-import selectedradio from '../../../../assets/radioChecked.svg';
-import SvgUri from 'react-native-svg-uri';
-
+import radio from '../../../../assets/radio.png';
+import selectedradio from '../../../../assets/radioChecked.png';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -157,7 +156,7 @@ export default class EventTiming extends Component {
 
   /*  UI   */
   renderCalendarView = () => {
-    return (<View>
+    return (<View style={{flex:1}}>
       <CalendarPicker
         minDate={Date()}
         initialDate={this.state.initialDate}
@@ -246,7 +245,7 @@ export default class EventTiming extends Component {
           {this.renderRepeatListView()}
         </View>)
       }
-      return (<View>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={[cHeight, cHeight , maxHeight]}
@@ -294,7 +293,7 @@ export default class EventTiming extends Component {
     let check = index == this.state.repeatSelectedIndex ? true : false
     var views = [];
     views.push(<View style={commonStyles.nextIconStyle}> 
-        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+        <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({repeatSelectedIndex:index})}>
@@ -312,9 +311,9 @@ export default class EventTiming extends Component {
         <HeaderView title={'Event Timing'}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
           showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-          <View style={{ zIndex: 1}} >
-            <View style={{ zIndex: 2, position: 'absolute'}}>
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor}}>
+          <View style={{ zIndex: 1, flex:1 }} >
+            <View style={{ zIndex: 2, position: 'absolute', flex:1}}>
               <this.renderCalendarView />
               <this.renderDatePicker id={1} />
               <this.renderDatePicker id={2} />

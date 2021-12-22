@@ -62,8 +62,10 @@ export default class EditProfile extends Component {
     if (this.state.photo != null) {
       let fileName = this.state.photo.data;
       if (fileName != null) {
+        let fname = this.state.photo['path'];
+        let fValue = fname.substring(fname.lastIndexOf('/')+1);
         var photoDic = {
-          name: this.state.photo['filename'],
+          name: fValue,
           type: this.state.photo['mime'],
         };
         uploadBase64.push({
@@ -137,7 +139,8 @@ export default class EditProfile extends Component {
       let photo =  this.state.photo;
       var photoPath = ''
       if (photo) {
-        if (photo['sourceURL']) {
+        // if (photo['sourceURL']) {
+        if (photo['path']) {
            photoPath = photo.path;
         }else {
           photoPath = photo; 

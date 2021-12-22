@@ -20,20 +20,19 @@ import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import sample from '../../../../assets/dummy.png';
-import messageIcon from '../../../../assets/messageIcon.svg';
-import notesIcon from '../../../../assets/clipboardNotes.svg';
+import messageIcon from '../../../../assets/message.png';
+import notesIcon from '../../../../assets/info.png';
 
 import locationIcon from '../../../../assets/locationIcon.png';
 import starIcon from '../../../../assets/star.png';
-import shareIcon from '../../../../assets/shareIcon.svg';
-import productIcon from '../../../../assets/product.svg';
-import plusIcon from '../../../../assets/plusIcon.svg';
+import shareIcon from '../../../../assets/share.png';
+import productIcon from '../../../../assets/productIcon.png';
+import plusIcon from '../../../../assets/plus.png';
 import emptyStar from '../../../../assets/emptyStar.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
-import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -139,7 +138,7 @@ export default class MyStore extends Component {
   backBtnAction() {
     let { createProfile } = this.props.route.params;
     if (createProfile) {
-      this.props.navigation.navigate(NavigationRoots.More);
+      this.props.navigation.navigate(NavigationRoots.BottomTabbar);
     } else {
       this.props.navigation.goBack();
     }
@@ -274,7 +273,7 @@ export default class MyStore extends Component {
         </View>
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.onShareBtnAction()}>
-            <SvgUri width={15} height={15} source={shareIcon} fill={colors.AppTheme} />
+            <Image style={{width: 15, height: 15, tintColor: colors.AppTheme}} source={shareIcon}/>
           </TouchableOpacity>
         </View>
         <View style={styles.ratingViewStyle}>
@@ -301,7 +300,7 @@ export default class MyStore extends Component {
     } else {
       return (<View>
         <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.messageBtnAction()}>
-          <SvgUri width={15} height={15} source={messageIcon} fill={colors.AppTheme} />
+          <Image style={{width: 15, height: 15, tintColor: colors.AppTheme}} source={messageIcon}/>
         </TouchableOpacity>
       </View>)
     }
@@ -310,16 +309,16 @@ export default class MyStore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -15 }}>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 0 })}
         style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <SvgUri width={20} height={20} source={productIcon} fill={this.state.segmentIndex == 0  ? colors.AppTheme :colors.Lightgray} />
-        <View style={{ height: 5 }} />
+        <Image style={{width: 20, height: 20, tintColor: this.state.segmentIndex == 0  ? colors.AppTheme :colors.Lightgray}} source={productIcon}/>
+        <View style={{ height: 2 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
           Classes
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
         style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
-        <SvgUri width={20} height={20} source={notesIcon} fill={ this.state.segmentIndex == 0  ? colors.Lightgray :colors.AppTheme} />
-        <View style={{ height: 5 }} />
+        <Image style={{width: 20, height: 20, tintColor: this.state.segmentIndex == 0  ? colors.Lightgray :colors.AppTheme}} source={notesIcon}/>
+        <View style={{ height: 2 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
           About
         </Text>
@@ -334,7 +333,7 @@ export default class MyStore extends Component {
         </View>
         <View style={{ height: 20, flexDirection: 'row' }}>
           <TouchableOpacity onPress={() => this.addEventBtnAction()}>
-            <SvgUri width={24} height={24} source={plusIcon} fill={colors.AppTheme} />
+            <Image style={{ width: 30, height: 30, tintColor: colors.AppTheme }} source={plusIcon} />
           </TouchableOpacity>
         </View>
       </View>)
@@ -530,7 +529,7 @@ export default class MyStore extends Component {
       return view;
     } else {
       return (<View style={{ height: windowHeight/2, justifyContent: 'center', alignItems: 'center',width: '100%'  }}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No items found' : ''}</Text>
       </View>)
     }
   }

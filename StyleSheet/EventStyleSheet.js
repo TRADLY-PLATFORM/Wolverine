@@ -36,7 +36,7 @@ module.exports = StyleSheet.create({
   },
   titleStyle: {
     color: colors.AppBlack,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600'
   },
   subTitleStyle: {
@@ -161,7 +161,7 @@ module.exports = StyleSheet.create({
     borderColor: colors.BorderColor,
   },
   contentContainerStyle: {
-    padding: 16,
+    padding: 0,
     backgroundColor: colors.AppWhite,
   },
   header: {

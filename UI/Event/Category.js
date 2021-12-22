@@ -90,7 +90,9 @@ export default class Category extends Component {
       <TouchableOpacity onPress={() => this.didSelect(item,index)}>
         <View style={styles.listViewStyle}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Image style={styles.imageThumbnail} source={{url: item['image_path']}}/>
+            <View style={styles.imageThumbnail} >
+              <Image style={styles.imageThumbnail} source={{uri: item['image_path']}}/>
+            </View>
             <Text style={{marginLeft: 10, textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
           </View>
           <Image style={commonStyles.nextIconStyle} source={check ? empty : forwardIcon} />

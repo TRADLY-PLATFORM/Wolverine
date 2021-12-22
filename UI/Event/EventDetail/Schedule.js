@@ -23,10 +23,9 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import {changeUTCFormat,changeDateFormat,getDatesArray, getTimeDifference} from '../../../HelperClasses/SingleTon'
-import radio from '../../../assets/radio.svg';
-import selectedradio from '../../../assets/radioChecked.svg';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/radioChecked.png';
 import Spinner from 'react-native-loading-spinner-overlay';
-import SvgUri from 'react-native-svg-uri';
 import timeIcon from '../../../assets/timeIcon.png';
 
 const windowHeight = Dimensions.get('window').height;
@@ -180,7 +179,7 @@ export default class Schedule extends Component {
         </View>
         <View style={{ alignItems: 'center',justifyContent: 'center', marginTop: -7}}>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={22} height={22} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:22,height:22,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>

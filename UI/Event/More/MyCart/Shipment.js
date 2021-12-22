@@ -8,6 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import NavigationRoots from '../../../../Constants/NavigationRoots';
 import HeaderView from '../../../../Component/Header'
@@ -18,11 +19,10 @@ import APPURL from '../../../../Constants/URLConstants';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
-import radio from '../../../../assets/radio.svg';
-import selectedradio from '../../../../assets/radioChecked.svg';
-import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.png';
+import selectedradio from '../../../../assets/radioChecked.png';
 import ShipmentModel from '../../../../Model/ShipmentModel';
-import editGreen from '../../../../assets/editGreen.svg';
+import editGreen from '../../../../assets/editIcon.png';
 import LangifyKeys from '../../../../Constants/LangifyKeys';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
 
@@ -55,7 +55,7 @@ export default class Shipment extends Component {
   langifyAPI = async () => {
     let shippingD = await tradlyDb.getDataFromDB(LangifyKeys.shipping);
     if (shippingD != undefined) {
-      this.moreTranslationData(shippingD);
+      this.shippingTranslationData(shippingD);
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
@@ -65,13 +65,13 @@ export default class Shipment extends Component {
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.shipping, objc)
-      this.cartTranslationData(objc);
+      this.shippingTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
-  cartTranslationData(object) {
+  shippingTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
       if ('shipping.shipment_option' == obj['key']) {
@@ -189,7 +189,7 @@ export default class Shipment extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -215,9 +215,9 @@ export default class Shipment extends Component {
     return (<View style={eventStyles.bottomContainerViewStyle}>
        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.bottomBtnViewStyle} >
-          <View style={{alignItems: 'center'}}>
-            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 14 }}>{this.state.translationDic['youPay']??'You Pay'}</Text>
-            <View style={{height: 5}}/>
+          <View style={styles.youPayViewStyle}>
+            <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 12, marginTop:5 }}>{this.state.translationDic['youPay']??'You Pay'}</Text>
+            <View style={{height: 2}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16  }}>{grandTotal}</Text>
           </View>
         </View>
@@ -256,7 +256,7 @@ export default class Shipment extends Component {
       return (<View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
         <View style={{ padding: 10 }}>
@@ -265,7 +265,7 @@ export default class Shipment extends Component {
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text style={eventStyles.titleStyle}>{item['name']}</Text>
                 <TouchableOpacity style={{ marginLeft: 5 }} onPress={() => this.editAddressBtnAction(item)}>
-                  <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
+                  <Image style={{width:15, height: 15,tintColor: colors.AppTheme}} source={editGreen}/>
                 </TouchableOpacity>
               </View>
               <View style={{ height: 10 }} />
@@ -302,7 +302,7 @@ export default class Shipment extends Component {
           </ScrollView>
           <View>
             {this.renderBottomBtnView()}
-            <View style={{ height: 40 }} />
+            <View style={{ height: 50 }} />
           </View>
         </View>
       </SafeAreaView>
@@ -326,15 +326,15 @@ const styles = StyleSheet.create({
   },
   bottomBtnViewStyle: {
     width: '45%',
-    height: 70,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
     shadowColor: 'gray',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 5 },
+    shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
-    elevation: 10,
+    elevation: 20,
     borderRadius: 20,
   },
   addressCellViewStyle: {
@@ -358,6 +358,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 5,
     elevation: 10,
+  },
+  youPayViewStyle: {
+    borderRadius: 4,
+    margin: 5,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.AppWhite,
   },
 });
 

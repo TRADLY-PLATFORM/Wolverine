@@ -28,16 +28,15 @@ import upload from '../../../../assets/upload.png';
 import Tags from "react-native-tags";
 import calendarIcon from '../../../../assets/calendar.png';
 import deleteIcon from '../../../../assets/deleteIcon.png';
-import editGreen from '../../../../assets/editGreen.svg';
+import editGreen from '../../../../assets/editIcon.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
 import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp,convertTimeinto24Hrs} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
-import SvgUri from 'react-native-svg-uri';
-import radio from '../../../../assets/radio.svg';
-import selectedradio from '../../../../assets/radioChecked.svg';
+import radio from '../../../../assets/radio.png';
+import selectedradio from '../../../../assets/radioChecked.png';
 import ConstantArrays from '../../../../Constants/ConstantArrays';
 
 import LangifyKeys from '../../../../Constants/LangifyKeys';
@@ -410,12 +409,14 @@ export default class AddEvent extends Component {
         let photo = this.state.imagesArray[p]
         let fileName = photo.data;
         if (fileName != null) {
+          let fname = photo['path'];
+          let fValue = fname.substring(fname.lastIndexOf('/') + 1);
           var dict = {
-            name: photo['filename'],
+            name: fValue,
             type: photo['mime'],
           };
           uploadBase64.push({
-            file: 'data:image/png;base64,' + photo.data,
+            file: 'data:image/jpg;base64,' + photo.data,
           });
           imgParm.push(dict);
         } else {
@@ -426,8 +427,10 @@ export default class AddEvent extends Component {
     if (this.state.documentFile != null) {
       let fileName = this.state.documentFile.data;
       if (fileName != null) {
+        let fname = this.state.documentFile['path'];
+        let fValue = fname.substring(fname.lastIndexOf('/') + 1);
         var androidIconDict = {
-          name: this.state.documentFile['filename'],
+          name: fValue,
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
@@ -444,9 +447,7 @@ export default class AddEvent extends Component {
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
           fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
+            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'], await res.blob());
             uploadIncrement++;
             if (uploadIncrement === uploadBase64.length) {
               var imageP = [];
@@ -466,7 +467,11 @@ export default class AddEvent extends Component {
               }
               this.createEventApi()
             }
-          });
+          }).catch(async err => {
+            console.log('errpr', err)
+            this.setState({ isVisible: false })
+            AppAlert('Network Error',appConstant.okTitle);
+          } );
         }
       } else {
         this.setState({ isVisible: false })
@@ -694,8 +699,10 @@ export default class AddEvent extends Component {
         let photo = uploadImageArray[p]
         let fileName = photo.data;
         if (fileName != null) {
+          let fname = photo['path'];
+          let fValue = fname.substring(fname.lastIndexOf('/')+1);
           var dict = {
-            name: photo['filename'],
+            name: fValue,
             type: photo['mime'],
           };
           uploadBase64.push({
@@ -725,7 +732,11 @@ export default class AddEvent extends Component {
               }
               this.addVariantTypeApi(imageFileURI, index)
             }
-          });
+          }).catch(async err => {
+            console.log('errpr', err)
+            this.setState({ isVisible: false })
+            AppAlert('Network Error',appConstant.okTitle);
+          } );
         }
       } else {
         this.setState({ isVisible: false })
@@ -1068,7 +1079,7 @@ export default class AddEvent extends Component {
       let photo =  this.state.imagesArray[i];
       var photoPath = ''
       if (photo) {
-        if (photo['sourceURL']) {
+        if (photo['path']) {
            photoPath = photo.path;
         }else {
           photoPath = photo; 
@@ -1228,8 +1239,10 @@ export default class AddEvent extends Component {
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
           if (this.state.documentFile !=  null) {
-            if (this.state.documentFile['sourceURL'])  {
-              value = this.state.documentFile['filename'];
+            if (this.state.documentFile['path'])  {
+              let fname = this.state.documentFile['path'];
+              let fValue = fname.substring(fname.lastIndexOf('/')+1);
+              value = fValue;
             }else {
               value = this.state.attributeFilePath.substring(this.state.attributeFilePath.lastIndexOf('/')+1);
             }
@@ -1258,14 +1271,12 @@ export default class AddEvent extends Component {
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.onlineBtnAction()}>
           <Text style={{ fontSize: 16 }}>Offline</Text>
           <View style={{ width: 5 }} />
-          <SvgUri width={20} height={20} source={!this.state.online ? selectedradio : radio}
-            fill={!this.state.online ? colors.AppTheme : colors.Lightgray} />
+          <Image style={{width:20,height:20,tintColor:this.state.online  ? colors.AppTheme : colors.Lightgray}} source={this.state.online  ? selectedradio : radio}/>
         </TouchableOpacity>
         <TouchableOpacity style={{ flexDirection: 'row',marginLeft: 20}} onPress={() => this.onlineBtnAction()}>
           <Text style={{ fontSize: 16 }}>Online</Text>
           <View style={{ width: 5 }} />
-          <SvgUri width={20} height={20} source={this.state.online ? selectedradio : radio}
-            fill={this.state.online ? colors.AppTheme : colors.Lightgray} />
+        <Image style={{width:20,height:20,tintColor:this.state.online  ? colors.AppTheme : colors.Lightgray}} source={this.state.online  ? selectedradio : radio}/>
         </TouchableOpacity>
       </View>)
       var value = 'Select Address'
@@ -1337,7 +1348,7 @@ export default class AddEvent extends Component {
           <View style={{ margin: 5, flexDirection: 'row' }}>
             <Text style={{ fontSize: 14, fontWeight: '500' }}>{item['date']}</Text>
             <TouchableOpacity style={{marginLeft: 5}} onPress={() => this.selectDateTimeBtnAction(index)}>
-              <SvgUri width={15} height={15} source={editGreen} fill={colors.AppTheme} />
+              <Image source={editGreen} style={{height: 15, width:15, tintColor:colors.AppTheme}}/>
             </TouchableOpacity>
           </View>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
@@ -1407,7 +1418,8 @@ export default class AddEvent extends Component {
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
       if (photos.length != 0) {
-        if (photos[0]['sourceURL']) { 
+        // if (photos[0]['sourceURL']) { 
+        if (photos[0]['path']) { 
           photos = photos[0]['path'];
         } else {
           photos = photos[0];

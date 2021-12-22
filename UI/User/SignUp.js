@@ -42,7 +42,7 @@ export default class SignUp extends Component {
     this.langifyAPI();
   }
   langifyAPI = async () => {
-    let signUpData = await tradlyDb.getDataFromDB(LangifyKeys.login);
+    let signUpData = await tradlyDb.getDataFromDB(LangifyKeys.signup);
     if (signUpData != undefined) {
       this.signUpTranslationData(signUpData);
       this.setState({ updateUI: true, isVisible: false })
@@ -54,7 +54,7 @@ export default class SignUp extends Component {
     '',AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.login, objc)
+      tradlyDb.saveDataInDB(LangifyKeys.signup, objc)
       this.signUpTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })
     } else {
@@ -150,7 +150,7 @@ export default class SignUp extends Component {
       AppAlert(this.state.translationDic['invalidEmail'], this.state.translationDic['alertOk'])
     } else if (this.state.password.length == 0) {
        AppAlert(this.state.translationDic['allFields'], this.state.translationDic['alertOk'])
-    } else if (this.state.password.length >= 6) {
+    } else if (this.state.password.length <= 5) {
       AppAlert(this.state.translationDic['minPasswordValidation'], this.state.translationDic['alertOk'])
     } else if (this.state.confirmPassword.length == 0) {
       AppAlert(this.state.translationDic['allFields'], this.state.translationDic['alertOk'])

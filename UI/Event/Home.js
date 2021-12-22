@@ -21,8 +21,7 @@ import EventView from '../../Component/EventView';
 import Deeplinking from '../../HelperClasses/Deeplinking';
 import {firebaseAuth} from '../../Firebase/FirebaseAuth'
 import LocationPermission from '../../HelperClasses/LocationPermission';
-import moreSVG from '../../assets/more.svg';
-import SvgUri from 'react-native-svg-uri';
+import moreSVG from '../../assets/more.png';
 import notificationIcon from '../../assets/notificationIcon.png';
 import heartEmptyIcon from '../../assets/heartEmpty.png'
 import {normalize} from '../../HelperClasses/SingleTon';
@@ -125,10 +124,24 @@ export default class Home extends Component {
         categoryList: this.state.categoryArray,
       });
     } else {
-      this.props.navigation.navigate(NavigationRoots.EventList,{
-        categoryID:item['id'],
-        categoryName: item['name'],
-      });
+      if (item['sub_category']) {
+        if (item['sub_category'].length != 0) {
+          let catt = item['sub_category'];
+          this.props.navigation.navigate(NavigationRoots.Category,{
+            categoryList: catt,
+          });
+        } else {
+          this.props.navigation.navigate(NavigationRoots.EventList, {
+            categoryID: item['id'],
+            categoryName: item['name'],
+          });
+        }
+      } else {
+        this.props.navigation.navigate(NavigationRoots.EventList, {
+          categoryID: item['id'],
+          categoryName: item['name'],
+        });
+      }
     }
   }
   didSelectEvent(item,index) {
@@ -161,7 +174,7 @@ export default class Home extends Component {
         var profilePic = dic['image_path'].length == 0 ? dummy : {uri:dic['image_path']}
         var imageView = [];
         if (index == 7) {
-          imageView.push( <SvgUri width={30} height={30} aspectRatio={1} source={moreSVG} fill={colors.AppTheme}/>)
+          imageView.push(<Image style={{width:30,height:30,tintColor:colors.AppTheme}} source={moreSVG}/>)
         } else {
           imageView.push(<FastImage style={styles.imageThumbnail} source={profilePic} resizeMode={'contain'}/>)
         }
@@ -198,7 +211,7 @@ export default class Home extends Component {
   renderPromoCellItem = ({item, index}) => {
     var photo = item['image_path']
     return (<View style={styles.promoCellStyle}>
-      <FastImage style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
+      <FastImage resizeMode={'contain'} style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
       </View>)
    }
   renderEventView = () => {
@@ -315,7 +328,7 @@ export default class Home extends Component {
         <ScrollView
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
-          style={{backgroundColor: colors.LightBlueColor}}
+          style={{backgroundColor: colors.AppWhite}}
           refreshControl={
             <RefreshControl
               refreshing={this.state.isVisible}
@@ -363,7 +376,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.AppWhite,
     // aspectRatio: 16/9,
     height: windowHeight/5, 
-    width: windowWidth - 70,
+    width: windowWidth - 60,
     shadowColor: 'gray',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },

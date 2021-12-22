@@ -28,9 +28,8 @@ import {dateConversionFromTimeStamp} from '../../../../HelperClasses/SingleTon'
 import LinearGradient from 'react-native-linear-gradient';
 import ConstantArrays from '../../../../Constants/ConstantArrays';
 import OrderStatusEnum from '../../../../Model/OrderStatus';
-import radio from '../../../../assets/radio.svg';
-import selectedradio from '../../../../assets/radioChecked.svg';
-import SvgUri from 'react-native-svg-uri';
+import radio from '../../../../assets/radio.png';
+import selectedradio from '../../../../assets/radioChecked.png';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 
 const windowWidth = Dimensions.get('window').width;
@@ -349,7 +348,7 @@ export default class OrderDetail extends Component {
     let check = item['id'] == this.state.selectedChangeStatus ? true : false
     var views = [];
     views.push(<View style={commonStyles.nextIconStyle}> 
-        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+        <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({selectedChangeStatus:item['id']})}>

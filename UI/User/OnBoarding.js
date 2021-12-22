@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import {Text, Image, View, StyleSheet, TouchableOpacity,ScrollView
+import {Text, Image, View, StyleSheet, TouchableOpacity,ActivityIndicator
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../CommonClasses/AppColor';
@@ -12,6 +12,7 @@ import LangifyKeys from '../../Constants/LangifyKeys';
 import tradlyDb from '../../TradlyDB/TradlyDB';
 import networkService from '../../NetworkManager/NetworkManager';
 import APPURL from '../../Constants/URLConstants';
+import DefaultPreference from 'react-native-default-preference';
 
 export default class OnBoardings extends Component {
   constructor(props) {
@@ -21,19 +22,21 @@ export default class OnBoardings extends Component {
       slider: AppIntroSlider | undefined,
       index: 0,
       slides: [],
-      translationDic:{}
+      translationDic:{},
+      loading: true,
     }
   }
   componentDidMount() {
     var index = 0 ;
     this.langifyAPI()
+    this.langifyHomeAPI()
     for (let obj of appConstant.intoScreen) {
       index = index + 1
       let dic = {
         key: index,
         title: obj['text'],
         text: '',
-        image: {url:obj['image']},
+        image: {uri:obj['image']},
       }
       this.state.slides.push(dic)
     }
@@ -69,8 +72,44 @@ export default class OnBoardings extends Component {
       }
     }
   }
+  langifyHomeAPI = async () => {
+    let homeData = await tradlyDb.getDataFromDB(LangifyKeys.home);
+    if (homeData != undefined) {
+      this.bottomTarTranslationData(homeData);
+    } 
+    let group = `&group=${LangifyKeys.home}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.home, objc)
+      this.bottomTarTranslationData(objc);
+      this.setState({ isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  bottomTarTranslationData(object) {
+    for (let obj of object) {
+      if ('home.Home' == obj['key']) {
+        appConstant.bottomTabBarDic['home'] = obj['value'];
+      }
+      if ('home.chats' == obj['key']) {
+        appConstant.bottomTabBarDic['chats'] = obj['value'];
+      }
+      if ('home.more' == obj['key']) {
+        appConstant.bottomTabBarDic['more'] = obj['value'];
+      }
+      if ('home.sell' == obj['key']) {
+        appConstant.bottomTabBarDic['sell'] = obj['value'];
+      }
+      if ('home.social_feed' == obj['key']) {
+        appConstant.bottomTabBarDic['socialFeed'] = obj['value'];
+      }
+    }
+  }
   /*  Buttons   */
   _onDone = () => {  
+    DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });
     this.props.navigation.reset({
       index: 0,
       routes: [{ name: NavigationRoots.BottomTabbar }],
@@ -79,13 +118,15 @@ export default class OnBoardings extends Component {
   _nextBtnAction(){
     this.state.index = this.state.index + 1;
     this.slider.goToSlide(this.state.index,true)
+    this.setState({loading:false});
   }
   /*  UI   */
   _renderItem = ({ item }) => {
     return (
       <View style={styles.slide}>
         <View style={styles.imageViewStyle}>
-          <Image source={item.image} style={styles.image} resizeMode={'contain'} />
+          <Image source={item.image} style={styles.image} resizeMode={'contain'} onLoadEnd={() => this.setState({loading: false})}/>
+          <ActivityIndicator  size="small" color="#a7a7a7"  style={styles.activityIndicator}  animating={this.state.loading}/>
         <View style={{marginTop: '-40%'}}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.text}>{item.text}</Text>
@@ -138,7 +179,7 @@ export default class OnBoardings extends Component {
               <View style={styles.skipBtnViewStyle}> 
                 <TouchableOpacity onPress ={() => this._onDone()}>
                   <Text style={{color: colors.AppWhite, fontSize: 20, fontWeight: '500'}}>
-                    {this.state.translationDic['start'] ?? 'Get Started'}</Text>
+                    {this.state.translationDic['start'] ?? 'Skip'}</Text>
                 </TouchableOpacity>
               </View>
           </View>
@@ -202,5 +243,12 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 10,
     borderRadius: 20,
+  },
+  activityIndicator: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   }
 });

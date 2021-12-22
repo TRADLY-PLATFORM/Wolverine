@@ -1,20 +1,27 @@
 
 import React, { Component } from 'react';
+import { Platform, PermissionsAndroid } from 'react-native';
+
 import GetLocation from 'react-native-get-location';
 import appConstant from '../Constants/AppConstants';
 import {Alert} from 'react-native';
 
 export default class CurrentLocation extends Component {
 
-  _requestLocation = () => {
-      GetLocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 150000,
-      }) .then(location => {
-        // console.log('appConstant =location> ',location);
-        appConstant.lat = location['latitude'];
-        appConstant.long = location['longitude'];
-      })
+  _requestLocation = async => {
+    // if (Platform.OS === 'android') {
+    //   PermissionsAndroid.request(
+    //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //   );
+    // }
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 150000,
+    }).then(location => {
+      // console.log('appConstant =location> ',location);
+      appConstant.lat = location['latitude'];
+      appConstant.long = location['longitude'];
+    })
       .catch(ex => {
         const { code, message } = ex;
         console.warn(code, message);
@@ -33,7 +40,7 @@ export default class CurrentLocation extends Component {
             [
               {
                 text: "OK", onPress: () => {
-                  GetLocation.openAppSettings();  
+                  GetLocation.openAppSettings();
                 }
               }
             ],

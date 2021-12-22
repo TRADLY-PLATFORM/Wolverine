@@ -1,5 +1,5 @@
 module.exports = {
-  filterArray: ['Time', 'Rating', 'Distance', 'Category'],
+  filterArray: [ 'Rating', 'Distance', 'Category'], //Time
   sortingArray: ['Nearest by Distance', 'Price - Low to High', 'Price - High to Low'],
   menuArray: ['My Account','My Account Orders', 'My Sales','Payment','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
   repeatArray: [

@@ -32,16 +32,15 @@ import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import copy from '../../../assets/copy.png';
 import whatsappIcon from '../../../assets/whatsapp.png';
-import share from '../../../assets/shareIcon.svg';
+import share from '../../../assets/share.png';
 import heartIcon from '../../../assets/heartIcon.png';
 import favouriteIcon from '../../../assets/favourite.png';
 import RatingReview from '../../../Component/RatingReview';
 import emptyStar from '../../../assets/emptyStar.png';
-import radio from '../../../assets/radio.svg';
-import selectedradio from '../../../assets/radioChecked.svg';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/radioChecked.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import appMsg from '../../../Constants/AppMessages';
-import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
 import menuIcon from '../../../assets/menu.png'
 import AppMessages from '../../../Constants/AppMessages';
@@ -49,6 +48,7 @@ import LangifyKeys from '../../../Constants/LangifyKeys';
 import {AppAlert } from '../../../HelperClasses/SingleTon';
 import AppConstants from '../../../Constants/AppConstants';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
+import ActionSheet from 'react-native-actionsheet'
 
 
 const windowHeight = Dimensions.get('window').height;
@@ -71,7 +71,7 @@ export default class EventDetail extends Component {
       selectIndex: 0,
       selectedVariantId: 0,
       selectedVariant: {},
-      isVisible: false,
+      isVisible: true,
       imagesArray: [],
       eventDetailData: {},
       loadData: false,
@@ -85,7 +85,7 @@ export default class EventDetail extends Component {
   }
 
   componentDidMount() {
-    this.setState({ isVisible: true })
+    // this.setState({ isVisible: true })
     this.langifyAPI()
     this.props.navigation.addListener('focus', () => {
       this.setState({ updateUI: !this.state.updateUI })
@@ -96,8 +96,8 @@ export default class EventDetail extends Component {
   langifyAPI = async () => {
     let productD = await tradlyDb.getDataFromDB(LangifyKeys.product);
     if (productD != undefined) {
-      this.moreTranslationData(productD);
-      this.setState({ updateUI: true, isVisible: false })
+      this.productTranslationData(productD);
+      this.setState({ updateUI: true})
     } else {
       this.setState({ isVisible: true })
     }
@@ -261,27 +261,40 @@ export default class EventDetail extends Component {
   userBtnAction(id) {
     this.props.navigation.navigate(NavigationRoots.MyStore, { accId: id });
   }
+  showActionSheet = () => {
+    this.ActionSheet.show()
+  }
   moreBtnAction() {
     if (appConstant.loggedIn) {
-      ActionSheetIOS.showActionSheetWithOptions({
-        options: ["Edit", "Delete", "Cancel"],
-        destructiveButtonIndex: 2,
-        cancelButtonIndex: 2,
-        userInterfaceStyle: 'light'
-      },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            const { id } = this.props.route.params;
-            this.props.navigation.navigate(NavigationRoots.AddEvent, {
-              accountId: appConstant.accountID,
-              listingID: id,
-            })
-          } else if (buttonIndex === 1) {
-            this.deleteEventBtnAction()
-          } else if (buttonIndex === 2) {
-            // setResult("🔮");
-          }
-        })
+          this.ActionSheet.show()
+      // <ActionSheet
+      //   ref={o => this.ActionSheet = o}
+      //   title={'Which one do you like ?'}
+      //   options={["Edit", "Delete", "Cancel"]}
+      //   cancelButtonIndex={2}
+      //   destructiveButtonIndex={1}
+      //   onPress={(index) => { /* do something */ }}
+      // />
+
+      // ActionSheetIOS.showActionSheetWithOptions({
+      //   options: ["Edit", "Delete", "Cancel"],
+      //   destructiveButtonIndex: 2,
+      //   cancelButtonIndex: 2,
+      //   userInterfaceStyle: 'light'
+      // },
+      //   buttonIndex => {
+      //     if (buttonIndex === 0) {
+      //       const { id } = this.props.route.params;
+      //       this.props.navigation.navigate(NavigationRoots.AddEvent, {
+      //         accountId: appConstant.accountID,
+      //         listingID: id,
+      //       })
+      //     } else if (buttonIndex === 1) {
+      //       this.deleteEventBtnAction()
+      //     } else if (buttonIndex === 2) {
+      //       // setResult("🔮");
+      //     }
+      //   })
     }
   }
   deleteEventBtnAction() {
@@ -301,6 +314,30 @@ export default class EventDetail extends Component {
     );
   }
   /*  UI   */
+  renderActionSheet = () => {
+    return (
+      <View>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          title={''}
+          options={["Edit", "Delete", "Cancel"]}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={2}
+          onPress={(index) => { 
+            if (index === 0) {
+              const { id } = this.props.route.params;
+              this.props.navigation.navigate(NavigationRoots.AddEvent, {
+                accountId: appConstant.accountID,
+                listingID: id,
+              })
+            } else if (index === 1) {
+              this.deleteEventBtnAction()
+            }
+          }}
+        />
+      </View>
+    )
+  }
   renderImageSlider = () => {
     var views = []
     if (this.state.imagesArray.length != 0) {
@@ -472,7 +509,7 @@ export default class EventDetail extends Component {
         </View>
         <View style={{ alignItems: 'center', margin: 10, marginTop: 16 }}>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -490,7 +527,7 @@ export default class EventDetail extends Component {
           <Image style={{ height: 20, width: 20 }} resizeMode={'center'} source={copy} />
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <SvgUri width={20} height={20} source={share} fill={colors.AppTheme} />
+          <Image style={{ height: 20, width: 20, tintColor:colors.AppTheme}} resizeMode={'center'} source={share} />
         </View>
       </View>
     </View>)
@@ -568,20 +605,20 @@ export default class EventDetail extends Component {
         }
         // console.log('values', values)
         if (item['field_type'] == 5) {
-          views.push(<View style={{ flexDirection: 'row' }}>
-            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
+          views.push(<View style={{ flexDirection: 'row', margin: 5}}>
+            <View style={{ width: '40%',justifyContent: 'center'}}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <TouchableOpacity style={{ width: '60%', height: 40, justifyContent: 'center' }}>
+            <TouchableOpacity style={{ width: '60%',justifyContent: 'center' }}>
               <Text>{values.join(' ')}</Text>
             </TouchableOpacity>
           </View>)
         } else {
-          views.push(<View style={{ flexDirection: 'row' }}>
-            <View style={{ width: '40%', height: 40, justifyContent: 'center' }}>
+          views.push(<View style={{ flexDirection: 'row', margin: 5 }}>
+            <View style={{width: '40%', justifyContent: 'center'}}>
               <Text style={eventStyles.subTitleStyle}>{item['name']}</Text>
             </View>
-            <View style={{ width: '60%', height: 40, justifyContent: 'center' }}>
+            <View style={{ width: '60%',justifyContent: 'center' }}>
               <Text>{values.join('  ')}</Text>
             </View>
           </View>)
@@ -704,6 +741,7 @@ export default class EventDetail extends Component {
     if (this.state.itsOwnEvent) {
       moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
+        {this.renderActionSheet()}
       </TouchableOpacity>)
     }
     return (<View>

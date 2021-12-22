@@ -58,13 +58,8 @@ export default class ExploreListItem extends Component {
       <FastImage style={{ width: 110, height: 130, borderRadius: 5 }}  source={photo.length == 0 ? sample : { uri: photo[0] }} />
         <View style={{ margin: 5 }}>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center',width: '85%' }}>
-            {/* <Image style={{ width: 15, height: 15 }} resizeMode='center' source={timeIcon} /> */}
-            {/* <View style={{ width: 5 }} /> */}
             <Text style={eventStyles.titleStyle} numberOfLines={1}>{title}</Text>
           </View>
-          {/* <View style={{ margin: 5, width: '80%'}}>
-          <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '400', color: colors.AppGray }}>{title}</Text>
-        </View> */}
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center' }}>
             <Image style={{ width: 15, height: 15, marginTop: -3 }} source={starIcon} />
             <View style={{ width: 5 }} />
@@ -106,7 +101,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
-    height: 130,
     elevation: 10,
   },
 });

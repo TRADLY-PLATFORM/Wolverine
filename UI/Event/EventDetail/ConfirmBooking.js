@@ -23,12 +23,11 @@ import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import calendarIcon from '../../../assets/calendar.png';
 import locationPin from '../../../assets/locationPin.png';
 import {getTimeFormat,changeDateFormat,dateConversionFromTimeStamp} from '../../../HelperClasses/SingleTon'
-import radio from '../../../assets/radio.svg';
-import selectedradio from '../../../assets/radioChecked.svg';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/radioChecked.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
 import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
-import SvgUri from 'react-native-svg-uri';
 
 let pType = 'stripe';
 
@@ -266,7 +265,7 @@ export default class ConfirmBooking extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -304,7 +303,7 @@ export default class ConfirmBooking extends Component {
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.confirmBookingBtnAction()}
        disabled={this.state.selectedPaymentId == 0}>
         <View style={this.state.selectedPaymentId == 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.applyBtnViewStyle } >
-          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Confirm Booking</Text>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Confirm Order</Text>
         </View>
       </TouchableOpacity>
     </View>)

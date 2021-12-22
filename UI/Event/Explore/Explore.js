@@ -17,22 +17,21 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import filterGrayIcon from '../../../assets/filterGrayIcon.png';
 import sortIcon from '../../../assets/sortIcon.png';
-import viewMapIcon from '../../../assets/viewMap.svg';
+import ViewMapIcon from '../../../assets/viewMapIcon.png';
 import APPURL from '../../../Constants/URLConstants';
+import cancelIcon from '../../../assets/cancel.png';
 
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../../assets/radio.svg';
-import selectedradio from '../../../assets/radioChecked.svg';
-import searchSvg from '../../../assets/searchSvg.svg';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/radioChecked.png';
+import searchSvg from '../../../assets/search.png';
 
 import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
 import ExploreListItem from '../../../Component/ExploreListItem'
 import SearchBar from 'react-native-search-bar';
-import SvgUri from 'react-native-svg-uri';
-
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
 
@@ -82,7 +81,7 @@ export default class Explore extends Component {
   componentDidMount() {
     // this.refs.searchBar.focus()
     this.langifyAPI();
-    this.state.datesArray = getDatesArray();
+    // this.state.datesArray = getDatesArray();
     // this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
@@ -95,11 +94,11 @@ export default class Explore extends Component {
     this.state.dataLoad = true
   }
   initApi() {
-    if (this.state.datesArray.length != 0){
-      this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-      let strtD = ''//`&start_at=${this.state.selectedDate}T00:00:00Z`;
-      this.state.params = `${strtD}`;
-    }
+    // if (this.state.datesArray.length != 0){
+    //   this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+    //   let strtD = ''//`&start_at=${this.state.selectedDate}T00:00:00Z`;
+    //   this.state.params = `${strtD}`;
+    // }
     this.callApi(this.state.params);
   }
   langifyAPI = async () => {
@@ -314,7 +313,7 @@ export default class Explore extends Component {
     let check = index == this.state.sortSelectedIndex ? true : false
     var views = [];
     views.push(<View style={commonStyles.nextIconStyle}> 
-        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+        <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
@@ -339,24 +338,28 @@ export default class Explore extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View>
+      return (<View style={{flex:1,}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={['50%', "50%", maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={true}
+          style={{backgroundColor: colors.lightTransparent}}
           animationType={'timing'}
           renderHandle={() => (
             <View style={eventStyles.header}>
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center' }}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort</Text>
-                </View>
+                <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{'Sort'}</Text>
+                    <TouchableOpacity onPress={() => this.setState({ showSortView: false })}>
+                      <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
+                    </TouchableOpacity>
+                  </View>
                 <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
                 </View>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 5 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
                       <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
@@ -365,10 +368,10 @@ export default class Explore extends Component {
                 </View>
               </View>
             </View>
-          )} topInset={false}
+           )} topInset={false}
           contentContainerStyle={eventStyles.contentContainerStyle}
           onSettle={index => { if (index == 2) {  this.sortBtnAction() }}}
-        />
+        /> 
       </View>)
     } else {
       return <View />
@@ -409,9 +412,9 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
+    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100, elevation: 101}}>
       <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({ showMap: !this.state.showMap })}>
-        <SvgUri width={20} height={20} source={viewMapIcon} fill={colors.AppTheme} />
+        <Image style={{width:20,height:20,tintColor:colors.AppTheme,}} source={ViewMapIcon}/>
         <View style={{ width: 5 }} />
         <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
       </TouchableOpacity>
@@ -448,7 +451,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'Sorry, no items found' : ''}</Text>
       </View>
     }
   }
@@ -472,7 +475,7 @@ export default class Explore extends Component {
   renderMainView = () => {
     return (<View style={{ flex: 1 }}>
       {this.renderHeaderView()}
-      {this.renderDateListView()}
+      {/* {this.renderDateListView()} */}
       <View style={{ flex: 1 }}>
         {this.renderListView()}
         {this.renderViewMaBtnView()}
@@ -506,7 +509,7 @@ export default class Explore extends Component {
   render() {
     if (this.state.showMap) {
       return (<View style={{ flex:1 }}>
-        <View style={{flex: 1, zIndex:10, height: windowHeight}}>
+        <View style={{flex: 1, zIndex:10, elevation: 11, height: windowHeight}}>
           <MapView
             provider={PROVIDER_GOOGLE}
             style={eventStyles.mapStyle}
@@ -523,10 +526,10 @@ export default class Explore extends Component {
         <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
           <Text>{this.state.translationDic['title']?? 'Search'}..</Text>
           <View>
-            <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
+            <Image source={searchSvg} style={{width: 25, height: 25, tintColor:colors.AppGray}}/>
           </View>
         </TouchableOpacity>
-        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280}}>
+        <View style={{height: 180, zIndex: 12, elevation: 13,position: 'absolute', marginTop: windowHeight - 280}}>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
@@ -537,10 +540,10 @@ export default class Explore extends Component {
         {this.renderSearchBar()}
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ backgroundColor: colors.LightBlueColor, flex: 1 }}>
-          <View style={{ zIndex: 5, position: 'absolute', height: '100%'}}>
+          <View style={{ zIndex: 5, elevation: 6, position: 'absolute', height: '100%'}}>
             <this.renderMainView />
           </View>
-          <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
+          <View style={{ zIndex: 20, elevation: 1000, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
             <this.renderSortView />
           </View>
         </View>
@@ -614,6 +617,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: windowWidth - 40,
     zIndex: 11,
+    elevation: 12,
     position: 'absolute',
     marginTop: 60,
     justifyContent: 'space-between',

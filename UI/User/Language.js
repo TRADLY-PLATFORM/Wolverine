@@ -15,8 +15,8 @@ import HeaderView from '../../Component/Header'
 import colors from '../../CommonClasses/AppColor';
 import commonStyles from '../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
-import radio from '../../assets/radio.svg';
-import selectedradio from '../../assets/radioChecked.svg';
+import radio from '../../assets/radio.png';
+import selectedradio from '../../assets/radioChecked.png';
 import DefaultPreference from 'react-native-default-preference';
 import NavigationRoots from '../../Constants/NavigationRoots';
 
@@ -24,7 +24,6 @@ import APPURL from '../../Constants/URLConstants';
 import networkService from '../../NetworkManager/NetworkManager';
 import appConstant from '../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
-import SvgUri from 'react-native-svg-uri';
 
 export default class Language extends Component {
   constructor(props) {
@@ -40,6 +39,7 @@ export default class Language extends Component {
   componentDidMount() {
     this.loadLanguageApi()
   }
+ 
   loadLanguageApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.language, 'get', '', appConstant.bToken,'')
@@ -62,11 +62,15 @@ export default class Language extends Component {
     let lang = this.state.languageArray[this.state.selectedLangaugeIndex]['code'];
     appConstant.appLanguage = lang
     DefaultPreference.set('appLanguage', lang).then(function () { console.log('saved') });
-    this.props.navigation.navigate(NavigationRoots.OnBoardings);
+    if (this.props.route.params) {
+      this.props.navigation.pop();
+    }
+    else {
+      this.props.navigation.navigate(NavigationRoots.OnBoardings);
+    }
   }
   /*  UI   */
   renderListView = () => {
-
     return (<View style={{margin: 5, height: '84%'}}>
       <FlatList
         data={this.state.languageArray}
@@ -83,7 +87,7 @@ export default class Language extends Component {
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -93,7 +97,7 @@ export default class Language extends Component {
     return (<View style={{alignSelf: 'center'}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.doneBtnAction()}>
         <View style={eventStyles.applyBtnViewStyle}>
-          <Text style={{ color: colors.AppWhite,fontWeight: '600', fontSize: 16 }}>Done</Text>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600', fontSize: 16 }}>Next</Text>
         </View>
       </TouchableOpacity>
     </View>)

@@ -158,7 +158,8 @@ export default class AddVariantValue extends Component {
       let photo =  this.state.imagesArray[i];
       var photoPath = ''
       if (photo) {
-        if (photo['sourceURL']) {
+        // if (photo['sourceURL']) {
+        if (photo['path']) {
            photoPath = photo.path;
         }else {
           photoPath = photo; 

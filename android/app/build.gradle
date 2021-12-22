@@ -61,8 +61,8 @@ android {
         applicationId "com.meetneeds.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "2"
+        versionCode 4
+        versionName "3"
     }
     splits {
         abi {
@@ -116,7 +116,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-    implementation 'com.google.firebase:firebase-database'
+    implementation 'com.google.firebase:firebase-database:+'
     implementation(project(':react-native-maps')){
         exclude group: 'com.google.android.gms', module: 'play-services-base'
         exclude group: 'com.google.android.gms', module: 'play-services-maps'

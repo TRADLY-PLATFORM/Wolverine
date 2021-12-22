@@ -24,12 +24,11 @@ import appConstant from '../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
-import radio from '../../assets/radio.svg';
-import selectedradio from '../../assets/radioChecked.svg';
+import radio from '../../assets/radio.png';
+import selectedradio from '../../assets/radioChecked.png';
 import {changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/SingleTon'
 import ExploreListItem from '../../Component/ExploreListItem'
 import constantArrays from '../../Constants/ConstantArrays';
-import SvgUri from 'react-native-svg-uri';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -263,7 +262,7 @@ export default class EventList extends Component {
         <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -283,7 +282,7 @@ export default class EventList extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View style={{backgroundColor: 'green'}}>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={['40%', "40%", maxHeight]}
@@ -336,7 +335,7 @@ export default class EventList extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
-        <Text style={eventStyles.commonTxtStyle}> No Event Found!!</Text>
+        <Text style={eventStyles.commonTxtStyle}> Sorry, no items found.</Text>
       </View>
     }
   }
@@ -394,7 +393,7 @@ export default class EventList extends Component {
     return (<View style={{ height: '100%' }}>
       <View>
         {this.renderHeaderView()}
-        {this.renderDateListView()}
+        {/* {this.renderDateListView()} */}
       </View>
       <View style={{ height: windowHeight - 170 }}>
         {this.renderListView()}
@@ -416,7 +415,7 @@ export default class EventList extends Component {
           <View style={{ zIndex: 5, position: 'absolute' }}>
             <this.renderMainView />
           </View>
-          <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
+          <View style={{ zIndex: 20,elevation: 1000, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
             <this.renderSortView />
           </View>
         </View>

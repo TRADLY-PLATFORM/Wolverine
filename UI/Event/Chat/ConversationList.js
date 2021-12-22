@@ -35,7 +35,7 @@ export default class ConversationList extends Component {
       updateUI: false,
       loadData: false,
       conversationArray: [],
-      isVisible: true,
+      isVisible: false,
     }
   }
   componentDidMount() {
@@ -106,7 +106,7 @@ export default class ConversationList extends Component {
   renderListViewCellItem = ({ item, index }) => {
     let time = timeAgo(new Date(item['lastUpdated']).getTime());
     return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
-      <View style={{flexDirection: 'row'}}>
+      <View style={{flexDirection: 'row',width: '90%'}}>
         <Image style={{ height: 50, width: 50, borderRadius: 25 }} source={sample} />
         <View style={{ marginLeft: 10, justifyContent: 'center' }}>
           <Text style={eventStyles.titleStyle}>{item['receiver']}</Text>

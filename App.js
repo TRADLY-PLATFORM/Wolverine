@@ -37,16 +37,9 @@ export default class App extends Component {
   }
   componentDidMount() {
     LogBox.ignoreAllLogs(true)
-
     DefaultPreference.get('installed').then(function (val) {
-      if (val == undefined) {
-        DefaultPreference.set('installed', 'true').then(function () { console.log('installed') });
-        appConstant.appInstalled = false
-      } else {
-        appConstant.appInstalled = true
-      }
+        appConstant.appInstalled = val == undefined ? false : true
     }.bind(this))
-    
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
     this.fcmNotification()
     this.configApi();
@@ -90,7 +83,9 @@ export default class App extends Component {
       appConstant.appHomeTitle = into['app_title_home'] || 'Tradly';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
-      this.langifyAPI()
+      if (appConstant.appLanguage.length != 0) {
+        this.langifyAPI()
+      }
       this.getCurrencyApi()
     }
   }
@@ -121,7 +116,7 @@ export default class App extends Component {
           appConstant.defaultCurrency = obj['format'];
         }
       }
-
+      this.setState({ reload: true, isVisible: false })
     }
   }
   bottomTarTranslationData(object) {

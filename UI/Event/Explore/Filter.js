@@ -17,8 +17,8 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import constantArrays from '../../../Constants/ConstantArrays';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
-import radio from '../../../assets/radio.svg';
-import selectedradio from '../../../assets/radioChecked.svg';
+import radio from '../../../assets/radio.png';
+import selectedradio from '../../../assets/radioChecked.png';
 import Slider from '@react-native-community/slider';
 // import {Slider} from '@miblanchard/react-native-slider';
 import cancelIcon from '../../../assets/cancel.png';
@@ -28,7 +28,6 @@ import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
-import SvgUri from 'react-native-svg-uri';
 // import RangeSlider from '@jesster2k10/react-native-range-slider';
 // import RangeSlider from 'rn-range-slider';
 // import MultiSlider from '@ptomasroos/react-native-multi-slider';
@@ -77,12 +76,12 @@ export default class Filter extends Component {
     if (filtersArray) {
       this.state.filterValueArray = filtersArray;
       for (let objc of filtersArray) {
-        if (objc['time']) {
-          this.state.timeApplied = true;
-          let timeD = objc['time'];
-          this.state.timeValue[0] = Number(`${timeD['start']}.0`);
-          this.state.timeValue[1] = Number(`${timeD['end']}.0`);
-        }
+        // if (objc['time']) {
+        //   this.state.timeApplied = true;
+        //   let timeD = objc['time'];
+        //   this.state.timeValue[0] = Number(`${timeD['start']}.0`);
+        //   this.state.timeValue[1] = Number(`${timeD['end']}.0`);
+        // }
         if (objc['date']) {
           let dData = objc['date'];
           this.state.selectedDatePostedIndex = dData['index'];
@@ -146,7 +145,7 @@ export default class Filter extends Component {
       this.state.selectAttributeIds.push(item['id']);
       this.state.selectedAttributeArray = item['values'];
     }
-    if (index == 0) {
+    if (index == 8838938830) {
       this.setState({showTimeBool: true})
     }else {
       this.setState({showFilterView: !this.state.showFilterView})
@@ -154,108 +153,8 @@ export default class Filter extends Component {
   }
   doneBtnAction () {
     this.setState({showFilterView: false, showTimeBool: false})
+    console.log(this.state.selectedRatingIndex,'this.state.selectedFilterIndex', this.state.selectedFilterIndex)
     if (this.state.selectedFilterIndex == 0){
-      this.state.timeApplied = true;
-      let stTime = this.state.timeValue[0].toFixed(0);
-      let edTime = this.state.timeValue[1].toFixed(0);
-      let timeDict = {
-        'start': stTime,
-        'end': edTime,
-      }
-      let dic = {time: timeDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['time']) {
-            aIndx = a
-          }
-        }
-        this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 23211){
-      var fromDate = new Date();
-      var toDate = new Date();
-      if (this.state.selectedDatePostedIndex == 1) {
-        var d = new Date();
-        var pastYear = d.getFullYear() - 1;
-        d.setFullYear(pastYear);
-        console.log('last year',d);
-        let dateDict = {
-          'created_from': fromDate,
-          'created_to': d,
-          index: this.state.selectedDatePostedIndex,
-        }
-        let dic = {date: dateDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['date']) {
-            aIndx = a
-          }
-        }
-        this.addValueInArray(aIndx,dic)
-      } else if (this.state.selectedDatePostedIndex == 2) {
-        var makeDate = new Date();
-        let lm = new Date(makeDate.setMonth(makeDate.getMonth() - 1));
-        let dateDict = {
-          'created_from': fromDate.toString(),
-          'created_to': lm.toString(),
-          index: this.state.selectedDatePostedIndex,
-        }
-        let dic = {date: dateDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['date']) {
-            aIndx = a
-          }
-        }
-        this.addValueInArray(aIndx,dic)
-      } else if (this.state.selectedDatePostedIndex == 3) {
-        var today = new Date();
-        var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-        let dateDict = {
-          'created_from': fromDate.toString(),
-          'created_to': lastWeek.toString(),
-          index: this.state.selectedDatePostedIndex,
-        }
-        let dic = {date: dateDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['date']) {
-            aIndx = a
-          }
-        }
-        this.addValueInArray(aIndx,dic)
-      } else if (this.state.selectedDatePostedIndex == 1234) {
-        var today = new Date();
-        let yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
-        let dateDict = {
-          'created_from': fromDate.toString(),
-          'created_to': yesterday.toString(),
-          index: this.state.selectedDatePostedIndex,
-        }
-        let dic = {date: dateDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['date']) {
-            aIndx = a
-          }
-        }
-        this.addValueInArray(aIndx,dic)
-      } else {
-        let dateDict = {
-          'created_from': fromDate.toString(),
-          'created_to': toDate.toString(),
-          index: this.state.selectedDatePostedIndex,
-        }
-        let dic = {date: dateDict }
-        var aIndx = -1
-        for (let a = 0; a <this.state.filterValueArray.length; a++){
-          if (this.state.filterValueArray[a]['date']) {
-            aIndx = a
-          }
-          this.addValueInArray(aIndx,dic)
-        }
-      }
-    } else if (this.state.selectedFilterIndex == 1){
       let ratingDict = {
         'rating': 5 - this.state.selectedRatingIndex,
       }
@@ -266,8 +165,9 @@ export default class Filter extends Component {
           aIndx = a
         }
       }
+      console.log(dic,'aIndx',aIndx)
       this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 2){
+    } else if (this.state.selectedFilterIndex == 1){
       let dDict = {
         'distance': this.state.distanceValue.toFixed(0),
       }
@@ -294,7 +194,7 @@ export default class Filter extends Component {
         }
       }
       this.addValueInArray(aIndx,dic)
-    } else if (this.state.selectedFilterIndex == 3){
+    } else if (this.state.selectedFilterIndex == 2){
       let id = this.state.categoryArray[this.state.selectedCategoryIndex]['id'];
       let cDict = {
         'id': id,
@@ -379,7 +279,7 @@ export default class Filter extends Component {
   }
   renderListViewCellItem = ({item, index}) => {
     var views = [];
-    if (index == 0) {
+    if (index == 98383292920) {
       if (this.state.timeApplied) {
         let stTime = this.convert12HoursFormat(this.state.timeValue[0].toFixed(0));
         let edTime = this.convert12HoursFormat(this.state.timeValue[1].toFixed(0));
@@ -396,7 +296,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 1) {
+    else if (index == 0) {
       if (this.state.selectedRatingIndex != -1) {
         var startView = []
         for (let a = 0; a < 5 - this.state.selectedRatingIndex; a++) {
@@ -411,7 +311,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 2) {
+    else if (index == 1) {
       if (this.state.distanceValue != 0) {
         let value = this.state.distanceValue.toFixed(0)
         views.push(<View>
@@ -428,7 +328,7 @@ export default class Filter extends Component {
         </View>)
       }
     }
-    else if (index == 3) {
+    else if (index == 2) {
       if (this.state.selectedCategoryIndex != -1) {
         var value = '';
         if (this.state.categoryArray[this.state.selectedCategoryIndex]) {
@@ -567,7 +467,7 @@ export default class Filter extends Component {
             {startView}
           </View>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -634,7 +534,7 @@ export default class Filter extends Component {
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item['name']} </Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
@@ -643,6 +543,7 @@ export default class Filter extends Component {
   renderAttriView = () => {
     return(<View style={{marginTop: 10, marginBottom: 10}}>
       <FlatList
+        style={{height:'100%',position:'relative'}}
         data={this.state.selectedAttributeArray}
         numColumns={1}
         renderItem={this.renderAttributeItemCell}
@@ -659,14 +560,14 @@ export default class Filter extends Component {
         <View style={styles.startViewCellStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray, width: '85%' }}> {item['name']} </Text>
           <View style={commonStyles.nextIconStyle}>
-            <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
+          <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
           </View>
         </View>
       </TouchableOpacity>
     )
   }
   renderSelectedType = () => {
-    if (this.state.selectedFilterIndex == 0) {
+    if (this.state.selectedFilterIndex == -120) {
       return (<View>
         {this.renderTimeView()}
       </View>)
@@ -674,11 +575,11 @@ export default class Filter extends Component {
       return (<View>
         {this.renderDatePostedView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 1) {
+    } else if (this.state.selectedFilterIndex == 0) {
       return (<View>
         {this.renderRatingView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 2) {
+    } else if (this.state.selectedFilterIndex == 1) {
       return (<View>
         {this.renderDistanceView()}
       </View>)
@@ -686,7 +587,7 @@ export default class Filter extends Component {
       return (<View>
         {this.renderPriceView()}
       </View>)
-    } else if (this.state.selectedFilterIndex == 3) {
+    } else if (this.state.selectedFilterIndex == 2) {
       return (<View>
         {this.renderCategoryView()}
       </View>)
@@ -700,14 +601,14 @@ export default class Filter extends Component {
   renderSelectFilterView = () => {
     var snapPoint = '50%';
     let maxHeight = '100%'
-    var viewHeight = windowHeight/ 3;
-    if (this.state.selectedFilterIndex == 1) {
-      snapPoint = '40%'
-      viewHeight = windowHeight/ 2;
-    }else if (this.state.selectedFilterIndex == 3) {
-      snapPoint = '30%'
-      viewHeight = windowHeight/ 1.5;
-    }
+    var viewHeight = windowHeight/ 2.5;
+    // if (this.state.selectedFilterIndex == 1) {
+    //   snapPoint = '40%'
+    //   viewHeight = windowHeight/ 2;
+    // }else if (this.state.selectedFilterIndex == 3) {
+    //   snapPoint = '30%'
+    //   viewHeight = windowHeight/ 1.5;
+    // }
     if (this.state.showTimeBool) {
       return (<View style={{marginTop:'100%', backgroundColor: colors.AppWhite,height:windowHeight/ 2}}>
         {this.renderSliderTimeView()}
@@ -721,15 +622,15 @@ export default class Filter extends Component {
         title = this.state.attributesArray[this.state.selectedFilterIndex]
       }
     
-      return (<View>
-        <ScrollBottomSheet
+      return (<View style={{flex:1}}>
+        {/* <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={[snapPoint, snapPoint, maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={false}
           animationType={'timing'}
-          renderHandle={() => (
-            <View style={{ backgroundColor: colors.AppWhite, height:windowHeight/ 2, width: '100%' }}>
+          renderHandle={() => ( */}
+            <View style={{ backgroundColor: colors.AppWhite, height:windowHeight/ 2, width: '100%', marginTop:viewHeight }}>
             <View style={styles.header}>
               <View style={styles.panelHandle} />
               <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 10 }}>
@@ -739,10 +640,10 @@ export default class Filter extends Component {
                       <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
                     </TouchableOpacity>
                   </View>
-                <View style={{height: '60%', marginTop: 10}}>
+                <View style={{height: '70%', marginTop: 10}}>
                   {this.renderSelectedType()}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
+                <View style={{paddingLeft: 16, paddingRight: 16,marginTop:10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.doneBtnAction()}>
                     <View style={eventStyles.applyBtnViewStyle}>
                       <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
@@ -752,10 +653,10 @@ export default class Filter extends Component {
               </View>
             </View>
             </View>
-          )} topInset={false}
+          {/* )} topInset={false}
           contentContainerStyle={styles.contentContainerStyle}
           onSettle={index => { if (index == 2) { this.setState({showFilterView: false}) }}}
-        />
+        /> */}
       </View>)
     } else {
       return <View />
@@ -868,10 +769,10 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
-    height: 30,
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 10,
+    paddingBottom: 10,
   },
   textValueStyle: {
     textAlign: 'left',
