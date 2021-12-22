@@ -327,8 +327,10 @@ export default class AddEvent extends Component {
         let photo = this.state.imagesArray[p]
         let fileName = photo.data;
         if (fileName != null) {
+          let fname = photo['path'];
+          let fValue = fname.substring(fname.lastIndexOf('/') + 1);
           var dict = {
-            name: photo['filename'],
+            name: fValue,
             type: photo['mime'],
           };
           uploadBase64.push({
@@ -343,8 +345,10 @@ export default class AddEvent extends Component {
     if (this.state.documentFile != null) {
       let fileName = this.state.documentFile.data;
       if (fileName != null) {
+        let fname = this.state.documentFile['path'];
+        let fValue = fname.substring(fname.lastIndexOf('/') + 1);
         var androidIconDict = {
-          name: this.state.documentFile['filename'],
+          name: fValue,
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
@@ -621,8 +625,10 @@ export default class AddEvent extends Component {
         let photo = uploadImageArray[p]
         let fileName = photo.data;
         if (fileName != null) {
+          let fname = photo['path'];
+          let fValue = fname.substring(fname.lastIndexOf('/')+1);
           var dict = {
-            name: photo['filename'],
+            name: fValue,
             type: photo['mime'],
           };
           uploadBase64.push({
@@ -995,11 +1001,11 @@ export default class AddEvent extends Component {
       let photo =  this.state.imagesArray[i];
       var photoPath = ''
       if (photo) {
-        if (photo['sourceURL']) {
-           photoPath = photo.path;
-        }else {
-          photoPath = photo; 
-        }
+        if (photo['path']) {
+          photoPath = photo.path;
+       }else {
+         photoPath = photo; 
+       }
       }
       if (this.state.imagesArray[i]) {
         views.push(
@@ -1165,8 +1171,10 @@ export default class AddEvent extends Component {
         } else if (fieldType == 5) {
           var value = 'Upload file document limit of 5 MB';
           if (this.state.documentFile !=  null) {
-            if (this.state.documentFile['sourceURL'])  {
-              value = this.state.documentFile['filename'];
+            if (this.state.documentFile['path'])  {
+              let fname = this.state.documentFile['path'];
+              let fValue = fname.substring(fname.lastIndexOf('/')+1);
+              value = fValue;
             }else {
               value = this.state.attributeFilePath.substring(this.state.attributeFilePath.lastIndexOf('/')+1);
             }
@@ -1344,7 +1352,8 @@ export default class AddEvent extends Component {
       available = ` Available`
       photos = item['uploadParm']['images'] ? item['uploadParm']['images'] : [];
       if (photos.length != 0) {
-        if (photos[0]['sourceURL']) { 
+        // if (photos[0]['sourceURL']) { 
+        if (photos[0]['path']) { 
           photos = photos[0]['path'];
         } else {
           photos = photos[0];

@@ -35,7 +35,7 @@ export default class ConversationList extends Component {
       updateUI: false,
       loadData: false,
       conversationArray: [],
-      isVisible: true,
+      isVisible: false,
     }
   }
   componentDidMount() {

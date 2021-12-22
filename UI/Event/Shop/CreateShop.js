@@ -186,8 +186,10 @@ export default class CreateShop extends Component {
       let fileName = this.state.photo.data;
       if (fileName != null) {
         this.state.photoURLPath = '';
+        let fname = this.state.photo['path'];
+        let fValue = fname.substring(fname.lastIndexOf('/')+1);
         var splashDict = {
-          name: this.state.photo['filename'],
+          name: fValue,
           type: this.state.photo['mime'],
         };
         uploadBase64.push({
@@ -199,8 +201,10 @@ export default class CreateShop extends Component {
     if (this.state.documentFile != null) {
       let fileName = this.state.documentFile.data;
       if (fileName != null) {
+        let fname = this.state.documentFile['path'];
+        let fValue = fname.substring(fname.lastIndexOf('/')+1);
         var androidIconDict = {
-          name: this.state.documentFile['filename'],
+          name: fValue,
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
@@ -560,7 +564,7 @@ export default class CreateShop extends Component {
     var views = [];
     if (this.state.photo != null) {
       var photoPath = ''
-      if (this.state.photo['sourceURL']) {
+      if (this.state.photo['path']) {
         photoPath = this.state.photo.path;
       }else {
         photoPath = this.state.photo; 
@@ -717,7 +721,8 @@ export default class CreateShop extends Component {
           var value = 'Upload file document limit of 5 MB';
           if (this.state.documentFile != null) {
             if (this.state.documentFile['path']) {
-              value = this.state.documentFile['filename'];
+              let fname = this.state.documentFile['path'];
+              value = fname.substring(fname.lastIndexOf('/')+1);
             } else {
               value = this.state.documentURLPath.substring(this.state.documentURLPath.lastIndexOf('/')+1);
             }

@@ -721,7 +721,7 @@ export default class Filter extends Component {
         title = this.state.attributesArray[this.state.selectedFilterIndex]
       }
     
-      return (<View>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={[snapPoint, snapPoint, maxHeight]}
@@ -739,7 +739,7 @@ export default class Filter extends Component {
                       <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
                     </TouchableOpacity>
                   </View>
-                <View style={{height: '60%', marginTop: 10}}>
+                <View style={{height: '50%', marginTop: 10}}>
                   {this.renderSelectedType()}
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>

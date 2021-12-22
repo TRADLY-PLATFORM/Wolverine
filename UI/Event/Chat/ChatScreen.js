@@ -63,6 +63,7 @@ export default class ChatScreen extends Component {
       let profile = `${receiverData['profile_pic']}`;
       var UID = receiverData['id'] 
       this.state.receiverId = UID;
+      console.log('UID',UID)
       createChat(UID, name, profile, chatRoomId => {
         this.state.chatRoomId = chatRoomId
         this.getChatThread(chatRoomId);
@@ -78,7 +79,9 @@ export default class ChatScreen extends Component {
   }
   getChatThread(chatRoomId) {
     this.state.chatArray = [];
+    console.log('dsds',`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`)
     database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`).on('child_added', snapshot => {
+      console.log('snapshot', snapshot)
         if (snapshot.val() != null){
           this.state.chatArray.push(snapshot.val());
         }
@@ -178,7 +181,7 @@ export default class ChatScreen extends Component {
   renderSendMsgView = () => {
     return (<View style={{flexDirection: 'row', alignItems: 'center',margin: 10}}>
       <View style={styles.bottomViewStyle}>
-        <View style={{ width: '87%', justifyContent: 'center',padding: 10}}>
+        <View style={{ width: '87%', justifyContent: 'center',paddingLeft:10,paddingRight:10}}>
           <TextInput
             value={this.state.message}
             onChangeText={txt => this.setState({message: txt})}
@@ -205,7 +208,7 @@ export default class ChatScreen extends Component {
         <HeaderView title={this.state.titleName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
-          <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={keyboardVerticalOffset}>
+          <KeyboardAvoidingView       behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
             <View style={{height: '100%', justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}>
               <this.renderChatView />
@@ -305,4 +308,3 @@ const styles = StyleSheet.create({
     width:180, height: 200, marginBottom: 5 
    }
 });
-

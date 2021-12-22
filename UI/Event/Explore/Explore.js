@@ -297,7 +297,7 @@ export default class Explore extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={['50%', "50%", maxHeight]}
@@ -314,7 +314,7 @@ export default class Explore extends Component {
                 <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
                 </View>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 5 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
                       <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>

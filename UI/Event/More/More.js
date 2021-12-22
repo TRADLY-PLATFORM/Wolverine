@@ -240,7 +240,7 @@ export default class More extends Component {
     )
   }
   renderListCellItem = ({ item, index }) => {
-    return <TouchableOpacity style={{marginBottom: 10, top: 13}} onPress={() => this.didSelectList({ index: index })} >
+    return <TouchableOpacity style={{marginBottom: 15, top: 13}} onPress={() => this.didSelectList({ index: index })} >
       <Text style={{height: 16,fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
@@ -258,7 +258,7 @@ export default class More extends Component {
     }else {
       return (<View>
         <TouchableOpacity style={{ marginLeft: 10}} onPress={() =>  this.props.navigation.navigate(NavigationRoots.SignIn)}>
-          <Text style={styles.titleStyle}>Sign in/Sign up</Text>
+          <Text style={styles.titleStyle}>{this.state.translationDic['title'] ?? 'Sign in/Sign up'}</Text>
         </TouchableOpacity>
       </View>)
     }
@@ -267,15 +267,15 @@ export default class More extends Component {
     return (
       <SafeAreaView style={styles.Container}>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{position: 'relative', flexDirection: 'column', height: '100%'}}>
-          <View style={{ height: '30%'}}>
+        <View style={{flexDirection: 'column', height: '100%', backgroundColor: colors.LightBlueColor}}>
+          <View style={{ height: '30%', zIndex: 1, backgroundColor: colors.AppTheme}}>
             <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
               <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
                 style={{ height: 60, width: 60, borderRadius: 30 }} />
               <this.renderUserInfo />
             </View>
           </View>
-          <View style={{ backgroundColor: colors.LightBlueColor,justifyContent: 'space-between', height: '75%'}}>
+          <View style={{marginTop: '-28%', backgroundColor: colors.lightTransparent,justifyContent: 'space-between', height: '75%', zIndex: 10,position: 'relative'}}>
             <View style={styles.listContainerView} >
               <this.renderListView />
             </View>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   listContainerView: {
     height: '95%',
-    marginTop: '-20%',
+    // marginTop: '-20%',
     backgroundColor: colors.AppWhite,
     margin: 20,
     shadowColor: 'gray',
