@@ -231,10 +231,10 @@ export default class SignUp extends Component {
             <Image source={closeIcon}/>
           </TouchableOpacity>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
-          <KeyboardAvoidingView  behavior="padding" style = {{flex:1}}>
-          <ScrollView>
-           <this.renderMainView />
-          </ScrollView>
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : null} style={{ flex: 1 }}>
+            <ScrollView>
+              <this.renderMainView />
+            </ScrollView>
           </KeyboardAvoidingView>
         </SafeAreaView>
       </LinearGradient>
