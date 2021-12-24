@@ -23,6 +23,14 @@ import ConstantArrays from '../../../../Constants/ConstantArrays';
 import radio from '../../../../assets/radio.png';
 import selectedradio from '../../../../assets/radioChecked.png';
 
+import APPURL from '../../../../Constants/URLConstants';
+import networkService from '../../../../NetworkManager/NetworkManager';
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../../HelperClasses/SingleTon';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import AppConstants from '../../../../Constants/AppConstants';
+
+
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
@@ -44,9 +52,11 @@ export default class EventTiming extends Component {
       selectedWeekDay: [],
       weekDayValue: '',
       id:-1,
+      translationDic:{}
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     let {eventDateTime,id} = this.props.route.params;
     if (eventDateTime != undefined) {
       this.state.id = id;
@@ -66,14 +76,111 @@ export default class EventTiming extends Component {
     }
     this.setState({updateUI: !this.state.updateUI})
   }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.producttime);
+    if (searchD != undefined) {
+      this.timingTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.producttime}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', AppConstants.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      console.log('objc', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.producttime, objc)
+      this.timingTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  timingTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('storedetail.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('storedetail.start_time' == obj['key']) {
+        this.state.translationDic['startTime'] = obj['value'];
+      }  
+      if ('storedetail.end_time' == obj['key']) {
+        this.state.translationDic['endTime'] = obj['value'];
+      }
+      if ('storedetail.select_time' == obj['key']) {
+        this.state.translationDic['selectTime'] = obj['value'];
+      }
+      if ('storedetail.repeat' == obj['key']) {
+        this.state.translationDic['repeat'] = obj['value'];
+      }
+      if ('storedetail.select_repeat' == obj['key']) {
+        this.state.translationDic['selectRepeat'] = obj['value'];
+      }
+      if ('storedetail.daily' == obj['key']) {
+        this.state.translationDic['daily'] = obj['value'];
+      }
+      if ('storedetail.weekdays' == obj['key']) {
+        this.state.translationDic['weekdays'] = obj['value'];
+      }
+      if ('storedetail.weekend' == obj['key']) {
+        this.state.translationDic['weekend'] = obj['value'];
+      }
+      if ('storedetail.custom' == obj['key']) {
+        this.state.translationDic['custom'] = obj['value'];
+      }
+      if ('storedetail.set' == obj['key']) {
+        this.state.translationDic['set'] = obj['value'];
+      }
+      if ('storedetail.set_days' == obj['key']) {
+        this.state.translationDic['setDays'] = obj['value'];
+      }
+      if ('storedetail.sun' == obj['key']) {
+        this.state.translationDic['sun'] = obj['value'];
+      }
+      if ('storedetail.mon' == obj['key']) {
+        this.state.translationDic['mon'] = obj['value'];
+      }
+      if ('storedetail.tue' == obj['key']) {
+        this.state.translationDic['tue'] = obj['value'];
+      }
+      if ('storedetail.wed' == obj['key']) {
+        this.state.translationDic['wed'] = obj['value'];
+      }
+      if ('storedetail.thu' == obj['key']) {
+        this.state.translationDic['thu'] = obj['value'];
+      }
+      if ('storedetail.fri' == obj['key']) {
+        this.state.translationDic['fri'] = obj['value'];
+      }
+      if ('storedetail.sat' == obj['key']) {
+        this.state.translationDic['sat'] = obj['value'];
+      }
+      if ('storedetail.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('storedetail.end_time_greater_start_error' == obj['key']) {
+        this.state.translationDic['endTimeGreater'] = obj['value'];
+      }
+      if ('storedetail.select_start_time' == obj['key']) {
+        this.state.translationDic['selectStartTime'] = obj['value'];
+      }
+      if ('storedetail.select_end_time' == obj['key']) {
+        this.state.translationDic['selectEndTime'] = obj['value'];
+      }
+      if ('storedetail.select_date' == obj['key']) {
+        this.state.translationDic['selectSate'] = obj['value'];
+      }
+    }
+  }
   /*  Buttons   */
   doneBtnAction() {
     if (this.state.selectedDate.length == 0) {
-      Alert.alert('Please select Date')
+      AppAlert(this.state.translationDic['selectSate'] ?? 'Please select date', AppConstants.okTitle)
     } else if (this.state.selectStartTime.length == 0) {
-      Alert.alert('Please select Start time')
+      AppAlert(this.state.translationDic['selectStartTime'] ?? 'Please select start time', AppConstants.okTitle)
     } else if (this.state.selectEndTime.length == 0) {
-      Alert.alert('Please select End time')
+      AppAlert(this.state.translationDic['selectEndTime'] ?? 'Please select end time', AppConstants.okTitle)
     } else {
       let dict = {
         date: this.state.selectedDate,
@@ -106,11 +213,10 @@ export default class EventTiming extends Component {
         if (edTime > srttime) {
           this.state.selectEndTime = eTime
         }else {
-          Alert.alert('End time must be greater then start time')
+          AppAlert(this.state.translationDic['endTimeGreater'] ?? 'End time must be greater then start time', AppConstants.okTitle)
         }
       } else {
-        Alert.alert('Please select start time')
-
+        AppAlert(this.state.translationDic['selectStartTime'] ?? 'Please select start time', AppConstants.okTitle)
       }
     } else {
       this.state.selectStartTime = eTime
@@ -167,8 +273,8 @@ export default class EventTiming extends Component {
     </View>)
   }
   renderDatePicker = (id) => { 
-    var value = 'Select Time';
-    var label = id['id'] == 1 ? 'Start Time' : 'End Time';
+    var value = this.state.translationDic['selectTime'] ?? 'Select Time';
+    var label = id['id'] == 1 ? this.state.translationDic['startTime'] ?? 'Start Time' : this.state.translationDic['endTime']  ?? 'End Time';
     if (id['id'] == 1) {
       if (this.state.selectStartTime.length != 0) {
         value = this.state.selectStartTime;
@@ -196,9 +302,9 @@ export default class EventTiming extends Component {
 
   }
   renderRepeatView = () => {
-    let msg = (Object.keys(this.state.repeatValue).length == 0) ? 'Select Repeat' : this.state.repeatValue['name'];
+    let msg = (Object.keys(this.state.repeatValue).length == 0) ? this.state.translationDic['selectRepeat']  ?? 'Select Repeat' : this.state.repeatValue['name'];
     return (<View style={styles.timeViewStyle}>
-      <Text style={eventStyles.titleStyle}>{'Repeat'}</Text>
+      <Text style={eventStyles.titleStyle}>{this.state.translationDic['repeat'] ?? 'Repeat'}</Text>
       <View>
         <TouchableOpacity style={eventStyles.addBntViewStyle} onPress={() => this.setState({showRepeatView: true})}>
           <Text style={{fontSize: 12, fontWeight: '500', color: colors.AppTheme}}>{msg}</Text>
@@ -208,7 +314,7 @@ export default class EventTiming extends Component {
   }
   renderCustomView = () => {
     return (<View style={{padding: 20}}>
-        <Text style={{fontSize: 14, fontWeight: '400'}}>Set Days</Text>
+        <Text style={{fontSize: 14, fontWeight: '400'}}>{this.state.translationDic['setDays']  ?? 'Set Days'}</Text>
         <View style={{marginTop: 20}}>
           <FlatList
             data={ConstantArrays.weekDays}
@@ -257,13 +363,13 @@ export default class EventTiming extends Component {
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight/2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center' }}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.showCustomView ? `Custom` : `Repeat`}</Text>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.showCustomView ? this.state.translationDic['custom'] ?? `Custom` : this.state.translationDic['repeat'] ?? `Repeat`}</Text>
                 </View>
                 {views}
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop:-20}}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.setBtnAction()}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Set</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>{this.state.translationDic['set'] ?? 'Set'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -308,7 +414,7 @@ export default class EventTiming extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Event Timing'}
+        <HeaderView title={this.state.translationDic['title'] ?? 'Timing'}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
           showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor}}>

@@ -30,6 +30,9 @@ import {changeDateFormat,getDatesArray,getNextDate} from '../../HelperClasses/Si
 import ExploreListItem from '../../Component/ExploreListItem'
 import constantArrays from '../../Constants/ConstantArrays';
 
+import LangifyKeys from '../../Constants/LangifyKeys';
+import tradlyDb from '../../TradlyDB/TradlyDB';
+
 const windowHeight = Dimensions.get('window').height;
 
 
@@ -51,17 +54,19 @@ export default class EventList extends Component {
       datesArray: [],
       selectedDate:'',
       filterArray: [],
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI()
     this.state.datesArray = getDatesArray();
-    this.state.selectedDate = this.state.datesArray[0];
+    // this.state.selectedDate = this.state.datesArray[0];
     if (this.props.route.params) {
       let {categoryID} = this.props.route.params;
       if (categoryID != undefined){
-        this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-        let strtD = `${this.state.selectedDate}T00:00:00Z`;
-        this.state.params = '&category_id=' + categoryID + `&start_at=${strtD}`;
+        // this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+        // let strtD = `${this.state.selectedDate}T00:00:00Z`;
+        this.state.params = '&category_id=' + categoryID;
         this.callApi(this.state.params);
       }else {
         this.initApi()
@@ -90,12 +95,36 @@ export default class EventList extends Component {
   searchTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
+      if ('search.nearest_by_distance' == obj['key']) {
+        constantArrays.sortingArray[0] = obj['value'];
+      }
       if ('search.high_to_low' == obj['key']) {
         constantArrays.sortingArray[2] = obj['value'];
       }  
       if ('search.low_to_high' == obj['key']) {
         constantArrays.sortingArray[1] = obj['value'];
       }  
+      if ('search.search' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('search.sort' == obj['key']) {
+        this.state.translationDic['sort'] = obj['value'];
+      }
+      if ('search.filter' == obj['key']) {
+        this.state.translationDic['filter'] = obj['value'];
+      }
+      if ('search.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('search.no_listing_found' == obj['key']) {
+        this.state.translationDic['no_listing_found'] = obj['value'];
+      }
+      if ('search.cancel' == obj['key']) {
+        this.state.translationDic['cancel'] = obj['value'];
+      }
+      if ('search.type_to_search' == obj['key']) {
+        this.state.translationDic['type_to_search'] = obj['value'];
+      }
     }
   }
   initApi() {
@@ -294,7 +323,7 @@ export default class EventList extends Component {
               <View style={eventStyles.panelHandle} />
               <View style={{ backgroundColor: colors.AppWhite, height: windowHeight/ 2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.translationDic['sort'] ?? 'Sort'} </Text>
                 </View>
                 <View style={{height: '58%', marginTop: 10}}>
                   {this.renderSortListView()}
@@ -302,7 +331,7 @@ export default class EventList extends Component {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{appConstant.doneTitle}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -335,7 +364,7 @@ export default class EventList extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
-        <Text style={eventStyles.commonTxtStyle}> Sorry, no items found.</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.translationDic['no_listing_found'] ?? 'Sorry, no items found.'}</Text>
       </View>
     }
   }
@@ -348,11 +377,11 @@ export default class EventList extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['filter'] ?? 'Filters'}</Text>
       </TouchableOpacity>
     </View>)
   }

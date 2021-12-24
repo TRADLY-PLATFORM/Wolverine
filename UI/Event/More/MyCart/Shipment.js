@@ -217,8 +217,8 @@ export default class Shipment extends Component {
         <View style={styles.bottomBtnViewStyle} >
           <View style={styles.youPayViewStyle}>
             <Text style={{ color: colors.Lightgray, fontWeight: '600', fontSize: 12, marginTop:5 }}>{this.state.translationDic['youPay']??'You Pay'}</Text>
-            <View style={{height: 2}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16  }}>{grandTotal}</Text>
+            <View style={{height: 2}}/>
           </View>
         </View>
         <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.checkoutBtnAction()}

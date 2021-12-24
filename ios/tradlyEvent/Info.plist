@@ -26,10 +26,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>classbubs</string>
+			<string>meetneeds</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>classbubs</string>
+				<string>meetneeds</string>
 			</array>
 		</dict>
 	</array>

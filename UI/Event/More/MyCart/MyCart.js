@@ -95,14 +95,8 @@ export default class MyCart extends Component {
       if ('cart.quantity' == obj['key']) {
         this.state.translationDic['quantity'] = obj['value'];
       } 
-      if ('cart.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
-      }
-      if ('cart.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
-      }
-      if ('cart.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
+      if ('cart.your_cart_is_empty' == obj['key']) {
+        this.state.translationDic['your_cart_is_empty'] = obj['value'];
       }
     }
   }
@@ -202,7 +196,7 @@ export default class MyCart extends Component {
       </View>)
     } else {
       return (<View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: '100%'}}>
-      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? 'No Cart found' : ''}</Text>
+      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? this.state.translationDic['your_cart_is_empty'] ?? 'No Cart found' : ''}</Text>
     </View>)
     }
   }
@@ -284,8 +278,8 @@ export default class MyCart extends Component {
         <View style={styles.bottomBtnViewStyle} >
           <View style={styles.youPayViewStyle}>
             <Text style={{ color: colors.Lightgray, fontWeight: '400', fontSize: 12,marginTop:5 }}>{this.state.translationDic['youPay'] ?? 'You Pay'}</Text>
-            <View style={{height: 2}}/>
             <Text style={{ color: colors.AppTheme, fontWeight: '600', fontSize: 16 }}>{this.state.grandTotal}</Text>
+            <View style={{height: 2}}/>
           </View>
         </View>
         <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.shipmenBtnAction()}>

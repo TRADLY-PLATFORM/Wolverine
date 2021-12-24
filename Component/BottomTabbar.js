@@ -24,7 +24,7 @@ function AppTabbar() {
   let more = AppConstants.bottomTabBarDic['more'] ?? 'More'
   let chat = AppConstants.bottomTabBarDic['chats'] ?? 'Chat'
   let sell = AppConstants.bottomTabBarDic['sell'] ?? 'Sell'
-  let socialFeed = AppConstants.bottomTabBarDic['socialFeed'] ?? 'Social Feed'
+  let search = AppConstants.bottomTabBarDic['search'] ?? 'search'
 
   if (appConstant.loggedIn) {
     centerTab = appConstant.accountID.length == 0 ? shop : AddEvent
@@ -45,11 +45,11 @@ function AppTabbar() {
         if (route.name === home) {
           iconName = require('../assets/home.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
-        } else if (route.name === socialFeed) {
+        } else if (route.name === search) {
           iconName = require('../assets/search.png');
           tabColor = focused ? colors.AppTheme : colors.AppGray
         } else if (route.name === sell) {
-          iconName = focused ? require('../assets/tradly.png') : require('../assets/tradly.png');
+          iconName = focused ? {uri:appConstant.sellIcon } : {uri:appConstant.sellIcon} ;
           return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
         } else if (route.name === chat) {
           iconName = require('../assets/chat.png');
@@ -62,7 +62,7 @@ function AppTabbar() {
       },
     })}>
       <Tab.Screen name={home} component={Home} />
-      <Tab.Screen name={socialFeed} component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
+      <Tab.Screen name={search} component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
       <Tab.Screen name={sell} component={centerTab} options={{tabBarVisible: false}}/>
       <Tab.Screen name={chat} component={chatS}  options={{tabBarVisible: appConstant.loggedIn}}/>
       <Tab.Screen name={more} component={More} />

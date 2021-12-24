@@ -106,15 +106,15 @@ export default class ConversationList extends Component {
   renderListViewCellItem = ({ item, index }) => {
     let time = timeAgo(new Date(item['lastUpdated']).getTime());
     return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
-      <View style={{flexDirection: 'row',width: '90%'}}>
+      <View style={{flexDirection: 'row',width: '80%',padding:2}}>
         <Image style={{ height: 50, width: 50, borderRadius: 25 }} source={sample} />
-        <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+        <View style={{ marginLeft: 10, justifyContent: 'center',flex:1 }}>
           <Text style={eventStyles.titleStyle}>{item['receiver']}</Text>
-          <View style={{ height: 5 }} />
-          <Text style={eventStyles.commonTxtStyle}>{item['lastMessage']}</Text>
+          <View style={{ height: 2 }} />
+          <Text style={eventStyles.commonTxtStyle} numberOfLines={2}>{item['lastMessage']}</Text>
         </View>
       </View>
-      <View style={{alignItems: 'flex-end',}}>
+      <View style={{alignItems: 'flex-end'}}>
         <Text style={{fontSize: 14, color: colors.Lightgray}}>{time}</Text>
       </View>
     </TouchableOpacity>)

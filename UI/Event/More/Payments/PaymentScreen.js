@@ -27,6 +27,9 @@ import connectedIcon from '../../../../assets/connected.png';
 import errorIcon from '../../../../assets/error.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
 
 export default class ConfirmBooking extends Component {
   constructor(props) {
@@ -41,13 +44,71 @@ export default class ConfirmBooking extends Component {
       loginLink: '',
       loadData: false,
       appState: AppState.currentState,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
+    this.langifyAPI();
     this.getUserDetailApi();
     this.loadApi();
     AppState.addEventListener('change', this._handleAppStateChange);
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.payments);
+    if (searchD != undefined) {
+      this.paymentsTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.payments}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.payments, objc)
+      this.paymentsTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  paymentsTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('payments.header_title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('payments.view_dashboard' == obj['key']) {
+        this.state.translationDic['viewDashboard'] = obj['value'];
+      }  
+      if ('payments.stripe_status_waiting_message' == obj['key']) {
+        this.state.translationDic['stripe_status_waiting_message'] = obj['value'];
+      }
+      if ('payments.connect_with_stripe' == obj['key']) {
+        this.state.translationDic['connect_with_stripe'] = obj['value'];
+      }
+      if ('payments.stripe_express_connect_waiting' == obj['key']) {
+        this.state.translationDic['stripe_express_connect_waiting'] = obj['value'];
+      }
+      if ('payments.stripe_status_connection_success' == obj['key']) {
+        this.state.translationDic['stripe_status_connection_success'] = obj['value'];
+      }
+      if ('payments.stripe_express_connect_success' == obj['key']) {
+        this.state.translationDic['stripe_express_connect_success'] = obj['value'];
+      }
+      if ('payments.stripe_status_verification_failed' == obj['key']) {
+        this.state.translationDic['stripe_status_verification_failed'] = obj['value'];
+      }
+      if ('payments.redirected_to_stripe' == obj['key']) {
+        this.state.translationDic['redirected_to_stripe'] = obj['value'];
+      }
+      if ('payments.setup_payout' == obj['key']) {
+        this.state.translationDic['setup_payout'] = obj['value'];
+      }
+      // payments.
+      // payments.
+    }
   }
   loadApi() {
     this.getStripConnectAccountApi();
@@ -120,7 +181,6 @@ export default class ConfirmBooking extends Component {
 
   /*  Buttons   */
   connectStripBtnAction(){
-    console.log('!this.state.stripConnectedOnboarding',this.state.stripConnectedOnboarding);
     if (this.state.stripConnectedOnboarding == false){
       this.createAccountLinkApi();
     } else {
@@ -134,29 +194,29 @@ export default class ConfirmBooking extends Component {
 
   renderStripStatusView = () => {
     var imageIcon = paymentIcon
-    var buttonTitle = 'View Dashboard';
-    var title = 'Waiting for Stripe verification';
+    var buttonTitle =  this.state.translationDic['viewDashboard'] ?? 'View Dashboard';
+    var title = this.state.translationDic['stripe_status_waiting_message']?? 'Waiting for Stripe verification';
     var subTitle = '';
     if (this.state.stripConnectedOnboarding == false) {
       imageIcon = paymentIcon
-      title = `Countinue to stripe payout \n to receive payments`
+      title = this.state.translationDic['setup_payout'] ?? `Countinue to stripe payout \n to receive payments`
       subTitle = 'We suggest you to open new stripe connect through this link () and come back to this page to authenticate.'
-      buttonTitle = 'Connect with Stripe';
+      buttonTitle = this.state.translationDic['connect_with_stripe'] ?? 'Connect with Stripe';
     } if (this.state.payoutsEnabled == false && this.state.stripConnectedOnboarding == true) {
       imageIcon = waitingIcon
-      title = 'Waiting for Stripe verification';
-      subTitle = 'Your Stripe connect profile is under verification from Stripe.  If you want to change the information, view the dashboard to change.'
+      title = this.state.translationDic['stripe_status_waiting_message']?? 'Waiting for Stripe verification';
+      subTitle = this.state.translationDic['stripe_express_connect_waiting'] ?? 'Your Stripe connect profile is under verification from Stripe.  If you want to change the information, view the dashboard to change.'
     }  
     if (this.state.payoutsEnabled == true  && this.state.stripConnectedOnboarding == true) {
       imageIcon = connectedIcon
-      title = 'Stripe verification success';
-      subTitle = 'Congratulations, your Stripe account has been connected successfully. Now you can receive payments to the bank account of your choice!'
+      title = this.state.translationDic['stripe_status_connection_success'] ?? 'Stripe verification success';
+      subTitle = this.state.translationDic['stripe_express_connect_success'] ?? 'Congratulations, your Stripe account has been connected successfully. Now you can receive payments to the bank account of your choice!'
     }
     if (this.state.errorArray.length != 0) {
-      title = 'Stripe verification failed'
+      title = this.state.translationDic['stripe_status_verification_failed'] ?? 'Stripe verification failed'
       subTitle = this.state.errorArray.toString();
       imageIcon = errorIcon
-      buttonTitle = 'View Dashboard';
+      buttonTitle = this.state.translationDic['viewDashboard'] ?? 'View Dashboard';
     }
 
     if (this.state.loadData) {
@@ -174,9 +234,7 @@ export default class ConfirmBooking extends Component {
           <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{buttonTitle}</Text>
         </View>
       </TouchableOpacity>
-      <Text style={styles.subTitleTxtStyle}>
-        You’ll be redirected to Stripe
-      </Text>
+      <Text style={styles.subTitleTxtStyle}> {this.state.translationDic['redirected_to_stripe']  ?? 'You’ll be redirected to Stripe '}</Text>
     </View>)
     }else {
       return (<View />);
@@ -186,7 +244,7 @@ export default class ConfirmBooking extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Payments'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Payments'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '97%', backgroundColor: colors.LightBlueColor, alignItems: 'center'}}>
           <this.renderStripStatusView />

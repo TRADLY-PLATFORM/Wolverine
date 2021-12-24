@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
-    elevation: 10,
+    elevation: 2,
   },
 });

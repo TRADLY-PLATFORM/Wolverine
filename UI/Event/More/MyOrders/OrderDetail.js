@@ -32,6 +32,11 @@ import radio from '../../../../assets/radio.png';
 import selectedradio from '../../../../assets/radioChecked.png';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import AppConstants from '../../../../Constants/AppConstants';
+
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -43,17 +48,71 @@ export default class OrderDetail extends Component {
       myOrderArray: [],
       orderDetailData: {},
       updateUI: false,
-      isVisible:true,
+      isVisible:false,
       showCancelBtn: false,
       showOrderStatus: false,
       showChangeView: false,
       changeStatusArray: [],
       selectedChangeStatus:0,
+      translationDic:{},
     }
     renderOrderStatusView = this.renderOrderStatusView.bind(this);
   }
   componentDidMount() {
+    this.langifyAPI();
     this.getOrderDetailApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.orderdetail);
+    if (searchD != undefined) {
+      this.orderDetailTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.orderdetail}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.orderdetail, objc)
+      this.orderDetailTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  orderDetailTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('orderdetail.amt' == obj['key']) {
+        this.state.translationDic['amt'] = obj['value'];
+      }
+      if ('orderdetail.order_id' == obj['key']) {
+        this.state.translationDic['orderID'] = obj['value'];
+      }  
+      if ('storedetail.change_status' == obj['key']) {
+        this.state.translationDic['changeStatus'] = obj['value'];
+      }
+      if ('storedetail.cancel_order' == obj['key']) {
+        this.state.translationDic['cancelOrder'] = obj['value'];
+      } 
+      if ('storedetail.units' == obj['key']) {
+        this.state.translationDic['units'] = obj['value'];
+      }
+      if ('storedetail.order_detail' == obj['key']) {
+        this.state.translationDic['orderDetail'] = obj['value'];
+      }
+      if ('storedetail.cancel_order_confirmation' == obj['key']) {
+        this.state.translationDic['cancelOrderConfirmation'] = obj['value'];
+      } 
+      if ('storedetail.no' == obj['key']) {
+        this.state.translationDic['no'] = obj['value'];
+      } 
+      if ('storedetail.yes' == obj['key']) {
+        this.state.translationDic['yes'] = obj['value'];
+      }
+      // Cancel Order
+    }
   }
   getOrderDetailApi = async () => {
     let {orderId,account} = this.props.route.params;
@@ -64,10 +123,9 @@ export default class OrderDetail extends Component {
     const responseJson = await networkService.networkCall(path, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['order'];
-      console.log('pDataOrder ==>', JSON.stringify(pData));
+      // console.log('pDataOrder ==>', JSON.stringify(pData));
       this.state.orderDetailData = pData;
       let nextStatus = this.state.orderDetailData['next_status'];
-      console.log('nextStatus', nextStatus)
       this.state.showCancelBtn = nextStatus.includes(16);
       if (nextStatus.length != 0) {
         for (let obj of nextStatus) {
@@ -99,7 +157,7 @@ export default class OrderDetail extends Component {
     Alert.alert( `Successfull!`, "",
     [
       {
-        text: 'OK', onPress: () => {
+        text: AppConstants.okTitle, onPress: () => {
           this.props.navigation.goBack()
         }
       }
@@ -109,14 +167,14 @@ export default class OrderDetail extends Component {
   /*  Buttons   */
   cancelBtnAction() {
     Alert.alert(
-      "Are you sure you want to Cancel this order", "",
+      this.state.translationDic['cancelOrderConfirmation'] ?? "Are you sure you want to Cancel this order", "",
       [
         {
-          text: "Cancel",
+          text: this.state.translationDic['no'] ?? "Cancel",
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: "OK", onPress: () => {
+          text: this.state.translationDic['yes'] ?? 'OK', onPress: () => {
             this.changeOrderStatusAPI(16); 
           }
         }
@@ -158,7 +216,7 @@ export default class OrderDetail extends Component {
               <Text style={eventStyles.subTitleStyle}>{listD['description']}</Text>
               <View style={{ height: 10 }} />
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                  <Text style={{ fontSize: 14, fontWeight: '700' }}>Units: {quantity}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700' }}>{this.state.translationDic['units'] ?? 'Units'}: {quantity}</Text>
                   <Text style={styles.amountTxtStyle}>{grandTotal} /-</Text>
               </View>
               <View style={{marginTop:10, height: 1, width:'100%', backgroundColor: colors.LightUltraGray }} />
@@ -216,7 +274,7 @@ export default class OrderDetail extends Component {
       var photo = item['images'] ? item['images'] : [];
       return (<TouchableOpacity onPress={() => this.storeDetail(item['id'])}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={{ height: 32, width: 32, borderRadius: 16 }} source={photo.length == 0 ? sample : { uri: photo[0] }} />
+          <Image style={{height: 32, width: 32, borderRadius: 16}} source={photo.length == 0 ? sample : { uri: photo[0] }} />
           <View style={{ width: 10 }} />
           <Text style={eventStyles.commonTxtStyle}>{item['name']}</Text>
         </View>
@@ -316,12 +374,12 @@ export default class OrderDetail extends Component {
       <View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View>
-            <Text style={eventStyles.titleStyle}>Current Status</Text>
-            <View style={{ height: 5 }} />
-            <Text style={eventStyles.commonTxtStyle}>Order ID - {this.state.orderDetailData['reference_number']}</Text>
+            {/* <Text style={eventStyles.titleStyle}>Current Status</Text> */}
+            {/* <View style={{ height: 5 }} /> */}
+            <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['orderID']  ?? 'Order ID'} - {this.state.orderDetailData['reference_number']}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, fontWeight: '700' }}>Amt:</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700' }}>{this.state.translationDic['amt'] ?? 'Amt'}:</Text>
             <Text style={styles.amountTxtStyle}>{grandTotal} /-</Text>
           </View>
         </View>
@@ -362,7 +420,7 @@ export default class OrderDetail extends Component {
   renderStatusView = () => {
     let maxHeight = '100%'
     if (this.state.showChangeView) {
-      return (<View>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={['50%', "50%", maxHeight]}
@@ -374,7 +432,7 @@ export default class OrderDetail extends Component {
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center' }}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Change Status</Text>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.translationDic['changeStatus'] ?? 'Change Status'}</Text>
                 </View>
                 <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderChangeStatusView()}
@@ -382,7 +440,7 @@ export default class OrderDetail extends Component {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.changeStatusDoneBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight:'600'}}>Done</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -402,7 +460,7 @@ export default class OrderDetail extends Component {
       return (<View style={styles.commonViewStyle}>
         <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.cancelBtnAction()}>
           <View style={eventStyles.clearBtnViewStyle} >
-            <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>Cancel Booking</Text>
+            <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{this.state.translationDic['cancelOrder'] ?? 'Cancel Order'}</Text>
           </View>
         </TouchableOpacity>
       </View>)
@@ -410,7 +468,7 @@ export default class OrderDetail extends Component {
       return (<View style={styles.commonViewStyle}>
         <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.setState({showChangeView: true})}>
           <View style={eventStyles.clearBtnViewStyle} >
-            <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>Change Status</Text>
+            <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{this.state.translationDic['changeStatus'] ?? 'Change Status'}</Text>
           </View>
         </TouchableOpacity>
       </View>)
@@ -421,9 +479,9 @@ export default class OrderDetail extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Orders Detail'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['orderDetail'] ?? 'Orders Detail'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{height: '100%'}}>
+        <View style={{height: '100%', flex:1}}>
           <View style={styles.mainViewStyle}>
             <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
               <View style={styles.commonViewStyle}>

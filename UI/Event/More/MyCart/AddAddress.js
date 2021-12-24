@@ -23,6 +23,7 @@ import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import LangifyKeys from '../../../../Constants/LangifyKeys';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import { AppAlert } from '../../../../HelperClasses/SingleTon';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -109,10 +110,13 @@ export default class AddAddress extends Component {
         this.state.translationDic['country'] = obj['value'];
       }
       if ('address.zipcode' == obj['zipcode']) {
-        this.state.translationDic['quantity'] = obj['value'];
+        this.state.translationDic['zipcode'] = obj['value'];
       }
       if ('address.save' == obj['key']) {
         this.state.translationDic['save'] = obj['value'];
+      }
+      if ('address.ok' == obj['key']) {
+        this.state.translationDic['ok'] = obj['value'];
       }
     }
   }
@@ -154,15 +158,15 @@ export default class AddAddress extends Component {
   /*  Buttons   */
   createBtnAction() {
     if (this.state.name.length == 0) {
-      Alert.alert('Name field should not be empty')
+      AppAlert(this.state.translationDic['name'],this.state.translationDic['alertOk'])
     } else if (this.state.address1.length == 0) {
-      Alert.alert('Address1 field should not be empty')
+      AppAlert(this.state.translationDic['address1'],this.state.translationDic['alertOk'])
     } else if (this.state.state.length == 0) {
-      Alert.alert('State field should not be empty')
+      AppAlert(this.state.translationDic['state'],this.state.translationDic['alertOk'])
     } else if (this.state.country.length == 0) {
-      Alert.alert('Country field should not be empty')
+      AppAlert(this.state.translationDic['country'],this.state.translationDic['alertOk'])
     } else if (this.state.zipcode.length == 0) {
-      Alert.alert('Zipcode field should not be empty')
+      AppAlert(this.state.translationDic['zipcode'],this.state.translationDic['alertOk'])
     }  else {
       this.addAddressAPI()
     }

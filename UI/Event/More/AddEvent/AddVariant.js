@@ -21,6 +21,10 @@ import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
+
 export default class AddVariant extends Component {
   constructor(props) {
     super(props);
@@ -34,9 +38,11 @@ export default class AddVariant extends Component {
       disableAddBtn: true,
       selectedVariantArray:[],
       isVisible: false,
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     let {selectVariantArray} = this.props.route.params;
     var  vAry = []
     for (let objc of selectVariantArray){
@@ -49,6 +55,51 @@ export default class AddVariant extends Component {
     this.state.selectedVariantArray = vAry;;
     this.setState({updateUI: !this.state.updateUI})
     this.getVariantApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.addvariant);
+    if (searchD != undefined) {
+      this.varinatTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.addvariant}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      console.log('objc', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.addvariant, objc)
+      this.varinatTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  varinatTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      console.log('obj', obj)
+      if ('storedetail.variant_type' == obj['key']) {
+        this.state.translationDic['variantType'] = obj['value'];
+      }  
+      if ('storedetail.select_variant_type' == obj['key']) {
+        this.state.translationDic['selectVariantType'] = obj['value'];
+      }  
+      if ('storedetail.variant_type_value' == obj['key']) {
+        this.state.translationDic['variantTypeValue'] = obj['value'];
+      }
+      if ('storedetail.select_variant_type_value' == obj['key']) {
+        this.state.translationDic['selectVariantTypeValue'] = obj['value'];
+      }
+      if ('storedetail.add_variant' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('storedetail.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+        appConstant.doneTitle = obj['value'];
+      }
+    }
   }
   getVariantApi = async () => {
     this.setState({ isVisible: true })
@@ -96,7 +147,7 @@ export default class AddVariant extends Component {
         values: this.state.selectedVariantTypeValues,
       }
       this.state.selectedVariantArray.push(dict);
-      this.state.variantName = 'Select Variant Type';
+      this.state.variantName = this.state.translationDic['variantType'] ?? 'Select Variant Type';
       this.state. variantTypeValues = '';
       this.setState({ disableAddBtn: true})
     }
@@ -132,7 +183,7 @@ export default class AddVariant extends Component {
         this.setState({ disableAddBtn: false})
       } else {
         this.setState({ disableAddBtn: true})
-        Alert.alert('Already Selected please choose another')
+        // Alert.alert('Already Selected please choose another')
       }
     }
   }
@@ -169,24 +220,24 @@ export default class AddVariant extends Component {
     }
   }
   render() {
-    let valueTitle = this.state.variantTypeValues.length == 0 ? 'Select Variant Type Values': this.state.variantTypeValues;
+    let valueTitle = this.state.variantTypeValues.length == 0 ? this.state.translationDic['selectVariantTypeValue'] ?? 'Select Variant Type Values': this.state.variantTypeValues;
     return (
       <SafeAreaView style={styles.Container}>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <HeaderView title={'Add Variants'}
+        <HeaderView title={this.state.translationDic['title'] ?? 'Add Variant'}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
-          showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()} />
+          showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()} doneBtnTitle={appConstant.doneTitle}/>
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={styles.mainViewStyle}>
             <View>
-              <Text style={commonStyles.textLabelStyle}>Variant Type</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['variantType'] ?? 'Variant Type'}</Text>
               <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.variantBtnAction()}>
                 <Text style={commonStyles.txtFieldWithImageStyle}>{this.state.variantName}</Text>
                 <Image style={commonStyles.backBtnStyle} resizeMode='center' source={forwardIcon} />
               </TouchableOpacity>
             </View>
             <View style={{ marginTop: 20 }}>
-              <Text style={commonStyles.textLabelStyle}>Variant Type Value</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['variantTypeValue'] ?? 'Variant Type Value'}</Text>
               <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.variantTypeValueBtnAction()}>
                 <Text style={commonStyles.txtFieldWithImageStyle}>{valueTitle}</Text>
                 <Image style={commonStyles.backBtnStyle} resizeMode='center' source={forwardIcon} />
@@ -197,7 +248,7 @@ export default class AddVariant extends Component {
               disabled = {this.state.disableAddBtn}
               style={this.state.disableAddBtn ? commonStyles.disableThemeBtnStyle :commonStyles.themeBtnStyle }
               onPress={() => this.addVariantBtnAction()}>
-              <Text style={commonStyles.themeTitleStyle}>Add Variant</Text>
+              <Text style={commonStyles.themeTitleStyle}>{this.state.translationDic['title'] ?? 'Add Variant'}</Text>
             </TouchableOpacity>
           </View>
           <View style={{ height: 20 }} />

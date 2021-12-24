@@ -35,6 +35,10 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Slider2 from "react-native-sliders";
 
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
+
 
 const windowHeight = Dimensions.get('window').height;
 const titleAry = ['Any Time', 'Past year', 'Past Month', 'Past Week', 'Past 24 Hour']; 
@@ -60,12 +64,14 @@ export default class Filter extends Component {
       selectAttributeIds:[],
       selectedAtriValueIds: [],
       showTimeBool:false,
+      translationDic:{},
     }
     this.onChangeTimeSlider =  this.onChangeTimeSlider.bind(this);
 
   }
 
   componentDidMount() {
+    this.langifyAPI();
     for (let obc of constantArrays.filterArray){
       this.state.attributesArray.push(obc)
     }
@@ -111,6 +117,50 @@ export default class Filter extends Component {
       }
     }
   }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.filter);
+    if (searchD != undefined) {
+      this.searchTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.filter}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.filter, objc)
+      this.searchTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  searchTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('filter.distance' == obj['key']) {
+        constantArrays.filterArray[1] = obj['value'];
+      }
+      if ('filter.rating' == obj['key']) {
+        constantArrays.filterArray[0] = obj['value'];
+      }  
+      if ('filter.category' == obj['key']) {
+        constantArrays.filterArray[2] = obj['value'];
+      }  
+      if ('filter.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('filter.clear' == obj['key']) {
+        this.state.translationDic['clear'] = obj['value'];
+      }
+      if ('filter.apply' == obj['key']) {
+        this.state.translationDic['apply'] = obj['value'];
+      }
+    }
+  }
+
+
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.category + 'listings', 'get', '', appConstant.bToken, appConstant.authKey)
@@ -379,12 +429,12 @@ export default class Filter extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() =>  this.clearBtnAction()}>
         <View style={eventStyles.clearBtnViewStyle}>
-          <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>Clear Filters</Text>
+          <Text style={{ color: colors.AppTheme,fontWeight: '600'}}>{this.state.translationDic['clear'] ?? 'Clear'}</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.applyBtnAction()}>
         <View style={eventStyles.applyBtnViewStyle}>
-          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Apply</Text>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>{this.state.translationDic['apply'] ?? 'Apply'}</Text>
         </View>
       </TouchableOpacity>
     </View>)
@@ -646,7 +696,7 @@ export default class Filter extends Component {
                 <View style={{paddingLeft: 16, paddingRight: 16,marginTop:10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.doneBtnAction()}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{appConstant.doneTitle ?? 'Done'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -691,7 +741,7 @@ export default class Filter extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>

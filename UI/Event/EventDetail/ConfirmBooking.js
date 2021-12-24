@@ -29,6 +29,10 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import SuccessView from '../../../Component/SuccessView';
 import { presentPaymentSheet,initPaymentSheet } from '@stripe/stripe-react-native';
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../HelperClasses/SingleTon';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 let pType = 'stripe';
 
 export default class ConfirmBooking extends Component {
@@ -49,7 +53,8 @@ export default class ConfirmBooking extends Component {
       showCAlert: false,
       startTime:'',
       endTime:'',
-      selectedDate:''
+      selectedDate:'',
+      translationDic:{},
     }
   }
   componentDidMount() {
@@ -61,8 +66,49 @@ export default class ConfirmBooking extends Component {
     // this.state.eventDetailData = eventData
     // this.state.listPrice = this.state.eventDetailData['offer_price']['amount'];
     // this.setState({updateUI: !this.state.updateUI})
+    this.langifyAPI();
     this.getPaymentMethodsApi();
     this.getphemeralKeyApi();
+  }
+  langifyAPI = async () => {
+    let productD = await tradlyDb.getDataFromDB(LangifyKeys.bookingconformation);
+    if (productD != undefined) {
+      this.productTranslationData(productD);
+      this.setState({ updateUI: true})
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.bookingconformation}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.bookingconformation, objc)
+      this.productTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  productTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('bookingconformation.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('bookingconformation.payment_method' == obj['key']) {
+        this.state.translationDic['payment_method'] = obj['value'];
+      } 
+      if ('bookingconformation.total' == obj['key']) {
+        this.state.translationDic['total'] = obj['value'];
+      }
+      if ('bookingconformation.confirm_order' == obj['key']) {
+        this.state.translationDic['confirm_order'] = obj['value'];
+      }
+      if ('bookingconformation.success' == obj['key']) {
+        this.state.translationDic['success'] = obj['value'];
+      }
+      
+    }
   }
   getPaymentMethodsApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -292,7 +338,7 @@ export default class ConfirmBooking extends Component {
         </View>
       </View> */}
       <View style={{flexDirection: 'row', justifyContent: 'space-between',alignItems: 'center'}}>
-        <Text style={eventStyles.commonTxtStyle}>Total</Text>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['total'] ?? 'Total'}</Text>
         <Text style={eventStyles.commonTxtStyle}>{`${grandTotal}`}</Text>
       </View>
     </View>) 
@@ -303,7 +349,7 @@ export default class ConfirmBooking extends Component {
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.confirmBookingBtnAction()}
        disabled={this.state.selectedPaymentId == 0}>
         <View style={this.state.selectedPaymentId == 0 ? eventStyles.disableApplyBtnViewStyle : eventStyles.applyBtnViewStyle } >
-          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>Confirm Order</Text>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600' }}>{this.state.translationDic['confirm_order'] ?? 'Confirm Order'}</Text>
         </View>
       </TouchableOpacity>
     </View>)
@@ -312,7 +358,7 @@ export default class ConfirmBooking extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Booking Confirmation'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Booking Confirmation'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor,justifyContent: 'space-between' }}>
           <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
@@ -326,19 +372,19 @@ export default class ConfirmBooking extends Component {
             </View> */}
             {/* <View style={{height: 10}}/> */}
             <View style={{padding:16}}>
-              <Text style={eventStyles.commonTxtStyle}>Payment Method</Text>
+              <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['payment_method'] ?? 'Payment Method'}</Text>
             </View>
             {this.renderPaymentMethodsView()}
             <View style={styles.commonViewStyle}>
               {this.renderTotalView()}
             </View>
             </View>
-            <SuccessView  title={'Your order is successfull. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView  title={this.state.translationDic['success'] ?? 'Your order is successfull. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
           <View style={{padding: 16}}>
             <View style={{ height: 10 }} />
             {this.renderBottomBtnView()}
-            <View style={{ height: 40 }} />
+            <View style={{ height: 60 }} />
           </View>
         </View>
       </SafeAreaView>
@@ -362,7 +408,7 @@ const styles = StyleSheet.create({
   },
   bottomBtnViewStyle: {
     width: '100%',
-    height: 70,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',

@@ -19,6 +19,10 @@ import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
 import TrasnactionList from '../../../../Component/TrasnactionList';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
+
 export default class MySale extends Component {
   constructor(props) {
     super(props);
@@ -29,10 +33,51 @@ export default class MySale extends Component {
       pageNo: 1,
       stopPagination: false,
       earningData: {},
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     this.callApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.sales);
+    if (searchD != undefined) {
+      this.salesTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.sales}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.sales, objc)
+      this.salesTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  salesTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('sales.your_balance' == obj['key']) {
+        this.state.translationDic['yourBalance'] = obj['value'];
+      }
+      if ('sales.balance' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('sales.no_transaction_found' == obj['key']) {
+        this.state.translationDic['noTransactionFound'] = obj['value'];
+      }
+      if ('sales.see_payouts' == obj['key']) {
+        this.state.translationDic['seePayouts'] = obj['value'];
+      }
+      if ('sales.transactions' == obj['key']) {
+        this.state.translationDic['transactions'] = obj['value'];
+      }
+    }
   }
   callApi() {
     this.state.myTransactionsArray = [];
@@ -98,7 +143,7 @@ export default class MySale extends Component {
       </View>
     } else {
       return <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: '50%' }}>
-        <Text style={eventStyles.titleStyle}> No Transactions found</Text>
+        <Text style={eventStyles.titleStyle}> {this.state.translationDic['noTransactionFound'] ?? 'No Transactions found'}</Text>
       </View>
     }
   }
@@ -111,21 +156,21 @@ export default class MySale extends Component {
     let amount = this.state.earningData['formatted'];
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Balance'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Balance'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%' }}>
           <View style={styles.headerViewStyle}>
             <View style={{ height: 10 }} />
-            <Text style={{ color: colors.AppWhite }}>Your Balance</Text>
+            <Text style={{ color: colors.AppWhite }}>{this.state.translationDic['yourBalance'] ?? 'Your Balance'}</Text>
             <View style={{ height: 10 }} />
             <Text style={{ color: colors.AppWhite, fontSize: 20, fontWeight: '600' }}>{amount}</Text>
             <TouchableOpacity style={styles.seePayoutsStyle} onPress={() => this.seePayoutBtnAction()}>
-              <Text style={{ color: colors.AppWhite }}>See Payouts</Text>
+              <Text style={{ color: colors.AppWhite }}>{this.state.translationDic['seePayouts'] ?? 'See Payouts'}</Text>
             </TouchableOpacity>
           </View>
           <View style={{ flex: 1, backgroundColor: colors.LightBlueColor }}>
             <View style={{ margin: 16 }}>
-              <Text style={eventStyles.titleStyle}>Transactions</Text>
+              <Text style={eventStyles.titleStyle}>{this.state.translationDic['transactions'] ?? 'Transactions'}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <this.renderTransactionListView />

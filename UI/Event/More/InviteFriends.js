@@ -19,6 +19,10 @@ import appConstant from '../../../Constants/AppConstants';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
+
 const windowWidth = Dimensions.get('window').width;
 
 export default class AddRecycleItem extends Component {
@@ -28,11 +32,45 @@ export default class AddRecycleItem extends Component {
       isVisible:true,
       title:'',
       description:'',
-      name:''
+      name:'',
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI()
     this.configListApi()
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.invite);
+    if (searchD != undefined) {
+      this.inviteTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.invite}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.invite, objc)
+      this.inviteTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  inviteTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('invite.header_title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('invite.invite_now' == obj['key']) {
+        this.state.translationDic['inviteNow'] = obj['value'];
+      }  
+      // payments.
+      // payments.
+    }
   }
   configListApi = async()  => {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general', 'get','',appConstant.bToken,'')
@@ -68,7 +106,7 @@ export default class AddRecycleItem extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Invite People'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['title'] ?? 'Share'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '90%', backgroundColor: colors.LightBlueColor, width: '90%', alignSelf: 'center', borderRadius: 10 }}>
           <ScrollView>
@@ -81,7 +119,7 @@ export default class AddRecycleItem extends Component {
                 <Text style={{ fontWeight: '500', color: colors.AppTheme, fontSize: 18 }}>{this.state.name}</Text>
               </View> */}
               <View style={{ alignItems: 'center', marginTop: '30%', marginBottom: 20 }}>
-                <Text style={styles.inviteStyle}>or invite using</Text>
+                <Text style={styles.inviteStyle}>{this.state.translationDic['inviteNow'] ?? 'invite now'}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                   <TouchableOpacity style={{ width: 50, height: 50, margin: 5 }} onPress={() => this.onShareBtnAction()}>
                     <Image style={{ width: 50, height: 50, alignSelf: 'center' }} resizeMode="contain" source={require('../../../assets/shareWhatsapp.png')} />

@@ -46,7 +46,6 @@ import menuIcon from '../../../assets/menu.png'
 import AppMessages from '../../../Constants/AppMessages';
 import LangifyKeys from '../../../Constants/LangifyKeys';
 import {AppAlert } from '../../../HelperClasses/SingleTon';
-import AppConstants from '../../../Constants/AppConstants';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
 import ActionSheet from 'react-native-actionsheet'
 
@@ -120,7 +119,17 @@ export default class EventDetail extends Component {
       }  
       if ('product.go_to_cart' == obj['key']) {
         this.state.translationDic['goToCart'] = obj['value'];
-      }  
+      }
+      if ('product.clear_cart_info' == obj['key']) {
+        this.state.translationDic['clear_cart_info'] = obj['value'];
+      } 
+      if ('product.clear_cart' == obj['key']) {
+        this.state.translationDic['clear_cart'] = obj['value'];
+      }
+      if ('product.alert_success_product_delete' == obj['key']) {
+        this.state.translationDic['alert_success_product_delete'] = obj['value'];
+      }
+      // product.clear_cart
     }
   }
   getEventDetailApi = async () => {
@@ -200,10 +209,10 @@ export default class EventDetail extends Component {
   }
   succesDeleted() {
     this.setState({ isVisible: false })
-    Alert.alert("Deleted", "",
+    Alert.alert(this.state.translationDic['alert_success_product_delete'] ?? "Deleted", "",
       [
         {
-          text: "OK", onPress: () => {
+          text: appConstant.okTitle, onPress: () => {
             this.props.navigation.popToTop();
           }
         }
@@ -212,14 +221,14 @@ export default class EventDetail extends Component {
   }
   clearCartAlert() {
     Alert.alert(
-      AppMessages.clearCartInfo, "",
+      this.state.translationDic['clear_cart_info'] ?? appMsg.clearCartInfo, "",
       [
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: "Clear Cart", onPress: () => {
+          text: this.state.translationDic['clear_cart'] ?? 'Clear Cart', onPress: () => {
             this.deleteCartAPI();
           }
         }
@@ -841,7 +850,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
-    elevation: 10,
+    elevation: 2,
   },
   selectedImageStyle: {
     width: 140,

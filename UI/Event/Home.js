@@ -27,6 +27,9 @@ import heartEmptyIcon from '../../assets/heartEmpty.png'
 import {normalize} from '../../HelperClasses/SingleTon';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
 
+import LangifyKeys from '../../Constants/LangifyKeys';
+import tradlyDb from '../../TradlyDB/TradlyDB';
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -44,6 +47,7 @@ export default class Home extends Component {
     }
   }
   componentDidMount() {
+    this.callLngiFy();
     this.locationPermission()
     this.getSavedData();
   }
@@ -80,7 +84,41 @@ export default class Home extends Component {
       }.bind(this))
     }.bind(this))
   }
-
+  callLngiFy() {
+    this.langifyAPI(LangifyKeys.login);
+    this.langifyAPI(LangifyKeys.general);
+  }
+  langifyAPI = async (keyGrop) => {
+    let searchD = await tradlyDb.getDataFromDB(keyGrop);
+    if (searchD != undefined) {
+      this.generalTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${keyGrop}`
+    console.log()
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(keyGrop, objc)
+      this.generalTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  generalTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('general.done' == obj['key']) {
+        appConstant.doneTitle =  obj['value'];
+      }
+      if ('login.alert_ok' == obj['key']) {
+        appConstant.okTitle =  obj['value'];
+      }
+    }
+  }
   getMyStoreApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}?user_id=${appConstant.userId}&page=1&type=accounts`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
@@ -211,7 +249,7 @@ export default class Home extends Component {
   renderPromoCellItem = ({item, index}) => {
     var photo = item['image_path']
     return (<View style={styles.promoCellStyle}>
-      <FastImage resizeMode={'contain'} style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
+      <FastImage style={{ height:'100%',width:'100%', borderRadius: 5 }} source={photo.length == 0 ? dummy : {uri: photo}} />
       </View>)
    }
   renderEventView = () => {
@@ -381,7 +419,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 2,
-    elevation: 10,
+    elevation: 2,
     flexDirection: 'row',
   },
   eventCellItemStyle: {

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import colors from '../CommonClasses/AppColor';
+import AppConstants from '../Constants/AppConstants';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -28,7 +29,7 @@ export default class SuccessView extends Component {
     title:PropTypes.string,
   };
   successView = () => {
-    let title = this.props.title == undefined ? 'Successfully Updated' :  title
+    let title = this.props.title == undefined ? 'Successfully Updated' :  this.props.title
     return <View>
       <Modal
         animationType="slide"
@@ -42,7 +43,7 @@ export default class SuccessView extends Component {
             <View style={{ marginTop: 20 }} />
             <Text style={styles.txtStyle}>{title}</Text>
             <TouchableOpacity style={styles.submitBtnStyle} onPress={() => this.props.onPress()}>
-              <Text style={{ fontSize: 16, fontWeight: "400", color: 'white' }}>Continue</Text>
+              <Text style={{ fontSize: 16, fontWeight: "400", color: 'white' }}>{AppConstants.okTitle}</Text>
             </TouchableOpacity>
           </View>
         </View>

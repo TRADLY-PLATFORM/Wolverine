@@ -21,13 +21,17 @@ import commonStyles from '../../../../StyleSheet/UserStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
 import APPURL from '../../../../Constants/URLConstants';
-import DefaultPreference from 'react-native-default-preference';
 import networkService from '../../../../NetworkManager/NetworkManager';
 import appConstant from '../../../../Constants/AppConstants';
 import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import cancelIcon from '../../../../assets/cancel.png';
 import FastImage from 'react-native-fast-image'
 import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
+
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../../HelperClasses/SingleTon';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
 
 
 const keyAry = ['title','description','list_price', 'stock','offer_percent'];
@@ -48,9 +52,11 @@ export default class AddVariantValue extends Component {
       offerPrice: '',
       price: '',
       ticketLimit:'',
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     let {currencyArray} = this.props.route.params;
     this.state.currencyArray = currencyArray;
     this.state.selectedCurrency = currencyArray[0];
@@ -66,6 +72,64 @@ export default class AddVariantValue extends Component {
       this.state.selectedCurrency = variantData['currency'];
     } 
     this.setState({ updateUI: !this.state.updateUI })
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.addvariant);
+    if (searchD != undefined) {
+      this.varinatTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.addvariant}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      console.log('objc', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.addvariant, objc)
+      this.varinatTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  varinatTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('storedetail.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('storedetail.name' == obj['key']) {
+        this.state.translationDic['name'] = obj['value'];
+      }  
+      if ('storedetail.description' == obj['key']) {
+        this.state.translationDic['description'] = obj['value'];
+      }
+      if ('storedetail.price' == obj['key']) {
+        this.state.translationDic['price'] = obj['value'];
+      }
+      if ('storedetail.offer' == obj['key']) {
+        this.state.translationDic['offer'] = obj['value'];
+      }
+      if ('storedetail.ticket_limit' == obj['key']) {
+        this.state.translationDic['ticketLimit'] = obj['value'];
+      }
+      if ('storedetail.submit' == obj['key']) {
+        this.state.translationDic['submit'] = obj['value'];
+      }
+      if ('storedetail.delete' == obj['key']) {
+        this.state.translationDic['delete'] = obj['value'];
+      }
+      if ('storedetail.delete_conformation' == obj['key']) {
+        this.state.translationDic['deleteConformation'] = obj['value'];
+      }
+      if ('storedetail.yes' == obj['key']) {
+        this.state.translationDic['yes'] = obj['value'];
+      }
+      if ('storedetail.no' == obj['key']) {
+        this.state.translationDic['no'] = obj['value'];
+      }
+    }
   }
   /*  Buttons   */
   currecnyBtnAction() {
@@ -109,14 +173,14 @@ export default class AddVariantValue extends Component {
   }
   deleteBtnAction() {
     Alert.alert(
-      "Are you sure you want to delete this?", "",
+      this.state.translationDic['deleteConformation'] ?? "Are you sure you want to delete this?", "",
       [
         {
-          text: "Cancel",
+          text: this.state.translationDic['no'] ?? "Cancel",
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: "Yes", onPress: () => {
+          text: this.state.translationDic['yes'] ?? "Yes", onPress: () => {
             let {index} = this.props.route.params;
             this.props.route.params.getDeleteVariant(index);
             this.props.navigation.goBack()
@@ -127,7 +191,6 @@ export default class AddVariantValue extends Component {
   }
   /*  Buttons   */
   getCurrencyData = (data) => {
-    console.log('data => ', data);
     this.setState({selectedCurrency: data[0]})
   }
   deleteImageButtonAction(id) {
@@ -170,17 +233,9 @@ export default class AddVariantValue extends Component {
             <View style={styles.imageSelectedStyle}>
               <TouchableOpacity onPress={() => this.imagePicker()}>
                 <View>
-                  <FastImage
-                    source={{ uri: photoPath}}
-                    style={styles.SelectedImageStyle}
-                    resizeMode={'cover'}
-                  />
-                  <TouchableOpacity
-                    style={styles.deleteViewStyle}
-                    onPress={() => this.deleteImageButtonAction(i)}>
-                    <Image resizeMode={'center'} style={{height:20, width:20}}
-                      source={cancelIcon}
-                    />
+                  <FastImage source={{ uri: photoPath}} style={styles.SelectedImageStyle} resizeMode={'cover'}/>
+                  <TouchableOpacity style={styles.deleteViewStyle} onPress={() => this.deleteImageButtonAction(i)}>
+                    <Image resizeMode={'center'} style={{height:20, width:20}}  source={cancelIcon}  />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
@@ -190,10 +245,8 @@ export default class AddVariantValue extends Component {
         views.push(
           <View>
             <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
-              <View style={{ justifyContent: 'center' }}>
-                <Image source={cameraIcon}
-                  style={{ width: 30, height: 30, alignSelf: 'center' }}
-                />
+              <View style={{justifyContent: 'center'}}>
+                <Image source={cameraIcon} style={{ width: 30, height: 30, alignSelf:'center'}} />
               </View>
             </TouchableOpacity>
           </View>,
@@ -207,7 +260,7 @@ export default class AddVariantValue extends Component {
       <View style={eventStyles.clickAbleFieldStyle}>
         <TextInput
           style={commonStyles.txtFieldWithImageStyle}
-          placeholder={'Enter Price'}
+          placeholder={this.state.translationDic['price'] ?? 'Price'}
           keyboardType={'number-pad'}
           value={this.state.price.toString()}
           onChangeText={value => this.setState({ price: value })}
@@ -235,7 +288,7 @@ export default class AddVariantValue extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={title}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}  showDoneBtn={true}
-          doneBtnTitle={'Delete'} doneBtnAction={() => this.deleteBtnAction()}/>
+          doneBtnTitle={this.state.translationDic['delete'] ?? 'Delete'} doneBtnAction={() => this.deleteBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -245,52 +298,52 @@ export default class AddVariantValue extends Component {
                   <this.viewSelectedImages />
                 </View>
               </ScrollView>
-              <Text style={eventStyles.subTitleStyle}>Maximum 4 Images</Text>
+              {/* <Text style={eventStyles.subTitleStyle}>Maximum 4 Images</Text> */}
             </View>
             <View style={{ backgroundColor: colors.AppWhite, height: '80%', padding: 16 }}>
-            <Text style={commonStyles.textLabelStyle}>Title</Text>
+            <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['title'] ?? 'Title'}</Text>
               <TextInput 
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter Name'}
+                placeholder={this.state.translationDic['name'] ?? 'Title'}
                 value={this.state.name}
                 onChangeText={value => this.setState({name: value})}
                 />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Description</Text>
+                <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['description'] ?? 'Description'}</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
-                placeholder={'Enter Description'}
+                placeholder={this.state.translationDic['description'] ?? 'Description'}
                 value={this.state.description}
                 onChangeText={value => this.setState({description: value})}
                 multiline={true} />
               <View style={{ marginTop: 20 }}>
-              <Text style={commonStyles.textLabelStyle}>Price</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['price'] ?? 'Price'}</Text>
                 <this.renderPriceView />
               </View>
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Offer %</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['offer'] ?? 'Offer'} %</Text>
               <View style={eventStyles.clickAbleFieldStyle}>
                 <Text style={{marginTop: 18,fontSize: 20, width: 20}}>%</Text>
                 <TextInput
                   style={commonStyles.txtFieldWithImageStyle}
-                  placeholder={'Enter Offer '}
+                  placeholder={this.state.translationDic['offer'] ?? 'Order %'}
                   keyboardType={'number-pad'}
                   value={this.state.offerPrice.toString()}
                   onChangeText={value => this.setState({offerPrice: value})}
                   />
               </View>
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Ticket Limit</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['ticketLimit'] ?? 'Ticket Limit'}</Text>
               <TextInput
                 style={commonStyles.txtViewStyle}
-                placeholder={'Enter Ticket Limit'}
+                placeholder={this.state.translationDic['ticketLimit'] ?? 'Ticket Limit'}
                 keyboardType={'number-pad'}
                 value={this.state.ticketLimit.toString()}
                 onChangeText={value => this.setState({ticketLimit: value})}
                 />
               <View style={{ height: 20 }} />
               <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.submitBtnAction()}>
-                <Text style={commonStyles.themeTitleStyle}>Submit</Text>
+                <Text style={commonStyles.themeTitleStyle}>{this.state.translationDic['submit'] ?? 'Submit'}</Text>
               </TouchableOpacity>
               <View style={{ height: 50 }} />
             </View>

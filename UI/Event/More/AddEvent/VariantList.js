@@ -15,6 +15,16 @@ import forwardIcon from '../../../../assets/forward.png';
 import tickIcon from '../../../../assets/tick.png';
 import emptyIcon from '../../../../assets/empty.png';
 
+
+import APPURL from '../../../../Constants/URLConstants';
+import networkService from '../../../../NetworkManager/NetworkManager';
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import AppConstants from '../../../../Constants/AppConstants';
+
+
+
+
 export default class VariantList extends Component {
   constructor(props) {
     super(props);
@@ -22,9 +32,11 @@ export default class VariantList extends Component {
       selectedVariantType: [],
       variantTypeArray: [],
       updateUI: false,
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI()
     const {variantTypeArray, multipleSelect,varriantTypeValueArray} = this.props.route.params;
     if (multipleSelect) {
       console.log('varriantTypeValueArray', varriantTypeValueArray)
@@ -34,6 +46,37 @@ export default class VariantList extends Component {
 
     }
     this.setState({updateUI: !this.state.updateUI})
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.variant);
+    if (searchD != undefined) {
+      this.variantTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.variant}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', AppConstants.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      console.log('objc', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.variant, objc)
+      this.variantTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  variantTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('variant.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('variant.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }  
+    }
   }
   /*  Buttons   */
 
@@ -73,9 +116,9 @@ export default class VariantList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Variants'}
+        <HeaderView title={this.state.translationDic['Variants'] ?? 'Variants'}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
-          showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
+          showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()} doneBtnTitle={this.state.translationDic['done']?? 'Done'}/>
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
           <this.renderListView />
         </View>

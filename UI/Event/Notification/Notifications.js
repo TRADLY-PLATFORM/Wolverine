@@ -22,6 +22,11 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {changeDateFormat} from '../../../HelperClasses/SingleTon'
 import notificationEnum from '../../../Model/NotificationEnum';
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
+
+
 export default class Notifications extends Component {
   constructor(props) {
     super(props);
@@ -32,6 +37,7 @@ export default class Notifications extends Component {
       pageNo: 1,
       stopPagination: false,
       segmentIndex: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
@@ -39,6 +45,37 @@ export default class Notifications extends Component {
       this.callApi();
     })
   }
+  langifyAPI = async () => {
+    let addStoreD = await tradlyDb.getDataFromDB(LangifyKeys.notification);
+    if (addStoreD != undefined) {
+      this.notificationTranslationData(addStoreD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.notification}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.notification, objc)
+      this.notificationTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  notificationTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('notification.header_title' == obj['key']) {
+        this.state.translationDic['title'] =  obj['value'];
+      }
+      if ('notification.no_notification_at_the_moment' == obj['key']) {
+        this.state.translationDic['no_notification_at_the_moment'] =  obj['value'];
+      }
+    }
+  }
+
   callApi() {
     this.state.notificationArray = [];
     this.state.stopPagination = false
@@ -75,6 +112,7 @@ export default class Notifications extends Component {
   }
   /*  UI   */
   renderNotificationsListView = () => {
+    if (this.state.notificationArray.length != 0) {
     return <View style={{ backgroundColor: colors.lightTransparent, alignItems: 'center'}}>
       <FlatList
         data={this.state.notificationArray}
@@ -86,6 +124,12 @@ export default class Notifications extends Component {
         onEndReached={this.paginationMethod}
       />
     </View>
+    }else {
+      return (<View style={{height: '90%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor}}>
+      <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['no_notification_at_the_moment'] ?? 'No notifications available'}</Text>
+    </View>)
+    }
+    // 
   }
   renderNotificationListCellItem= ({item, index}) => {
     let type = notificationEnum.type(item['type']);

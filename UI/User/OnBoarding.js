@@ -105,6 +105,9 @@ export default class OnBoardings extends Component {
       if ('home.social_feed' == obj['key']) {
         appConstant.bottomTabBarDic['socialFeed'] = obj['value'];
       }
+      if ('home.search' == obj['key']) {
+        appConstant.bottomTabBarDic['search'] = obj['value'];
+      }
     }
   }
   /*  Buttons   */

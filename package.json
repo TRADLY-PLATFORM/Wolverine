@@ -55,6 +55,7 @@
     "react-native-svg": "^12.1.1",
     "react-native-svg-uri": "^1.2.3",
     "react-native-tags": "^2.2.0",
+    "rn-fetch-blob": "^0.12.0",
     "tradly": "^1.0.1"
   },
   "devDependencies": {

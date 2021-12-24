@@ -86,6 +86,12 @@ export default class More extends Component {
       if ('more.signin_signup' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }
+      if ('more.customer' == obj['key']) {
+        this.state.translationDic['customer'] = obj['value'];
+      }
+      if ('more.business' == obj['key']) {
+        this.state.translationDic['business'] = obj['value'];
+      }
       if ('more.my_orders' == obj['key']) {
         constantArrays.customerMenuArray[0] = obj['value'];
       }
@@ -175,7 +181,7 @@ export default class More extends Component {
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: "OK", onPress: () => {
+          text: appConstant.okTitle, onPress: () => {
             DefaultPreference.set('loggedIn', 'false').then( () => { 
               appConstant.loggedIn = false;
               this.setState({ updateUI: !this.state.updateUI})
@@ -279,14 +285,14 @@ export default class More extends Component {
         style={this.state.segmentIndex == 0 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 14, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
-          Customer
+          { this.state.translationDic['customer'] ?? 'Customer'}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
         style={this.state.segmentIndex == 1 ? eventStyles.selectedSegmentViewStyle : eventStyles.segmentViewStyle}>
         <View style={{ height: 5 }} />
         <Text style={{ fontSize: 14, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
-          Business
+          {this.state.translationDic['business'] ?? 'Business'}
         </Text>
       </TouchableOpacity>
     </View>)
@@ -313,19 +319,19 @@ export default class More extends Component {
     )
   }
   renderListCellItem = ({ item, index }) => {
-    return <TouchableOpacity style={{marginBottom: 15, top: 13}} onPress={() => this.didSelectList({ index: index })} >
-      <Text style={{height: 16,fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
+    return <TouchableOpacity style={{justifyContent: 'center',padding:10}} onPress={() => this.didSelectList({ index: index })} >
+      <Text style={{fontSize: 12, fontWeight: '500', color: index != (constantArrays.menuArray.length - 1) ? colors.AppGray : colors.AppTheme }}>{item}</Text>
     </TouchableOpacity>
   }
   renderUserInfo = () => {
     if(appConstant.loggedIn) {
       return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
         <View style={{ marginLeft: 10}}>
-          <Text style={styles.titleStyle}>{this.state.email}</Text>
-          <Text style={styles.subTitleStyle}>{this.state.name}</Text>
+          <Text style={styles.titleStyle}>{this.state.name}</Text>
+          <Text style={styles.subTitleStyle}>{this.state.email}</Text>
         </View>
         <TouchableOpacity onPress={() => this.editBtnAction()}>
-          <Image source={editIcon} style={{height: 30, width: 30}} />
+          <Image source={editIcon} style={{height: 24, width: 24, tintColor:colors.AppWhite}} />
         </TouchableOpacity>
       </View>)
     }else {

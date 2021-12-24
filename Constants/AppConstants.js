@@ -28,6 +28,8 @@ module.exports = {
   firebaseChatPath: '/meetneeds_prod/',
   tenantID:'meetneeds',
   appLanguage: '',
-  okTitle:'',
-  bottomTabBarDic: {}
+  okTitle:'OK',
+  bottomTabBarDic: {},
+  sellIcon:'',
+  doneTitle:'Done',
 }

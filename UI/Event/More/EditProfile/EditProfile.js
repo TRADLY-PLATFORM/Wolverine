@@ -24,6 +24,11 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ImagePicker from 'react-native-image-crop-picker';
 import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import AppConstants from '../../../../Constants/AppConstants';
+import RNFetchBlob from 'rn-fetch-blob'
+
 // const windowWidth = Dimensions.get('window').width;
 
 export default class EditProfile extends Component {
@@ -38,10 +43,12 @@ export default class EditProfile extends Component {
       email:'',
       isVisible:false,
       photo:null,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
+    this.langifyAPI();
     this.setState({updateUI: !this.state.updateUI})
     let {userData} = this.props.route.params;
     console.log('userData ==> ', userData);
@@ -51,14 +58,51 @@ export default class EditProfile extends Component {
       this.state.lastname = userData['last_name'];
       this.state.photo = userData['profile_pic'] || null;
     }
-
     // this.getMyStoreApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.editprofile);
+    if (searchD != undefined) {
+      this.editprofileTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.editprofile}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', AppConstants.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.editprofile, objc)
+      this.editprofileTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  editprofileTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('variant.title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('variant.submit' == obj['key']) {
+        this.state.translationDic['submit'] = obj['value'];
+      } 
+      if ('variant.firstname' == obj['key']) {
+        this.state.translationDic['firstname'] = obj['value'];
+      } 
+      if ('variant.email' == obj['key']) {
+        this.state.translationDic['email'] = obj['value'];
+      }
+      if ('variant.lastname' == obj['key']) {
+        this.state.translationDic['lastname'] = obj['value'];
+      }
+    }
   }
   uploadPhotoAPI = async () => {
     this.setState({ isVisible: true })
     var imgParm = [];
     var uploadBase64 = [];
-  
     if (this.state.photo != null) {
       let fileName = this.state.photo.data;
       if (fileName != null) {
@@ -69,7 +113,7 @@ export default class EditProfile extends Component {
           type: this.state.photo['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.photo.data,
+          file: this.state.photo['path'],
         });
         imgParm.push(photoDic);
       }
@@ -80,12 +124,10 @@ export default class EditProfile extends Component {
       if (responseJson['status'] == true) {
         var result = responseJson['data']['result'];
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
-            this.UpdateProfileAPI(result[0]['fileUri']);
-          });
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'],imgParm[i]['type'],fileURL).then(res => {
+              this.UpdateProfileAPI(result[0]['fileUri']);
+          })
         }
       } else {
         this.setState({ isVisible: false })
@@ -172,7 +214,7 @@ export default class EditProfile extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Edit Profile'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={this.state.translationDic['title'] ?? 'Edit Profile'} backBtnIcon={'close'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -182,23 +224,23 @@ export default class EditProfile extends Component {
               </View>
             </View>
             <View style={{ backgroundColor: colors.LightBlueColor, padding: 16 }}>
-              <Text style={commonStyles.textLabelStyle}>First Name</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['firstname'] ?? 'First Name'}</Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter first name'}
+                placeholder={this.state.translationDic['firstname'] ?? 'First Name'}
                 value={this.state.firstname}
                 onChangeText={value => this.setState({ firstname: value })}
               />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Last Name</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['lastname'] ?? 'Last Name'}</Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={'Enter last name'}
+                placeholder={this.state.translationDic['lastname'] ?? 'Last Name'}
                 value={this.state.lastname}
                 onChangeText={value => this.setState({ lastname: value })}
               />
               <View style={{ height: 20 }} />
-              <Text style={commonStyles.textLabelStyle}>Email ID</Text>
+              <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['email'] ?? 'email'}</Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
                 value={this.state.email}
@@ -206,7 +248,7 @@ export default class EditProfile extends Component {
               />
               <View style={{ height: 50 }} />
               <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.submitBtnAction()}>
-                <Text style={commonStyles.themeTitleStyle}>Submit</Text>
+                <Text style={commonStyles.themeTitleStyle}>{this.state.translationDic['submit'] ?? 'Submit'}</Text>
               </TouchableOpacity>
               <View style={{ height: 50 }} />
             </View>
@@ -227,6 +269,9 @@ const styles = StyleSheet.create({
     margin: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: colors.LightUltraGray,
+    borderWidth:1,
+    borderRadius:5,
   },
   SelectedImageStyle: {
     height: 120,

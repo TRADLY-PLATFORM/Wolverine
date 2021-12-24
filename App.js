@@ -82,6 +82,8 @@ export default class App extends Component {
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'Tradly';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
+      appConstant.sellIcon = into['sell_icon'] ?? ''
+      
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
       if (appConstant.appLanguage.length != 0) {
         this.langifyAPI()
@@ -135,6 +137,9 @@ export default class App extends Component {
       }
       if ('home.social_feed' == obj['key']) {
         appConstant.bottomTabBarDic['socialFeed'] = obj['value'];
+      }
+      if ('home.search' == obj['key']) {
+        appConstant.bottomTabBarDic['search'] = obj['value'];
       }
     }
   }

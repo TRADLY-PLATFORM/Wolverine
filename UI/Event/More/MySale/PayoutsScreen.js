@@ -19,6 +19,10 @@ import eventStyles from '../../../../StyleSheet/EventStyleSheet';
 import Spinner from 'react-native-loading-spinner-overlay';
 import TrasnactionList from '../../../../Component/TrasnactionList';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
+
 export default class PayoutsScreen extends Component {
   constructor(props) {
     super(props);
@@ -28,10 +32,28 @@ export default class PayoutsScreen extends Component {
       isVisible:true,
       pageNo: 1,
       stopPagination: false,
+      translationDic:{}
     }
   }
   componentDidMount() {
     this.callApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.sales);
+    if (searchD != undefined) {
+      this.salesTranslationData(searchD);
+    }
+  }
+  salesTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('sales.no_payouts_found' == obj['key']) {
+        this.state.translationDic['noPayoutsFound'] = obj['value'];
+      }
+      if ('sales.payouts' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+    }
   }
   callApi() {
     this.state.myTransactionsArray = [];
@@ -84,7 +106,7 @@ export default class PayoutsScreen extends Component {
       </View>
     } else {
       return (<View style={{ justifyContent: 'center', alignItems: 'center', marginTop: '50%' }}>
-        <Text style={eventStyles.titleStyle}>No Payouts found</Text>
+        <Text style={eventStyles.titleStyle}>{this.state.translationDic['noPayoutsFound']?? 'No Payouts found'}</Text>
       </View>)
     }
   }
@@ -96,7 +118,7 @@ export default class PayoutsScreen extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Payouts'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
+        <HeaderView title={this.state.translationDic['title'] ?? 'Payouts'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.LightBlueColor }}>
           <this.renderTransactionListView />

@@ -79,9 +79,7 @@ export default class ChatScreen extends Component {
   }
   getChatThread(chatRoomId) {
     this.state.chatArray = [];
-    console.log('dsds',`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`)
     database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`).on('child_added', snapshot => {
-      console.log('snapshot', snapshot)
         if (snapshot.val() != null){
           this.state.chatArray.push(snapshot.val());
         }
@@ -91,7 +89,7 @@ export default class ChatScreen extends Component {
       if (this.state.chatArray != 0) {
         this.FlatListRef.scrollToEnd();
       }
-    }, 1500);
+    }, 500);
   }
   /*  Buttons   */
 
@@ -109,6 +107,11 @@ export default class ChatScreen extends Component {
     sendMessage(this.state.message,sMsg,chatRoomId,receiverId,'text')
     this.state.message = '';
     this.setState({updateUI: !this.state.updateUI})
+    setTimeout(() => {
+      if (this.state.chatArray != 0) {
+        this.FlatListRef.scrollToEnd();
+      }
+    }, 500);
   }
 
   /*  UI   */
@@ -125,7 +128,7 @@ export default class ChatScreen extends Component {
   }
   renderChatView = () => {
     return (
-      <View style={{ width: '100%', height: '100%'}}>
+      <View style={{ width: '100%', height: '100%',padding:5}}>
         <FlatList
           data={this.state.chatArray}
           renderItem={this.renderChatViewCellItem}
@@ -138,11 +141,11 @@ export default class ChatScreen extends Component {
   }
   renderChatViewCellItem = ({item, index}) => {
     if (item['userId'] == appConstant.userId) {
-      return (<View> 
+      return (<View style={{padding:2}}> 
         {this.renderRightView(item)} 
       </View>)
     } else {
-      return(<View> 
+      return (<View style={{padding:4}}> 
         {this.renderLeftView(item)} 
       </View>)
     }
@@ -208,15 +211,15 @@ export default class ChatScreen extends Component {
         <HeaderView title={this.state.titleName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
-          <KeyboardAvoidingView       behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
-            <View style={{height: '100%', justifyContent: 'space-between' }}>
-            <View style={{ flex: 1 }}>
-              <this.renderChatView />
-            </View>
-            <View>
-              <this.renderSendMsgView />
-              <View style={{ height: 45 }} />
-            </View>
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
+            <View style={{ height: '100%', justifyContent: 'space-between' }}>
+              <View style={{ flex: 1, marginBottom: 5 }}>
+                <this.renderChatView />
+              </View>
+              <View>
+                <this.renderSendMsgView />
+                <View style={{ height: 45 }} />
+              </View>
             </View>
           </KeyboardAvoidingView>
         </View>

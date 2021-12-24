@@ -3,6 +3,7 @@ import errorHandler from './ErrorHandle'
 const to = require('await-to-js').default
 import appConstant from '../Constants/AppConstants';
 import DefaultPreference from 'react-native-default-preference';
+import RNFetchBlob from 'rn-fetch-blob'
 
 
 class NetworkManager {
@@ -99,41 +100,19 @@ class NetworkManager {
       }
     }
   }
-  async uploadImage(path, method, param, mimeType) {
-    let url = path;
-    console.log(' uploadImage url == ', url, 'mimeType', mimeType)
-    let err, response
-    await fetch(url, {
-      method,
-      body: param,
-      headers: {
-        'Content-Type': mimeType,
-      }
-    }).then(res => res.text()) // or res.json()
-      .then(res => console.log("dsdsd ", res))
-  }
-  async uploadImageWithSignedURL(path, mime, param) {
-    let url = path;
-    console.log('url == ', url)
-    let err, response
-    [err, response] = await to(fetch(path, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': mime,
-      },
-      body: param,
-    }))
-    if (err) {
-      console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'],'Server Error')
-      return error
-    } else {
-      console.log('response backend', response)
-
-      const json = await response.json();
-      console.log('response actual', json)
-      return json
+  async signedURLUpload(signedURL,mimeType,imagePath) {
+    console.log('imagePath', imagePath)
+    const pathToImage = imagePath.replace("file://", "");
+    const headers = {
+      'Content-Type':mimeType,
     }
+    RNFetchBlob.fetch('PUT', signedURL, headers, RNFetchBlob.wrap(pathToImage)).then((res) => {
+      // console.log('RNFetchBlob res', res)
+      return true
+    }).catch((error) => {
+      console.log('error', error);
+      return false
+    })
   }
  async uploadFileWithSignedURL(signed_url, mime, blob_body) {
     let err, response;

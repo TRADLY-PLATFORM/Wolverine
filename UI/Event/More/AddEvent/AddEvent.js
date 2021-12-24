@@ -125,7 +125,7 @@ export default class AddEvent extends Component {
     let addProD = await tradlyDb.getDataFromDB(LangifyKeys.addproduct);
     if (addProD != undefined) {
       this.addProductTranslationData(addProD);
-      this.setState({ updateUI: true, isVisible: false })
+      this.setState({ updateUI: true, isVisible: true })
     } else {
       this.setState({ isVisible: true })
     }
@@ -143,7 +143,7 @@ export default class AddEvent extends Component {
   addProductTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      if ('addproduct.add_produc' == obj['key']) {
+      if ('addproduct.add_product' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }
       if ('addproduct.update_product' == obj['key']) {
@@ -197,8 +197,11 @@ export default class AddEvent extends Component {
       if ('addproduct.alert_message_add_product_success' == obj['key']) {
         this.state.translationDic['success'] =  obj['value'];
       }
+      if ('addproduct.alert_message_update_product_success' == obj['key']) {
+        this.state.translationDic['updateSuccess'] =  obj['value'];
+      }
     }
-    console.log('this.state.translationDic', this.state.translationDic);
+    console.log('this.state.translationDic', this.state.translationDic['success']);
     this.setState({ updateUI: true, isVisible: false })
   }
   loadConfigApi = async () => {
@@ -236,7 +239,7 @@ export default class AddEvent extends Component {
       let schedules = listData['schedules'];
     
       for (let scObj of schedules) {
-        console.log('scObj',scObj);
+        // console.log('scObj',scObj);
         let eventdate = changeDateFormat(scObj['start_date'], 'ddd, D MMM yy')
         let sTime = scObj['start_time'];
         let eTime = scObj['end_time'];
@@ -262,7 +265,7 @@ export default class AddEvent extends Component {
             repeatName = ConstantArrays.repeatArray[index].name;
           }
         }
-        console.log('repeatName', repeatName);
+        // console.log('repeatName', repeatName);
         let dict = {
           date: eventdate,
           startTime: sTime,
@@ -271,7 +274,7 @@ export default class AddEvent extends Component {
         }
         this.state.eventDateArray.push(dict);
       }
-      console.log('this.state.eventDateArray === - ', this.state.eventDateArray)
+      // console.log('this.state.eventDateArray === - ', this.state.eventDateArray)
       
       for (let item of attributeArray) {
         let fieldType = item['field_type'];
@@ -416,7 +419,7 @@ export default class AddEvent extends Component {
             type: photo['mime'],
           };
           uploadBase64.push({
-            file: 'data:image/jpg;base64,' + photo.data,
+            file: photo['path'],
           });
           imgParm.push(dict);
         } else {
@@ -434,7 +437,7 @@ export default class AddEvent extends Component {
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.documentFile.data,
+          file: this.state.documentFile['path'],
         });
         imgParm.push(androidIconDict);
       }
@@ -446,8 +449,8 @@ export default class AddEvent extends Component {
         var result = responseJson['data']['result'];
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'], await res.blob());
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'], imgParm[i]['type'], fileURL).then(res => {
             uploadIncrement++;
             if (uploadIncrement === uploadBase64.length) {
               var imageP = [];
@@ -457,11 +460,11 @@ export default class AddEvent extends Component {
               if (this.state.documentFile != null) {
                 this.setState({ attributeFilePath: imageP[imageP.length - 1] })
                 imageP.splice(imageP.length - 1, 1)
-                for (let a = 0; a < imageP.length; a++){
+                for (let a = 0; a < imageP.length; a++) {
                   this.state.uploadImageURL.push(imageP[a]);
                 }
               } else {
-                for (let a = 0; a < imageP.length; a++){
+                for (let a = 0; a < imageP.length; a++) {
                   this.state.uploadImageURL.push(imageP[a]);
                 }
               }
@@ -470,8 +473,34 @@ export default class AddEvent extends Component {
           }).catch(async err => {
             console.log('errpr', err)
             this.setState({ isVisible: false })
-            AppAlert('Network Error',appConstant.okTitle);
-          } );
+            AppAlert('Network Error', appConstant.okTitle);
+          });
+          // fetch(uploadBase64[i]['file']).then(async res => {
+          //   const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],await res.blob());
+          //   uploadIncrement++;
+          //   if (uploadIncrement === uploadBase64.length) {
+          //     var imageP = [];
+          //     for (let obj of result) {
+          //       imageP.push(obj['fileUri'])
+          //     }
+          //     if (this.state.documentFile != null) {
+          //       this.setState({ attributeFilePath: imageP[imageP.length - 1] })
+          //       imageP.splice(imageP.length - 1, 1)
+          //       for (let a = 0; a < imageP.length; a++){
+          //         this.state.uploadImageURL.push(imageP[a]);
+          //       }
+          //     } else {
+          //       for (let a = 0; a < imageP.length; a++){
+          //         this.state.uploadImageURL.push(imageP[a]);
+          //       }
+          //     }
+          //     this.createEventApi()
+          //   }
+          // }).catch(async err => {
+          //   console.log('errpr', err)
+          //   this.setState({ isVisible: false })
+          //   AppAlert('Network Error',appConstant.okTitle);
+          // } );
         }
       } else {
         this.setState({ isVisible: false })
@@ -485,7 +514,7 @@ export default class AddEvent extends Component {
     var dict = {
       'category_id': [this.state.selectedCatData['id']],
       'title': this.state.name,
-      'type': 'events',
+      'type': 'listings',
       'currency_id': this.state.selectedCurrency['id'],
       'account_id': this.state.accountId,
     }
@@ -526,7 +555,9 @@ export default class AddEvent extends Component {
         }
         if (objc['optional'] == false) {
           if (localAry.length == 0) {
-            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+            AppAlert(`${objc['name']}`,appConstant.okTitle);
+            this.setState({ isVisible: false })
+            return true
           }else {
             for (let a = 0; a < localAry.length; a++) {
               attributeAry.push(localAry[a])
@@ -559,7 +590,9 @@ export default class AddEvent extends Component {
         }
         if (objc['optional'] == false) {
           if (localAry.length == 0) {
-            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+            AppAlert(`${objc['name']}`,appConstant.okTitle);
+            this.setState({ isVisible: false })
+            return true
           }else {
             for (let a = 0; a < localAry.length; a++) {
               attributeAry.push(localAry[a])
@@ -588,7 +621,9 @@ export default class AddEvent extends Component {
         }
         if (objc['optional'] == false) {
           if (localAry.length == 0) {
-            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+            AppAlert(`${objc['name']}`,appConstant.okTitle);
+            this.setState({ isVisible: false })
+            return true
           }else {
             for (let a = 0; a < localAry.length; a++) {
               attributeAry.push(localAry[a])
@@ -617,7 +652,9 @@ export default class AddEvent extends Component {
         }
         if (objc['optional'] == false) {
           if (localAry.length == 0) {
-            AppAlert(`Please select ${objc['name']}`,appConstant.okTitle);
+            AppAlert(`${objc['name']}`,appConstant.okTitle);
+            this.setState({ isVisible: false })
+            return true
           }else {
             for (let a = 0; a < localAry.length; a++) {
               attributeAry.push(localAry[a])
@@ -650,16 +687,17 @@ export default class AddEvent extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        let dictData = responseJson['data']['listing'];
-        this.state.listingID = dictData['id'] ;
-        this.setState({ listingID: dictData['id'] })
-        if (!this.state.isEditing){
-          this.addVariantUploadServiceMethod(0);
-        }else {
-        // Alert.alert('Update SuccessFully')
-        // this.setState({ showCAlert: true })
-        this.scheduleAPI();
-        }
+        // let dictData = responseJson['data']['listing'];
+        // this.state.listingID = dictData['id'] ;
+        // this.setState({ listingID: dictData['id']})
+        this.setState({ showCAlert: true })
+        // if (!this.state.isEditing){
+        //   this.addVariantUploadServiceMethod(0);
+        // }else {
+        // // Alert.alert('Update SuccessFully')
+        // // this.setState({ showCAlert: true })
+        // this.scheduleAPI();
+        // }
       } else {
         Alert.alert(responseJson)
         AppAlert(responseJson,appConstant.okTitle);
@@ -706,7 +744,7 @@ export default class AddEvent extends Component {
             type: photo['mime'],
           };
           uploadBase64.push({
-            file: 'data:image/png;base64,' + photo.data,
+            file: photo['path'],
           });
           imgParm.push(dict);
         }  else {
@@ -721,10 +759,8 @@ export default class AddEvent extends Component {
         var result = responseJson['data']['result'];
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'], imgParm[i]['type'], fileURL).then(res => {
             uploadIncrement++;
             if (uploadIncrement === uploadBase64.length) {
               for (let obj of result) {
@@ -733,10 +769,9 @@ export default class AddEvent extends Component {
               this.addVariantTypeApi(imageFileURI, index)
             }
           }).catch(async err => {
-            console.log('errpr', err)
             this.setState({ isVisible: false })
-            AppAlert('Network Error',appConstant.okTitle);
-          } );
+            AppAlert('Network Error', appConstant.okTitle);
+          });
         }
       } else {
         this.setState({ isVisible: false })
@@ -1514,15 +1549,15 @@ export default class AddEvent extends Component {
               <this.renderAddressView />
             </View>
             <View style={{ height: 10 }} />
-            <this.renderEventDateTimeView />
+            {/* <this.renderEventDateTimeView />
             <View style={{ height: 10 }} />
-            <this.renderVariantsView />
+            <this.renderVariantsView /> */}
             <View style={{ height: 40 }} />
             <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
               <Text style={commonStyles.themeTitleStyle}>{this.state.isEditing ? this.state.translationDic['updateBtn'] : this.state.translationDic['createBtn']} </Text>
             </TouchableOpacity>
             <View style={{ height: 80 }} />
-            <SuccessView title={this.state.translationDic['success']?? 'Success'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView title={this.state.isEditing ? this.state.translationDic['updateSuccess'] : this.state.translationDic['success'] ?? 'Success'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
         </View>
       </SafeAreaView>

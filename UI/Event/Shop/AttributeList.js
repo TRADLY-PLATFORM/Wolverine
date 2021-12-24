@@ -16,6 +16,12 @@ import colors from '../../../CommonClasses/AppColor';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
+import APPURL from '../../../Constants/URLConstants';
+import networkService from '../../../NetworkManager/NetworkManager';
+import appConstant from '../../../Constants/AppConstants';
+
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -27,13 +33,42 @@ export default class AttributeList extends Component {
       selectedAttributes: [],
       attributeArray: [],
       updateUI: false,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
+    this.langifyAPI();
     const {attributeArray} = this.props.route.params;
     this.state.attributeArray = attributeArray
     this.setState({updateUI: !this.state.updateUI})
+  }
+  langifyAPI = async () => {
+    let addStoreD = await tradlyDb.getDataFromDB(LangifyKeys.filter);
+    if (addStoreD != undefined) {
+      this.attributeTranslationData(addStoreD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.filter}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.filter, objc)
+      this.attributeTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  attributeTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('filter.attributes' == obj['key']) {
+        this.state.translationDic['title'] =  obj['value'];
+      }
+    }
   }
   /*  Buttons   */
   didSelect = (item, itemData) => {
@@ -83,7 +118,8 @@ export default class AttributeList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Attributes'}
+        <HeaderView title={this.state.translationDic['title'] ?? 'Attributes'}
+          doneBtnTitle={appConstant.doneTitle}
           showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}
           showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
@@ -105,10 +141,12 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
-    height: 40,
+    // height: 40,
     flexDirection: 'row',
     alignItems: 'center',
+    padding:5,
     paddingRight: 10,
+
   },
 });
 

@@ -18,6 +18,13 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import forwardIcon from '../../../assets/forward.png';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
+import APPURL from '../../../Constants/URLConstants';
+import networkService from '../../../NetworkManager/NetworkManager';
+import appConstant from '../../../Constants/AppConstants';
+
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 
 export default class CategoryList extends Component {
   constructor(props) {
@@ -28,6 +35,7 @@ export default class CategoryList extends Component {
       catIndex: 0,
       categoryArray: [],
       updateUI: false,
+      translationDic:{},
     }
   }
 
@@ -35,6 +43,37 @@ export default class CategoryList extends Component {
     const {categoryArray} = this.props.route.params;
     this.state.categoryArray = categoryArray
     this.setState({updateUI: !this.state.updateUI})
+    this.langifyAPI();
+  }
+  langifyAPI = async () => {
+    let addStoreD = await tradlyDb.getDataFromDB(LangifyKeys.category);
+    if (addStoreD != undefined) {
+      this.addressTranslationData(addStoreD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.category}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.category, objc)
+      this.addressTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  addressTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('category.header_title' == obj['key']) {
+        this.state.translationDic['title'] =  obj['value'];
+      }
+      if ('category.no_categories_available' == obj['key']) {
+        this.state.translationDic['no_categories_available'] =  obj['value'];
+      }
+    }
   }
   /*  Buttons   */
   didSelect = (item, itemData) => {
@@ -91,7 +130,10 @@ export default class CategoryList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Category'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
+        <HeaderView title={this.state.translationDic['title'] ?? 'Category'} 
+          showBackBtn={true} backBtnAction={() => this.backBtnAction()}
+          doneBtnTitle={appConstant.doneTitle}
+          showDoneBtn={true} doneBtnAction={() => this.doneBtnAction()}/>
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
           <ScrollView>
             <this.renderListView />
@@ -113,9 +155,10 @@ const styles = StyleSheet.create({
     margin: 5,
     borderBottomWidth: 1,
     borderColor: colors.BorderColor,
-    height: 50,
+    // height: 50,
     flexDirection: 'row',
     alignItems: 'center',
+    padding:5,
     paddingRight: 10,
   },
 });

@@ -35,10 +35,7 @@ import SearchBar from 'react-native-search-bar';
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
 
-import AppMessages from '../../../Constants/AppMessages';
 import LangifyKeys from '../../../Constants/LangifyKeys';
-import {AppAlert } from '../../../HelperClasses/SingleTon';
-import AppConstants from '../../../Constants/AppConstants';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
 
 const windowHeight = Dimensions.get('window').height;
@@ -82,7 +79,7 @@ export default class Explore extends Component {
     // this.refs.searchBar.focus()
     this.langifyAPI();
     // this.state.datesArray = getDatesArray();
-    // this.props.navigation.addListener('focus', () => {
+    this.props.navigation.addListener('focus', () => {this.setState({showSearchBar: false})})
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
       lp._requestLocation();
@@ -123,6 +120,9 @@ export default class Explore extends Component {
   searchTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
+      if ('search.nearest_by_distance' == obj['key']) {
+        constantArrays.sortingArray[0] = obj['value'];
+      }
       if ('search.high_to_low' == obj['key']) {
         constantArrays.sortingArray[2] = obj['value'];
       }  
@@ -131,6 +131,30 @@ export default class Explore extends Component {
       }  
       if ('search.search' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
+      }
+      if ('search.sort' == obj['key']) {
+        this.state.translationDic['sort'] = obj['value'];
+      }
+      if ('search.filter' == obj['key']) {
+        this.state.translationDic['filter'] = obj['value'];
+      }
+      if ('search.view_map' == obj['key']) {
+        this.state.translationDic['viewMap'] = obj['value'];
+      }
+      if ('search.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('search.no_listing_found' == obj['key']) {
+        this.state.translationDic['no_listing_found'] = obj['value'];
+      }
+      if ('search.viewList' == obj['key']) {
+        this.state.translationDic['viewList'] = obj['value'];
+      }
+      if ('search.cancel' == obj['key']) {
+        this.state.translationDic['cancel'] = obj['value'];
+      }
+      if ('search.type_to_search' == obj['key']) {
+        this.state.translationDic['type_to_search'] = obj['value'];
       }
     }
   }
@@ -351,8 +375,8 @@ export default class Explore extends Component {
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{'Sort'}</Text>
-                    <TouchableOpacity onPress={() => this.setState({ showSortView: false })}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
+                    <TouchableOpacity onPress={() => this.sortBtnAction()}>
                       <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
                     </TouchableOpacity>
                   </View>
@@ -362,7 +386,7 @@ export default class Explore extends Component {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 5 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>{this.state.translationDic['done'] ?? 'Done'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -416,7 +440,7 @@ export default class Explore extends Component {
       <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({ showMap: !this.state.showMap })}>
         <Image style={{width:20,height:20,tintColor:colors.AppTheme,}} source={ViewMapIcon}/>
         <View style={{ width: 5 }} />
-        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
+        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? this.state.translationDic['viewList'] ?? 'View List' : this.state.translationDic['viewMap'] ?? 'View Map'}</Text>
       </TouchableOpacity>
   </View>)
   }
@@ -451,7 +475,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'Sorry, no items found' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? this.state.translationDic['no_listing_found'] ?? 'Sorry, no items found' : ''}</Text>
       </View>
     }
   }
@@ -464,11 +488,11 @@ export default class Explore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['filter'] ?? 'Filters'}</Text>
       </TouchableOpacity>
     </View>)
   }
@@ -492,6 +516,8 @@ export default class Explore extends Component {
           searchBarStyle={'minimal'}
           tintColor={colors.AppWhite}
           placeholderTextColor={colors.AppWhite}
+          placeholder={this.state.translationDic['type_to_search'] ?? 'Search'}
+          cancelButtonText={this.state.translationDic['cancel'] ?? 'Cancel'}
           textFieldBackgroundColor={colors.AppWhite}
           style={{ borderColor: colors.AppWhite, height: 60 }}
           textColor={colors.AppBlack}

@@ -34,6 +34,11 @@ import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
 
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../../HelperClasses/SingleTon';
+import AppConstants from '../../../../Constants/AppConstants';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
@@ -52,11 +57,13 @@ export default class MyStore extends Component {
       itsFollowing: false,
       stopPagination: false,
       dataLoad: false,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
     // this.apiCalls();
+    this.langifyAPI();
     this.props.navigation.addListener('focus', () => {
       this.setState({ isVisible: true })
       this.apiCalls();
@@ -68,6 +75,47 @@ export default class MyStore extends Component {
     this.state.stopPagination = false
     this.state.pageNo = 1;
     this.getMyStoreDetailApi();
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.storedetail);
+    if (searchD != undefined) {
+      this.storeTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.storedetail}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      // console.log('objc', objc)
+      tradlyDb.saveDataInDB(LangifyKeys.storedetail, objc)
+      this.storeTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  storeTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      // console.log('obj', obj)
+      if ('storedetail.total_products' == obj['key']) {
+        this.state.translationDic['totalProduct'] = obj['value'];
+      }  
+      if ('storedetail.followers' == obj['key']) {
+        this.state.translationDic['followers'] = obj['value'];
+      }  
+      if ('storedetail.about' == obj['key']) {
+        this.state.translationDic['about'] = obj['value'];
+      }
+      if ('storedetail.review' == obj['key']) {
+        this.state.translationDic['review'] = obj['value'];
+      }
+      if ('storedetail.product' == obj['key']) {
+        this.state.translationDic['product'] = obj['value'];
+      }
+    }
   }
   getMyStoreDetailApi = async () => {
     const { accId } = this.props.route.params;
@@ -253,17 +301,17 @@ export default class MyStore extends Component {
               <Image source={starIcon} style={{ height: 20, width: 20, marginTop: -2 }} resizeMode={'center'} />
             </View>
             <View style={{ height: 5 }} />
-            <Text style={eventStyles.subTitleStyle}>{review} review</Text>
+            <Text style={eventStyles.subTitleStyle}>{review} {this.state.translationDic['review'] ??'review'}</Text>
           </View>
           <View style={styles.totalProductViewStyle}>
             <Text>{this.state.storeDetail['total_listings']}</Text>
             <View style={{ height: 5 }} />
-            <Text style={eventStyles.subTitleStyle}>Total Events</Text>
+            <Text style={eventStyles.subTitleStyle}>{this.state.translationDic['totalProduct'] ?? 'Total Product'}</Text>
           </View>
           <View style={styles.ratingViewStyle}>
             <Text>{this.state.storeDetail['total_followers']}</Text>
             <View style={{ height: 5 }} />
-            <Text style={eventStyles.subTitleStyle}>Followers</Text>
+            <Text style={eventStyles.subTitleStyle}>{this.state.translationDic['followers'] ?? 'Followers'}</Text>
           </View>
         </View>
       </View>
@@ -312,7 +360,7 @@ export default class MyStore extends Component {
         <Image style={{width: 20, height: 20, tintColor: this.state.segmentIndex == 0  ? colors.AppTheme :colors.Lightgray}} source={productIcon}/>
         <View style={{ height: 2 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 0 ? colors.AppTheme : colors.Lightgray }}>
-          Classes
+        {this.state.translationDic['product'] ?? 'Product'}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.setState({ segmentIndex: 1 })}
@@ -320,7 +368,7 @@ export default class MyStore extends Component {
         <Image style={{width: 20, height: 20, tintColor: this.state.segmentIndex == 0  ? colors.Lightgray :colors.AppTheme}} source={notesIcon}/>
         <View style={{ height: 2 }} />
         <Text style={{ fontSize: 10, fontWeight: '500', color: this.state.segmentIndex == 1 ? colors.AppTheme : colors.Lightgray }}>
-          About
+          {this.state.translationDic['about'] ?? 'About'}
         </Text>
       </TouchableOpacity>
     </View>)

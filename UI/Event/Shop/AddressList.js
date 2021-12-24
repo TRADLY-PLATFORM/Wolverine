@@ -20,6 +20,9 @@ import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 const windowWidth = Dimensions.get('window').width;
 
 export default class AddressList extends Component {
@@ -31,12 +34,44 @@ export default class AddressList extends Component {
       updateUI: false,
       isVisible: false,
       searchKey: '',
-      typingTimeout: 0
+      typingTimeout: 0,
+      translationDic:{},
     }
   }
 
   componentDidMount() {
     this.refs.searchBar.focus()
+    this.langifyAPI()
+  }
+  langifyAPI = async () => {
+    let addStoreD = await tradlyDb.getDataFromDB(LangifyKeys.address);
+    if (addStoreD != undefined) {
+      this.addressTranslationData(addStoreD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.address}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.address, objc)
+      this.addressTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  addressTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('addstore.address' == obj['key']) {
+        this.state.translationDic['address'] =  obj['value'];
+      }
+      if ('address.search_address' == obj['key']) {
+        this.state.translationDic['search'] =  obj['value'];
+      }
+    }
   }
   searchApi = async (text) => {
     this.setState({ isVisible: true })
@@ -100,7 +135,7 @@ export default class AddressList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Address'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['address'] ?? 'Address'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
           <View style={{ backgroundColor: colors.AppTheme, height: 55 }} >
             <SearchBar
@@ -109,6 +144,7 @@ export default class AddressList extends Component {
               searchBarStyle={'minimal'}
               tintColor={colors.AppWhite}
               placeholderTextColor={colors.AppWhite}
+              placeholder={this.state.translationDic['search'] ?? 'Search'}
               textFieldBackgroundColor={colors.GradientBottom}
               style={{ borderColor: colors.Lightgray, height: 50 }}
               textColor={colors.AppWhite}

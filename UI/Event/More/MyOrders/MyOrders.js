@@ -21,7 +21,10 @@ import sample from '../../../../assets/dummy.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getTimeFormat,changeDateFormat} from '../../../../HelperClasses/SingleTon'
+import LangifyKeys from '../../../../Constants/LangifyKeys';
+import tradlyDb from '../../../../TradlyDB/TradlyDB';
+
+
 const windowWidth = Dimensions.get('window').width;
 
 export default class MyOrders extends Component {
@@ -35,12 +38,47 @@ export default class MyOrders extends Component {
       pageNo: 1,
       stopPagination: false,
       segmentIndex: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     this.props.navigation.addListener('focus', () => {
       this.callApi();
     })
+  }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.myorders);
+    if (searchD != undefined) {
+      this.myordersTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.myorders}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.myorders, objc)
+      this.myordersTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  myordersTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('myorders.my_orders' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('myorders.my_store_orders' == obj['key']) {
+        this.state.translationDic['storeTitle'] = obj['value'];
+      }  
+      if ('storedetail.no_orders_found' == obj['key']) {
+        this.state.translationDic['noOrderFound'] = obj['value'];
+      }  
+    }
   }
   callApi() {
     this.state.myOrderArray = [];
@@ -97,7 +135,7 @@ export default class MyOrders extends Component {
       </View>)
     } else {
       return (<View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: '100%'}}>
-      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? 'No booking found' : ''}</Text>
+      <Text style={eventStyles.commonTxtStyle}> {!this.state.isVisible ? this.state.translationDic['noOrderFound'] ?? 'No orders found' : ''}</Text>
     </View>)
     }
     
@@ -144,10 +182,10 @@ export default class MyOrders extends Component {
     </View>)
   }
   render() {
-    var value = 'My Orders';
+    var value = this.state.translationDic['title'] ?? 'My Orders'
     if (this.props.route.params) {
       let { title } = this.props.route.params;
-      value = title;
+      value = this.state.translationDic['storeTitle'] ?? 'My Store Orders'
     }
     return (
       <SafeAreaView style={styles.Container}>

@@ -71,7 +71,7 @@ export default class Language extends Component {
   }
   /*  UI   */
   renderListView = () => {
-    return (<View style={{margin: 5, height: '84%'}}>
+    return (<View style={{margin: 5, height: '82%'}}>
       <FlatList
         data={this.state.languageArray}
         renderItem={this.renderListViewCellItem}
