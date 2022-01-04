@@ -51,6 +51,7 @@ export default class ChatScreen extends Component {
   componentDidMount() {
     this.setupChat() 
   }
+
   componentWillUnmount(){
     this.state.chatArray = [];
     this.setState({updateUI: !this.state.updateUI})

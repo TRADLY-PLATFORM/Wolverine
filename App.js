@@ -53,11 +53,16 @@ export default class App extends Component {
     }.bind(this))
   }
   fcmNotification() {
+    const granted =  messaging().requestPermission();
+    // console.log('GRANTED =', granted);
     messaging().onMessage(async remoteMessage => {
       console.log('M', remoteMessage);
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log( 'N',  remoteMessage);
+    });
+    messaging().setBackgroundMessageHandler(async message => {
+      console.log('Message handled in the background!', message);
     });
   }
   configApi = async () => {
@@ -78,12 +83,15 @@ export default class App extends Component {
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
       console.log('into -- = >', into)
-      appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
-      appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
-      appConstant.appHomeTitle = into['app_title_home'] || 'Tradly';
+      appConstant.termCondition = into['terms_url'] || 'www.google.com';
+      appConstant.privacyURL = into['privacy_policy_url'] || 'www.google.com';
+      appConstant.appHomeTitle = into['app_title_home'] || 'www.google.com';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       appConstant.sellIcon = into['sell_icon'] ?? ''
-      
+      // colors.AppTheme = into['app_color_primary'] ?? '#83f0c8'
+      // colors.GradientTop = into['app_color_secondary'] ?? '#83f0c8'
+      // colors.GradientBottom = into['app_color_primary'] ?? '#17d275'
+
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
       if (appConstant.appLanguage.length != 0) {
         this.langifyAPI()
@@ -140,6 +148,9 @@ export default class App extends Component {
       }
       if ('home.search' == obj['key']) {
         appConstant.bottomTabBarDic['search'] = obj['value'];
+      }
+      if ('home.view_all' == obj['key']) {
+        appConstant.bottomTabBarDic['viewAll'] = obj['value'];
       }
     }
   }

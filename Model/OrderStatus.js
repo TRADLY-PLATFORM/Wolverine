@@ -1,7 +1,7 @@
 export default class OrderStatusEnum {
   static code(type) {
     switch (type) { 
-      case 1: return 'In Complete'
+      case 1: return 'InComplete'
       case 2: return 'Order Placed Successfully'
       case 3: return 'Order In Process'
       case 4: return 'Shipped'
@@ -9,8 +9,8 @@ export default class OrderStatusEnum {
       case 6: return 'Out For Delivery'
       case 7: return 'Undeliverd Returned'
       case 8: return 'Undeliver Return Confirmed'
-      case 9: return 'Order Deliverd'
-      case 10: return 'Deliverd Confirmed'
+      case 9: return 'Order Delivered'
+      case 10: return 'Delivered Confirmed'
       case 11: return 'Customer Return Initated'
       case 12: return 'Customer Return Picked'
       case 13: return 'Customer Return Confirmed'

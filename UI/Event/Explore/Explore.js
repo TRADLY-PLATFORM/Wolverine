@@ -106,8 +106,9 @@ export default class Explore extends Component {
     } else {
       this.setState({ isVisible: true })
     }
+    // ${appConstant.appLanguage}
     let group = `&group=${LangifyKeys.search}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.search, objc)
@@ -120,6 +121,7 @@ export default class Explore extends Component {
   searchTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
+      console.log('obj', obj);
       if ('search.nearest_by_distance' == obj['key']) {
         constantArrays.sortingArray[0] = obj['value'];
       }
@@ -263,6 +265,9 @@ export default class Explore extends Component {
   /*  Delegate   */
   getFilterData = data => {
     var queryParams = '';
+    if (this.state.searchKey.length != 0) {
+      queryParams = `&search_key=${this.state.searchKey}`;
+    }
     for (let objc of data) {
       if (objc['time']) {
         let timeD = objc['time'];
@@ -278,33 +283,33 @@ export default class Explore extends Component {
       } 
       if (objc['rating']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }  
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }  
         let rObjc = objc['rating']
         queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         let dObjc = objc['distance']
         queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
       }
       if (objc['price']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }   
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }   
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
       }
@@ -312,9 +317,9 @@ export default class Explore extends Component {
         let nObj = objc['attribute']
         let dObjc = nObj['values'];
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         if (dObjc.length != 0) {
           queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
         }
@@ -502,7 +507,7 @@ export default class Explore extends Component {
       {/* {this.renderDateListView()} */}
       <View style={{ flex: 1 }}>
         {this.renderListView()}
-        {this.renderViewMaBtnView()}
+        {/* {this.renderViewMaBtnView()} */}
       </View>
       <View style={{ height: 0, width: '100%' }} />
     </View>)
@@ -513,6 +518,7 @@ export default class Explore extends Component {
         <SearchBar
           ref="searchBar"
           barTintColor={colors.AppWhite}
+          text={this.state.searchKey}
           searchBarStyle={'minimal'}
           tintColor={colors.AppWhite}
           placeholderTextColor={colors.AppWhite}

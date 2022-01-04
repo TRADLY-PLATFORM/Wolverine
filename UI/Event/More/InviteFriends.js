@@ -49,7 +49,7 @@ export default class AddRecycleItem extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.invite}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.invite, objc)

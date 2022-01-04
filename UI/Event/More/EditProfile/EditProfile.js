@@ -27,7 +27,7 @@ import { photosPermissionAlert } from '../../../../HelperClasses/SingleTon';
 import LangifyKeys from '../../../../Constants/LangifyKeys';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
 import AppConstants from '../../../../Constants/AppConstants';
-import RNFetchBlob from 'rn-fetch-blob'
+import ActionSheet from 'react-native-actionsheet'
 
 // const windowWidth = Dimensions.get('window').width;
 
@@ -48,7 +48,8 @@ export default class EditProfile extends Component {
   }
 
   componentDidMount() {
-    this.langifyAPI();
+    this.langifyAPI(LangifyKeys.editprofile);
+    this.langifyAPI(LangifyKeys.chatdetail);
     this.setState({updateUI: !this.state.updateUI})
     let {userData} = this.props.route.params;
     console.log('userData ==> ', userData);
@@ -60,23 +61,42 @@ export default class EditProfile extends Component {
     }
     // this.getMyStoreApi();
   }
-  langifyAPI = async () => {
-    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.editprofile);
+  langifyAPI = async (keyGroup) => {
+    let searchD = await tradlyDb.getDataFromDB(keyGroup);
     if (searchD != undefined) {
+      if (LangifyKeys.editprofile ==keyGroup) {
       this.editprofileTranslationData(searchD);
+      }else {
+        this.cameraTranslationData(searchD)
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.editprofile}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', AppConstants.bToken)
+    let group = `&group=${keyGroup}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.editprofile, objc)
-      this.editprofileTranslationData(objc);
+      if (LangifyKeys.editprofile == keyGroup) {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.editprofileTranslationData(objc);
+      }else {
+        this.cameraTranslationData(objc)
+      }
+  
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
+    }
+  }
+  cameraTranslationData(object) {
+    for (let obj of object) {
+      if ('chatdetail.camera' == obj['key']) {
+        this.state.translationDic['camera'] = obj['value'];
+      }
+      if ('chatdetail.gallery' == obj['key']) {
+        this.state.translationDic['gallery'] = obj['value'];
+      }
     }
   }
   editprofileTranslationData(object) {
@@ -159,6 +179,51 @@ export default class EditProfile extends Component {
     this.uploadPhotoAPI()
   }
   /*  UI   */
+  RenderActionSheet = (id) => {
+    return (
+      <View>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', "Cancel"]}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={2}
+          onPress={(index) => { 
+            if (index === 0) {
+              ImagePicker.openCamera({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                this.state.photo = image;
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            } else if (index === 1) {
+              ImagePicker.openPicker({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                this.state.photo = image;
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            }
+          }}
+        />
+      </View>
+    )
+  }
   imagePicker(id) {
     ImagePicker.openPicker({
       height: 1000,
@@ -190,7 +255,8 @@ export default class EditProfile extends Component {
       }
       views.push(
         <View style={styles.imageSelectedStyle}>
-          <TouchableOpacity onPress={() => this.imagePicker()}>
+          <TouchableOpacity onPress={() => this.ActionSheet.show()}>
+            {this.RenderActionSheet()}
             <FastImage source={{ uri: photoPath }} style={styles.SelectedImageStyle} resizeMode={'cover'} />
           </TouchableOpacity>
         </View>,

@@ -61,7 +61,7 @@ export default class MyCart extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.cart}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.cart, objc)
@@ -272,7 +272,7 @@ export default class MyCart extends Component {
     )
   }
   renderBottomBtnView = () => {
-    // if (this.state.myCartArray.length != 0) {
+    if (this.state.myCartArray.length != 0) {
     return (<View style={eventStyles.bottomContainerViewStyle}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.bottomBtnViewStyle} >
@@ -289,9 +289,9 @@ export default class MyCart extends Component {
         </TouchableOpacity>
       </View>
     </View>)
-    // }else {
-    //   return <View />
-    // }
+    }else {
+      return <View />
+    }
   }
   render() {
     return (

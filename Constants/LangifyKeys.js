@@ -18,6 +18,7 @@ module.exports = {
   storedetail:'storedetail',
   myorders:'myorders',
   orderdetail:'orderdetail',
+  orderlist:'orderlist',
   addvariant:'addvariant',
   producttime: 'producttime',
   variant: 'variant',
@@ -33,5 +34,7 @@ module.exports = {
   notification: 'notification',
   mapview:'mapview',
   map:'map',
+  chat:'chat',
+  chatdetail: 'chatdetail',
 
 }

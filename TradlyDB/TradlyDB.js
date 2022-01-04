@@ -10,7 +10,7 @@ class TradlyDB {
     }
     tradlyDB.put(dic, function(err,resp) {
       if (err) {
-         console.log('saving error',err.status);
+        //  console.log('saving error',err.status);
       } else {
         dic._rev = resp._rev
         console.log("Document created Successfully");

@@ -98,7 +98,7 @@ export default class Home extends Component {
     }
     let group = `&group=${keyGrop}`
     console.log()
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(keyGrop, objc)
@@ -167,6 +167,7 @@ export default class Home extends Component {
           let catt = item['sub_category'];
           this.props.navigation.navigate(NavigationRoots.Category,{
             categoryList: catt,
+            categoryName: item['name'],
           });
         } else {
           this.props.navigation.navigate(NavigationRoots.EventList, {
@@ -191,6 +192,9 @@ export default class Home extends Component {
     this.props.navigation.navigate(NavigationRoots.MyStore, {
       accId :item['id'],
     });
+  }
+  viewAllBtnAction() {
+    this.props.navigation.navigate(NavigationRoots.EventList, {viewAll: true});
   }
   /*  UI   */
   renderGridView = () => {
@@ -271,14 +275,23 @@ export default class Home extends Component {
       return <View />
     }
   }
-  renderEventItemCell = ({item, index}) => {
+  renderEventItemCell = ({ item, index }) => {
     if (item['scope_type'] == 1 || item['scope_type'] == 4) {
-      return (<View style={{ backgroundColor: colors.AppWhite}}>
+      var views = [];
+      if(item['scope_type'] == 4) {
+        views.push(<View>
+          <TouchableOpacity style={{alignItems: 'center'}} onPress={() => this.viewAllBtnAction()}>
+            <Text style={styles.viewTxtStyle}>{appConstant.bottomTabBarDic['viewAll']?? 'View All'}</Text>
+          </TouchableOpacity>
+        </View>)
+      }
+      return (<View style={{ backgroundColor: colors.AppWhite }}>
         <View style={styles.eventCellItemStyle}>
-          <Text style={{fontSize: 18, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>{item['title']}</Text>
+          <Text style={styles.eventTitleTxtStyle}>{item['title']}</Text>
+         {views}
         </View>
-        <View style={{ backgroundColor: colors.AppWhite, width: windowWidth, paddingBottom: 10,}}>
-          <View style={{marginTop: -120}}>
+        <View style={{ backgroundColor: colors.AppWhite, width: windowWidth, paddingBottom: 10, }}>
+          <View style={{ marginTop: -120 }}>
             {this.renderHorizontalList(item)}
           </View>
         </View>
@@ -429,5 +442,17 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  eventTitleTxtStyle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.AppWhite,
+    marginTop: 5,
+  },
+  viewTxtStyle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.AppWhite,
+    marginTop: 5,
   },
 });

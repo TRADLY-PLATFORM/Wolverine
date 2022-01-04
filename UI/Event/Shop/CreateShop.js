@@ -39,6 +39,7 @@ import LangifyKeys from '../../../Constants/LangifyKeys';
 import {AppAlert } from '../../../HelperClasses/SingleTon';
 import AppConstants from '../../../Constants/AppConstants';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
+import ActionSheet from 'react-native-actionsheet'
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -82,7 +83,8 @@ export default class CreateShop extends Component {
   }
   componentDidMount() {
 
-    this.langifyAPI();
+    this.langifyAPI(LangifyKeys.addstore);
+    this.langifyAPI(LangifyKeys.chatdetail);
     DefaultPreference.get('token').then(function (value) {
       this.setState({ bToken: value })
       this.loadCategoryApi()
@@ -154,27 +156,46 @@ export default class CreateShop extends Component {
       this.setState({ updateUI: !this.state.updateUI})
     }
   }
-  langifyAPI = async () => {
-    let addStoreD = await tradlyDb.getDataFromDB(LangifyKeys.addstore);
+  langifyAPI = async (keyGroup) => {
+    let addStoreD = await tradlyDb.getDataFromDB(keyGroup);
     if (addStoreD != undefined) {
-      this.addStoreTranslationData(addStoreD);
+      if (LangifyKeys.addstore == keyGroup){
+        this.addStoreTranslationData(addStoreD);
+      }else {
+        this.cameraTranslationData(addStoreD)
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.addstore}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    let group = `&group=${keyGroup}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.addstore, objc)
-      this.addStoreTranslationData(objc);
+      if (LangifyKeys.addstore == keyGroup){
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.addStoreTranslationData(objc);
+      } else {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.cameraTranslationData(objc)
+      }
+     
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
+  cameraTranslationData(object) {
+    for (let obj of object) {
+      if ('chatdetail.camera' == obj['key']) {
+        this.state.translationDic['camera'] = obj['value'];
+      }
+      if ('chatdetail.gallery' == obj['key']) {
+        this.state.translationDic['gallery'] = obj['value'];
+      }
+    }
+  }
   addStoreTranslationData(object) {
-    this.state.translationDic = {};
     for (let obj of object) {
       if ('addstore.add_store' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
@@ -193,6 +214,7 @@ export default class CreateShop extends Component {
       }
       if ('addstore.alert_message_choose_category' == obj['key']) {
         this.state.translationDic['chooseCategory'] =  obj['value'];
+        this.state.categoryName = obj['value'];
       }
       if ('addstore.address' == obj['key']) {
         this.state.translationDic ['address'] =  obj['value'];
@@ -214,8 +236,7 @@ export default class CreateShop extends Component {
       }
       if ('addstore.update_success' == obj['key']) {
         this.state.translationDic['update_success'] =  obj['value'];
-      }
-      
+      }      
     }
   }
   loadCategoryApi = async () => {
@@ -629,26 +650,60 @@ export default class CreateShop extends Component {
     this.setState({updateUI: !this.state.updateUI});
   }
   /*  UI   */
-  imagePicker(id) {
-    ImagePicker.openPicker({
-      height: 1000,
-      width: 1000,
-      cropping: true,
-      includeBase64: true,
-    }).then(image => {
-      // console.log('image', image);
-      if (id == 2) {
-        this.state.documentFile = image;
-      }else {
-        this.state.photo = image;
-      }
-      this.setState({ updateUI: !this.state.updateUI })
-    }).catch(error => {
-      let erData = JSON.stringify(error['message']);
-      if (erData == '"User did not grant library permission."') {
-        photosPermissionAlert()
-      }
-    });
+  RenderActionSheet = (id) => {
+    return (
+      <View>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', "Cancel"]}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={2}
+          onPress={(index) => { 
+            if (index === 0) {
+              ImagePicker.openCamera({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                // console.log('image', image);
+                if (id == 2) {
+                  this.state.documentFile = image;
+                }else {
+                  this.state.photo = image;
+                }
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            } else if (index === 1) {
+              ImagePicker.openPicker({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                // console.log('image', image);
+                if (id == 2) {
+                  this.state.documentFile = image;
+                }else {
+                  this.state.photo = image;
+                }
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            }
+          }}
+        />
+      </View>
+    )
   }
   viewSelectedImages = () => {
     var views = [];
@@ -661,13 +716,10 @@ export default class CreateShop extends Component {
       }
         views.push(
             <View style={styles.imageSelectedStyle}>
-              <TouchableOpacity onPress={() => this.imagePicker()}>
+              <TouchableOpacity onPress={() => this.ActionSheet.show()}>
+                {this.RenderActionSheet()}
                 <View>
-                  <FastImage
-                    source={{ uri: photoPath}}
-                    style={styles.SelectedImageStyle}
-                    resizeMode={'cover'}
-                  />
+                  <FastImage source={{ uri: photoPath}} style={styles.SelectedImageStyle} resizeMode={'cover'} />
                   <TouchableOpacity
                     style={styles.deleteViewStyle}
                     onPress={() => this.deleteImageButtonAction()}>
@@ -682,11 +734,10 @@ export default class CreateShop extends Component {
       } else {
         views.push(
           <View>
-            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+            <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.ActionSheet.show()}>
+              {this.RenderActionSheet()}
               <View style={{ justifyContent: 'center' }}>
-                <Image source={cameraIcon}
-                  style={{ width: 30, height: 30, alignSelf: 'center' }}
-                />
+                <Image source={cameraIcon}  style={{ width: 30, height: 30, alignSelf: 'center' }} />
               </View>
             </TouchableOpacity>
           </View>,
@@ -697,7 +748,7 @@ export default class CreateShop extends Component {
   renderTitleLbl = ({ title }) => {
     return (
       <View style={{margin: -5}}>
-        <Text style={commonStyles.textLabelStyle}> {title == undefined ? 'Category' : title}
+        <Text style={commonStyles.textLabelStyle}> {title == undefined ? this.state.translationDic['category'] ?? 'category' : title}
           <Text style={{color: colors.AppRed, paddingTop: 5}}> *</Text>
         </Text>
       </View>
@@ -705,7 +756,7 @@ export default class CreateShop extends Component {
   }
   renderCategoryView = () => {
     return <View>
-      {this.renderTitleLbl('category')}
+      {this.renderTitleLbl(this.state.translationDic['category'] ?? 'category')}
       <View style={{ width: '100%', zIndex: 10 }}>
         <TouchableOpacity style={eventStyles.clickAbleFieldStyle} 
           onPress={() => this.categoryBtnAction()}>
@@ -821,7 +872,8 @@ export default class CreateShop extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <View style={{ height: 10 }} />
-            <TouchableOpacity style={eventStyles.dottedViewStyle} onPress={() => this.imagePicker(2)}>
+            <TouchableOpacity style={eventStyles.dottedViewStyle} onPress={() => this.ActionSheet.show()}>
+              {this.RenderActionSheet(2)}
               <Image source={upload} style={{ width: 20, height: 20, alignSelf: 'center' }} />
               <View style={{ height: 10 }} />
               <Text>{value}</Text>
@@ -849,13 +901,13 @@ export default class CreateShop extends Component {
   }
 
   renderAddressView = () => {
-    var value = 'Select Address'
+    var value = this.state.translationDic ['selectAddress'] ?? 'Select Address'
     if (this.state.selectAddress['formatted_address'] !== undefined) {
       value = this.state.selectAddress['formatted_address'];
     }
     return <View>
       <View style={{ height: 20 }} />
-      <Text style={commonStyles.textLabelStyle}>Address</Text>
+      <Text style={commonStyles.textLabelStyle}>{this.state.translationDic ['address'] ?? 'Address'}</Text>
       <View style={{ width: '100%', zIndex: 10 }}>
         <TouchableOpacity style={eventStyles.clickAbleFieldStyle} onPress={() => this.addressBtnAction()}>
           <Text style={commonStyles.txtFieldWithImageStyle}>{value}</Text>
@@ -912,7 +964,7 @@ export default class CreateShop extends Component {
                 <View style={{ height: 60 }} />
               </View>
             </View>
-            <SuccessView title={this.state.isEditing ? this.state.translationDic['update_success'] : this.state.translationDic['success'] ?? 'SuccessFull'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView title={this.state.isEditing ? this.state.translationDic['update_success'] : this.state.translationDic['success'] ?? 'SuccessFul'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView >
         </View>
       </SafeAreaView>

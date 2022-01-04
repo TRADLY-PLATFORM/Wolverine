@@ -85,7 +85,7 @@ export default class EventTiming extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.producttime}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', AppConstants.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${AppConstants.appLanguage}${group}`, 'get', '', AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       console.log('objc', objc)

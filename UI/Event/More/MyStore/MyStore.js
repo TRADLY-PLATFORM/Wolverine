@@ -58,12 +58,14 @@ export default class MyStore extends Component {
       stopPagination: false,
       dataLoad: false,
       translationDic:{},
+      ratingData:{},
     }
   }
 
   componentDidMount() {
     // this.apiCalls();
-    this.langifyAPI();
+    this.langifyAPI(LangifyKeys.storedetail);
+    this.langifyAPI(LangifyKeys.product);
     this.props.navigation.addListener('focus', () => {
       this.setState({ isVisible: true })
       this.apiCalls();
@@ -76,30 +78,49 @@ export default class MyStore extends Component {
     this.state.pageNo = 1;
     this.getMyStoreDetailApi();
   }
-  langifyAPI = async () => {
-    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.storedetail);
+  langifyAPI = async (keyGrop) => {
+    let searchD = await tradlyDb.getDataFromDB(keyGrop);
     if (searchD != undefined) {
-      this.storeTranslationData(searchD);
+      if (LangifyKeys.product){
+        this.productTranslationData(searchD);
+      }else {
+        this.storeTranslationData(searchD);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.storedetail}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    let group = `&group=${keyGrop}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       // console.log('objc', objc)
-      tradlyDb.saveDataInDB(LangifyKeys.storedetail, objc)
-      this.storeTranslationData(objc);
+      tradlyDb.saveDataInDB(keyGrop, objc)
+      if (LangifyKeys.product) {
+        this.productTranslationData(searchD);
+      } else {
+        this.storeTranslationData(searchD);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
-  storeTranslationData(object) {
-    this.state.translationDic = {};
+  productTranslationData(object) {
     for (let obj of object) {
-      // console.log('obj', obj)
+      if ('product.follow' == obj['key']) {
+        this.state.translationDic['follow'] = obj['value'];
+      }
+      if ('product.following' == obj['key']) {
+        this.state.translationDic['following'] = obj['value'];
+      }
+      if ('product.ratings' == obj['key']) {
+        this.state.translationDic['ratings'] = obj['value'];
+      }
+    }
+  }
+  storeTranslationData(object) {
+    for (let obj of object) {
       if ('storedetail.total_products' == obj['key']) {
         this.state.translationDic['totalProduct'] = obj['value'];
       }  
@@ -115,6 +136,10 @@ export default class MyStore extends Component {
       if ('storedetail.product' == obj['key']) {
         this.state.translationDic['product'] = obj['value'];
       }
+      if ('storedetail.ratings_and_reviews' == obj['key']) {
+        this.state.translationDic['ratings_and_reviews'] = obj['value'];
+      }
+      
     }
   }
   getMyStoreDetailApi = async () => {
@@ -125,6 +150,7 @@ export default class MyStore extends Component {
       this.state.storeDetail = acctData;
       this.state.itsFollowing = acctData['following'];
       this.state.activeSatus = acctData['active'];
+      this.state.ratingData = acctData['rating_data']; 
       this.setState({isVisible: true })
       this.getEventsApi();
     } else {
@@ -133,7 +159,7 @@ export default class MyStore extends Component {
   }
   getEventsApi = async () => {
     const { accId } = this.props.route.params;
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=${this.state.pageNo}&per_page=30&type=events`,
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}?account_id=${accId}&page=${this.state.pageNo}&per_page=30`,
       'get', '', appConstant.bToken, appConstant.authKey)
     if (responseJson['status'] == true) {
       let events = responseJson['data']['listings'];
@@ -226,9 +252,7 @@ export default class MyStore extends Component {
   }
   onShareBtnAction = async () => {
     try {
-      const result = await Share.share({
-        message: appConstant.appSharePath,
-      });
+      const result = await Share.share({message: appConstant.appSharePath});
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // shared with activity type of result.activityType
@@ -243,7 +267,6 @@ export default class MyStore extends Component {
     }
   }
   paginationMethod = () => {
-    console.log('pagination');
     if (!this.state.stopPagination) {
       this.setState({ isVisible: true })
       this.state.pageNo = this.state.pageNo + 1;
@@ -327,7 +350,7 @@ export default class MyStore extends Component {
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
-              {accId == appConstant.accountID ? 'Edit' : this.state.itsFollowing ? 'Following' : 'Follow'}
+              {accId == appConstant.accountID ? 'Edit' : this.state.itsFollowing ? this.state.translationDic['following'] ?? 'Following' : this.state.translationDic['follow'] ?? 'Follow'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -397,9 +420,9 @@ export default class MyStore extends Component {
           {this.renderArrtibutes()}
         </View>
         <View style={{ height: 20 }} />
-        {/* {this.renderRateStoreView()}
-        <View style={{ height: 20 }} />
-        <RatingReview /> */}
+        {/* {this.renderRateStoreView()} */}
+        {/* <View style={{ height: 20 }} /> */}
+        {/* <RatingReview /> */}
         {/* {this.renderRatingReviewView()} */}
         {/* <View style={{ height: 20 }} />
         {this.renderReviewView()} */}
@@ -489,11 +512,11 @@ export default class MyStore extends Component {
     }
 
     views.push(<View>
-      <Text style={eventStyles.titleStyle}>{`Ratings and reviews`}</Text>
+      <Text style={eventStyles.titleStyle}>{this.state.translationDic['ratings_and_reviews'] ?? 'Ratings and reviews'}</Text>
       <View style={{ flexDirection: 'row' }}>
         <View style={{ width: '25%', marginTop: 10 }}>
           <Text style={{ fontWeight: '600', fontSize: 44 }}>{'4.4'}</Text>
-          <Text style={eventStyles.subTitleStyle}>{`216 ratings`}</Text>
+          <Text style={eventStyles.subTitleStyle}>{this.state.translationDic['ratings'] ?? 'ratings'}</Text>
         </View>
         <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row' }}>
@@ -513,7 +536,7 @@ export default class MyStore extends Component {
   renderReviewView = () => {
     return (<View>
       <Text style={eventStyles.commonTxtStyle}>10 Reviews</Text>
-      <View style={{ height: 10 }} />
+      <View style={{ height: 2 }} />
       {this.renderReviewListView()}
     </View>)
   }

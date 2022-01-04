@@ -126,7 +126,7 @@ export default class Filter extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.filter}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.filter, objc)
@@ -139,6 +139,7 @@ export default class Filter extends Component {
   searchTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
+      console.log('obj', obj);
       if ('filter.distance' == obj['key']) {
         constantArrays.filterArray[1] = obj['value'];
       }

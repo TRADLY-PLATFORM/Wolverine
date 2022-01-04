@@ -29,7 +29,7 @@ export default class SuccessView extends Component {
     title:PropTypes.string,
   };
   successView = () => {
-    let title = this.props.title == undefined ? 'Successfully Updated' :  this.props.title
+    let title = this.props.title == undefined ? 'Successful Updated' :  this.props.title
     return <View>
       <Modal
         animationType="slide"

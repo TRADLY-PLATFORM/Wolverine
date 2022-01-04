@@ -50,7 +50,7 @@ export default class SignUp extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.signup}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get',
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${AppConstants.appLanguage}${group}`, 'get',
     '',AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
@@ -217,6 +217,7 @@ export default class SignUp extends Component {
         <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
           <Text style={commonStyle.forgotBtntitleStyle}>{this.state.translationDic['loginBtn'] ?? 'Login'}</Text>
         </TouchableOpacity>
+        <View style={{ height: 40 }} />
       </View>)
 
     } else {

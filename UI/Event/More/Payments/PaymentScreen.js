@@ -63,7 +63,7 @@ export default class ConfirmBooking extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.payments}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.payments, objc)
@@ -102,6 +102,9 @@ export default class ConfirmBooking extends Component {
       }
       if ('payments.redirected_to_stripe' == obj['key']) {
         this.state.translationDic['redirected_to_stripe'] = obj['value'];
+      }
+      if ('payments.connect_stripe_express_message' == obj['key']) {
+        this.state.translationDic['connect_stripe_express_message'] = obj['value'];
       }
       if ('payments.setup_payout' == obj['key']) {
         this.state.translationDic['setup_payout'] = obj['value'];
@@ -200,7 +203,7 @@ export default class ConfirmBooking extends Component {
     if (this.state.stripConnectedOnboarding == false) {
       imageIcon = paymentIcon
       title = this.state.translationDic['setup_payout'] ?? `Countinue to stripe payout \n to receive payments`
-      subTitle = 'We suggest you to open new stripe connect through this link () and come back to this page to authenticate.'
+      subTitle = this.state.translationDic['connect_stripe_express_message'] ?? 'We suggest you to open new stripe connect through this link () and come back to this page to authenticate.'
       buttonTitle = this.state.translationDic['connect_with_stripe'] ?? 'Connect with Stripe';
     } if (this.state.payoutsEnabled == false && this.state.stripConnectedOnboarding == true) {
       imageIcon = waitingIcon

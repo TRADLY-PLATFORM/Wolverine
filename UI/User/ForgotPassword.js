@@ -39,7 +39,7 @@ export default class ForgotPassword extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.passwordreset}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get',
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${AppConstants.appLanguage}${group}`, 'get',
       '', AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];

@@ -46,7 +46,6 @@ export default class Language extends Component {
     this.setState({ isVisible: false })
     if (responseJson['status'] == true) {
       let cData = responseJson['data']['languages'];
-      console.log('cData', cData);
       this.state.languageArray = cData;
       this.setState({updateUI: !this.state.updateUI})
     } else {
@@ -103,9 +102,10 @@ export default class Language extends Component {
     </View>)
   }
   render() {
+    let showBack =  this.props.route.params ? true : false;
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Language'} showBackBtn={false} />
+        <HeaderView title={'Language'} showBackBtn={showBack} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{height: '100%',width: '100%'}}>

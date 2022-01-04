@@ -34,6 +34,7 @@ export default class Category extends Component {
       selectIndex: -1,
       catIndex: 0,
       translationDic:{},
+      titleName: '',
     }
   }
 
@@ -52,7 +53,7 @@ export default class Category extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.category}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.category, objc)
@@ -77,9 +78,10 @@ export default class Category extends Component {
   didSelect(item,index) {
     this.setState({selectIndex: index})
     if (item['sub_category']) {
-      console.log('coming', this.state.catIndex);
+      console.log(item['name'],'coming', this.state.catIndex);
       console.log('second', item['sub_category'].length);
       if (item['sub_category'].length != 0) {
+        this.state.titleName = item['name'];
         this.state.categoryArray = item['sub_category'];
         this.setState({ catIndex: this.state.catIndex + 1 })
       } else {
@@ -139,9 +141,14 @@ export default class Category extends Component {
     )
   }
   render() {
+    var title = this.state.translationDic['title'] ?? 'Category'
+    let {categoryName} = this.props.route.params;
+    if (categoryName != undefined) {
+      title = this.state.titleName.length == 0 ? categoryName : this.state.titleName;
+    }
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={this.state.translationDic['title'] ?? 'Category'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <HeaderView title={title} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <View style={{height: '100%', backgroundColor: colors.AppWhite }}>
           <this.renderListView />
         </View>

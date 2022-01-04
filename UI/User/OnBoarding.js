@@ -50,7 +50,7 @@ export default class OnBoardings extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.intro}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get',
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get',
       '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
@@ -107,6 +107,9 @@ export default class OnBoardings extends Component {
       }
       if ('home.search' == obj['key']) {
         appConstant.bottomTabBarDic['search'] = obj['value'];
+      }
+      if ('home.view_all' == obj['key']) {
+        appConstant.bottomTabBarDic['viewAll'] = obj['value'];
       }
     }
   }

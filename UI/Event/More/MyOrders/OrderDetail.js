@@ -55,27 +55,37 @@ export default class OrderDetail extends Component {
       changeStatusArray: [],
       selectedChangeStatus:0,
       translationDic:{},
+      satusTranslationAry: [],
     }
     renderOrderStatusView = this.renderOrderStatusView.bind(this);
   }
   componentDidMount() {
-    this.langifyAPI();
+    this.langifyAPI(LangifyKeys.orderdetail);
     this.getOrderDetailApi();
+    this.langifyAPI(LangifyKeys.orderlist);
   }
-  langifyAPI = async () => {
-    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.orderdetail);
+  langifyAPI = async (keyGroup) => {
+    let searchD = await tradlyDb.getDataFromDB(keyGroup);
     if (searchD != undefined) {
-      this.orderDetailTranslationData(searchD);
+      if (LangifyKeys.orderlist == keyGroup) {
+        this.orderListTranslation(searchD);
+      }else {
+        this.orderDetailTranslationData(searchD);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.orderdetail}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    let group = `&group=${keyGroup}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.orderdetail, objc)
-      this.orderDetailTranslationData(objc);
+      tradlyDb.saveDataInDB(keyGroup, objc)
+      if (LangifyKeys.orderlist == keyGroup) {
+        this.orderListTranslation(objc);
+      }else {
+        this.orderDetailTranslationData(objc);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
@@ -84,34 +94,117 @@ export default class OrderDetail extends Component {
   orderDetailTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
+      // storedetail.header_title
       if ('orderdetail.amt' == obj['key']) {
         this.state.translationDic['amt'] = obj['value'];
+      }
+      if ('orderdetail.header_title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
       }
       if ('orderdetail.order_id' == obj['key']) {
         this.state.translationDic['orderID'] = obj['value'];
       }  
-      if ('storedetail.change_status' == obj['key']) {
+      if ('orderdetail.change_status' == obj['key']) {
         this.state.translationDic['changeStatus'] = obj['value'];
       }
-      if ('storedetail.cancel_order' == obj['key']) {
+      if ('orderdetail.cancel_order' == obj['key']) {
         this.state.translationDic['cancelOrder'] = obj['value'];
       } 
-      if ('storedetail.units' == obj['key']) {
+      if ('orderdetail.units' == obj['key']) {
         this.state.translationDic['units'] = obj['value'];
       }
-      if ('storedetail.order_detail' == obj['key']) {
+      if ('orderdetail.order_detail' == obj['key']) {
         this.state.translationDic['orderDetail'] = obj['value'];
       }
-      if ('storedetail.cancel_order_confirmation' == obj['key']) {
+      if ('orderdetail.cancel_order_confirmation' == obj['key']) {
         this.state.translationDic['cancelOrderConfirmation'] = obj['value'];
       } 
-      if ('storedetail.no' == obj['key']) {
+      if ('orderdetail.no' == obj['key']) {
         this.state.translationDic['no'] = obj['value'];
       } 
-      if ('storedetail.yes' == obj['key']) {
+      if ('orderdetail.yes' == obj['key']) {
         this.state.translationDic['yes'] = obj['value'];
       }
-      // Cancel Order
+      if ('orderdetail.order_placed_successfully' == obj['key']) {
+        ConstantArrays.statusArray[0]['name'] = obj['value'];
+        let dic = {'id':2,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.order_in_progress' == obj['key']) {
+        ConstantArrays.statusArray[1]['name'] = obj['value'];
+        let dic = {'id':3,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.shipped' == obj['key']) {
+        ConstantArrays.statusArray[2]['name'] = obj['value'];
+        let dic = {'id':4,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.order_delivered' == obj['key']) {
+        ConstantArrays.statusArray[3]['name'] = obj['value'];
+        let dic = {'id':9,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.incomplete' == obj['key']) {
+        let dic = {'id':1,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.unreachable' == obj['key']) {
+        let dic = {'id':5,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.out_for_delivery' == obj['key']) {
+        let dic = {'id':6,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.undelivered_returned' == obj['key']) {
+        let dic = {'id':7,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.undelivered_return_confirmed' == obj['key']) {
+        let dic = {'id':8,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.delivery_confirmed' == obj['key']) {
+        let dic = {'id':10,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.order_cancelled' == obj['key']) {
+        let dic = {'id':16,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.ready_for_pickup' == obj['key']) {
+        let dic = {'id':17,'name':obj['value']};
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderdetail.order_cancelled_successfully' == obj['key']) {
+        this.state.translationDic['cancelledSuccess'] = obj['value'];
+      }
+      // orderdetail.order_cancelled
+    }
+  }
+  orderListTranslation(object) {
+    for (let obj of object) {
+      if ('orderlist.customer_return_initated' == obj['key']) {
+        let dic = { 'id': 11, 'name': obj['value'] };
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderlist.customer_return_picked' == obj['key']) {
+        let dic = { 'id': 12, 'name': obj['value'] };
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderlist.customer_return_confirmed' == obj['key']) {
+        let dic = { 'id': 13, 'name': obj['value'] };
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderlist.customer_return_disputed' == obj['key']) {
+        let dic = { 'id': 14, 'name': obj['value'] };
+        this.state.satusTranslationAry.push(dic);
+      }
+      if ('orderlist.canceled_by_account' == obj['key']) {
+        let dic = { 'id': 15, 'name': obj['value'] };
+        this.state.satusTranslationAry.push(dic);
+      }
     }
   }
   getOrderDetailApi = async () => {
@@ -147,14 +240,18 @@ export default class OrderDetail extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.orderDetail}${orderId}/status`, 'patch',JSON.stringify({order:dic}),appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       this.setState({ isVisible: false })
-      this.successAlert();
+      if (status == 16) {
+        this.successAlert();
+      }else {
+        this.getOrderDetailApi();
+      }
     }else {
       this.setState({ isVisible: false })
       Alert.alert(responseJson)
     }
   }
   successAlert() {
-    Alert.alert( `Successfull!`, "",
+    Alert.alert(  this.state.translationDic['cancelledSuccess'] ?? 'Order cancelled successful!', "",
     [
       {
         text: AppConstants.okTitle, onPress: () => {
@@ -317,8 +414,13 @@ export default class OrderDetail extends Component {
       statusAry = [... ConstantArrays.statusArray]
     } else {
       for (objc of statusHistory){
-        let name =  OrderStatusEnum.code(objc['status']);
-        let dic = {'name': name, 'id': objc['status']}
+        // let name =  OrderStatusEnum.code(objc['status']);
+        let idx = this.state.satusTranslationAry.findIndex(x => x['id'] == objc['status'])
+        var value = ''
+        if (idx != -1){
+           value = this.state.satusTranslationAry[idx]['name'];
+        }
+        let dic = {'name': value, 'id': objc['status']}
        statusAry.push(dic);
       }
     }
@@ -379,7 +481,7 @@ export default class OrderDetail extends Component {
             <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['orderID']  ?? 'Order ID'} - {this.state.orderDetailData['reference_number']}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, fontWeight: '700' }}>{this.state.translationDic['amt'] ?? 'Amt'}:</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700' }}>{this.state.translationDic['amt'] ?? 'Amt'} :</Text>
             <Text style={styles.amountTxtStyle}>{grandTotal} /-</Text>
           </View>
         </View>
@@ -405,13 +507,19 @@ export default class OrderDetail extends Component {
   renderChangeStatusItemCell = ({item, index }) => {
     let check = item['id'] == this.state.selectedChangeStatus ? true : false
     var views = [];
+    var title = item['name']
+    let idx = this.state.satusTranslationAry.findIndex(x => x['id'] == item['id'])
+    if (idx != -1) {
+      title = this.state.satusTranslationAry[idx]['name'];
+    }
+
     views.push(<View style={commonStyles.nextIconStyle}> 
         <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({selectedChangeStatus:item['id']})}>
         <View style={eventStyles.listViewStyle}>
-          <Text style={{ textAlign: 'left', fontSize: 14, color: colors.AppGray }}> {item['name']} </Text>
+          <Text style={{ textAlign: 'left', fontSize: 14, color: colors.AppGray }}> {title} </Text>
           {views}
         </View>
       </TouchableOpacity>
@@ -440,7 +548,7 @@ export default class OrderDetail extends Component {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: -10 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.changeStatusDoneBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight:'600'}}>Done</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight:'600'}}>{appConstant.doneTitle?? 'Done'}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -481,6 +589,7 @@ export default class OrderDetail extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={this.state.translationDic['orderDetail'] ?? 'Orders Detail'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+        <View style={{height: '100%'}}>
         <View style={{height: '100%', flex:1}}>
           <View style={styles.mainViewStyle}>
             <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
@@ -498,12 +607,16 @@ export default class OrderDetail extends Component {
             </ScrollView>
             <View>
               {this.renderBottomBtnView()}
-              <View style={{ height: 40 }} />
+              <View style={{ height: 50 }} />
             </View>
           </View>
           <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showChangeView ? '100%' : 0 }}>
             <this.renderStatusView />
           </View>
+        </View>
+        </View>
+        <View>
+          <View style={{ height: 40 }} />
         </View>
       </SafeAreaView>
     );

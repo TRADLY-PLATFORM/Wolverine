@@ -55,14 +55,14 @@ module.exports = StyleSheet.create({
     alignItems: 'center'
   },
   txtFieldStyle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '400',
     color: colors.AppWhite,
     textAlign: "left",
     paddingLeft: 10,
     width: "95%",
     marginLeft: 5,
-    height: '80%'
+    height: '100%',
   },
   loginBtnStyle: {
     backgroundColor: colors.AppWhite,

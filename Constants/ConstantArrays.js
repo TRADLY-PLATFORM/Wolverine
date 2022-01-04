@@ -18,8 +18,8 @@ module.exports = {
   customerMenuArray:['My Orders','My Cart','Terms & Conditions', 'Privacy Policy', 'Invite Friend','Rate the app' , 'Logout'],
 
   statusArray: [{'name': 'Order Placed Successfully','id': 2} ,
-  {'name': 'Order In Process','id': 3},
+  {'name': 'Order In Progress','id': 3},
   {'name': 'Shipped','id': 4},
-  {'name': 'Order Deliverd','id': 9}],
+  {'name': 'Order Delivered','id': 9}],
   
 }

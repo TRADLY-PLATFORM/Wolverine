@@ -23,6 +23,12 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {timeAgo} from '../../../HelperClasses/SingleTon'
 import database from '@react-native-firebase/database';
 
+import APPURL from '../../../Constants/URLConstants';
+import networkService from '../../../NetworkManager/NetworkManager';
+import AppMessages from '../../../Constants/AppMessages';
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import {AppAlert } from '../../../HelperClasses/SingleTon';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
 
 export default class ConversationList extends Component {
   _isMounted = false;
@@ -36,9 +42,11 @@ export default class ConversationList extends Component {
       loadData: false,
       conversationArray: [],
       isVisible: false,
+      translationDic: {},
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     this.props.navigation.addListener('focus', () => {
       this._isMounted = true;
       if (appConstant.loggedIn) {
@@ -49,6 +57,37 @@ export default class ConversationList extends Component {
   componentWillUnmount() {
     this._isMounted = false;
     this.setState({updateUI: !this.state.updateUI});
+  }
+  langifyAPI = async () => {
+    let productD = await tradlyDb.getDataFromDB(LangifyKeys.chat);
+    if (productD != undefined) {
+      this.chatTranslationData(productD);
+      this.setState({ updateUI: true})
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.chat}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.chat, objc)
+      this.chatTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  chatTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('chat.header_title' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }  
+      if ('chat.no_messages' == obj['key']) {
+        this.state.translationDic['no_messages'] = obj['value'];
+      }
+      // product.clear_cart
+    }
   }
   getConvesationThread() {
     var UID = appConstant.userId // = '692ee113-310b-4e66-b5b5-33796f9616e3' ? 'e4f5103d-5d33-4c61-ab8e-e561d6a3e991' : '692ee113-310b-4e66-b5b5-33796f9616e3';
@@ -99,15 +138,17 @@ export default class ConversationList extends Component {
     )
   }else {
       return (<View style={{ height: '90%', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.AppWhite }}>
-        <Text style={eventStyles.commonTxtStyle}> No conversation yet</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.translationDic['no_messages'] ?? 'No conversation yet'}</Text>
       </View>)
   }
   }
   renderListViewCellItem = ({ item, index }) => {
+    let photo  = item['profilePic'] ?? ''
+    let profilePic = photo.length == 0 ? sample : {uri:photo}
     let time = timeAgo(new Date(item['lastUpdated']).getTime());
     return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
       <View style={{flexDirection: 'row',width: '80%',padding:2}}>
-        <Image style={{ height: 50, width: 50, borderRadius: 25 }} source={sample} />
+        <FastImage style={{ height: 50, width: 50, borderRadius: 25 }} source={profilePic} />
         <View style={{ marginLeft: 10, justifyContent: 'center',flex:1 }}>
           <Text style={eventStyles.titleStyle}>{item['receiver']}</Text>
           <View style={{ height: 2 }} />
@@ -122,7 +163,7 @@ export default class ConversationList extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Chats'} showBackBtn={false} />
+        <HeaderView title={this.state.translationDic['title']?? 'Chats'} showBackBtn={false} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ flex:1, backgroundColor: colors.AppWhite }}>
           <this.renderConversationListView />

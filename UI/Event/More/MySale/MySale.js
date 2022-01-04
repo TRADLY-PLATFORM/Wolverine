@@ -49,7 +49,7 @@ export default class MySale extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.sales}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.sales, objc)
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   seePayoutsStyle: {
     height: 30,
-    width: 120,
+    width: 150,
     marginTop: 16,
     borderWidth: 1,
     borderRadius: 15,

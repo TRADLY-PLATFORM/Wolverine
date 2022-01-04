@@ -53,6 +53,14 @@ export default class Shipment extends Component {
     this.getDeliveryAddressApi()
   }
   langifyAPI = async () => {
+    let cartD = await tradlyDb.getDataFromDB(LangifyKeys.cart);
+    if (cartD != undefined) {
+      for (let obj of cartD) {
+        if ('cart.add_new_address' == obj['key']) {
+          this.state.translationDic['add_new_address'] = obj['value'];
+        } 
+      }
+    }
     let shippingD = await tradlyDb.getDataFromDB(LangifyKeys.shipping);
     if (shippingD != undefined) {
       this.shippingTranslationData(shippingD);
@@ -61,7 +69,7 @@ export default class Shipment extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.shipping}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.shipping, objc)
@@ -105,6 +113,7 @@ export default class Shipment extends Component {
         this.state.translationDic['quantity'] = obj['value'];
       }
     }
+   
   }
   getShipmentMethodApi = async () => {
     const { accId } = this.props.route.params;
@@ -231,10 +240,11 @@ export default class Shipment extends Component {
     </View>)
   }
   renderAddressView = () => {
-    if (this.state.selectedShipmentType == ShipmentModel.deliveryType && this.state.addressesArray.length != 0) {
+    if (this.state.selectedShipmentType == ShipmentModel.deliveryType ) {
       var adAry = [];
       adAry = [... this.state.addressesArray];
       adAry.push({ addNew: true })
+      console.log('adAry', adAry);
       return (<View style={{ marginLeft: 16 }}>
         <Text style={eventStyles.titleStyle} numberOfLines={1}>{this.state.translationDic['deliveryAddress']?? 'Delivery Address'}</Text>
         <View style={{ height: 20 }} />
@@ -277,7 +287,7 @@ export default class Shipment extends Component {
     } else {
       return (<View style={{margin: 10}}> 
         <TouchableOpacity style={styles.addAddressViewStyle} onPress={() => this.addAddressBtnAction()}> 
-          <Text style={{fontSize:16, fontWeight:'600'}}>Add new address  +</Text>
+          <Text style={{fontSize:16, fontWeight:'600'}}>{this.state.translationDic['add_new_address']??'Add new address'} +</Text>
         </TouchableOpacity>
       </View>)
     }

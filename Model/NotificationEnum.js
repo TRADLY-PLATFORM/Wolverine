@@ -1,12 +1,12 @@
 
 export default class TransactionEnum {
   static type(type) {
-      switch(type) {
-          case 1: return 'started following you'
-          case 2: return 'liked your class'
-          case 3: return 'order received'
-          default: return 'Sales Canceled' ;
-          }
+    switch (type) {
+      case 1: return 'started following you'
+      case 2: return 'liked your item'
+      case 3: return 'order received'
+      default: return 'Sales Canceled';
+    }
   }
 }
 // Activities Type

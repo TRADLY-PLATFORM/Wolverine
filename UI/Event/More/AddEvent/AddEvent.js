@@ -32,7 +32,7 @@ import editGreen from '../../../../assets/editIcon.png';
 import timeIcon from '../../../../assets/timeIcon.png';
 import Spinner from 'react-native-loading-spinner-overlay';
 import sample from '../../../../assets/dummy.png';
-import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp,convertTimeinto24Hrs} from '../../../../HelperClasses/SingleTon'
+import {changeDateFormat,getTimeFormat,dateConversionFromTimeStamp,convertTimeinto24Hrs, photosPermissionAlert} from '../../../../HelperClasses/SingleTon'
 import FastImage from 'react-native-fast-image'
 import SuccessView from '../../../../Component/SuccessView';
 import radio from '../../../../assets/radio.png';
@@ -42,6 +42,7 @@ import ConstantArrays from '../../../../Constants/ConstantArrays';
 import LangifyKeys from '../../../../Constants/LangifyKeys';
 import {AppAlert } from '../../../../HelperClasses/SingleTon';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import ActionSheet from 'react-native-actionsheet'
 
 var viewload = false;
 
@@ -83,16 +84,20 @@ export default class AddEvent extends Component {
       hideAddressField:false,
       online:false,
       translationDic:{},
+      chooseCategoryPlaceholder: 'Select Category',
     }
   }
   componentDidMount() {
     this.state.accountId = appConstant.accountID;
-    this.langifyAPI()
-    // this.props.navigation.addListener('focus', () => {
+
+    this.props.navigation.addListener('focus', () => {
+      this.langifyAPI(LangifyKeys.addproduct);
+      this.langifyAPI(LangifyKeys.chatdetail);
+    })
+
       this.loadCategoryApi()
       this.loadConfigApi()
       this.getCurrencyApi()
-    // })
     if (this.props.route.params) {
       let {listingID} = this.props.route.params;
       if (listingID != undefined) {
@@ -111,7 +116,7 @@ export default class AddEvent extends Component {
     this.state.eventPrice = '';
     this.state.ticketLimit = '';
     this.state.selectedCatData = {};
-    this.state.categoryName = 'Select Category';
+    this.state.categoryName = this.state.chooseCategoryPlaceholder;
     this.state.attributeArray = [];
     this.state.eventDateArray = [];
     this.state.selectVariantArray = [];
@@ -121,27 +126,46 @@ export default class AddEvent extends Component {
   }
 
   /*  APIS Methods */
-  langifyAPI = async () => {
-    let addProD = await tradlyDb.getDataFromDB(LangifyKeys.addproduct);
+  langifyAPI = async (keyGroup) => {
+    let addProD = await tradlyDb.getDataFromDB(keyGroup);
     if (addProD != undefined) {
-      this.addProductTranslationData(addProD);
+      if (LangifyKeys.addproduct == keyGroup) {
+        this.addProductTranslationData(addProD);
+      } else {
+        this.cameraTranslationData(addProD)
+      }
       this.setState({ updateUI: true, isVisible: true })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.addproduct}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    let group = `&group=${keyGroup}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.addproduct, objc)
-      this.addProductTranslationData(objc);
+      if (LangifyKeys.addproduct == keyGroup) {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.addProductTranslationData(objc);
+      } else {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.cameraTranslationData(objc)
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
+  cameraTranslationData(object) {
+    for (let obj of object) {
+      if ('chatdetail.camera' == obj['key']) {
+        this.state.translationDic['camera'] = obj['value'];
+      }
+      if ('chatdetail.gallery' == obj['key']) {
+        this.state.translationDic['gallery'] = obj['value'];
+      }
+    }
+  }
   addProductTranslationData(object) {
-    this.state.translationDic = {};
+    // this.state.translationDic = {};
     for (let obj of object) {
       if ('addproduct.add_product' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
@@ -175,6 +199,8 @@ export default class AddEvent extends Component {
       }
       if ('addproduct.alert_message_choose_category' == obj['key']) {
         this.state.translationDic['chooseCategory'] =  obj['value'];
+        this.state.chooseCategoryPlaceholder = obj['value'];
+        this.state.categoryName = obj['value'];
       }
       if ('addproduct.address' == obj['key']) {
         this.state.translationDic ['address'] =  obj['value'];
@@ -201,7 +227,7 @@ export default class AddEvent extends Component {
         this.state.translationDic['updateSuccess'] =  obj['value'];
       }
     }
-    console.log('this.state.translationDic', this.state.translationDic['success']);
+    console.log('this.state.translationDic', this.state.translationDic);
     this.setState({ updateUI: true, isVisible: false })
   }
   loadConfigApi = async () => {
@@ -1087,26 +1113,60 @@ export default class AddEvent extends Component {
     }
     this.setState({ updateUI: !this.state.updateUI })
   }
+  
   /*  UI   */
-  imagePicker(id) {
-    ImagePicker.openPicker({
-      height: 1000,
-      width: 1000,
-      cropping: true,
-      includeBase64: true,
-    }).then(image => {
-      if (id == 2) {
-        this.state.documentFile = image;
-      } else {
-        this.state.imagesArray.push(image)
-      }
-      this.setState({ updateUI: !this.state.updateUI })
-    }).catch(error => {
-      let erData = JSON.stringify(error['message']);
-      if (erData == '"User did not grant library permission."') {
-        photosPermissionAlert()
-      }
-    });
+  RenderActionSheet = (id) => {
+    return (
+      <View>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', "Cancel"]}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={2}
+          onPress={(index) => { 
+            if (index === 0) {
+              ImagePicker.openCamera({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                if (id == 2) {
+                  this.state.documentFile = image;
+                } else {
+                  this.state.imagesArray.push(image)
+                }
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            } else if (index === 1) {
+              ImagePicker.openPicker({
+                height: 1000,
+                width: 1000,
+                cropping: true,
+                includeBase64: true,
+              }).then(image => {
+                if (id == 2) {
+                  this.state.documentFile = image;
+                } else {
+                  this.state.imagesArray.push(image)
+                }
+                this.setState({ updateUI: !this.state.updateUI })
+              }).catch(error => {
+                let erData = JSON.stringify(error['message']);
+                if (erData == '"User did not grant library permission."') {
+                  photosPermissionAlert()
+                }
+              });
+            }
+          }}
+        />
+      </View>
+    )
   }
   viewSelectedImages = () => {
     var views = [];
@@ -1123,7 +1183,8 @@ export default class AddEvent extends Component {
       if (this.state.imagesArray[i]) {
         views.push(
           <View style={styles.imageSelectedStyle}>
-            <TouchableOpacity onPress={() => this.imagePicker()}>
+            <TouchableOpacity onPress={() => this.ActionSheet.show()}>
+              {this.RenderActionSheet()}
               <View>
                 <FastImage source={{ uri: photoPath }} style={styles.SelectedImageStyle} resizeMode={'cover'} />
                 <TouchableOpacity style={styles.deleteViewStyle} onPress={() => this.deleteImageButtonAction(i)}>
@@ -1137,7 +1198,8 @@ export default class AddEvent extends Component {
         if (this.state.imagesArray.length < 4) {
           views.push(
             <View>
-              <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.imagePicker()}>
+              <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.ActionSheet.show()}>
+              {this.RenderActionSheet()}
                 <View style={{ justifyContent: 'center' }}>
                   <Image source={cameraIcon} style={{width: 30, height: 30, alignSelf: 'center' }}/>
                 </View>
@@ -1167,7 +1229,7 @@ export default class AddEvent extends Component {
       <View style={eventStyles.clickAbleFieldStyle}>
         <TextInput
           style={commonStyles.txtFieldWithImageStyle}
-          placeholder={'Enter Price'}
+          placeholder={this.state.translationDic['price'] ?? 'Price'}
           keyboardType={'number-pad'}
           value={amount.toString()}
           onChangeText={value => this.setState({ eventPrice: value })}
@@ -1286,7 +1348,8 @@ export default class AddEvent extends Component {
             <View style={{ height: 20 }} />
             <Text style={commonStyles.textLabelStyle}>{item['name']}</Text>
             <View style={{ height: 10 }} />
-            <TouchableOpacity style={eventStyles.dottedViewStyle} onPress={() => this.imagePicker(2)}>
+            <TouchableOpacity style={eventStyles.dottedViewStyle} onPress={() => this.ActionSheet.show()}>
+                {this.RenderActionSheet(2)}
               <Image source={upload} style={{ width: 20, height: 20, alignSelf: 'center' }} />
               <View style={{ height: 10 }} />
               <Text>{value}</Text>

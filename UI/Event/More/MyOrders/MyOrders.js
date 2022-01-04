@@ -56,7 +56,7 @@ export default class MyOrders extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.myorders}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.myorders, objc)
@@ -75,7 +75,7 @@ export default class MyOrders extends Component {
       if ('myorders.my_store_orders' == obj['key']) {
         this.state.translationDic['storeTitle'] = obj['value'];
       }  
-      if ('storedetail.no_orders_found' == obj['key']) {
+      if ('myorders.no_orders_found' == obj['key']) {
         this.state.translationDic['noOrderFound'] = obj['value'];
       }  
     }

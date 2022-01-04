@@ -179,7 +179,7 @@ export default class SignIn extends Component {
   //2
   getToken = async() => {
     await DefaultPreference.get('fcmToken').then(function (fcmToken) {
-      // console.log('fcmToken', fcmToken)
+      console.log(Platform.OS,'fcmToken', fcmToken)
       if (fcmToken == undefined) {
           const t =  messaging().getToken().then((tk) => {
             // console.log(' messaging token ==>', tk);

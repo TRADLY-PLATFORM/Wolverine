@@ -82,7 +82,7 @@ export default class EventList extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.search}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.search, objc)
@@ -143,7 +143,7 @@ export default class EventList extends Component {
   }
   getEventsApi = async (param) => {
     this.setState({ isVisible: true })
-    var path = `&per_page=30&type=events` + param;
+    var path = `&per_page=30` + param;
     let {favourite} = this.props.route.params;
     if (favourite != undefined){
       path = `/likes?page=${this.state.pageNo}&per_page=30`

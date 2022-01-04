@@ -41,6 +41,7 @@ export default class Notifications extends Component {
     }
   }
   componentDidMount() {
+    this.langifyAPI();
     this.props.navigation.addListener('focus', () => {
       this.callApi();
     })
@@ -54,7 +55,7 @@ export default class Notifications extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.notification}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.notification, objc)
@@ -106,9 +107,22 @@ export default class Notifications extends Component {
    }
   /*  Buttons   */
   didSelect = (item) => {
-    this.props.navigation.navigate(NavigationRoots.OrderDetail,{
-      orderId:item['id'],
-    });
+    console.log('item', item);
+    if (item['type'] == 1) {
+      this.props.navigation.navigate(NavigationRoots.MyStore);
+    }
+    else if (item['type'] == 2) {
+      this.props.navigation.navigate(NavigationRoots.EventDetail,{
+        id:item['listing']['id']});  
+    }
+    else if (item['type'] == 3) {
+      this.props.navigation.navigate(NavigationRoots.OrderDetail,{
+        orderId:item['reference_id']});  
+    }
+    else {
+      this.props.navigation.navigate(NavigationRoots.OrderDetail,{
+        orderId:item['reference_id']});  
+    }
   }
   /*  UI   */
   renderNotificationsListView = () => {
@@ -134,11 +148,16 @@ export default class Notifications extends Component {
   renderNotificationListCellItem= ({item, index}) => {
     let type = notificationEnum.type(item['type']);
     let name = `${item['user']['first_name']} ${type}`;
-    var photo = item['user']['profile_pic'].length == 0 ? item['user']['profile_pic'] : [];
+    var photo  = [];
+    if (item['user']){
+      if (item['user']['profile_pic']) {
+        photo =  item['user']['profile_pic'];
+      }
+    }
     let dateFr = changeDateFormat(item['created_at']  * 1000, 'MMM DD, YYYY');
     let timeFr = changeDateFormat(item['created_at']  * 1000, 'hh:mm A');
 
-    return <TouchableOpacity style={styles.variantCellViewStyle}>
+    return <TouchableOpacity style={styles.variantCellViewStyle} onPress={()=> this.didSelect(item)}>
     <View style={{flexDirection: 'row', width: '100%'}}>
       <FastImage style={styles.profileImageStyle} source={photo.length == 0 ? sample : { uri: photo }} />
       <View >
@@ -156,7 +175,7 @@ export default class Notifications extends Component {
   render() {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Notifications'} showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
+        <HeaderView title={this.state.translationDic['title'] ?? 'Notifications'}  showBackBtn={true} backBtnAction={() => this.props.navigation.popToTop()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '100%', backgroundColor: colors.LightBlueColor }}>
           <View style={{height: '94%'}}>

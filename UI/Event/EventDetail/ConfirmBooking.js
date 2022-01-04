@@ -79,7 +79,7 @@ export default class ConfirmBooking extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.bookingconformation}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.bookingconformation, objc)
@@ -107,8 +107,8 @@ export default class ConfirmBooking extends Component {
       if ('bookingconformation.success' == obj['key']) {
         this.state.translationDic['success'] = obj['value'];
       }
-      
     }
+    console.log('dasdasd asdsa=d=sad-as-das-d-d=>>',this.state.translationDic['success'])
   }
   getPaymentMethodsApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -379,7 +379,7 @@ export default class ConfirmBooking extends Component {
               {this.renderTotalView()}
             </View>
             </View>
-            <SuccessView  title={this.state.translationDic['success'] ?? 'Your order is successfull. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
+            <SuccessView  title={this.state.translationDic['success'] ?? 'Your order is successful. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
           </ScrollView>
           <View style={{padding: 16}}>
             <View style={{ height: 10 }} />

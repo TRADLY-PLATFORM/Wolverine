@@ -70,7 +70,7 @@ export default class More extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.more}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.more, objc)
@@ -110,25 +110,29 @@ export default class More extends Component {
       if ('more.payments' == obj['key']) {
         constantArrays.menuArray[3] = obj['value'];
       }
-      if ('more.terms_condition' == obj['key']) {
+      if ('more.language' == obj['key']) {
         constantArrays.customerMenuArray[2] = obj['value'];
         constantArrays.menuArray[4] = obj['value'];
       }
-      if ('more.privacy_policy' == obj['key']) {
+      if ('more.terms_condition' == obj['key']) {
         constantArrays.customerMenuArray[3] = obj['value'];
         constantArrays.menuArray[5] = obj['value'];
       }
-      if ('more.tell_a_friend' == obj['key']) {
+      if ('more.privacy_policy' == obj['key']) {
         constantArrays.customerMenuArray[4] = obj['value'];
         constantArrays.menuArray[6] = obj['value'];
       }
-      if ('more.rate_app' == obj['key']) {
+      if ('more.tell_a_friend' == obj['key']) {
         constantArrays.customerMenuArray[5] = obj['value'];
         constantArrays.menuArray[7] = obj['value'];
       }
-      if ('more.logging_out' == obj['key']) {
+      if ('more.rate_app' == obj['key']) {
         constantArrays.customerMenuArray[6] = obj['value'];
         constantArrays.menuArray[8] = obj['value'];
+      }
+      if ('more.logging_out' == obj['key']) {
+        constantArrays.customerMenuArray[7] = obj['value'];
+        constantArrays.menuArray[9] = obj['value'];
       }
     }
   }
@@ -203,14 +207,17 @@ export default class More extends Component {
       this.customerCellDidSelect(index)
     } else {
       if (index == 4) {
-        Linking.openURL(appConstant.termCondition);
+        this.props.navigation.navigate(NavigationRoots.Language,{changeLanguage:true});
       }
       else if (index == 5) {
-        Linking.openURL(appConstant.privacyURL);
+        Linking.openURL(appConstant.termCondition);
       }
       else if (index == 6) {
+        Linking.openURL(appConstant.privacyURL);
+      }
+      else if (index == 7) {
         this.props.navigation.navigate(NavigationRoots.InviteFriend);
-      } else if (index == 7) {
+      } else if (index == 8) {
         this.rateAppBtnAction()
       } else {
         if (appConstant.loggedIn) {
@@ -255,14 +262,17 @@ export default class More extends Component {
       mArray = mArray.slice(0,-1)
      } 
     if (index == 2) {
-      Linking.openURL(appConstant.termCondition);
+      this.props.navigation.navigate(NavigationRoots.Language,{changeLanguage:true});
     }
     else if (index == 3) {
-      Linking.openURL(appConstant.privacyURL);
+      Linking.openURL(appConstant.termCondition);
     }
     else if (index == 4) {
+      Linking.openURL(appConstant.privacyURL);
+    }
+    else if (index == 5) {
       this.props.navigation.navigate(NavigationRoots.InviteFriend);
-    } else if (index == 5) {
+    } else if (index == 6) {
       this.rateAppBtnAction()
     } else {
       if (appConstant.loggedIn) {
@@ -325,7 +335,10 @@ export default class More extends Component {
   }
   renderUserInfo = () => {
     if(appConstant.loggedIn) {
-      return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
+      return (<View  style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
+        <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
+                style={{ height: 60, width: 60, borderRadius: 30 }} />
+        <View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
         <View style={{ marginLeft: 10}}>
           <Text style={styles.titleStyle}>{this.state.name}</Text>
           <Text style={styles.subTitleStyle}>{this.state.email}</Text>
@@ -333,9 +346,11 @@ export default class More extends Component {
         <TouchableOpacity onPress={() => this.editBtnAction()}>
           <Image source={editIcon} style={{height: 24, width: 24, tintColor:colors.AppWhite}} />
         </TouchableOpacity>
+      </View>
       </View>)
     }else {
-      return (<View>
+      return (<View  style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
+          <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
         <TouchableOpacity style={{ marginLeft: 10}} onPress={() =>  this.props.navigation.navigate(NavigationRoots.SignIn)}>
           <Text style={styles.titleStyle}>{this.state.translationDic['title'] ?? 'Sign in/Sign up'}</Text>
         </TouchableOpacity>
@@ -348,9 +363,7 @@ export default class More extends Component {
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{flexDirection: 'column', height: '100%', backgroundColor: colors.LightBlueColor}}>
           <View style={{ height: '30%', zIndex: 1, backgroundColor: colors.AppTheme}}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
-              <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
-                style={{ height: 60, width: 60, borderRadius: 30 }} />
+            <View>
               <this.renderUserInfo />
             </View>
           </View>

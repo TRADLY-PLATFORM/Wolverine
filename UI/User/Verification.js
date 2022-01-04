@@ -7,7 +7,7 @@ import NavigationRoots from '../../Constants/NavigationRoots';
 import networkService from '../../NetworkManager/NetworkManager';
 import APPURL from '../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
-import OTPInputView from '@twotalltotems/react-native-otp-input'
+// import OTPInputView from '@twotalltotems/react-native-otp-input'
 import userModel  from '../../Model/UserModel'
 import DeviceInfo from 'react-native-device-info';
 import appConstant from './../../Constants/AppConstants';
@@ -15,6 +15,7 @@ import LangifyKeys from '../../Constants/LangifyKeys';
 import tradlyDb from '../../TradlyDB/TradlyDB';
 import {AppAlert } from '../../HelperClasses/SingleTon';
 
+import OTPTextView from 'react-native-otp-textinput';
 
 export default class Verification extends Component {
   constructor(props) {
@@ -47,7 +48,7 @@ export default class Verification extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.otp}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get',
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get',
       '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
@@ -137,13 +138,10 @@ export default class Verification extends Component {
   }
   /*  Buttons   */
   verifyBtnAction(code){
-    Keyboard.dismiss()
     console.log(code);
     if (code) {
         this.state.OTPvalue = code;
-        if (this.state.OTPvalue.length != 6) {
-          AppAlert(this.state.translationDic['emptyOTP'],appConstant.okTitle)
-        } else {
+        if (this.state.OTPvalue.length == 6) {
           this.verificationOTPApi()
         }
     }
@@ -168,13 +166,16 @@ export default class Verification extends Component {
             </View>
             <View style={{ height: 50 }} />
             <View style={styles.otpView}>
-              <OTPInputView
-                style={{width: '80%', height: 40}}
-                pinCount={6}
-                autoFocusOnLoad
-                codeInputFieldStyle={styles.underlineStyleBase}
-                codeInputHighlightStyle={styles.underlineStyleHighLighted}
-                onCodeFilled = {code => this.verifyBtnAction(code)}
+              <OTPTextView
+                ref={(e) => (this.input1 = e)}
+                containerStyle={{width: '60%', height: 40,}}
+                // pinCount={6}
+                // codeInputFieldStyle={styles.underlineStyleBase}
+                // codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                // onCodeFilled = {code => this.verifyBtnAction(code)}
+                inputCount={6}
+                keyboardType="numeric"
+                handleTextChange={text => this.verifyBtnAction(text)}
               />
             </View>
             <View style={{ height: 50 }} />
@@ -195,9 +196,7 @@ const styles = StyleSheet.create({
   otpView: {
     marginTop: 50,
     height: 80,
-    width: '100%',
-    flexDirection: "row",
-    justifyContent: "center"
+    alignSelf: 'center'
   },
   textInputContainer: {
     margin: 5,

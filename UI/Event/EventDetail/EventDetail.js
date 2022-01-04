@@ -101,7 +101,7 @@ export default class EventDetail extends Component {
       this.setState({ isVisible: true })
     }
     let group = `&group=${LangifyKeys.product}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}en${group}`, 'get', '', appConstant.bToken)
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.product, objc)
@@ -700,7 +700,7 @@ export default class EventDetail extends Component {
           </TouchableOpacity>
           <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.addToCartBtnAction()}>
             <View style={eventStyles.clearBtnViewStyle}>
-              <Text style={{ color: colors.AppTheme, fontWeight: '600' }}>{this.state.inCartBool ? this.state.translationDic['goToCart'] ?? 'Go to cart' : this.state.translationDic['addToCart'] ?? 'Add to cart'}</Text>
+              <Text style={{ color: colors.AppTheme, fontWeight: '600', textAlign: 'center' }}>{this.state.inCartBool ? this.state.translationDic['goToCart'] ?? 'Go to cart' : this.state.translationDic['addToCart'] ?? 'Add to cart'}</Text>
             </View>
           </TouchableOpacity>
         </View>
