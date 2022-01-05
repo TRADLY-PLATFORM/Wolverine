@@ -11,6 +11,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input'
 import userModel  from '../../Model/UserModel'
 import DeviceInfo from 'react-native-device-info';
 import appConstant from './../../Constants/AppConstants';
+import OTPTextView from 'react-native-otp-textinput';
 
 
 export default class Verification extends Component {
@@ -83,14 +84,11 @@ export default class Verification extends Component {
     }
   }
   /*  Buttons   */
-  verifyBtnAction(code){
-    Keyboard.dismiss()
+   verifyBtnAction(code){
     console.log(code);
     if (code) {
         this.state.OTPvalue = code;
-        if (this.state.OTPvalue.length != 6) {
-            Alert.alert('Invalid OTP')
-        } else {
+        if (this.state.OTPvalue.length == 6) {
           this.verificationOTPApi()
         }
     }
@@ -115,15 +113,12 @@ export default class Verification extends Component {
             </View>
             <View style={{ height: 50 }} />
             <View style={styles.otpView}>
-              <OTPInputView
-                style={{width: '80%', height: 40}}
-                pinCount={6}
-                // code={this.state.code} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-                // onCodeChanged = {code => { this.setState({code})}}
-                autoFocusOnLoad
-                codeInputFieldStyle={styles.underlineStyleBase}
-                codeInputHighlightStyle={styles.underlineStyleHighLighted}
-                onCodeFilled = {code => this.verifyBtnAction(code)}
+              <OTPTextView
+                ref={(e) => (this.input1 = e)}
+                containerStyle={{ width: '60%', height: 40, }}
+                inputCount={6}
+                keyboardType="numeric"
+                handleTextChange={text => this.verifyBtnAction(text)}
               />
               {/* <OtpInputs
                 handleChange={(code) => console.log(code)}
@@ -158,9 +153,7 @@ const styles = StyleSheet.create({
   otpView: {
     marginTop: 50,
     height: 80,
-    width: '100%',
-    flexDirection: "row",
-    justifyContent: "center"
+    alignSelf: 'center'
   },
   textInputContainer: {
     margin: 5,

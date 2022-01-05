@@ -334,7 +334,7 @@ export default class AddEvent extends Component {
             type: photo['mime'],
           };
           uploadBase64.push({
-            file: 'data:image/png;base64,' + photo.data,
+            file: photo['path'],
           });
           imgParm.push(dict);
         } else {
@@ -352,7 +352,7 @@ export default class AddEvent extends Component {
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.documentFile.data,
+          file: this.state.documentFile['path'],
         });
         imgParm.push(androidIconDict);
       }
@@ -364,10 +364,8 @@ export default class AddEvent extends Component {
         var result = responseJson['data']['result'];
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'], imgParm[i]['type'], fileURL).then(res => {
             uploadIncrement++;
             if (uploadIncrement === uploadBase64.length) {
               var imageP = [];
@@ -377,16 +375,20 @@ export default class AddEvent extends Component {
               if (this.state.documentFile != null) {
                 this.setState({ attributeFilePath: imageP[imageP.length - 1] })
                 imageP.splice(imageP.length - 1, 1)
-                for (let a = 0; a < imageP.length; a++){
+                for (let a = 0; a < imageP.length; a++) {
                   this.state.uploadImageURL.push(imageP[a]);
                 }
               } else {
-                for (let a = 0; a < imageP.length; a++){
+                for (let a = 0; a < imageP.length; a++) {
                   this.state.uploadImageURL.push(imageP[a]);
                 }
               }
               this.createEventApi()
             }
+          }).catch(async err => {
+            console.log('errpr', err)
+            this.setState({ isVisible: false })
+            Alert.alert('Network Error');
           });
         }
       } else {
@@ -632,7 +634,7 @@ export default class AddEvent extends Component {
             type: photo['mime'],
           };
           uploadBase64.push({
-            file: 'data:image/png;base64,' + photo.data,
+            file: photo['path'],
           });
           imgParm.push(dict);
         }  else {
@@ -647,18 +649,21 @@ export default class AddEvent extends Component {
         var result = responseJson['data']['result'];
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
-            uploadIncrement++;
-            if (uploadIncrement === uploadBase64.length) {
-              for (let obj of result) {
-                imageFileURI.push(obj['fileUri'])
+          for (let i = 0; i < imgParm.length; i++) {
+            let fileURL = uploadBase64[i]['file'];
+            await networkService.signedURLUpload(result[i]['signedUrl'], imgParm[i]['type'], fileURL).then(res => {
+              uploadIncrement++;
+              if (uploadIncrement === uploadBase64.length) {
+                for (let obj of result) {
+                  imageFileURI.push(obj['fileUri'])
+                }
+                this.addVariantTypeApi(imageFileURI, index)
               }
-              this.addVariantTypeApi(imageFileURI, index)
-            }
-          });
+            }).catch(async err => {
+              this.setState({ isVisible: false })
+              Alert.alert('Network Error');
+            });
+          }
         }
       } else {
         this.setState({ isVisible: false })

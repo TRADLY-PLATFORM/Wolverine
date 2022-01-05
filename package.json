@@ -17,7 +17,7 @@
     "@react-native-firebase/app": "^12.5.0",
     "@react-native-firebase/auth": "^12.5.0",
     "@react-native-firebase/database": "^12.5.0",
-    "@react-native-firebase/messaging": "^14.0.0",
+    "@react-native-firebase/messaging": "^12.5.0",
     "@react-navigation/bottom-tabs": "^5.11.11",
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.5",
@@ -56,6 +56,7 @@
     "react-native-svg": "^12.1.1",
     "react-native-svg-uri": "^1.2.3",
     "react-native-tags": "^2.2.0",
+    "rn-fetch-blob": "^0.12.0",
     "tradly": "^1.0.1"
   },
   "devDependencies": {

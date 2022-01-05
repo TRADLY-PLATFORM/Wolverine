@@ -193,7 +193,7 @@ export default class CreateShop extends Component {
           type: this.state.photo['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.photo.data,
+          file:this.state.photo['path'],
         });
         imgParm.push(splashDict);
       }
@@ -208,7 +208,7 @@ export default class CreateShop extends Component {
           type: this.state.documentFile['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.documentFile.data,
+          file:this.state.documentFile['path'],
         });
         imgParm.push(androidIconDict);
       }
@@ -221,12 +221,8 @@ export default class CreateShop extends Component {
         console.log('result', result);
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(
-              result[i]['signedUrl'],
-              imgParm[i]['type'],
-              await res.blob(),
-            );
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'], imgParm[i]['type'], fileURL).then(res => {
             uploadIncrement++;
             if (this.state.photo != null) {
               if (this.state.photoURLPath.length == 0) {
@@ -240,6 +236,9 @@ export default class CreateShop extends Component {
             if (uploadIncrement === uploadBase64.length) {
               this.createAccountApi()
             }
+          }).catch(async err => {
+            this.setState({ isVisible: false })
+            Alert.alert('Network Error');
           });
         }
       } else {

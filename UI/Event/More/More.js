@@ -246,19 +246,25 @@ export default class More extends Component {
   }
   renderUserInfo = () => {
     if(appConstant.loggedIn) {
-      return (<View style={{ flexDirection: 'row',flex: 1, justifyContent: 'space-between' }}>
-        <View style={{ marginLeft: 10}}>
-          <Text style={styles.titleStyle}>{this.state.email}</Text>
-          <Text style={styles.subTitleStyle}>{this.state.name}</Text>
+      return (<View style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
+        <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
+          style={{ height: 60, width: 60, borderRadius: 30 }} />
+        <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-between' }}>
+          <View style={{ marginLeft: 10 }}>
+            <Text style={styles.titleStyle}>{this.state.email}</Text>
+            <Text style={styles.subTitleStyle}>{this.state.name}</Text>
+          </View>
+          <TouchableOpacity onPress={() => this.editBtnAction()}>
+            <Image source={editIcon} style={{ height: 30, width: 30 }} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => this.editBtnAction()}>
-          <Image source={editIcon} style={{height: 30, width: 30}} />
-        </TouchableOpacity>
+
       </View>)
-    }else {
-      return (<View>
-        <TouchableOpacity style={{ marginLeft: 10}} onPress={() =>  this.props.navigation.navigate(NavigationRoots.SignIn)}>
-          <Text style={styles.titleStyle}>{this.state.translationDic['title'] ?? 'Sign in/Sign up'}</Text>
+    } else {
+      return (<View style={{ flexDirection: 'row', alignItems: 'center', margin: 20 }}>
+        <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
+        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => this.props.navigation.navigate(NavigationRoots.SignIn)}>
+          <Text style={styles.titleStyle}>{'Sign in/Sign up'}</Text>
         </TouchableOpacity>
       </View>)
     }
@@ -269,9 +275,7 @@ export default class More extends Component {
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{flexDirection: 'column', height: '100%', backgroundColor: colors.LightBlueColor}}>
           <View style={{ height: '30%', zIndex: 1, backgroundColor: colors.AppTheme}}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20}}>
-              <FastImage source={this.state.profilePic.length == 0 ? sample : { uri: this.state.profilePic }}
-                style={{ height: 60, width: 60, borderRadius: 30 }} />
+            <View >
               <this.renderUserInfo />
             </View>
           </View>

@@ -364,7 +364,7 @@ export default class EventList extends Component {
         {this.renderHeaderView()}
         {this.renderDateListView()}
       </View>
-      <View style={{ height: windowHeight - 170 }}>
+      <View style={{ height: windowHeight - 160 }}>
         {this.renderListView()}
       </View>
     </View>)

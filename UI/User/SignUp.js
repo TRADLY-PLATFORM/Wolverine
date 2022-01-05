@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import {Alert,KeyboardAvoidingView, 
+import {Alert,KeyboardAvoidingView, Platform,
   TextInput, Text, Image, View, 
   StyleSheet, SafeAreaView, TouchableOpacity,ScrollView} from 'react-native';
 import 'react-native-gesture-handler';
@@ -84,7 +84,7 @@ export default class SignUp extends Component {
             <Image source={closeIcon}/>
           </TouchableOpacity>
           <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyle.spinnerTextStyle} />
-          <KeyboardAvoidingView  behavior="padding" style = {{flex:1}}>
+          <KeyboardAvoidingView  behavior={Platform.OS === "ios" ? "padding" : null} style = {{flex:1}}>
           <ScrollView>
             <Text style={commonStyle.titleStyle}>Welcome to ClassBubs</Text>
             <Text style={commonStyle.subTitleStyle}>Sign Up your account</Text>

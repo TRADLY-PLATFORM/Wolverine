@@ -69,7 +69,7 @@ export default class EditProfile extends Component {
           type: this.state.photo['mime'],
         };
         uploadBase64.push({
-          file: 'data:image/png;base64,' + this.state.photo.data,
+          file: this.state.photo['path'],
         });
         imgParm.push(photoDic);
       }
@@ -80,12 +80,10 @@ export default class EditProfile extends Component {
       if (responseJson['status'] == true) {
         var result = responseJson['data']['result'];
         for (let i = 0; i < imgParm.length; i++) {
-          fetch(uploadBase64[i]['file']).then(async res => {
-            const file_upload_res = await networkService.uploadFileWithSignedURL(result[i]['signedUrl'], imgParm[i]['type'],
-              await res.blob(),
-            );
-            this.UpdateProfileAPI(result[0]['fileUri']);
-          });
+          let fileURL = uploadBase64[i]['file'];
+          await networkService.signedURLUpload(result[i]['signedUrl'],imgParm[i]['type'],fileURL).then(res => {
+              this.UpdateProfileAPI(result[0]['fileUri']);
+          })
         }
       } else {
         this.setState({ isVisible: false })
@@ -226,6 +224,9 @@ const styles = StyleSheet.create({
     margin: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: colors.LightUltraGray,
+    borderWidth:1,
+    borderRadius:5,
   },
   SelectedImageStyle: {
     height: 120,

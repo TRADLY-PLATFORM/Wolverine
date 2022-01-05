@@ -208,7 +208,7 @@ export default class ChatScreen extends Component {
         <HeaderView title={this.state.titleName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
-          <KeyboardAvoidingView       behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
             <View style={{height: '100%', justifyContent: 'space-between' }}>
             <View style={{ flex: 1 }}>
               <this.renderChatView />

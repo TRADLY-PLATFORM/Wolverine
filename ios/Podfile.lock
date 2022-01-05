@@ -431,6 +431,8 @@ PODS:
     - React-perflogger (= 0.64.2)
   - ReactNativeGetLocation (2.1.2):
     - React
+  - rn-fetch-blob (0.12.0):
+    - React-Core
   - RNCMaskedView (0.1.11):
     - React
   - RNDateTimePicker (3.5.2):
@@ -454,7 +456,7 @@ PODS:
     - Firebase/Database (= 8.5.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (12.7.2):
+  - RNFBMessaging (14.0.0):
     - Firebase/Messaging (= 8.5.0)
     - React-Core
     - RNFBApp
@@ -587,6 +589,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeGetLocation (from `../node_modules/react-native-get-location`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
@@ -712,6 +715,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeGetLocation:
     :path: "../node_modules/react-native-get-location"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
   RNDateTimePicker:
@@ -811,6 +816,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   ReactNativeGetLocation: 8538fba0a5129e3040b8a70a6ed3de5a8efe918e
+  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNDateTimePicker: c9911be59b1f8670b9f244b85af3a7c295e175ed
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
@@ -819,7 +825,7 @@ SPEC CHECKSUMS:
   RNFBApp: 5f583e80cd7a32621d6057da3b786c4db96f1ef4
   RNFBAuth: dad93f1e8db2d02f3d470778a7922b75693d318a
   RNFBDatabase: 045d1c6fff7c76d2a5fc01fbefe5c67e76e22877
-  RNFBMessaging: 2d5cbe208f3bd5502975537fef327461916a6e1b
+  RNFBMessaging: aeb58659cdc6bac43a24815454c21de5b2bd8eff
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNImageCropPicker: 35a3ceb837446fa11547704709bb22b5fac6d584
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
