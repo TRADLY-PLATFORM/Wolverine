@@ -109,13 +109,19 @@ export default class Home extends Component {
     }
   }
   generalTranslationData(object) {
-    this.state.translationDic = {};
+    // this.state.translationDic = {};
     for (let obj of object) {
       if ('general.done' == obj['key']) {
         appConstant.doneTitle =  obj['value'];
       }
+      if ('general.alert_message_app_permission_location' == obj['key']) {
+        appConstant.locationPermissionError =  obj['value'];
+      }
       if ('login.alert_ok' == obj['key']) {
         appConstant.okTitle =  obj['value'];
+      }
+      if ('general.cancel' == obj['key']) {
+        appConstant.cancelTitle =  obj['value'];
       }
     }
   }

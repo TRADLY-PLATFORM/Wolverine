@@ -109,7 +109,7 @@ export default class AddAddress extends Component {
       if ('address.country' == obj['key']) {
         this.state.translationDic['country'] = obj['value'];
       }
-      if ('address.zipcode' == obj['zipcode']) {
+      if ('address.zipcode' == obj['key']) {
         this.state.translationDic['zipcode'] = obj['value'];
       }
       if ('address.save' == obj['key']) {
@@ -119,6 +119,7 @@ export default class AddAddress extends Component {
         this.state.translationDic['ok'] = obj['value'];
       }
     }
+
   }
   addAddressAPI = async () => {
     this.setState({ isVisible: true })
@@ -206,7 +207,7 @@ export default class AddAddress extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={isEdit ? this.state.translationDic['updateAddress'] ?? 'Update address' : this.state.translationDic['title'] ?? 'Add new address'}
           showBackBtn={false} showDoneBtn={true}
-          doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
+          doneBtnTitle={appConstant.cancelTitle ?? 'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>

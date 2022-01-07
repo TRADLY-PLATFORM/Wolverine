@@ -54,6 +54,7 @@ export default class SignUp extends Component {
     '',AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
+      console.log('objc', objc);
       tradlyDb.saveDataInDB(LangifyKeys.signup, objc)
       this.signUpTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })

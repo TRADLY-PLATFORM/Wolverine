@@ -116,7 +116,7 @@ export default class SignIn extends Component {
     dict['email'] = this.state.email
     dict['password'] = this.state.password
     const responseJson = await networkService.networkCall(APPURL.URLPaths.login, 'POST', JSON.stringify({ user: dict }), appConstant.bToken)
-    console.log(" responseJson =  ", responseJson) 
+    // console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {

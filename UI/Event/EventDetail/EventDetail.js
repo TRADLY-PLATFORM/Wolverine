@@ -129,6 +129,24 @@ export default class EventDetail extends Component {
       if ('product.alert_success_product_delete' == obj['key']) {
         this.state.translationDic['alert_success_product_delete'] = obj['value'];
       }
+      if ('product.chat_to_buy' == obj['key']) {
+        this.state.translationDic['chat_to_buy'] = obj['value'];
+      }
+      if ('product.only' == obj['key']) {
+        this.state.translationDic['only'] = obj['value'];
+      }
+      if ('product.left' == obj['key']) {
+        this.state.translationDic['left'] = obj['value'];
+      }
+      if ('product.delete' == obj['key']) {
+        this.state.translationDic['delete'] = obj['value'];
+      }
+      if ('product.edit' == obj['key']) {
+        this.state.translationDic['edit'] = obj['value'];
+      }
+      if ('product.alert_product_delete' == obj['key']) {
+        this.state.translationDic['alert_product_delete'] = obj['value'];
+      }
       // product.clear_cart
     }
   }
@@ -308,14 +326,14 @@ export default class EventDetail extends Component {
   }
   deleteEventBtnAction() {
     Alert.alert(
-      appMsg.eventDeleteMsg, "",
+      this.state.translationDic['alert_product_delete'] ?? appMsg.eventDeleteMsg, "",
       [
         {
-          text: "No",
+          text: appConstant.cancelTitle,
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: "Yes", onPress: () => {
+          text: appConstant.okTitle, onPress: () => {
             this.deleteEventAPI();
           }
         }
@@ -329,7 +347,7 @@ export default class EventDetail extends Component {
         <ActionSheet
           ref={o => this.ActionSheet = o}
           title={''}
-          options={["Edit", "Delete", "Cancel"]}
+          options={[this.state.translationDic['edit'] ?? "Edit", this.state.translationDic['delete']?? "Delete", appConstant.cancelTitle]}
           cancelButtonIndex={2}
           destructiveButtonIndex={2}
           onPress={(index) => { 
@@ -408,12 +426,12 @@ export default class EventDetail extends Component {
         }
         title = vValue.join(' | ');
         price = item['list_price']['formatted'];
-        ticket = `Only ${item['stock']} left`;
+        ticket = `${this.state.translationDic['only'] ?? 'Only'} ${item['stock']} ${this.state.translationDic['left'] ?? 'left'}`;
 
       } else {
         rattingAvg = this.state.eventDetailData['rating_data']['rating_average'];
         price = this.state.eventDetailData['list_price']['formatted'];
-        ticket = `Only ${this.state.eventDetailData['stock']} left`;
+        ticket = `${this.state.translationDic['only'] ?? 'Only'} ${this.state.eventDetailData['stock']} ${this.state.translationDic['left']?? 'left'}`;
         title = this.state.eventDetailData['title']
       }
       return (<View>
@@ -695,7 +713,7 @@ export default class EventDetail extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.chatBtnAction()}>
             <View style={eventStyles.applyBtnViewStyle}>
-              <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Chat to Buy</Text>
+              <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{this.state.translationDic['chat_to_buy'] ?? ''}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.addToCartBtnAction()}>

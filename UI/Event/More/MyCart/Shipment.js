@@ -47,40 +47,50 @@ export default class Shipment extends Component {
     }
   }
   componentDidMount() {
-    this.langifyAPI()
+    this.langifyAPI(LangifyKeys.cart)
     this.getShipmentMethodApi()
+    this.langifyAPI(LangifyKeys.shipping)
+    this.shipmentLANGI();
     this.getStoreDetailApi();
     this.getDeliveryAddressApi()
   }
-  langifyAPI = async () => {
-    let cartD = await tradlyDb.getDataFromDB(LangifyKeys.cart);
-    if (cartD != undefined) {
-      for (let obj of cartD) {
-        if ('cart.add_new_address' == obj['key']) {
-          this.state.translationDic['add_new_address'] = obj['value'];
-        } 
-      }
-    }
-    let shippingD = await tradlyDb.getDataFromDB(LangifyKeys.shipping);
+  langifyAPI = async (keyGroup) => {
+
+    let shippingD = await tradlyDb.getDataFromDB(keyGroup);
     if (shippingD != undefined) {
-      this.shippingTranslationData(shippingD);
+      if (LangifyKeys.cart == keyGroup) {
+        this.cartTranslationData(shippingD);
+      }else {
+        this.shippingTranslationData(shippingD);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.shipping}`
+    let group = `&group=${keyGroup}`
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.shipping, objc)
-      this.shippingTranslationData(objc);
+      if (LangifyKeys.cart == keyGroup) {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.cartTranslationData(objc);
+      }else{
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.shippingTranslationData(objc);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
+  cartTranslationData(object){
+    for (let obj of object) {
+      if ('cart.add_new_address' == obj['key']) {
+        this.state.translationDic['add_new_address'] = obj['value'];
+      } 
+    }
+  }
   shippingTranslationData(object) {
-    this.state.translationDic = {};
     for (let obj of object) {
       if ('shipping.shipment_option' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
@@ -100,20 +110,36 @@ export default class Shipment extends Component {
       if ('shipping.done' == obj['key']) {
         this.state.translationDic['done'] = obj['value'];
       }
-      if ('shipping.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
-      } 
-      if ('shipping.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
+    }
+  }
+  shipmentLANGI = async() => {
+    let shipment = await tradlyDb.getDataFromDB(LangifyKeys.shipment);
+    if (shipment != undefined) {
+      this.shipmentTranslationData(shipment);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.shipment}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.shipment, objc)
+      this.shipmentTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  shipmentTranslationData(object) {
+    for (let obj of object) {
+      if ('shipment.pickup_address' == obj['key']) {
+        this.state.translationDic['pickupAddress'] = obj['value'];
       }
-      if ('shipping.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
-      }
-      if ('shipping.quantity' == obj['key']) {
-        this.state.translationDic['quantity'] = obj['value'];
+      if ('shipment.delivery_address' == obj['key']) {
+        this.state.translationDic['deliveryAddress'] = obj['value'];
       }
     }
-   
   }
   getShipmentMethodApi = async () => {
     const { accId } = this.props.route.params;

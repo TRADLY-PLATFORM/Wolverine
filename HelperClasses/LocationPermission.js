@@ -5,6 +5,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import GetLocation from 'react-native-get-location';
 import appConstant from '../Constants/AppConstants';
 import {Alert} from 'react-native';
+import { AppAlert } from './SingleTon';
 
 export default class CurrentLocation extends Component {
 
@@ -29,17 +30,18 @@ export default class CurrentLocation extends Component {
         //   // Alert.alert('Location cancelled by user or by another request');
         // }
         if (code === 'UNAVAILABLE') {
-          Alert.alert('Location service is disabled or unavailable');
+          // AppAlert.alert('Location service is disabled or unavailable');
+          AppAlert(appConstant.locationPermissionError, appConstant.okTitle);
         }
         if (code === 'TIMEOUT') {
           Alert.alert('Location request timed out');
         }
         if (code === 'UNAUTHORIZED') {
           Alert.alert(
-            'Authorization denied Location', "",
+            appConstant.locationPermissionError, "",
             [
               {
-                text: "OK", onPress: () => {
+                text: appConstant.okTitle, onPress: () => {
                   GetLocation.openAppSettings();
                 }
               }

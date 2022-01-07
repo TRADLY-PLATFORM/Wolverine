@@ -81,27 +81,33 @@ Date.prototype.addDays = function (days) {
   return dat;
 }
 
-export function timeAgo(prevDate) {
+export function timeAgo(prevDate,translationDic) {
+  var ctime = new Date(prevDate);
+  var formattedDate = moment(ctime).format("DD MMM YY HH:mm");
   const diff = Number(new Date()) - prevDate;
   const minute = 60 * 1000;
   const hour = minute * 60;
   const day = hour * 24;
   const month = day * 30;
   const year = day * 365;
+  const yesterday = 3600 * 24 * 2;
+  // console.log('diff= >>>>', diff);
   switch (true) {
     case diff < minute:
       const seconds = Math.round(diff / 1000);
       return `${seconds > 1 ? `${seconds} secs ago` : 'just now'}`
     case diff < hour:
-      return Math.round(diff / minute) + ' mins ago';
+      return Math.round(diff / minute) + ` ${translationDic['minutes_ago'] ?? ''}`;
     case diff < day:
-      return Math.round(diff / hour) + ' hrs ago';
-    case diff < month:
-      return Math.round(diff / day) + ' days ago';
+      return Math.round(diff / hour) + ` ${translationDic['hours_ago'] ?? ''}`;
+    case diff < yesterday: 
+      return 'yesterday';
+    // case diff < month:
+    //   return Math.round(diff / day) + ' days ago';
     case diff < year:
-      return Math.round(diff / month) + ' mnths ago';
+      return formattedDate;
     case diff > year:
-      return Math.round(diff / year) + ' years ago';
+      return formattedDate;
     default:
       return "";
   }

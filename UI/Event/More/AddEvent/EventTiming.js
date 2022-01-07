@@ -88,7 +88,6 @@ export default class EventTiming extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${AppConstants.appLanguage}${group}`, 'get', '', AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      console.log('objc', objc)
       tradlyDb.saveDataInDB(LangifyKeys.producttime, objc)
       this.timingTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })

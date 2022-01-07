@@ -29,6 +29,11 @@ import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
 
 
+import APPURL from '../../../Constants/URLConstants';
+import networkService from '../../../NetworkManager/NetworkManager';
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
@@ -46,16 +51,61 @@ export default class ChatScreen extends Component {
       chatRoomId: '',
       receiverId:'',
       titleName: '',
+      translationDic:{},
     }
   }
   componentDidMount() {
     this.setupChat() 
+    this.langifyAPI()
   }
 
   componentWillUnmount(){
     this.state.chatArray = [];
     this.setState({updateUI: !this.state.updateUI})
   }
+
+  langifyAPI = async () => {
+    let productD = await tradlyDb.getDataFromDB(LangifyKeys.chat);
+    if (productD != undefined) {
+      this.chatTranslationData(productD);
+      this.setState({ updateUI: true})
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.chat}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.chat, objc)
+      this.chatTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  chatTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      // console.log('obj ==> ', obj);
+      if ('chat.write_here' == obj['key']) {
+        this.state.translationDic['write_here'] = obj['value'];
+      }
+      if ('chat.hours_ago' == obj['key']) {
+        this.state.translationDic['hours_ago'] = obj['value'];
+      }
+      if ('chat.just_now' == obj['key']) {
+        this.state.translationDic['just_now'] = obj['value'];
+      }
+      if ('chat.minute_ago' == obj['key']) {
+        this.state.translationDic['minute_ago'] = obj['value'];
+      }
+      if ('chat.minutes_ago' == obj['key']) {
+        this.state.translationDic['minutes_ago'] = obj['value'];
+      }
+      // product.clear_cart
+    }
+  }
+
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
     if (receiverData != undefined) {
@@ -153,7 +203,7 @@ export default class ChatScreen extends Component {
   }
   renderLeftView = (item) => {
     // console.log('item === ',item);
-    let time = timeAgo(new Date(item['timeStamp']).getTime());
+    let time = timeAgo(new Date(item['timeStamp']).getTime(),this.state.translationDic);
     // console.log('time',time);
     // if (index == 3) {
     //   return (<View style={styles.leftViewStyle}>
@@ -168,7 +218,7 @@ export default class ChatScreen extends Component {
     // }
   }
   renderRightView = (item) => {
-    let time = timeAgo(new Date(item['timeStamp']).getTime());
+    let time = timeAgo(new Date(item['timeStamp']).getTime(),this.state.translationDic);
     // if (index == 18) {
     //   return (<View style={styles.rightViewStyle}>
     //     <FastImage style={styles.photoViewStyle} source={this.state.photo == null ? sample : {uri: this.state.photo['path']}} />
@@ -190,7 +240,7 @@ export default class ChatScreen extends Component {
             value={this.state.message}
             onChangeText={txt => this.setState({message: txt})}
             style={styles.msgTextStyle}
-            placeholder={'Write here ...'}/>
+            placeholder={`${this.state.translationDic['write_here']}...`}/>
         </View>
         {/* <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
           <Image style={{ height: 20, width: 20 }} source={attachIcon} />

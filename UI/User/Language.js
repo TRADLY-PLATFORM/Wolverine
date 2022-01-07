@@ -24,6 +24,8 @@ import APPURL from '../../Constants/URLConstants';
 import networkService from '../../NetworkManager/NetworkManager';
 import appConstant from '../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
+import LangifyKeys from '../../Constants/LangifyKeys';
+import tradlyDb from '../../TradlyDB/TradlyDB';
 
 export default class Language extends Component {
   constructor(props) {
@@ -33,13 +35,62 @@ export default class Language extends Component {
       updateUI: false,
       selectedLangaugeIndex: 0,
       languageArray: [],
+      translationDic: {},
+      dataLoad:false,
     }
   }
 
   componentDidMount() {
+    this.langifyAPI(LangifyKeys.more)
+    this.langifyAPI(LangifyKeys.intro)
     this.loadLanguageApi()
   }
- 
+
+  langifyAPI = async (keyGrop) => {
+    let moreD = await tradlyDb.getDataFromDB(keyGrop);
+    if (moreD != undefined) {
+      if (LangifyKeys.more == keyGrop) {
+        this.getMorelangiFyData(moreD);
+      } else {
+        this.introTranslationData(moreD);
+      }
+      this.setState({ updateUI: true, isVisible: false })
+
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${keyGrop}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      if (LangifyKeys.more == keyGrop) {
+        tradlyDb.saveDataInDB(keyGrop, objc)
+        this.getMorelangiFyData(objc);
+      } else {
+        tradlyDb.saveDataInDB(keyGrop, objc)
+        this.introTranslationData(objc)
+      }
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  getMorelangiFyData(moreD) {
+    for (let obj of moreD) {
+      if ('more.language' == obj['key']) {
+        this.state.translationDic['language'] = obj['value'];
+      }
+    }
+    this.setState({dataLoad: true})
+  }
+  introTranslationData(intoDa) {
+    for (let obj of intoDa) {
+      if ('intro.next' == obj['key']) {
+        appConstant.nextTitle = obj['value'];
+      }
+    }
+    this.setState({dataLoad: true})
+  }
   loadLanguageApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.language, 'get', '', appConstant.bToken,'')
@@ -96,16 +147,17 @@ export default class Language extends Component {
     return (<View style={{alignSelf: 'center'}}>
       <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.doneBtnAction()}>
         <View style={eventStyles.applyBtnViewStyle}>
-          <Text style={{ color: colors.AppWhite,fontWeight: '600', fontSize: 16 }}>Next</Text>
+          <Text style={{ color: colors.AppWhite,fontWeight: '600', fontSize: 16 }}>{appConstant.nextTitle}</Text>
         </View>
       </TouchableOpacity>
     </View>)
   }
   render() {
     let showBack =  this.props.route.params ? true : false;
+    if (this.state.dataLoad) {
     return (
       <SafeAreaView style={styles.Container}>
-        <HeaderView title={'Language'} showBackBtn={showBack} backBtnAction={() => this.props.navigation.goBack()} />
+        <HeaderView title={this.state.translationDic['language']?? 'Language'} showBackBtn={showBack} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
           <View style={{height: '100%',width: '100%'}}>
@@ -115,6 +167,13 @@ export default class Language extends Component {
         </View>
       </SafeAreaView>
     );
+    } else {
+      return (<SafeAreaView style={styles.Container}>
+        <HeaderView title={''} showBackBtn={showBack} backBtnAction={() => this.props.navigation.goBack()} />
+        <View style={{height: '97%', backgroundColor: colors.AppWhite }} />
+      </SafeAreaView>)
+
+    }
   }
 }
 const styles = StyleSheet.create({

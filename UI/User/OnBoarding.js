@@ -29,6 +29,7 @@ export default class OnBoardings extends Component {
   componentDidMount() {
     var index = 0 ;
     this.langifyAPI()
+    this.langifyMoreAPI()
     this.langifyHomeAPI()
     for (let obj of appConstant.intoScreen) {
       index = index + 1
@@ -70,6 +71,14 @@ export default class OnBoardings extends Component {
       if ('intro.next' == obj['key']) {
         this.state.translationDic['next'] = obj['value'];
       }
+    }
+  }
+  langifyMoreAPI = async () => {
+    let group = `&group=${LangifyKeys.more}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.more, objc)
     }
   }
   langifyHomeAPI = async () => {

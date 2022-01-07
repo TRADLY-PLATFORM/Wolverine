@@ -17,9 +17,8 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import filterGrayIcon from '../../../assets/filterGrayIcon.png';
 import sortIcon from '../../../assets/sortIcon.png';
-import ViewMapIcon from '../../../assets/viewMapIcon.png';
+import viewMapIcon from '../../../assets/viewMap.svg';
 import APPURL from '../../../Constants/URLConstants';
-import cancelIcon from '../../../assets/cancel.png';
 
 import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
@@ -27,19 +26,16 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/radioChecked.png';
-import searchSvg from '../../../assets/search.png';
+import searchSvg from '../../../assets/searchSvg.svg';
 
 import {changeDateFormat,getDatesArray,getNextDate} from '../../../HelperClasses/SingleTon'
 import ExploreListItem from '../../../Component/ExploreListItem'
 import SearchBar from 'react-native-search-bar';
+import SvgUri from 'react-native-svg-uri';
+
 import constantArrays from '../../../Constants/ConstantArrays';
 import LocationPermission from '../../../HelperClasses/LocationPermission';
-
-import LangifyKeys from '../../../Constants/LangifyKeys';
-import tradlyDb from '../../../TradlyDB/TradlyDB';
-
 const windowHeight = Dimensions.get('window').height;
-
 
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -71,15 +67,13 @@ export default class Explore extends Component {
       dataLoad: false,
       showSearchBar: true,
       searchKey:'',
-      typingTimeout: 0,
-      translationDic:{},
+      typingTimeout: 0
     }
   }
   componentDidMount() {
     // this.refs.searchBar.focus()
-    this.langifyAPI();
-    // this.state.datesArray = getDatesArray();
-    this.props.navigation.addListener('focus', () => {this.setState({showSearchBar: false})})
+    this.state.datesArray = getDatesArray();
+    // this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
       let lp = new LocationPermission();
       lp._requestLocation();
@@ -91,74 +85,12 @@ export default class Explore extends Component {
     this.state.dataLoad = true
   }
   initApi() {
-    // if (this.state.datesArray.length != 0){
-    //   this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-    //   let strtD = ''//`&start_at=${this.state.selectedDate}T00:00:00Z`;
-    //   this.state.params = `${strtD}`;
-    // }
+    if (this.state.datesArray.length != 0){
+      this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
+      let strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+      this.state.params = `${strtD}`;
+    }
     this.callApi(this.state.params);
-  }
-  langifyAPI = async () => {
-    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.search);
-    if (searchD != undefined) {
-      this.searchTranslationData(searchD);
-      this.setState({ updateUI: true, isVisible: false })
-    } else {
-      this.setState({ isVisible: true })
-    }
-    // ${appConstant.appLanguage}
-    let group = `&group=${LangifyKeys.search}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
-    if (responseJson['status'] == true) {
-      let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.search, objc)
-      this.searchTranslationData(objc);
-      this.setState({ updateUI: true, isVisible: false })
-    } else {
-      this.setState({ isVisible: false })
-    }
-  }
-  searchTranslationData(object) {
-    this.state.translationDic = {};
-    for (let obj of object) {
-      console.log('obj', obj);
-      if ('search.nearest_by_distance' == obj['key']) {
-        constantArrays.sortingArray[0] = obj['value'];
-      }
-      if ('search.high_to_low' == obj['key']) {
-        constantArrays.sortingArray[2] = obj['value'];
-      }  
-      if ('search.low_to_high' == obj['key']) {
-        constantArrays.sortingArray[1] = obj['value'];
-      }  
-      if ('search.search' == obj['key']) {
-        this.state.translationDic['title'] = obj['value'];
-      }
-      if ('search.sort' == obj['key']) {
-        this.state.translationDic['sort'] = obj['value'];
-      }
-      if ('search.filter' == obj['key']) {
-        this.state.translationDic['filter'] = obj['value'];
-      }
-      if ('search.view_map' == obj['key']) {
-        this.state.translationDic['viewMap'] = obj['value'];
-      }
-      if ('search.done' == obj['key']) {
-        this.state.translationDic['done'] = obj['value'];
-      }
-      if ('search.no_listing_found' == obj['key']) {
-        this.state.translationDic['no_listing_found'] = obj['value'];
-      }
-      if ('search.viewList' == obj['key']) {
-        this.state.translationDic['viewList'] = obj['value'];
-      }
-      if ('search.cancel' == obj['key']) {
-        this.state.translationDic['cancel'] = obj['value'];
-      }
-      if ('search.type_to_search' == obj['key']) {
-        this.state.translationDic['type_to_search'] = obj['value'];
-      }
-    }
   }
   callApi(param) {
     this.setState({ dataLoad: false })
@@ -179,6 +111,7 @@ export default class Explore extends Component {
       let events = responseJson['data']['listings'];
       if (events.length != 0) {
         for(let objc of events){
+          // console.log('objc =>', objc);
           this.state.eventsArray.push(objc);
         }
       }else {
@@ -265,9 +198,6 @@ export default class Explore extends Component {
   /*  Delegate   */
   getFilterData = data => {
     var queryParams = '';
-    if (this.state.searchKey.length != 0) {
-      queryParams = `&search_key=${this.state.searchKey}`;
-    }
     for (let objc of data) {
       if (objc['time']) {
         let timeD = objc['time'];
@@ -283,33 +213,33 @@ export default class Explore extends Component {
       } 
       if (objc['rating']) {
         var strtD = '';
-        // if (!queryParams.includes('start_at')) {
-        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        // }  
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }  
         let rObjc = objc['rating']
         queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
         var strtD = '';
-        // if (!queryParams.includes('start_at')) {
-        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        // }
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['distance']
         queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
         var strtD = '';
-        // if (!queryParams.includes('start_at')) {
-        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        // }
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
       }
       if (objc['price']) {
         var strtD = '';
-        // if (!queryParams.includes('start_at')) {
-        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        // }   
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }   
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
       }
@@ -317,9 +247,9 @@ export default class Explore extends Component {
         let nObj = objc['attribute']
         let dObjc = nObj['values'];
         var strtD = '';
-        // if (!queryParams.includes('start_at')) {
-        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        // }
+        if (!queryParams.includes('start_at')) {
+           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        }
         if (dObjc.length != 0) {
           queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
         }
@@ -342,7 +272,7 @@ export default class Explore extends Component {
     let check = index == this.state.sortSelectedIndex ? true : false
     var views = [];
     views.push(<View style={commonStyles.nextIconStyle}> 
-        <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
+        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
     </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
@@ -367,40 +297,36 @@ export default class Explore extends Component {
   renderSortView = () => {
     let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View style={{flex:1,}}>
+      return (<View style={{flex:1}}>
         <ScrollBottomSheet
           componentType="ScrollView"
           snapPoints={['50%', "50%", maxHeight]}
           initialSnapIndex={1}
           scrollEnabled={true}
-          style={{backgroundColor: colors.lightTransparent}}
           animationType={'timing'}
           renderHandle={() => (
             <View style={eventStyles.header}>
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
-                    <TouchableOpacity onPress={() => this.sortBtnAction()}>
-                      <Image resizeMode={'center'} style={{ height: 20, width: 20, marginRight: 20 }} source={cancelIcon} />
-                    </TouchableOpacity>
-                  </View>
+                <View style={{justifyContent: 'center' }}>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort</Text>
+                </View>
                 <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 5 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>{this.state.translationDic['done'] ?? 'Done'}</Text>
+                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
-           )} topInset={false}
+          )} topInset={false}
           contentContainerStyle={eventStyles.contentContainerStyle}
           onSettle={index => { if (index == 2) {  this.sortBtnAction() }}}
-        /> 
+        />
       </View>)
     } else {
       return <View />
@@ -441,11 +367,11 @@ export default class Explore extends Component {
     }
   }
   renderViewMaBtnView = () => {
-    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100, elevation: 101}}>
+    return (<View style={{position: 'relative',flexDirection: 'row-reverse', padding: 10, marginTop:this.state.showMap ? -20 : -80, zIndex: 100}}>
       <TouchableOpacity style={eventStyles.viewOnMapBtnStyle} onPress={() => this.setState({ showMap: !this.state.showMap })}>
-        <Image style={{width:20,height:20,tintColor:colors.AppTheme,}} source={ViewMapIcon}/>
+        <SvgUri width={20} height={20} source={viewMapIcon} fill={colors.AppTheme} />
         <View style={{ width: 5 }} />
-        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? this.state.translationDic['viewList'] ?? 'View List' : this.state.translationDic['viewMap'] ?? 'View Map'}</Text>
+        <Text style={{ fontWeight: '500', fontSize: 14, color: colors.AppTheme }}>{this.state.showMap ? 'View List' : 'View Map'}</Text>
       </TouchableOpacity>
   </View>)
   }
@@ -480,7 +406,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? this.state.translationDic['no_listing_found'] ?? 'Sorry, no items found' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
       </View>
     }
   }
@@ -493,21 +419,21 @@ export default class Explore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
       </TouchableOpacity>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['filter'] ?? 'Filters'}</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
       </TouchableOpacity>
     </View>)
   }
   renderMainView = () => {
     return (<View style={{ flex: 1 }}>
       {this.renderHeaderView()}
-      {/* {this.renderDateListView()} */}
+      {this.renderDateListView()}
       <View style={{ flex: 1 }}>
         {this.renderListView()}
-        {/* {this.renderViewMaBtnView()} */}
+        {this.renderViewMaBtnView()}
       </View>
       <View style={{ height: 0, width: '100%' }} />
     </View>)
@@ -518,12 +444,9 @@ export default class Explore extends Component {
         <SearchBar
           ref="searchBar"
           barTintColor={colors.AppWhite}
-          text={this.state.searchKey}
           searchBarStyle={'minimal'}
           tintColor={colors.AppWhite}
           placeholderTextColor={colors.AppWhite}
-          placeholder={this.state.translationDic['type_to_search'] ?? 'Search'}
-          cancelButtonText={this.state.translationDic['cancel'] ?? 'Cancel'}
           textFieldBackgroundColor={colors.AppWhite}
           style={{ borderColor: colors.AppWhite, height: 60 }}
           textColor={colors.AppBlack}
@@ -534,14 +457,14 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <HeaderView title={this.state.translationDic['title'] ?? 'Search'} showDoneBtn={true} doneBtnTitle={this.state.translationDic['title'] ?? 'Search'} doneBtnAction={() => this.openSearchBarAction()} />
+      return <HeaderView title={'Search'} showDoneBtn={true} doneBtnTitle={'Search'} doneBtnAction={() => this.openSearchBarAction()} />
     }
   }
 
   render() {
     if (this.state.showMap) {
       return (<View style={{ flex:1 }}>
-        <View style={{flex: 1, zIndex:10, elevation: 11, height: windowHeight}}>
+        <View style={{flex: 1, zIndex:10, height: windowHeight}}>
           <MapView
             provider={PROVIDER_GOOGLE}
             style={eventStyles.mapStyle}
@@ -556,12 +479,12 @@ export default class Explore extends Component {
           </MapView>
         </View>
         <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
-          <Text>{this.state.translationDic['title']?? 'Search'}..</Text>
+          <Text>Search..</Text>
           <View>
-            <Image source={searchSvg} style={{width: 25, height: 25, tintColor:colors.AppGray}}/>
+            <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
           </View>
         </TouchableOpacity>
-        <View style={{height: 180, zIndex: 12, elevation: 13,position: 'absolute', marginTop: windowHeight - 280}}>
+        <View style={{height: 180, zIndex: 12,position: 'absolute', marginTop: windowHeight - 280}}>
           {this.renderViewMaBtnView()}
           {this.renderListView()}
         </View>
@@ -572,10 +495,10 @@ export default class Explore extends Component {
         {this.renderSearchBar()}
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ backgroundColor: colors.LightBlueColor, flex: 1 }}>
-          <View style={{ zIndex: 5, elevation: 6, position: 'absolute', height: '100%'}}>
+          <View style={{ zIndex: 5, position: 'absolute', height: '100%'}}>
             <this.renderMainView />
           </View>
-          <View style={{ zIndex: 20, elevation: 1000, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
+          <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showSortView ? '100%' : 0 }}>
             <this.renderSortView />
           </View>
         </View>
@@ -649,7 +572,6 @@ const styles = StyleSheet.create({
     height: 40,
     width: windowWidth - 40,
     zIndex: 11,
-    elevation: 12,
     position: 'absolute',
     marginTop: 60,
     justifyContent: 'space-between',

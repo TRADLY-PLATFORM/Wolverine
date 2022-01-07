@@ -65,6 +65,7 @@ export default class Filter extends Component {
       selectedAtriValueIds: [],
       showTimeBool:false,
       translationDic:{},
+      dataLoad: false,
     }
     this.onChangeTimeSlider =  this.onChangeTimeSlider.bind(this);
 
@@ -139,7 +140,6 @@ export default class Filter extends Component {
   searchTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      console.log('obj', obj);
       if ('filter.distance' == obj['key']) {
         constantArrays.filterArray[1] = obj['value'];
       }
@@ -159,6 +159,7 @@ export default class Filter extends Component {
         this.state.translationDic['apply'] = obj['value'];
       }
     }
+    this.setState({dataLoad: true})
   }
 
 
@@ -740,6 +741,7 @@ export default class Filter extends Component {
     </View>)
   }
   render() {
+    if (this.state.dataLoad) {
     return (
       <SafeAreaView style={styles.Container}>
         <HeaderView title={this.state.translationDic['title'] ?? 'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
@@ -756,6 +758,12 @@ export default class Filter extends Component {
         </View>
       </SafeAreaView>
     );
+    } else {
+      return <SafeAreaView style={styles.Container}>
+                <HeaderView title={''} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <View style={{ height: '100%', backgroundColor: colors.AppWhite }} />
+      </SafeAreaView>
+    }
   }
 }
 const styles = StyleSheet.create({

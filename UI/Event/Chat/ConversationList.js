@@ -79,12 +79,25 @@ export default class ConversationList extends Component {
   }
   chatTranslationData(object) {
     this.state.translationDic = {};
+    console.log('object ==> ', object);
     for (let obj of object) {
       if ('chat.header_title' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }  
       if ('chat.no_messages' == obj['key']) {
         this.state.translationDic['no_messages'] = obj['value'];
+      }
+      if ('chat.hours_ago' == obj['key']) {
+        this.state.translationDic['hours_ago'] = obj['value'];
+      }
+      if ('chat.just_now' == obj['key']) {
+        this.state.translationDic['just_now'] = obj['value'];
+      }
+      if ('chat.minute_ago' == obj['key']) {
+        this.state.translationDic['minute_ago'] = obj['value'];
+      }
+      if ('chat.minutes_ago' == obj['key']) {
+        this.state.translationDic['minutes_ago'] = obj['value'];
       }
       // product.clear_cart
     }
@@ -145,19 +158,22 @@ export default class ConversationList extends Component {
   renderListViewCellItem = ({ item, index }) => {
     let photo  = item['profilePic'] ?? ''
     let profilePic = photo.length == 0 ? sample : {uri:photo}
-    let time = timeAgo(new Date(item['lastUpdated']).getTime());
+    let time = timeAgo(new Date(item['lastUpdated']).getTime(),this.state.translationDic);
     return (<TouchableOpacity style={{ padding: 16, flexDirection: 'row',justifyContent: 'space-between' }} onPress={() => this.chatBtnAction(item)}>
-      <View style={{flexDirection: 'row',width: '80%',padding:2}}>
+      <View style={{flexDirection: 'row',flex:1,}}>
         <FastImage style={{ height: 50, width: 50, borderRadius: 25 }} source={profilePic} />
-        <View style={{ marginLeft: 10, justifyContent: 'center',flex:1 }}>
-          <Text style={eventStyles.titleStyle}>{item['receiver']}</Text>
+        <View style={{ marginLeft: 10, justifyContent: 'center',width:'84%'}}>
+          <View style={{flexDirection: 'row',justifyContent: 'space-between',width: '100%'}}>
+            <View style={{flex:1}}>
+              <Text style={eventStyles.titleStyle}>{item['receiver']}</Text>
+            </View>
+            <Text style={{ fontSize: 14, color: colors.Lightgray, textAlign: 'right' }}>{time}</Text>
+          </View>
           <View style={{ height: 2 }} />
           <Text style={eventStyles.commonTxtStyle} numberOfLines={2}>{item['lastMessage']}</Text>
         </View>
       </View>
-      <View style={{alignItems: 'flex-end'}}>
-        <Text style={{fontSize: 14, color: colors.Lightgray}}>{time}</Text>
-      </View>
+    
     </TouchableOpacity>)
   }
   render() {

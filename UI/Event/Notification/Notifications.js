@@ -74,6 +74,12 @@ export default class Notifications extends Component {
       if ('notification.no_notification_at_the_moment' == obj['key']) {
         this.state.translationDic['no_notification_at_the_moment'] =  obj['value'];
       }
+      if ('notification.started_following_your_account' == obj['key']) {
+        this.state.translationDic['started_following_your_account'] =  obj['value'];
+      }
+      if ('notification.liked_your_listing' == obj['key']) {
+        this.state.translationDic['liked_your_listing'] =  obj['value'];
+      }
     }
   }
 
@@ -107,7 +113,6 @@ export default class Notifications extends Component {
    }
   /*  Buttons   */
   didSelect = (item) => {
-    console.log('item', item);
     if (item['type'] == 1) {
       this.props.navigation.navigate(NavigationRoots.MyStore);
     }
@@ -146,8 +151,8 @@ export default class Notifications extends Component {
     // 
   }
   renderNotificationListCellItem= ({item, index}) => {
-    let type = notificationEnum.type(item['type']);
-    let name = `${item['user']['first_name']} ${type}`;
+    let type = notificationEnum.type(item['type'], this.state.translationDic);
+    let name = `${item['user']['first_name']}${type}`;
     var photo  = [];
     if (item['user']){
       if (item['user']['profile_pic']) {

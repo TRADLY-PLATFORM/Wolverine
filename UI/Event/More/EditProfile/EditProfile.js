@@ -100,21 +100,20 @@ export default class EditProfile extends Component {
     }
   }
   editprofileTranslationData(object) {
-    this.state.translationDic = {};
     for (let obj of object) {
-      if ('variant.title' == obj['key']) {
+      if ('editprofile.title' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
       }  
-      if ('variant.submit' == obj['key']) {
+      if ('editprofile.submit' == obj['key']) {
         this.state.translationDic['submit'] = obj['value'];
       } 
-      if ('variant.firstname' == obj['key']) {
+      if ('editprofile.firstname' == obj['key']) {
         this.state.translationDic['firstname'] = obj['value'];
       } 
-      if ('variant.email' == obj['key']) {
+      if ('editprofile.email' == obj['key']) {
         this.state.translationDic['email'] = obj['value'];
       }
-      if ('variant.lastname' == obj['key']) {
+      if ('editprofile.lastname' == obj['key']) {
         this.state.translationDic['lastname'] = obj['value'];
       }
     }
@@ -184,7 +183,7 @@ export default class EditProfile extends Component {
       <View>
         <ActionSheet
           ref={o => this.ActionSheet = o}
-          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', "Cancel"]}
+          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', AppConstants.cancelTitle]}
           cancelButtonIndex={2}
           destructiveButtonIndex={2}
           onPress={(index) => { 

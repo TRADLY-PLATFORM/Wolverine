@@ -96,6 +96,7 @@ export default class App extends Component {
       if (appConstant.appLanguage.length != 0) {
         this.langifyAPI()
       }
+      this.getLanguageApi();
       this.getCurrencyApi()
     }
   }
@@ -111,7 +112,7 @@ export default class App extends Component {
       console.log('home => ', objc)
       tradlyDb.saveDataInDB(LangifyKeys.home, objc)
       this.bottomTarTranslationData(objc);
-      this.setState({ reload: true, isVisible: false })
+      this.setState({isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
@@ -124,6 +125,18 @@ export default class App extends Component {
         if (obj['default'] == true) {
           appConstant.defaultCurrencyCode = obj['code'];
           appConstant.defaultCurrency = obj['format'];
+        }
+      }
+      this.setState({ isVisible: false })
+    }
+  }
+  getLanguageApi = async () => {
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.language, 'get','',appConstant.bToken,'')
+    if (responseJson['status'] == true) {
+      let ccData = responseJson['data']['languages']
+      for (let obj of ccData) {
+        if (obj['default'] == true) {
+          appConstant.appLanguage = obj['code'];
         }
       }
       this.setState({ reload: true, isVisible: false })

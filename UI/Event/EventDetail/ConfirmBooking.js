@@ -108,7 +108,6 @@ export default class ConfirmBooking extends Component {
         this.state.translationDic['success'] = obj['value'];
       }
     }
-    console.log('dasdasd asdsa=d=sad-as-das-d-d=>>',this.state.translationDic['success'])
   }
   getPaymentMethodsApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -196,7 +195,7 @@ export default class ConfirmBooking extends Component {
       Alert.alert( `${error.message}`, "",
         [
           {
-            text: 'OK', onPress: () => {
+            text: appConstant.okTitle, onPress: () => {
               this.props.navigation.goBack()
             }
           }

@@ -27,9 +27,13 @@ module.exports = {
   dsnSentry: 'https://a36e7a2a75764b44aacc1400414d0fca@o396771.ingest.sentry.io/5896058',
   firebaseChatPath: '/meetneeds_prod/',
   tenantID:'meetneeds',
-  appLanguage: '',
+  appLanguage: 'en',
   okTitle:'OK',
   bottomTabBarDic: {},
   sellIcon:'',
   doneTitle:'Done',
+  cancelTitle:'Cancel',
+  nextTitle: 'Next',
+  languageTitle: 'Language',
+  locationPermissionError: 'Location service is disabled or unavailable'
 }

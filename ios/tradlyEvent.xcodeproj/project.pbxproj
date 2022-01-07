@@ -14,7 +14,7 @@
 		780B6D1626C7A2DC002DB55A /* Fix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780B6D1526C7A2DC002DB55A /* Fix.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		AED7485AA72278705DCCF024 /* libPods-tradlyEvent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31AAB7B79DCA00EC3942829 /* libPods-tradlyEvent.a */; };
-		B32872D72775B90300617BE0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B32872D62775B90300617BE0 /* GoogleService-Info.plist */; };
+		B3BEA1BE27856BD90079F975 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B3BEA1BD27856BD90079F975 /* GoogleService-Info.plist */; };
 		D28625FDE74271CA5E2E4083 /* libPods-tradlyEvent-tradlyEventTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F1F5396CFCFC5D2A9FCB027D /* libPods-tradlyEvent-tradlyEventTests.a */; };
 /* End PBXBuildFile section */
 
@@ -47,8 +47,8 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = tradlyEvent/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A7BD7DFDBA5A7591D34C9FB2 /* Pods-tradlyEvent.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tradlyEvent.debug.xcconfig"; path = "Target Support Files/Pods-tradlyEvent/Pods-tradlyEvent.debug.xcconfig"; sourceTree = "<group>"; };
 		B31AAB7B79DCA00EC3942829 /* libPods-tradlyEvent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tradlyEvent.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B32872D62775B90300617BE0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B345300526D3C3A7005699DC /* tradlyEvent.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = tradlyEvent.entitlements; path = tradlyEvent/tradlyEvent.entitlements; sourceTree = "<group>"; };
+		B3BEA1BD27856BD90079F975 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Documents/meetneedsKeyStore/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CC3E9EAB688B4FA786E72748 /* RangeSlider.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RangeSlider.xcodeproj; path = "../node_modules/react-native-range-slider/ios/RangeSlider.xcodeproj"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F1F5396CFCFC5D2A9FCB027D /* libPods-tradlyEvent-tradlyEventTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tradlyEvent-tradlyEventTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,7 +99,7 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				B32872D62775B90300617BE0 /* GoogleService-Info.plist */,
+				B3BEA1BD27856BD90079F975 /* GoogleService-Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				780B6D1526C7A2DC002DB55A /* Fix.swift */,
@@ -266,7 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				B32872D72775B90300617BE0 /* GoogleService-Info.plist in Resources */,
+				B3BEA1BE27856BD90079F975 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

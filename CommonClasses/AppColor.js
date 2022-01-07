@@ -1,5 +1,5 @@
 export default {
-  AppTheme:'#83f0c8',
+  AppTheme:'#17d275',
   Lightgray:'rgba(167, 167, 167, 1)',
   LightUltraGray: '#EEEEEE',
   lightTransparent:'rgba(1, 1, 1, 0)',
@@ -14,7 +14,7 @@ export default {
   LightGreenColor:'#E3F4F0',
   AppWhite:'white',
   LightGreen:'#EAF7F4',
-  GradientTop: '#83f0c8',
+  GradientTop: '#17d275',
   GradientBottom: '#17d275',
   AppBlack:'rgba(1, 1, 1, 1)',
   softGreen: '#DFFBF4',

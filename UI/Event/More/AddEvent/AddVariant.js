@@ -68,7 +68,6 @@ export default class AddVariant extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      console.log('objc', objc)
       tradlyDb.saveDataInDB(LangifyKeys.addvariant, objc)
       this.varinatTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })
@@ -79,7 +78,6 @@ export default class AddVariant extends Component {
   varinatTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      console.log('obj', obj)
       if ('storedetail.variant_type' == obj['key']) {
         this.state.translationDic['variantType'] = obj['value'];
       }  

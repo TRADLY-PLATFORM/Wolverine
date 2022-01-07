@@ -89,6 +89,9 @@ export default class More extends Component {
       if ('more.customer' == obj['key']) {
         this.state.translationDic['customer'] = obj['value'];
       }
+      if ('more.tenant_exit_confirm_title' == obj['key']) {
+        this.state.translationDic['titleLogout'] = obj['value'];
+      }
       if ('more.business' == obj['key']) {
         this.state.translationDic['business'] = obj['value'];
       }
@@ -133,6 +136,7 @@ export default class More extends Component {
       if ('more.logging_out' == obj['key']) {
         constantArrays.customerMenuArray[7] = obj['value'];
         constantArrays.menuArray[9] = obj['value'];
+        this.state.translationDic['logout'] = obj['value'];
       }
     }
   }
@@ -178,14 +182,14 @@ export default class More extends Component {
   }
   logoutBtnAction() {
     Alert.alert(
-      appMsg.logoutMsg, "",
+      this.state.translationDic['titleLogout'] ?? 'are you sure ', "",
       [
         {
-          text: "Cancel",
+          text: appConstant.cancelTitle ?? 'cancel',
           onPress: () => console.log("Cancel Pressed"),
         },
         {
-          text: appConstant.okTitle, onPress: () => {
+          text: this.state.translationDic['logout'] ?? 'Logout', onPress: () => {
             DefaultPreference.set('loggedIn', 'false').then( () => { 
               appConstant.loggedIn = false;
               this.setState({ updateUI: !this.state.updateUI})

@@ -226,6 +226,12 @@ export default class AddEvent extends Component {
       if ('addproduct.alert_message_update_product_success' == obj['key']) {
         this.state.translationDic['updateSuccess'] =  obj['value'];
       }
+      if ('addproduct.select_single_value' == obj['key']) {
+        this.state.translationDic['select_single_value'] =  obj['value'];
+      }
+      if ('addproduct.select_multi_value' == obj['key']) {
+        this.state.translationDic['select_multi_value'] =  obj['value'];
+      } 
     }
     console.log('this.state.translationDic', this.state.translationDic);
     this.setState({ updateUI: true, isVisible: false })
@@ -1120,7 +1126,7 @@ export default class AddEvent extends Component {
       <View>
         <ActionSheet
           ref={o => this.ActionSheet = o}
-          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', "Cancel"]}
+          options={[this.state.translationDic['camera'] ?? "Camera", this.state.translationDic['gallery'] ?? 'Photos', appConstant.cancelTitle ?? 'Cancel']}
           cancelButtonIndex={2}
           destructiveButtonIndex={2}
           onPress={(index) => { 
@@ -1251,7 +1257,7 @@ export default class AddEvent extends Component {
         let item = this.state.attributeArray[a];
         let fieldType = item['field_type'];
         if (fieldType == 1 || fieldType == 2) {
-          var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
+          var value = fieldType == 1 ? this.state.translationDic['select_single_value'] ?? 'Select Single Value' : this.state.translationDic['select_multi_value'] ?? 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
               let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])

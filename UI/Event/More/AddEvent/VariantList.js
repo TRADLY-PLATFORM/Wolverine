@@ -59,7 +59,7 @@ export default class VariantList extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${AppConstants.appLanguage}${group}`, 'get', '', AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      console.log('objc', objc)
+      // console.log('objc', objc)
       tradlyDb.saveDataInDB(LangifyKeys.variant, objc)
       this.variantTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })

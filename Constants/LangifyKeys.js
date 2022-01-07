@@ -36,5 +36,6 @@ module.exports = {
   map:'map',
   chat:'chat',
   chatdetail: 'chatdetail',
+  shipment: 'shipment',
 
 }

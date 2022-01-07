@@ -236,7 +236,13 @@ export default class CreateShop extends Component {
       }
       if ('addstore.update_success' == obj['key']) {
         this.state.translationDic['update_success'] =  obj['value'];
-      }      
+      }
+      if ('addstore.select_single_value' == obj['key']) {
+        this.state.translationDic['select_single_value'] =  obj['value'];
+      }
+      if ('addstore.select_multi_value' == obj['key']) {
+        this.state.translationDic['select_multi_value'] =  obj['value'];
+      }     
     }
   }
   loadCategoryApi = async () => {
@@ -313,7 +319,7 @@ export default class CreateShop extends Component {
         APPURL.URLPaths.S3signedUploadURL, 'POST',  JSON.stringify({files: imgParm}),appConstant.bToken,appConstant.authKey );
       if (responseJson['status'] == true) {
         var result = responseJson['data']['result'];
-        console.log('result', result);
+        // console.log('result', result);
         var uploadIncrement = 0;
         for (let i = 0; i < imgParm.length; i++) {
           let fileURL = uploadBase64[i]['file'];
@@ -776,7 +782,7 @@ export default class CreateShop extends Component {
         let item = this.state.attributeArray[a];
         let fieldType = item['field_type'];
         if (fieldType == 1 || fieldType == 2) {
-          var value = fieldType == 1 ? 'Select Single Value' : 'Select Multi Value'
+          var value = fieldType == 1 ? this.state.translationDic['select_single_value']  ?? 'Select Single Value' :  this.state.translationDic['select_multi_value']  ?? 'Select Multi Value'
           if (fieldType == 1) {
             if (this.state.singleSelectedArray.length !== 0) {
               let obj = this.state.singleSelectedArray.findIndex(x => x.valueId === item['id'])
@@ -924,7 +930,7 @@ export default class CreateShop extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={this.props.route.params ? this.state.translationDic['updateTitle'] : this.state.translationDic['title'] ?? 'Create your profile'} //{} 'Update your profile' : 'Create your profile '}
           showBackBtn={false} showDoneBtn={true}
-          doneBtnTitle={'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
+          doneBtnTitle={appConstant.cancelTitle ??'Cancel'} doneBtnAction={() => this.cancelBtnAction()}/>
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
           <ScrollView showsVerticalScrollIndicator={false}>

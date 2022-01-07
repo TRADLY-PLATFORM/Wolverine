@@ -95,7 +95,7 @@ export default class Verification extends Component {
       "code": this.state.OTPvalue,
     })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.verify, 'POST', dict, bToken)
-    console.log("responseJson = ", responseJson)
+    // console.log("responseJson = ", responseJson)
     if (responseJson) {
       if (responseJson['status'] == true) {
         userModel.userData(responseJson);

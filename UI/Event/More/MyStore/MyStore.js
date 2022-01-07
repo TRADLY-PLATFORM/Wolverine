@@ -81,7 +81,7 @@ export default class MyStore extends Component {
   langifyAPI = async (keyGrop) => {
     let searchD = await tradlyDb.getDataFromDB(keyGrop);
     if (searchD != undefined) {
-      if (LangifyKeys.product){
+      if (LangifyKeys.product == keyGrop){
         this.productTranslationData(searchD);
       }else {
         this.storeTranslationData(searchD);
@@ -94,12 +94,11 @@ export default class MyStore extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      // console.log('objc', objc)
       tradlyDb.saveDataInDB(keyGrop, objc)
-      if (LangifyKeys.product) {
-        this.productTranslationData(searchD);
+      if (LangifyKeys.product == keyGrop){
+        this.productTranslationData(objc);
       } else {
-        this.storeTranslationData(searchD);
+        this.storeTranslationData(objc);
       }
       this.setState({ updateUI: true, isVisible: false })
     } else {
@@ -116,6 +115,9 @@ export default class MyStore extends Component {
       }
       if ('product.ratings' == obj['key']) {
         this.state.translationDic['ratings'] = obj['value'];
+      }
+      if ('product.edit' == obj['key']) {
+        this.state.translationDic['edit'] = obj['value'];
       }
     }
   }
@@ -139,7 +141,12 @@ export default class MyStore extends Component {
       if ('storedetail.ratings_and_reviews' == obj['key']) {
         this.state.translationDic['ratings_and_reviews'] = obj['value'];
       }
-      
+      if ('storedetail.active' == obj['key']) {
+        this.state.translationDic['active'] = obj['value'];
+      }
+      if ('storedetail.inactive' == obj['key']) {
+        this.state.translationDic['inactive'] = obj['value'];
+      }
     }
   }
   getMyStoreDetailApi = async () => {
@@ -179,7 +186,7 @@ export default class MyStore extends Component {
     this.setState({ isVisible: true })
     const { accId } = this.props.route.params;
     let dict = {
-      active: !this.state.activeSatu,
+      active: !this.state.activeSatus,
     }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.accounts}/${accId}`, 'patch',
       JSON.stringify({ account: dict }), appConstant.bToken, appConstant.authKey)
@@ -350,7 +357,7 @@ export default class MyStore extends Component {
         <View style={styles.ratingViewStyle}>
           <TouchableOpacity style={styles.activeBntViewStyle} onPress={() => this.editBtnAction()}>
             <Text style={{ fontSize: 12, fontWeight: '500', color: colors.AppTheme, }}>
-              {accId == appConstant.accountID ? 'Edit' : this.state.itsFollowing ? this.state.translationDic['following'] ?? 'Following' : this.state.translationDic['follow'] ?? 'Follow'}
+              {accId == appConstant.accountID ? this.state.translationDic['edit'] ?? 'Edit' : this.state.itsFollowing ? this.state.translationDic['following'] ?? 'Following' : this.state.translationDic['follow'] ?? 'Follow'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -364,7 +371,7 @@ export default class MyStore extends Component {
         <TouchableOpacity style={this.state.activeSatus ? styles.activeBntViewStyle : styles.inActiveBtnViewStyle}
           onPress={() => this.activeBtnAction()}>
           <Text style={{ fontSize: 12, fontWeight: '500', color: this.state.activeSatus ? colors.AppTheme : colors.AppYellow }}>
-            {this.state.activeSatus ? 'Active' : 'In-Active'}
+            {this.state.activeSatus ? this.state.translationDic['active'] ?? 'Active' : this.state.translationDic['inactive'] ?? 'In-Active'}
           </Text>
         </TouchableOpacity>
       </View>)
