@@ -57,7 +57,8 @@ buck-out/
 /ios/Pods/
 
 # Env JS
-/src/env.js
+/AppKeys.js
+AppKeys.js
 
 # Build
 /build

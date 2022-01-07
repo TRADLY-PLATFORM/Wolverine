@@ -20,7 +20,7 @@ class NetworkManager {
       'x-agent': 1,
     }
     console.log(headers);
-    headers['Authorization'] = "Bearer " + token;
+    headers['Authorization'] = "Bearer " + appConstant.bToken;
     headers['x-auth-key'] = auth;
     if (currency != undefined) {
       headers['X-Currency'] = currency;

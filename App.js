@@ -63,10 +63,10 @@ export default class App extends Component {
     if (responseJson['status'] == true) {     
       let keyd = responseJson['data']['key']['app_key'];
       let into = responseJson['data']['configs']
-      console.log('configs  == >', into);
+      // console.log('configs  == >', into);
       appConstant.intoScreen = into['intro_screens'];
-      appConstant.bToken = keyd;
-      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
+      // appConstant.bToken = keyd;
+      // DefaultPreference.set('token', keyd).then(function () { console.log('done') });
       this.configListApi()
       // this.setState({ reload: true, isVisible: false })
     }

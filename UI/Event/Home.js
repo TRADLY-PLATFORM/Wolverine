@@ -53,8 +53,8 @@ export default class Home extends Component {
     lp._requestLocation();
   }
   getSavedData() {
-    DefaultPreference.get('token').then(function (value) {
-      appConstant.bToken = value;
+    // DefaultPreference.get('token').then(function (value) {
+    //   appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
         appConstant.authKey = authKey;
         DefaultPreference.get('refreshKey').then(function (refreshKey) {
@@ -79,7 +79,7 @@ export default class Home extends Component {
           this.getHomeDataApi()
         }.bind(this))
       }.bind(this))
-    }.bind(this))
+    // }.bind(this))
   }
 
   getMyStoreApi = async () => {

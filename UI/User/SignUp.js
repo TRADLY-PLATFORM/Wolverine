@@ -30,9 +30,9 @@ export default class SignUp extends Component {
     }
   }
   componentDidMount() {
-    DefaultPreference.get('token').then(function (value) {
-      this.setState({ bToken: value })
-    }.bind(this))
+    // DefaultPreference.get('token').then(function (value) {
+    //   this.setState({ bToken: value })
+    // }.bind(this))
   }
   registerApi = async () => {
     this.setState({isVisible: true })
@@ -44,7 +44,6 @@ export default class SignUp extends Component {
     }
     dict['email'] = this.state.email
     dict['password'] = this.state.password
-    console.log("this.state.bToken =", this.state.bToken)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.register, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
     console.log("responseJson = ", responseJson)
     if (responseJson) {

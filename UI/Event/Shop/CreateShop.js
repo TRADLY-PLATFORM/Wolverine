@@ -73,11 +73,11 @@ export default class CreateShop extends Component {
     this.renderAddressView = this.renderAddressView.bind(this);
   }
   componentDidMount() {
-    DefaultPreference.get('token').then(function (value) {
-      this.setState({ bToken: value })
+    // DefaultPreference.get('token').then(function (value) {
+      // this.setState({ bToken: value })
       this.loadCategoryApi()
       this.loadShippingApi()
-    }.bind(this))
+    // }.bind(this))
 
     if(this.props.route.params) {
       let {storeDetail} = this.props.route.params;

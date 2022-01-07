@@ -40,14 +40,14 @@ class NetworkManager {
     }
 
     networkServicesWithoutToken = async (path, method, param) => {
-        DefaultPreference.get('token').then(function (token) {
-            console.log('bToken = =', token)
+        // DefaultPreference.get('token').then(function (token) {
+        //     console.log('bToken = =', token)
             DefaultPreference.get('authKey').then(function (auth) {
                 console.log('auth = =', auth)
                 const responseJson = this.networkCall(path, method, param, token, auth)
                 return responseJson
             }.bind(this))
-        }.bind(this))
+        // }.bind(this))
     }
     async refreshKeyCall(path, method, param, auth) {
         let url = APPURL.URLPaths.BaseURL + path;

@@ -20,9 +20,9 @@ export default class ForgotPassword extends Component {
     }
   }
   componentDidMount() {
-    DefaultPreference.get('token').then(function (value) {
-      this.setState({ bToken: value })
-    }.bind(this))
+    // DefaultPreference.get('token').then(function (value) {
+    //   this.setState({ bToken: value })
+    // }.bind(this))
   }
   forgotPasswordApi = async () => {
     this.setState({isVisible: true })
