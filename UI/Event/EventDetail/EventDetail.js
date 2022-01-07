@@ -141,6 +141,9 @@ export default class EventDetail extends Component {
       if ('product.delete' == obj['key']) {
         this.state.translationDic['delete'] = obj['value'];
       }
+      if ('product.details' == obj['key']) {
+        this.state.translationDic['details'] = obj['value'];
+      }
       if ('product.edit' == obj['key']) {
         this.state.translationDic['edit'] = obj['value'];
       }
@@ -654,7 +657,7 @@ export default class EventDetail extends Component {
     }
     if (views.length != 0) {
       return (<View style={styles.commonViewStyle}>
-        <Text style={eventStyles.commonTxtStyle}>Details</Text>
+        <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['details'] ?? 'Details'}</Text>
         {views}
       </View>)
     } else {

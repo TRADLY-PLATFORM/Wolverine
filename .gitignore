@@ -64,7 +64,9 @@ buck-out/
 /ios/GoogleService-Info.plist
 
 # Env JS
-/src/env.js
+/AppKeys.js
+AppKeys.js
+
 
 # Build
 /build

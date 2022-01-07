@@ -233,7 +233,6 @@ export default class AddEvent extends Component {
         this.state.translationDic['select_multi_value'] =  obj['value'];
       } 
     }
-    console.log('this.state.translationDic', this.state.translationDic);
     this.setState({ updateUI: true, isVisible: false })
   }
   loadConfigApi = async () => {
@@ -254,7 +253,6 @@ export default class AddEvent extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.listings}/${this.state.listingID}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let listData = responseJson['data']['listing'];
-      console.log('dsds ===-=- =-', JSON.stringify(listData));
       this.state.name = listData['title'];
       this.state.description = listData['description'];
       this.state.selectAddress = listData['location'];

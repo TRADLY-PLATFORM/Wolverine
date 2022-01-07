@@ -55,6 +55,7 @@ export default class ConfirmBooking extends Component {
       endTime:'',
       selectedDate:'',
       translationDic:{},
+      dataload: false,
     }
   }
   componentDidMount() {
@@ -104,10 +105,12 @@ export default class ConfirmBooking extends Component {
       if ('bookingconformation.confirm_order' == obj['key']) {
         this.state.translationDic['confirm_order'] = obj['value'];
       }
-      if ('bookingconformation.success' == obj['key']) {
+      if ('bookingconformation' == obj['key']) {
         this.state.translationDic['success'] = obj['value'];
       }
     }
+    
+    this.setState({ dataload: true})
   }
   getPaymentMethodsApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
@@ -355,39 +358,48 @@ export default class ConfirmBooking extends Component {
   }
  
   render() {
-    return (
-      <SafeAreaView style={styles.Container}>
-        <HeaderView title={this.state.translationDic['title'] ?? 'Booking Confirmation'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
-        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor,justifyContent: 'space-between' }}>
-          <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
-            <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
-            {/* <View style={styles.commonViewStyle}>
+    if (this.state.dataload) {
+      return (
+        <SafeAreaView style={styles.Container}>
+          <HeaderView title={this.state.translationDic['title'] ?? 'Booking Confirmation'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+          <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
+            <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
+              <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+                {/* <View style={styles.commonViewStyle}>
               {this.renderTimeAddressDetail()}
             </View> */}
-            {/* <View style={{height: 10}}/>
+                {/* <View style={{height: 10}}/>
             <View style={styles.commonViewStyle}>
               {this.renderVariantView()}
             </View> */}
-            {/* <View style={{height: 10}}/> */}
-            <View style={{padding:16}}>
-              <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['payment_method'] ?? 'Payment Method'}</Text>
+                {/* <View style={{height: 10}}/> */}
+                <View style={{ padding: 16 }}>
+                  <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['payment_method'] ?? 'Payment Method'}</Text>
+                </View>
+                {this.renderPaymentMethodsView()}
+                <View style={styles.commonViewStyle}>
+                  {this.renderTotalView()}
+                </View>
+              </View>
+              <SuccessView title={this.state.translationDic['success'] ?? 'Your order is successful. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert()} />
+            </ScrollView>
+            <View style={{ padding: 16 }}>
+              <View style={{ height: 10 }} />
+              {this.renderBottomBtnView()}
+              <View style={{ height: 60 }} />
             </View>
-            {this.renderPaymentMethodsView()}
-            <View style={styles.commonViewStyle}>
-              {this.renderTotalView()}
-            </View>
-            </View>
-            <SuccessView  title={this.state.translationDic['success'] ?? 'Your order is successful. You will get confirmation from the business.'} show={this.state.showCAlert} onPress={() => this.successAlert() }/>
-          </ScrollView>
-          <View style={{padding: 16}}>
-            <View style={{ height: 10 }} />
-            {this.renderBottomBtnView()}
-            <View style={{ height: 60 }} />
           </View>
-        </View>
-      </SafeAreaView>
-    );
+        </SafeAreaView>
+      );
+    }
+    else {
+      return (<SafeAreaView style={styles.Container}>
+        <HeaderView title='' showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
+        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}></View>
+      </SafeAreaView>)
+    }
   }
 }
 const styles = StyleSheet.create({
