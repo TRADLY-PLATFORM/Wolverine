@@ -83,7 +83,7 @@ export default class AddAddress extends Component {
     }
   }
   addressTranslationData(object) {
-    this.state.translationDic = {};
+    console.log('object', object)
     for (let obj of object) {
       if ('address.add_new_address' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
@@ -224,7 +224,7 @@ export default class AddAddress extends Component {
               <Text style={commonStyles.textLabelStyle}>{this.state.translationDic['phone'] ?? "Phone"}</Text>
               <TextInput
                 style={commonStyles.addTxtFieldStyle}
-                placeholder={this.state.translationDic['name']}
+                placeholder={this.state.translationDic['phone']}
                 value={this.state.phoneNo}
                 onChangeText={value => this.setState({phoneNo: value})}
                 />
@@ -273,7 +273,7 @@ export default class AddAddress extends Component {
                 <TouchableOpacity style={commonStyles.themeBtnStyle} onPress={() => this.createBtnAction()}>
                   <Text style={commonStyles.themeTitleStyle}>{this.state.translationDic['save'] ?? 'Save'}</Text>
                 </TouchableOpacity>
-                <View style={{ height: 20 }} />
+                <View style={{ height: 100 }} />
               </View>
             </View>
           </ScrollView >

@@ -48,6 +48,7 @@ export default class ConversationList extends Component {
   componentDidMount() {
     this.langifyAPI();
     this.props.navigation.addListener('focus', () => {
+      console.log('focus')
       this._isMounted = true;
       if (appConstant.loggedIn) {
         this.getConvesationThread();
@@ -79,7 +80,6 @@ export default class ConversationList extends Component {
   }
   chatTranslationData(object) {
     this.state.translationDic = {};
-    console.log('object ==> ', object);
     for (let obj of object) {
       if ('chat.header_title' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];

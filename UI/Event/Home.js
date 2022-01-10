@@ -4,7 +4,7 @@ import {
   FlatList,
   Text,Image,View,
   StyleSheet, SafeAreaView,
-  TouchableOpacity,ScrollView,Dimensions
+  TouchableOpacity,ScrollView,Dimensions, Platform
 } from 'react-native';
 import 'react-native-gesture-handler';
 import colors from '../../CommonClasses/AppColor';

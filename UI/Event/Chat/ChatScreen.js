@@ -53,6 +53,7 @@ export default class ChatScreen extends Component {
       titleName: '',
       translationDic:{},
     }
+    this.getChatThread = this.getChatThread.bind(this);
   }
   componentDidMount() {
     this.setupChat() 
@@ -86,7 +87,6 @@ export default class ChatScreen extends Component {
   chatTranslationData(object) {
     this.state.translationDic = {};
     for (let obj of object) {
-      // console.log('obj ==> ', obj);
       if ('chat.write_here' == obj['key']) {
         this.state.translationDic['write_here'] = obj['value'];
       }
@@ -102,6 +102,10 @@ export default class ChatScreen extends Component {
       if ('chat.minutes_ago' == obj['key']) {
         this.state.translationDic['minutes_ago'] = obj['value'];
       }
+      if ('chat.yesterday' == obj['key']) {
+        this.state.translationDic['yesterday'] = obj['value'];
+      }
+      // 
       // product.clear_cart
     }
   }
@@ -128,23 +132,31 @@ export default class ChatScreen extends Component {
     }
     this.setState({updateUI: !this.state.updateUI})
   }
-  getChatThread(chatRoomId) {
+  getChatThread = (chatRoomId) => {
     this.state.chatArray = [];
     database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`).on('child_added', snapshot => {
         if (snapshot.val() != null){
           this.state.chatArray.push(snapshot.val());
+          setTimeout(() => {
+            if (this.state.chatArray != 0) {
+              if(this._scrollView != null){
+                this.scrollView.scrollToEnd();
+               }
+              // this.FlatListRef.scrollToEnd();
+            }
+          }, 500);
         }
-      this.setState({updateUI: !this.state.updateUI})
+      // this.setState({updateUI: !this.state.updateUI})
     });
     setTimeout(() => {
       if (this.state.chatArray != 0) {
-        this.FlatListRef.scrollToEnd();
+        this.scrollView.scrollToEnd();
       }
     }, 500);
   }
   /*  Buttons   */
 
-  sendBtnAction(){
+  sendBtnAction = () => {
     let chatRoomId = this.state.chatRoomId;
     let receiverId = this.state.receiverId;
     let sMsg = {
@@ -160,7 +172,8 @@ export default class ChatScreen extends Component {
     this.setState({updateUI: !this.state.updateUI})
     setTimeout(() => {
       if (this.state.chatArray != 0) {
-        this.FlatListRef.scrollToEnd();
+        // this.FlatListRef.scrollToEnd();
+        this.scrollView.scrollToEnd();
       }
     }, 500);
   }
@@ -178,17 +191,30 @@ export default class ChatScreen extends Component {
     });
   }
   renderChatView = () => {
-    return (
-      <View style={{ width: '100%', height: '100%',padding:5}}>
-        <FlatList
-          data={this.state.chatArray}
-          renderItem={this.renderChatViewCellItem}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => index}
-          ref={(ref) => (this.FlatListRef = ref)}
-        />
-      </View>
-    )
+    // return (
+    //   <View style={{ width: '100%', height: '100%',padding:5}}>
+    //     <FlatList
+    //       initialNumToRender={10}
+    //       ref={ref => this.FlatListRef = ref}
+    //       onContentSizeChange={() => this.FlatListRef.scrollToEnd()}
+    //       onLayout={() => this.FlatListRef.scrollToEnd({animated: true})}
+    //       removeClippedSubviews={false}
+    //       data={this.state.chatArray}
+    //       renderItem={this.renderChatViewCellItem}
+    //       showsVerticalScrollIndicator={false}
+    //       keyExtractor={(item, index) => index}
+    //     />
+    //   </View>
+    // )
+
+    var chatView = [];
+    for (let a = 0; a < this.state.chatArray.length; a++) {
+      let item = this.state.chatArray[a];
+      chatView.push(<View>
+        {this.renderChatViewCellItem({ item: item, index: a })}
+      </View>)
+    }
+    return chatView
   }
   renderChatViewCellItem = ({item, index}) => {
     if (item['userId'] == appConstant.userId) {
@@ -264,9 +290,11 @@ export default class ChatScreen extends Component {
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
             <View style={{ height: '100%', justifyContent: 'space-between' }}>
-              <View style={{ flex: 1, marginBottom: 5 }}>
-                <this.renderChatView />
-              </View>
+              <ScrollView  ref={(view) => {this.scrollView = view}}>
+                {/* <View style={{ flex: 1, marginBottom: 5 }}> */}
+                  <this.renderChatView />
+                {/* </View> */}
+              </ScrollView>
               <View>
                 <this.renderSendMsgView />
                 <View style={{ height: 45 }} />

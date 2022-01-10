@@ -107,6 +107,7 @@ export default class MyStore extends Component {
   }
   productTranslationData(object) {
     for (let obj of object) {
+      console.log('dsadas', obj['key']);
       if ('product.follow' == obj['key']) {
         this.state.translationDic['follow'] = obj['value'];
       }
@@ -120,6 +121,7 @@ export default class MyStore extends Component {
         this.state.translationDic['edit'] = obj['value'];
       }
     }
+    console.log('this.state.translationDic',this.state.translationDic);
   }
   storeTranslationData(object) {
     for (let obj of object) {

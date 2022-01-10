@@ -80,6 +80,7 @@ export default class EventDetail extends Component {
       photoIndex: 0,
       inCartBool: false,
       translationDic:{},
+      yPosition:0,
     }
   }
 
@@ -343,6 +344,10 @@ export default class EventDetail extends Component {
       ],
     );
   }
+  handleScroll = (values) =>  {
+    console.log('values ==>> ',values.nativeEvent.contentOffset.y);
+    this.setState({yPosition: values.nativeEvent.contentOffset.y})
+   }
   /*  UI   */
   renderActionSheet = () => {
     return (
@@ -766,25 +771,23 @@ export default class EventDetail extends Component {
     var moreView = [];
     if (!this.state.itsOwnEvent) {
       let icon = this.state.itsLiked ? favouriteIcon : heartIcon
-      likeView.push(<Image style={{ width: 30, height: 30, marginTop: -3 }} source={icon} />)
+      likeView.push(<Image style={{ width: 30, height: 30}} source={icon} />)
     }
     if (this.state.itsOwnEvent) {
       moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
-        <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
+        <Image style={{width:20,height:20,tintColor:this.state.yPosition > 70? 'black' : 'white'}}  resizeMode='contain' source={menuIcon} />
         {this.renderActionSheet()}
       </TouchableOpacity>)
     }
-    return (<View>
-      <View style={commonStyles.headerViewStyle}>
+    return (<View >
+      <View style={styles.headerViewStyle}>
         <StatusBar barStyle="light-content" />
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-          <View>
-            <TouchableOpacity style={{ left: 0 }} onPress={() => this.props.navigation.goBack()}>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%',alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Image
-                style={commonStyles.backBtnStyle} resizeMode="contain" source={backIcon} />
+                style={{width:20,height:20,tintColor:this.state.yPosition > 70? 'black' : 'white'}} resizeMode="contain" source={backIcon} />
             </TouchableOpacity>
             <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
-          </View>
           <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity onPress={() => this.likeBtnAction()}>
               {likeView}
@@ -803,7 +806,7 @@ export default class EventDetail extends Component {
         <View>
           <View style={{ zIndex: 10, backgroundColor: colors.LightBlueColor }}>
             <View style={{ height: '100%', backgroundColor: colors.LightBlueColor, justifyContent: 'space-between' }}>
-              <ScrollView nestedScrollEnable={true} scrollEnabled={true}>
+              <ScrollView nestedScrollEnable={true} scrollEnabled={true} onScroll={this.handleScroll} onScrollEndDrag={this.handleScroll}>
                 {this.renderImageSlider()}
                 {this.previewImageRender()}
                 <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
@@ -816,7 +819,7 @@ export default class EventDetail extends Component {
               </View>
             </View>
           </View>
-          <View style={{ zIndex: 12, position: 'absolute', marginTop: statusBarHeight }}>
+          <View style={{ zIndex: 12, position: 'absolute', marginTop: statusBarHeight}}>
             <this.renderHeaderView />
           </View>
         </View>
@@ -903,6 +906,12 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  headerViewStyle: {
+    backgroundColor: appConstant.AppTheme,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   }
 });
 

@@ -15,7 +15,7 @@ export default {
   AppWhite:'white',
   LightGreen:'#EAF7F4',
   GradientTop: '#17d275',
-  GradientBottom: '#17d275',
+  GradientBottom: '#fe0597',
   AppBlack:'rgba(1, 1, 1, 1)',
   softGreen: '#DFFBF4',
   softGray: '#606A7B',

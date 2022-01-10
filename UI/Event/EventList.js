@@ -94,7 +94,6 @@ export default class EventList extends Component {
   }
   searchTranslationData(object) {
     this.state.translationDic = {};
-    console.log('object ==>', object)
     for (let obj of object) {
       if ('search.nearest_by_distance' == obj['key']) {
         constantArrays.sortingArray[0] = obj['value'];

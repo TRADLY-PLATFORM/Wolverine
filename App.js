@@ -57,12 +57,14 @@ export default class App extends Component {
     // console.log('GRANTED =', granted);
     messaging().onMessage(async remoteMessage => {
       console.log('M', remoteMessage);
+      // messaging().onMessage(remoteMessage);
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log( 'N',  remoteMessage);
     });
     messaging().setBackgroundMessageHandler(async message => {
       console.log('Message handled in the background!', message);
+      // messaging().setBackgroundMessageHandler(message);
     });
   }
   configApi = async () => {
@@ -109,7 +111,7 @@ export default class App extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      console.log('home => ', objc)
+      // console.log('home => ', objc)
       tradlyDb.saveDataInDB(LangifyKeys.home, objc)
       this.bottomTarTranslationData(objc);
       this.setState({isVisible: false })

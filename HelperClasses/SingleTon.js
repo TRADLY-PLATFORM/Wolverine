@@ -95,13 +95,14 @@ export function timeAgo(prevDate,translationDic) {
   switch (true) {
     case diff < minute:
       const seconds = Math.round(diff / 1000);
-      return `${seconds > 1 ? `${seconds} secs ago` : 'just now'}`
+      // return `${seconds > 1 ? `${seconds} secs ago` : ` ${translationDic['just_now'] ?? ''}` ?? 'just now'}`
+      return `${translationDic['just_now'] ?? 'just now'}`
     case diff < hour:
       return Math.round(diff / minute) + ` ${translationDic['minutes_ago'] ?? ''}`;
     case diff < day:
       return Math.round(diff / hour) + ` ${translationDic['hours_ago'] ?? ''}`;
     case diff < yesterday: 
-      return 'yesterday';
+      return translationDic['yesterday'] ?? 'yesterday';
     // case diff < month:
     //   return Math.round(diff / day) + ' days ago';
     case diff < year:
