@@ -17,6 +17,8 @@ target 'tradlyEvent' do
   pod 'react-native-location', :path => '../node_modules/react-native-location'
 
 
+  pod 'react-native-branch', :path => '../node_modules/react-native-branch'
+
   target 'tradlyEventTests' do
     inherit! :complete
     # Pods for testing

@@ -430,10 +430,10 @@ export default class Explore extends Component {
   renderMainView = () => {
     return (<View style={{ flex: 1 }}>
       {this.renderHeaderView()}
-      {this.renderDateListView()}
+      {/* {this.renderDateListView()} */}
       <View style={{ flex: 1 }}>
         {this.renderListView()}
-        {this.renderViewMaBtnView()}
+        {/* {this.renderViewMaBtnView()} */}
       </View>
       <View style={{ height: 0, width: '100%' }} />
     </View>)

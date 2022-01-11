@@ -84,22 +84,23 @@ export default class AddRecycleItem extends Component {
     this.setState({isVisible: false })
   }
   onShareBtnAction = async () => {
-    try {
-      const result = await Share.share({
-        message: appConstant.appSharePath,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      alert(error.message);
-    }
+    showShareSheet('share')
+    // try {
+    //   const result = await Share.share({
+    //     message: appConstant.appSharePath,
+    //   });
+    //   if (result.action === Share.sharedAction) {
+    //     if (result.activityType) {
+    //       // shared with activity type of result.activityType
+    //     } else {
+    //       // shared
+    //     }
+    //   } else if (result.action === Share.dismissedAction) {
+    //     // dismissed
+    //   }
+    // } catch (error) {
+    //   alert(error.message);
+    // }
   }
   /*  UI   */
 

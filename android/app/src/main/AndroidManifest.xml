@@ -39,7 +39,23 @@
             <category android:name="android.intent.category.LAUNCHER" />
             <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
         </intent-filter>
+       <!-- Branch URI Scheme -->
+            <intent-filter>
+                <data android:scheme="meetneeds" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+            <!-- Branch App Links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="rjl9n.app.link" />
+            </intent-filter>
       </activity>
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_hj5w4hNnvNhRcrBnwWD8Lnlexvgbn92k"/>
     </application>
 
 </manifest>

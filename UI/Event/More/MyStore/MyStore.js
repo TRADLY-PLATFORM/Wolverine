@@ -38,6 +38,8 @@ import LangifyKeys from '../../../../Constants/LangifyKeys';
 import {AppAlert } from '../../../../HelperClasses/SingleTon';
 import AppConstants from '../../../../Constants/AppConstants';
 import tradlyDb from '../../../../TradlyDB/TradlyDB';
+import branch from 'react-native-branch'
+import { showShareSheet } from '../../../../HelperClasses/BranchDeepLinking';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -107,7 +109,6 @@ export default class MyStore extends Component {
   }
   productTranslationData(object) {
     for (let obj of object) {
-      console.log('dsadas', obj['key']);
       if ('product.follow' == obj['key']) {
         this.state.translationDic['follow'] = obj['value'];
       }
@@ -260,20 +261,22 @@ export default class MyStore extends Component {
     this.setState({ starRatingValue: id + 1 })
   }
   onShareBtnAction = async () => {
-    try {
-      const result = await Share.share({message: appConstant.appSharePath});
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      alert(error.message);
-    }
+    const { accId } = this.props.route.params;
+    showShareSheet(accId)
+    // try {
+    //   const result = await Share.share({message: appConstant.appSharePath});
+    //   if (result.action === Share.sharedAction) {
+    //     if (result.activityType) {
+    //       // shared with activity type of result.activityType
+    //     } else {
+    //       // shared
+    //     }
+    //   } else if (result.action === Share.dismissedAction) {
+    //     // dismissed
+    //   }
+    // } catch (error) {
+    //   alert(error.message);
+    // }
   }
   paginationMethod = () => {
     if (!this.state.stopPagination) {

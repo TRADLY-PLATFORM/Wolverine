@@ -84,5 +84,9 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>branch_key</key>
+	<string>key_live_hj5w4hNnvNhRcrBnwWD8Lnlexvgbn92k</string>
+	<key>branch_app_domain</key>
+	<string>rjl9n.app.link</string>
 </dict>
 </plist>

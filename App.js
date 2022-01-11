@@ -23,6 +23,7 @@ import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
 import tradlyDb from './TradlyDB/TradlyDB';
 import LangifyKeys from './Constants/LangifyKeys';
+import branch from 'react-native-branch'
 
 export default class App extends Component {
 
@@ -44,6 +45,17 @@ export default class App extends Component {
     this.fcmNotification()
     this.configApi();
     this.getSavedValues();
+    this.getBranchData();
+  }
+  getBranchData() {
+    branch.subscribe(({error, params, uri}) => {
+      if (error) {
+        console.error('Error from Branch: ' + error)
+        return
+      } else {
+        console.error('params from Branch: ' , params)
+      }
+    })
   }
   getSavedValues() {
     DefaultPreference.get('appLanguage').then(function (la) {
