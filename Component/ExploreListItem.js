@@ -41,14 +41,14 @@ export default class ExploreListItem extends Component {
     if(item['title']){
       title = item['title'];
       price = item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     if (item['rating_data']) {
       rattingAvg = item['rating_data']['rating_average']
     }
     if (item['list_price']) {
       price = item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
+      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']);  
     }
     var photo = item['images'] ? item['images'] : [];
     let icon = item['liked'] ? favouriteIcon :  heartIcon
