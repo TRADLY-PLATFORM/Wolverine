@@ -92,7 +92,6 @@ export default class Home extends Component {
           this.props.navigation.navigate(NavigationRoots.ChatScreen, {
             chatRoomId: nDic['chat_room_id'],
             name: nDic['sender_name'],
-            receiverId:nDic['receiverId'] || 'comingsoon',
           });
         } else if (nDic['type'] == 'order') {
           this.props.navigation.navigate(NavigationRoots.OrderDetail, {
