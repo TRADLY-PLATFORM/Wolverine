@@ -40,6 +40,7 @@ class NetworkManager {
       return error
     } else {
       const json = await response.json();
+      console.log('json => stringify json ', JSON.stringify(json))
       if(json["error"])
       {
         if(json["error"]['code'] == 401){

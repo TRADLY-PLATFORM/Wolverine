@@ -262,7 +262,7 @@ export default class MyStore extends Component {
   }
   onShareBtnAction = async () => {
     const { accId } = this.props.route.params;
-    showShareSheet(accId)
+    showShareSheet('account',accId)
     // try {
     //   const result = await Share.share({message: appConstant.appSharePath});
     //   if (result.action === Share.sharedAction) {

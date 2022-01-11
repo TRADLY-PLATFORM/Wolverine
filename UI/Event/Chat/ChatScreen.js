@@ -144,15 +144,17 @@ export default class ChatScreen extends Component {
                }
               // this.FlatListRef.scrollToEnd();
             }
-          }, 500);
+          }, 100);
         }
-      // this.setState({updateUI: !this.state.updateUI})
+      this.setState({updateUI: !this.state.updateUI})
     });
     setTimeout(() => {
       if (this.state.chatArray != 0) {
         this.scrollView.scrollToEnd();
+        this.setState({updateUI: !this.state.updateUI})
       }
-    }, 500);
+    }, 100);
+    
   }
   /*  Buttons   */
 
@@ -172,8 +174,8 @@ export default class ChatScreen extends Component {
     this.setState({updateUI: !this.state.updateUI})
     setTimeout(() => {
       if (this.state.chatArray != 0) {
-        // this.FlatListRef.scrollToEnd();
         this.scrollView.scrollToEnd();
+        this.setState({updateUI: !this.state.updateUI})
       }
     }, 500);
   }

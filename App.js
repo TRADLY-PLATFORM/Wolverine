@@ -8,8 +8,6 @@
 
 import React, { Component } from 'react';
 import {StyleSheet, SafeAreaView, LogBox, View, Image, Platform,StatusBar} from 'react-native';
-import messaging from '@react-native-firebase/messaging';
-
 import colors from './CommonClasses/AppColor';
 import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
@@ -23,7 +21,6 @@ import {StripeProvider} from '@stripe/stripe-react-native';
 import Route from './Component/Route';
 import tradlyDb from './TradlyDB/TradlyDB';
 import LangifyKeys from './Constants/LangifyKeys';
-import branch from 'react-native-branch'
 
 export default class App extends Component {
 
@@ -42,21 +39,10 @@ export default class App extends Component {
         appConstant.appInstalled = val == undefined ? false : true
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
-    this.fcmNotification()
     this.configApi();
     this.getSavedValues();
-    this.getBranchData();
   }
-  getBranchData() {
-    branch.subscribe(({error, params, uri}) => {
-      if (error) {
-        console.error('Error from Branch: ' + error)
-        return
-      } else {
-        console.error('params from Branch: ' , params)
-      }
-    })
-  }
+  
   getSavedValues() {
     DefaultPreference.get('appLanguage').then(function (la) {
       if (la != undefined) {
@@ -64,21 +50,7 @@ export default class App extends Component {
       }
     }.bind(this))
   }
-  fcmNotification() {
-    const granted =  messaging().requestPermission();
-    // console.log('GRANTED =', granted);
-    messaging().onMessage(async remoteMessage => {
-      console.log('M', remoteMessage);
-      // messaging().onMessage(remoteMessage);
-    });
-    messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log( 'N',  remoteMessage);
-    });
-    messaging().setBackgroundMessageHandler(async message => {
-      console.log('Message handled in the background!', message);
-      // messaging().setBackgroundMessageHandler(message);
-    });
-  }
+  
   configApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
@@ -101,7 +73,8 @@ export default class App extends Component {
       appConstant.privacyURL = into['privacy_policy_url'] || 'www.google.com';
       appConstant.appHomeTitle = into['app_title_home'] || 'www.google.com';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
-      appConstant.sellIcon = into['sell_icon'] ?? ''
+      appConstant.sellIcon = into['sell_icon'] ?? '';
+      appConstant.branchDescription = into['branch_link_description'] ?? '';
       // colors.AppTheme = into['app_color_primary'] ?? '#83f0c8'
       // colors.GradientTop = into['app_color_secondary'] ?? '#83f0c8'
       // colors.GradientBottom = into['app_color_primary'] ?? '#17d275'

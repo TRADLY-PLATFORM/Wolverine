@@ -35,5 +35,6 @@ module.exports = {
   cancelTitle:'Cancel',
   nextTitle: 'Next',
   languageTitle: 'Language',
-  locationPermissionError: 'Location service is disabled or unavailable'
+  locationPermissionError: 'Location service is disabled or unavailable',
+  branchDescription: '',
 }

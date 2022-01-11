@@ -21,6 +21,7 @@ import networkService from '../../../NetworkManager/NetworkManager';
 
 import LangifyKeys from '../../../Constants/LangifyKeys';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
+import { showShareSheet } from '../../../HelperClasses/BranchDeepLinking';
 
 
 const windowWidth = Dimensions.get('window').width;

@@ -172,7 +172,12 @@ export default class SignIn extends Component {
       console.log('Authorization status:', authStatus);
       this.getToken();
     } else {
-      this.requestPermission();
+      // this.requestPermission();
+      const granted =  messaging().requestPermission();
+      if (granted) {
+        console.log('Authorization status:', authStatus);
+        this.getToken();
+      }
     }
   }
 

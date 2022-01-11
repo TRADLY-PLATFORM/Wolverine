@@ -29,6 +29,8 @@ import eventStyles from '../../StyleSheet/EventStyleSheet';
 
 import LangifyKeys from '../../Constants/LangifyKeys';
 import tradlyDb from '../../TradlyDB/TradlyDB';
+import branch from 'react-native-branch'
+import messaging from '@react-native-firebase/messaging';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -50,11 +52,62 @@ export default class Home extends Component {
     this.callLngiFy();
     this.locationPermission()
     this.getSavedData();
+    this.getBranchData();
+    this.fcmNotificationData()
   }
   locationPermission() {
     let lp = new LocationPermission();
     lp._requestLocation();
   }
+  getBranchData(){
+    branch.subscribe(({error, params, uri}) => {
+      if (error) {
+        // console.error('Error from Branch: ' + error)
+        return
+      } else {
+        console.error('params from Branch: ' , params)
+        if (params['+clicked_branch_link']) {
+          if (params['link_type'] == 'account') {
+            this.props.navigation.navigate(NavigationRoots.MyStore, {
+              accId: params['account_id'],
+            });
+          }
+        }
+      }
+    })
+  };
+  fcmNotificationData() {
+    const granted =  messaging().requestPermission();
+    // console.log('GRANTED =', granted);
+    messaging().onMessage(async remoteMessage => {
+      console.log('M', remoteMessage);
+      // messaging().onMessage(remoteMessage);
+    });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log( 'N',  remoteMessage);
+      let nDic = remoteMessage['notification'];
+      if (nDic['type'] == 'chat') {
+        this.props.navigation.navigate(NavigationRoots.ChatScreen, {
+          chatRoomId: nDic['chat_room_id'],
+          name: nDic['sender_name'],
+          receiverId:nDic['receiverId'] || 'comingsoon',
+        });
+      } else if (nDic['type'] == 'order') {
+        this.props.navigation.navigate(NavigationRoots.OrderDetail, {
+          orderId: nDic['order_id'], account: false });
+      }  else if (nDic['type'] == 'listing') {
+        this.props.navigation.navigate(NavigationRoots.EventDetail, {
+          id :nDic['listing_id']});
+      }  else if (nDic['type'] == 'account') {
+        this.props.navigation.navigate(NavigationRoots.MyStore, {
+          accId :nDic['account_id']});
+      }
+    });
+    messaging().setBackgroundMessageHandler(async message => {
+      console.log('Message handled in the background!', message);
+      // messaging().setBackgroundMessageHandler(message);
+    });
+  };
   getSavedData() {
     DefaultPreference.get('token').then(function (value) {
       appConstant.bToken = value;
