@@ -51,7 +51,8 @@ export default class Home extends Component {
   componentDidMount() {
     this.callLngiFy();
     this.locationPermission()
-    this.getSavedData();
+    this.getSavedData( val => {
+    })
     this.getBranchData();
     this.fcmNotificationData()
   }
@@ -85,30 +86,32 @@ export default class Home extends Component {
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log( 'N',  remoteMessage);
-      let nDic = remoteMessage['notification'];
-      if (nDic['type'] == 'chat') {
-        this.props.navigation.navigate(NavigationRoots.ChatScreen, {
-          chatRoomId: nDic['chat_room_id'],
-          name: nDic['sender_name'],
-          receiverId:nDic['receiverId'] || 'comingsoon',
-        });
-      } else if (nDic['type'] == 'order') {
-        this.props.navigation.navigate(NavigationRoots.OrderDetail, {
-          orderId: nDic['order_id'], account: false });
-      }  else if (nDic['type'] == 'listing') {
-        this.props.navigation.navigate(NavigationRoots.EventDetail, {
-          id :nDic['listing_id']});
-      }  else if (nDic['type'] == 'account') {
-        this.props.navigation.navigate(NavigationRoots.MyStore, {
-          accId :nDic['account_id']});
-      }
+      this.getSavedData( val => {
+        let nDic = remoteMessage['notification'];
+        if (nDic['type'] == 'chat') {
+          this.props.navigation.navigate(NavigationRoots.ChatScreen, {
+            chatRoomId: nDic['chat_room_id'],
+            name: nDic['sender_name'],
+            receiverId:nDic['receiverId'] || 'comingsoon',
+          });
+        } else if (nDic['type'] == 'order') {
+          this.props.navigation.navigate(NavigationRoots.OrderDetail, {
+            orderId: nDic['order_id'], account: false });
+        }  else if (nDic['type'] == 'listing') {
+          this.props.navigation.navigate(NavigationRoots.EventDetail, {
+            id :nDic['listing_id']});
+        }  else if (nDic['type'] == 'account') {
+          this.props.navigation.navigate(NavigationRoots.MyStore, {
+            accId :nDic['account_id']});
+        }
+      })
     });
     messaging().setBackgroundMessageHandler(async message => {
       console.log('Message handled in the background!', message);
       // messaging().setBackgroundMessageHandler(message);
     });
   };
-  getSavedData() {
+  getSavedData = (callback) => {
     DefaultPreference.get('token').then(function (value) {
       appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
@@ -126,6 +129,7 @@ export default class Home extends Component {
             if (appConstant.loggedIn) {
               firebaseAuth(fToken);
             }
+            return callback(true);
           }.bind(this))
         }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {

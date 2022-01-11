@@ -124,13 +124,32 @@ export default class ChatScreen extends Component {
         this.getChatThread(chatRoomId);
       })
     } else {
-      let { chatRoomId,name,receiverId } = this.props.route.params;
-      this.state.chatRoomId = chatRoomId
-      this.state.titleName = name;
-      this.state.receiverId = receiverId;
-      this.getChatThread(chatRoomId);
+      let { chatRoomId, name, receiverId } = this.props.route.params;
+      if (receiverId == undefined) {
+        this.state.chatRoomId = chatRoomId
+        this.state.titleName = name;
+        this.getChatRoomUser(chatRoomId)
+      } else {
+        this.state.chatRoomId = chatRoomId
+        this.state.titleName = name;
+        this.state.receiverId = receiverId;
+        this.getChatThread(chatRoomId);
+      }
     }
     this.setState({updateUI: !this.state.updateUI})
+  }
+  getChatRoomUser = (chatRoomId) => {
+      database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/users`).once('value').then(snapshot => {
+        if (snapshot.val() != null) {
+          let object = Object.keys(snapshot.val());
+          for (let val of object) {
+            if (val != appConstant.userId) {
+              this.state.receiverId = val;
+              this.getChatThread(chatRoomId);
+            }
+          }
+        }
+    })
   }
   getChatThread = (chatRoomId) => {
     this.state.chatArray = [];
@@ -139,12 +158,11 @@ export default class ChatScreen extends Component {
           this.state.chatArray.push(snapshot.val());
           setTimeout(() => {
             if (this.state.chatArray != 0) {
-              if(this._scrollView != null){
                 this.scrollView.scrollToEnd();
-               }
+                this.setState({updateUI: !this.state.updateUI})
               // this.FlatListRef.scrollToEnd();
             }
-          }, 100);
+          }, 10);
         }
       this.setState({updateUI: !this.state.updateUI})
     });
@@ -153,7 +171,7 @@ export default class ChatScreen extends Component {
         this.scrollView.scrollToEnd();
         this.setState({updateUI: !this.state.updateUI})
       }
-    }, 100);
+    }, 10);
     
   }
   /*  Buttons   */
