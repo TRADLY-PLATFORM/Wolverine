@@ -41,14 +41,21 @@ export default class ExploreListItem extends Component {
     if(item['title']){
       title = item['title'];
       price = item['list_price']['formatted']
-      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']) 
     }
     if (item['rating_data']) {
       rattingAvg = item['rating_data']['rating_average']
     }
     if (item['list_price']) {
       price = item['list_price']['formatted']
-      time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']);  
+      // time = getTimeFormat(item['start_at']) + ` to ` +  getTimeFormat(item['end_at']);  
+    }
+    if (item['schedules']) {
+      let schedules = item['schedules'];
+      if (schedules.length != 0) {
+        let sTime = schedules[0]['start_time'];
+        let eTime = schedules[0]['end_time'];
+        time = sTime + ` to ` + eTime;
+      }
     }
     var photo = item['images'] ? item['images'] : [];
     let icon = item['liked'] ? favouriteIcon :  heartIcon
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     backgroundColor: colors.AppWhite,
     width: windowWidth - 20,
-    elevation: 100,
+    elevation: 10,
   },
   selectedImageStyle: {
     height: windowWidth/2.25,
