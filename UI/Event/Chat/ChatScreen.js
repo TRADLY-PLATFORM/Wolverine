@@ -29,11 +29,6 @@ import {sendMessage,createChat} from '../../../Firebase/ChatSetup';
 import database from '@react-native-firebase/database';
 
 
-import APPURL from '../../../Constants/URLConstants';
-import networkService from '../../../NetworkManager/NetworkManager';
-import LangifyKeys from '../../../Constants/LangifyKeys';
-import tradlyDb from '../../../TradlyDB/TradlyDB';
-
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0
 
 
@@ -51,65 +46,15 @@ export default class ChatScreen extends Component {
       chatRoomId: '',
       receiverId:'',
       titleName: '',
-      translationDic:{},
     }
-    this.getChatThread = this.getChatThread.bind(this);
   }
   componentDidMount() {
     this.setupChat() 
-    this.langifyAPI()
   }
-
   componentWillUnmount(){
     this.state.chatArray = [];
     this.setState({updateUI: !this.state.updateUI})
   }
-
-  langifyAPI = async () => {
-    let productD = await tradlyDb.getDataFromDB(LangifyKeys.chat);
-    if (productD != undefined) {
-      this.chatTranslationData(productD);
-      this.setState({ updateUI: true})
-    } else {
-      this.setState({ isVisible: true })
-    }
-    let group = `&group=${LangifyKeys.chat}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
-    if (responseJson['status'] == true) {
-      let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.chat, objc)
-      this.chatTranslationData(objc);
-      this.setState({ updateUI: true, isVisible: false })
-    } else {
-      this.setState({ isVisible: false })
-    }
-  }
-  chatTranslationData(object) {
-    this.state.translationDic = {};
-    for (let obj of object) {
-      if ('chat.write_here' == obj['key']) {
-        this.state.translationDic['write_here'] = obj['value'];
-      }
-      if ('chat.hours_ago' == obj['key']) {
-        this.state.translationDic['hours_ago'] = obj['value'];
-      }
-      if ('chat.just_now' == obj['key']) {
-        this.state.translationDic['just_now'] = obj['value'];
-      }
-      if ('chat.minute_ago' == obj['key']) {
-        this.state.translationDic['minute_ago'] = obj['value'];
-      }
-      if ('chat.minutes_ago' == obj['key']) {
-        this.state.translationDic['minutes_ago'] = obj['value'];
-      }
-      if ('chat.yesterday' == obj['key']) {
-        this.state.translationDic['yesterday'] = obj['value'];
-      }
-      // 
-      // product.clear_cart
-    }
-  }
-
   setupChat = async () => {
     let {receiverData} = this.props.route.params;
     if (receiverData != undefined) {
@@ -132,33 +77,29 @@ export default class ChatScreen extends Component {
     }
     this.setState({updateUI: !this.state.updateUI})
   }
-  getChatThread = (chatRoomId) => {
+  getChatThread(chatRoomId) {
     this.state.chatArray = [];
     database().ref(`${appConstant.firebaseChatPath}chats/${chatRoomId}/messages`).on('child_added', snapshot => {
+      console.log('snapshot', snapshot)
         if (snapshot.val() != null){
           this.state.chatArray.push(snapshot.val());
-          setTimeout(() => {
-            if (this.state.chatArray != 0) {
-              if(this._scrollView != null){
-                this.scrollView.scrollToEnd();
-               }
-              // this.FlatListRef.scrollToEnd();
-            }
-          }, 100);
         }
+        setTimeout(() => {
+          if (this.state.chatArray != 0) {
+            this.FlatListRef.scrollToEnd();
+          }
+        }, 10);
       this.setState({updateUI: !this.state.updateUI})
     });
     setTimeout(() => {
       if (this.state.chatArray != 0) {
-        this.scrollView.scrollToEnd();
-        this.setState({updateUI: !this.state.updateUI})
+        this.FlatListRef.scrollToEnd();
       }
-    }, 100);
-    
+    }, 10);
   }
   /*  Buttons   */
 
-  sendBtnAction = () => {
+  sendBtnAction(){
     let chatRoomId = this.state.chatRoomId;
     let receiverId = this.state.receiverId;
     let sMsg = {
@@ -172,12 +113,6 @@ export default class ChatScreen extends Component {
     sendMessage(this.state.message,sMsg,chatRoomId,receiverId,'text')
     this.state.message = '';
     this.setState({updateUI: !this.state.updateUI})
-    setTimeout(() => {
-      if (this.state.chatArray != 0) {
-        this.scrollView.scrollToEnd();
-        this.setState({updateUI: !this.state.updateUI})
-      }
-    }, 500);
   }
 
   /*  UI   */
@@ -193,45 +128,32 @@ export default class ChatScreen extends Component {
     });
   }
   renderChatView = () => {
-    // return (
-    //   <View style={{ width: '100%', height: '100%',padding:5}}>
-    //     <FlatList
-    //       initialNumToRender={10}
-    //       ref={ref => this.FlatListRef = ref}
-    //       onContentSizeChange={() => this.FlatListRef.scrollToEnd()}
-    //       onLayout={() => this.FlatListRef.scrollToEnd({animated: true})}
-    //       removeClippedSubviews={false}
-    //       data={this.state.chatArray}
-    //       renderItem={this.renderChatViewCellItem}
-    //       showsVerticalScrollIndicator={false}
-    //       keyExtractor={(item, index) => index}
-    //     />
-    //   </View>
-    // )
-
-    var chatView = [];
-    for (let a = 0; a < this.state.chatArray.length; a++) {
-      let item = this.state.chatArray[a];
-      chatView.push(<View>
-        {this.renderChatViewCellItem({ item: item, index: a })}
-      </View>)
-    }
-    return chatView
+    return (
+      <View style={{ width: '100%', height: '100%'}}>
+        <FlatList
+          data={this.state.chatArray}
+          renderItem={this.renderChatViewCellItem}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => index}
+          ref={(ref) => (this.FlatListRef = ref)}
+        />
+      </View>
+    )
   }
   renderChatViewCellItem = ({item, index}) => {
     if (item['userId'] == appConstant.userId) {
-      return (<View style={{padding:2}}> 
+      return (<View> 
         {this.renderRightView(item)} 
       </View>)
     } else {
-      return (<View style={{padding:4}}> 
+      return(<View> 
         {this.renderLeftView(item)} 
       </View>)
     }
   }
   renderLeftView = (item) => {
     // console.log('item === ',item);
-    let time = timeAgo(new Date(item['timeStamp']).getTime(),this.state.translationDic);
+    let time = timeAgo(new Date(item['timeStamp']).getTime());
     // console.log('time',time);
     // if (index == 3) {
     //   return (<View style={styles.leftViewStyle}>
@@ -246,7 +168,7 @@ export default class ChatScreen extends Component {
     // }
   }
   renderRightView = (item) => {
-    let time = timeAgo(new Date(item['timeStamp']).getTime(),this.state.translationDic);
+    let time = timeAgo(new Date(item['timeStamp']).getTime());
     // if (index == 18) {
     //   return (<View style={styles.rightViewStyle}>
     //     <FastImage style={styles.photoViewStyle} source={this.state.photo == null ? sample : {uri: this.state.photo['path']}} />
@@ -268,7 +190,7 @@ export default class ChatScreen extends Component {
             value={this.state.message}
             onChangeText={txt => this.setState({message: txt})}
             style={styles.msgTextStyle}
-            placeholder={`${this.state.translationDic['write_here']}...`}/>
+            placeholder={'Write here ...'}/>
         </View>
         {/* <TouchableOpacity style={styles.attachmentViewStyle} onPress={() => this.imagePicker()}>
           <Image style={{ height: 20, width: 20 }} source={attachIcon} />
@@ -291,16 +213,14 @@ export default class ChatScreen extends Component {
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: '98%', backgroundColor: colors.LightBlueColor}}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : null} keyboardVerticalOffset={keyboardVerticalOffset}>
-            <View style={{ height: '100%', justifyContent: 'space-between' }}>
-              <ScrollView  ref={(view) => {this.scrollView = view}}>
-                {/* <View style={{ flex: 1, marginBottom: 5 }}> */}
-                  <this.renderChatView />
-                {/* </View> */}
-              </ScrollView>
-              <View>
-                <this.renderSendMsgView />
-                <View style={{ height: 45 }} />
-              </View>
+            <View style={{height: '100%', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1 }}>
+              <this.renderChatView />
+            </View>
+            <View>
+              <this.renderSendMsgView />
+              <View style={{ height: 45 }} />
+            </View>
             </View>
           </KeyboardAvoidingView>
         </View>
@@ -392,4 +312,3 @@ const styles = StyleSheet.create({
     width:180, height: 200, marginBottom: 5 
    }
 });
-
