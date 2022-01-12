@@ -203,7 +203,7 @@ export default class ConfirmBooking extends Component {
     if (this.state.stripConnectedOnboarding == false) {
       imageIcon = paymentIcon
       title = this.state.translationDic['setup_payout'] ?? `Countinue to stripe payout \n to receive payments`
-      subTitle = this.state.translationDic['connect_stripe_express_message'] ?? 'We suggest you to open new stripe connect through this link () and come back to this page to authenticate.'
+      subTitle = this.state.translationDic['connect_stripe_express_message'] ?? 'Every user who creates a store has a Stripe Connect account automatically created under their email address. Follow the below '
       buttonTitle = this.state.translationDic['connect_with_stripe'] ?? 'Connect with Stripe';
     } if (this.state.payoutsEnabled == false && this.state.stripConnectedOnboarding == true) {
       imageIcon = waitingIcon

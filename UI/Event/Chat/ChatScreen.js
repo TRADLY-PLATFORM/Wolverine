@@ -162,7 +162,7 @@ export default class ChatScreen extends Component {
                 this.setState({updateUI: !this.state.updateUI})
               // this.FlatListRef.scrollToEnd();
             }
-          }, 10);
+          },500);
         }
       this.setState({updateUI: !this.state.updateUI})
     });
@@ -171,7 +171,7 @@ export default class ChatScreen extends Component {
         this.scrollView.scrollToEnd();
         this.setState({updateUI: !this.state.updateUI})
       }
-    }, 10);
+    }, 50);
     
   }
   /*  Buttons   */

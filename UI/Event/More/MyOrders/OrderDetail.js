@@ -474,18 +474,19 @@ export default class OrderDetail extends Component {
     }
     return (<View>
       <View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{justifyContent: 'space-between' }}>
           <View>
             {/* <Text style={eventStyles.titleStyle}>Current Status</Text> */}
             {/* <View style={{ height: 5 }} /> */}
             <Text style={eventStyles.commonTxtStyle}>{this.state.translationDic['orderID']  ?? 'Order ID'} - {this.state.orderDetailData['reference_number']}</Text>
           </View>
+          <View style={{ height: 5 }} />
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={{ fontSize: 14, fontWeight: '700' }}>{this.state.translationDic['amt'] ?? 'Amt'} :</Text>
             <Text style={styles.amountTxtStyle}>{grandTotal} /-</Text>
           </View>
+          <LinearGradient style={{ height: 4, backgroundColor: colors.AppTheme, width: '98%', marginTop: 10, borderRadius: 2 }} colors={[colors.GradientTop, colors.GradientTop]} />
         </View>
-        <LinearGradient style={{ height: 4, backgroundColor: colors.AppTheme, width: 55, marginTop: 5, borderRadius: 2 }} colors={[colors.GradientTop, colors.GradientBottom]} />
       </View>
       <View>
         <View style={{ height: 40 }} />
@@ -650,6 +651,7 @@ const styles = StyleSheet.create({
   statusTxtStyle: {
     fontSize: 14,
     fontWeight: '500',
+    width: '80%',
   },
   statusValueTxtStyle: {
     fontSize: 12,

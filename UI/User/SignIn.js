@@ -160,6 +160,7 @@ export default class SignIn extends Component {
     }
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.devices}`, 'put',JSON.stringify({ device_info: dict }),appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
+      console.log('update device', responseJson);
     }else {
       this.setState({ isVisible: false })
     }
