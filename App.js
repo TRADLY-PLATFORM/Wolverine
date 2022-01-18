@@ -46,7 +46,8 @@ export default class App extends Component {
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
     this.fcmNotification()
-    this.configApi();
+    // this.configApi();
+    this.configListApi();
   }
   fcmNotification() {
     messaging().onMessage(async remoteMessage => {
@@ -57,25 +58,26 @@ export default class App extends Component {
     });
   }
 
-  configApi = async () => {
-    this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
-    if (responseJson['status'] == true) {     
-      let keyd = responseJson['data']['key']['app_key'];
-      let into = responseJson['data']['configs']
-      // console.log('configs  == >', into);
-      appConstant.intoScreen = into['intro_screens'];
-      // appConstant.bToken = keyd;
-      // DefaultPreference.set('token', keyd).then(function () { console.log('done') });
-      this.configListApi()
-      // this.setState({ reload: true, isVisible: false })
-    }
-  }
+  // configApi = async () => {
+  //   this.setState({ isVisible: true })
+  //   const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
+  //   if (responseJson['status'] == true) {     
+  //     let keyd = responseJson['data']['key']['app_key'];
+  //     let into = responseJson['data']['configs']
+  //     // console.log('configs  == >', into);
+  //     appConstant.intoScreen = into['intro_screens'];
+  //     // appConstant.bToken = keyd;
+  //     // DefaultPreference.set('token', keyd).then(function () { console.log('done') });
+  //     this.configListApi()
+  //     // this.setState({ reload: true, isVisible: false })
+  //   }
+  // }
   configListApi = async()  => {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
       console.log('into -- = >', into)
+      appConstant.intoScreen = into['intro_screens'];
       appConstant.termCondition = into['terms_url'] || 'https://community.tradly.app';
       appConstant.privacyURL = into['privacy_policy_url'] || 'https://community.tradly.app'
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
