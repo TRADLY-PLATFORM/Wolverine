@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform, PermissionsAndroid,Share} from 'react-native';
 
 import branch from 'react-native-branch'
 import AppConstants from '../Constants/AppConstants';
@@ -21,6 +21,24 @@ export const showShareSheet = async (type, param) => {
     feature: 'app',
     channel: 'Product share'
   }
-  let { channel, completed, error } = await branchUniversalObject.showShareSheet(linkProperties)
+  let {url} = await branchUniversalObject.generateShortUrl(linkProperties)
+  // let { channel, completed, error } = await branchUniversalObject.showShareSheet(linkProperties)
+  try {
+    const result = await Share.share({
+      message: url,
+    });
+    if (result.action === Share.sharedAction) {
+      if (result.activityType) {
+        // shared with activity type of result.activityType
+      } else {
+        // shared
+      }
+    } else if (result.action === Share.dismissedAction) {
+      // dismissed
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+
 }
 // Unsubscribe

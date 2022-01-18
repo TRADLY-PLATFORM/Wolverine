@@ -16,7 +16,7 @@ import DefaultPreference from 'react-native-default-preference';
 import Spinner from 'react-native-loading-spinner-overlay';
 import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import appMsg from '../../../Constants/AppMessages';
-import DeviceInfo from 'react-native-device-info';
+import DeviceInfo, {getUniqueId} from 'react-native-device-info';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 
 import constantArrays from '../../../Constants/ConstantArrays';
@@ -171,6 +171,22 @@ export default class More extends Component {
       this.setState({ isVisible: false })
     }
   }
+  logoutApi = async () => {
+    this.setState({ isVisible: true })
+    var dict = {
+      'uuid': getUniqueId(),
+    }
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.logout, 'POST', JSON.stringify(dict), appConstant.bToken, appConstant.authKey)
+    this.setState({ isVisible: false })
+    if (responseJson) {
+      DefaultPreference.set('loggedIn', 'false').then( () => { 
+        appConstant.loggedIn = false;
+        this.setState({ updateUI: !this.state.updateUI})
+        this.props.navigation.navigate(NavigationRoots.SignIn)
+      }); 
+    }
+  
+  }
   /*  Buttons   */
   settingBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Profile)
@@ -190,11 +206,7 @@ export default class More extends Component {
         },
         {
           text: this.state.translationDic['logout'] ?? 'Logout', onPress: () => {
-            DefaultPreference.set('loggedIn', 'false').then( () => { 
-              appConstant.loggedIn = false;
-              this.setState({ updateUI: !this.state.updateUI})
-              this.props.navigation.navigate(NavigationRoots.SignIn)
-            });  
+            this.logoutApi()
           }
         }
       ],

@@ -54,8 +54,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow permission to access your camera to capture photos for profile and classes/campss</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Allow access to your current location suggest you near by events</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -84,9 +82,9 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>branch_key</key>
-	<string>key_live_hj5w4hNnvNhRcrBnwWD8Lnlexvgbn92k</string>
 	<key>branch_app_domain</key>
 	<string>rjl9n.app.link</string>
+	<key>branch_key</key>
+	<string>key_live_hj5w4hNnvNhRcrBnwWD8Lnlexvgbn92k</string>
 </dict>
 </plist>

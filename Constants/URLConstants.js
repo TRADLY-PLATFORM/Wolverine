@@ -43,6 +43,7 @@ module.exports = {
     addresses: 'v1/addresses',
     language: 'v1/tenants/languages',
     clientTranslation: 'v1/client_translations/values?language=',
+    logout:'v1/users/logout',
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

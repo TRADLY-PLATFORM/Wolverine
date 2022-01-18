@@ -132,7 +132,8 @@ export default class Filter extends Component {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(LangifyKeys.filter, objc)
       this.searchTranslationData(objc);
-      this.setState({ updateUI: true, isVisible: false })
+      // console.log('constantArrays =>>> ',  constantArrays.filterArray[1]);
+      this.setState({ updateUI: true, isVisible: false, dataLoad: true})
     } else {
       this.setState({ isVisible: false })
     }
@@ -159,10 +160,12 @@ export default class Filter extends Component {
         this.state.translationDic['apply'] = obj['value'];
       }
     }
-    this.setState({dataLoad: true})
+    this.state.attributesArray[0] = constantArrays.filterArray[0];
+    this.state.attributesArray[1] = constantArrays.filterArray[1];
+    this.state.attributesArray[2] = constantArrays.filterArray[2];
+    this.setState({dataLoad: true});
+    
   }
-
-
   loadCategoryApi = async () => {
     this.setState({ isVisible: true })
     const responseJson = await networkService.networkCall(APPURL.URLPaths.category + 'listings', 'get', '', appConstant.bToken, appConstant.authKey)
@@ -741,26 +744,26 @@ export default class Filter extends Component {
     </View>)
   }
   render() {
-    if (this.state.dataLoad) {
-    return (
-      <SafeAreaView style={styles.Container}>
-        <HeaderView title={this.state.translationDic['title'] ?? 'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
-        <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{height: '97%', backgroundColor: colors.AppWhite }}>
-          <View style={{zIndex: 5, position: 'absolute', height: '96%'}}>
-            <this.renderListView />
-            <this.renderButtonView />
-            {/* <View style={{height: 20,backgroundColor: 'red', width: 200}} /> */}
+    if (this.state.dataLoad == true) {
+      return (
+        <SafeAreaView style={styles.Container}>
+          <HeaderView title={this.state.translationDic['title'] ?? 'Filters'} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+          <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
+          <View style={{ height: '97%', backgroundColor: colors.AppWhite }}>
+            <View style={{ zIndex: 5, position: 'absolute', height: '96%' }}>
+              <this.renderListView />
+              <this.renderButtonView />
+              {/* <View style={{height: 20,backgroundColor: 'red', width: 200}} /> */}
+            </View>
+            <View style={{ zIndex: 20, backgroundColor: colors.blackTransparent, height: this.state.showTimeBool || this.state.showFilterView ? '100%' : 0 }}>
+              <this.renderSelectFilterView />
+            </View>
           </View>
-          <View style={{zIndex:20, backgroundColor: colors.blackTransparent, height: this.state.showTimeBool || this.state.showFilterView ? '100%' : 0}}>
-            <this.renderSelectFilterView />
-          </View>
-        </View>
-      </SafeAreaView>
-    );
+        </SafeAreaView>
+      );
     } else {
       return <SafeAreaView style={styles.Container}>
-                <HeaderView title={''} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
+        <HeaderView title={''} backBtnIcon={'cross'} showBackBtn={true} backBtnAction={() => this.backBtnAction()} />
         <View style={{ height: '100%', backgroundColor: colors.AppWhite }} />
       </SafeAreaView>
     }

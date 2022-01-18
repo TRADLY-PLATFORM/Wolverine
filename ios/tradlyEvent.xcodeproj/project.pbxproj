@@ -542,7 +542,7 @@
 				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = RGD6793QP8;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -581,7 +581,7 @@
 				CODE_SIGN_ENTITLEMENTS = tradlyEvent/tradlyEvent.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = RGD6793QP8;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

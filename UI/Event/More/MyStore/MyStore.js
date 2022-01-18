@@ -68,6 +68,7 @@ export default class MyStore extends Component {
     // this.apiCalls();
     this.langifyAPI(LangifyKeys.storedetail);
     this.langifyAPI(LangifyKeys.product);
+    this.langifyAPI(LangifyKeys.productlist);
     this.props.navigation.addListener('focus', () => {
       this.setState({ isVisible: true })
       this.apiCalls();
@@ -85,7 +86,9 @@ export default class MyStore extends Component {
     if (searchD != undefined) {
       if (LangifyKeys.product == keyGrop){
         this.productTranslationData(searchD);
-      }else {
+      }else if (LangifyKeys.productlist == keyGrop){
+        this.productListTranslationData(searchD);
+      } else {
         this.storeTranslationData(searchD);
       }
       this.setState({ updateUI: true, isVisible: false })
@@ -99,7 +102,9 @@ export default class MyStore extends Component {
       tradlyDb.saveDataInDB(keyGrop, objc)
       if (LangifyKeys.product == keyGrop){
         this.productTranslationData(objc);
-      } else {
+      } else if (LangifyKeys.productlist == keyGrop){
+        this.productListTranslationData(searchD);
+      }  else {
         this.storeTranslationData(objc);
       }
       this.setState({ updateUI: true, isVisible: false })
@@ -122,14 +127,21 @@ export default class MyStore extends Component {
         this.state.translationDic['edit'] = obj['value'];
       }
     }
-    console.log('this.state.translationDic',this.state.translationDic);
+    // console.log('this.state.translationDic',this.state.translationDic);
+  }
+  productListTranslationData(object) {
+    for (let obj of object) {
+      if ('productlist.no_products_found' == obj['key']) {
+        this.state.translationDic['no_products_found'] = obj['value'];
+      }
+    }
   }
   storeTranslationData(object) {
     for (let obj of object) {
       if ('storedetail.total_products' == obj['key']) {
         this.state.translationDic['totalProduct'] = obj['value'];
       }  
-      if ('storedetail.followers' == obj['key']) {
+      if ('storedetail.total_followers' == obj['key']) {
         this.state.translationDic['followers'] = obj['value'];
       }  
       if ('storedetail.about' == obj['key']) {
@@ -612,7 +624,7 @@ export default class MyStore extends Component {
       return view;
     } else {
       return (<View style={{ height: windowHeight/2, justifyContent: 'center', alignItems: 'center',width: '100%'  }}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No items found' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? this.state.translationDic['no_products_found'] ?? 'No product found' : ''}</Text>
       </View>)
     }
   }

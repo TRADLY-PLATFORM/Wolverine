@@ -41,6 +41,9 @@ import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PR
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
 const windowWidth = Dimensions.get('window').width;
 
+import LangifyKeys from '../../../Constants/LangifyKeys';
+import tradlyDb from '../../../TradlyDB/TradlyDB';
+
 
 export default class Explore extends Component {
   constructor(props) {
@@ -67,11 +70,13 @@ export default class Explore extends Component {
       dataLoad: false,
       showSearchBar: true,
       searchKey:'',
-      typingTimeout: 0
+      typingTimeout: 0,
+      translationDic:{},
     }
   }
   componentDidMount() {
     // this.refs.searchBar.focus()
+    this.langifyAPI()
     this.state.datesArray = getDatesArray();
     // this.props.navigation.addListener('focus', () => {
       appConstant.hideTabbar = true
@@ -84,11 +89,65 @@ export default class Explore extends Component {
   componentWillUnmount() {
     this.state.dataLoad = true
   }
+  langifyAPI = async () => {
+    let searchD = await tradlyDb.getDataFromDB(LangifyKeys.search);
+    if (searchD != undefined) {
+      this.searchTranslationData(searchD);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: true })
+    }
+    let group = `&group=${LangifyKeys.search}`
+    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
+    if (responseJson['status'] == true) {
+      let objc = responseJson['data']['client_translation_values'];
+      tradlyDb.saveDataInDB(LangifyKeys.search, objc)
+      this.searchTranslationData(objc);
+      this.setState({ updateUI: true, isVisible: false })
+    } else {
+      this.setState({ isVisible: false })
+    }
+  }
+  searchTranslationData(object) {
+    this.state.translationDic = {};
+    for (let obj of object) {
+      if ('search.nearest_by_distance' == obj['key']) {
+        constantArrays.sortingArray[0] = obj['value'];
+      }
+      if ('search.high_to_low' == obj['key']) {
+        constantArrays.sortingArray[2] = obj['value'];
+      }  
+      if ('search.low_to_high' == obj['key']) {
+        constantArrays.sortingArray[1] = obj['value'];
+      }  
+      if ('search.search' == obj['key']) {
+        this.state.translationDic['title'] = obj['value'];
+      }
+      if ('search.sort' == obj['key']) {
+        this.state.translationDic['sort'] = obj['value'];
+      }
+      if ('search.filter' == obj['key']) {
+        this.state.translationDic['filter'] = obj['value'];
+      }
+      if ('search.done' == obj['key']) {
+        this.state.translationDic['done'] = obj['value'];
+      }
+      if ('search.no_listing_found' == obj['key']) {
+        this.state.translationDic['no_listing_found'] = obj['value'];
+      }
+      if ('search.cancel' == obj['key']) {
+        this.state.translationDic['cancel'] = obj['value'];
+      }
+      if ('search.type_to_search' == obj['key']) {
+        this.state.translationDic['type_to_search'] = obj['value'];
+      }
+    }
+  }
   initApi() {
     if (this.state.datesArray.length != 0){
       this.state.selectedDate = changeDateFormat(this.state.datesArray[0], 'YYYY-MM-DD');
-      let strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-      this.state.params = `${strtD}`;
+      // let strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+      // this.state.params = `${strtD}`;
     }
     this.callApi(this.state.params);
   }
@@ -213,33 +272,33 @@ export default class Explore extends Component {
       } 
       if (objc['rating']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }  
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }  
         let rObjc = objc['rating']
         queryParams = queryParams + `&rating=${rObjc['rating']}` + strtD;
       }
       if (objc['distance']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         let dObjc = objc['distance']
         queryParams = queryParams + `&max_distance=${dObjc['distance']}` + strtD;
       }
       if (objc['category']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         let dObjc = objc['category']
         queryParams = queryParams + `&category_id=${dObjc['id']}` + strtD;
       }
       if (objc['price']) {
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }   
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }   
         let dObjc = objc['price']
         queryParams = queryParams + `&price_from=${dObjc['from']}&price_to=${dObjc['to']}` + strtD;
       }
@@ -247,9 +306,9 @@ export default class Explore extends Component {
         let nObj = objc['attribute']
         let dObjc = nObj['values'];
         var strtD = '';
-        if (!queryParams.includes('start_at')) {
-           strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
-        }
+        // if (!queryParams.includes('start_at')) {
+        //    strtD = `&start_at=${this.state.selectedDate}T00:00:00Z`;
+        // }
         if (dObjc.length != 0) {
           queryParams = queryParams + `&attribute_value_id=${dObjc.join(',')}` + strtD;
         }
@@ -270,15 +329,13 @@ export default class Explore extends Component {
   /*  UI   */
   renderSortItemCell = ({item, index }) => {
     let check = index == this.state.sortSelectedIndex ? true : false
-    var views = [];
-    views.push(<View style={commonStyles.nextIconStyle}> 
-        <SvgUri width={20} height={20} source={check ? selectedradio : radio} fill={check ? colors.AppTheme : colors.Lightgray} />
-    </View>)
     return (
       <TouchableOpacity onPress={() => this.setState({sortSelectedIndex:index})}>
         <View style={eventStyles.listViewStyle}>
           <Text style={{ textAlign: 'left', fontSize: 16, color: colors.AppGray }}> {item} </Text>
-          {views}
+          <View style={commonStyles.nextIconStyle}>
+            <Image style={{width:20,height:20,tintColor:check ? colors.AppTheme : colors.Lightgray}} source={check ? selectedradio : radio}/>
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -309,7 +366,7 @@ export default class Explore extends Component {
               <View style={eventStyles.panelHandle} />
               <View style={{backgroundColor: colors.AppWhite, height: windowHeight / 2, width: '100%', marginTop: 15 }}>
                 <View style={{justifyContent: 'center' }}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort</Text>
+                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
                 </View>
                 <View style={{height: '40%', marginTop: 10 }}>
                   {this.renderSortListView()}
@@ -317,7 +374,7 @@ export default class Explore extends Component {
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 5 }}>
                   <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={() => this.sortBtnAction(true)}>
                     <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{color: colors.AppWhite, fontWeight: '600'}}>Done</Text>
+                    <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{appConstant.doneTitle}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -406,7 +463,7 @@ export default class Explore extends Component {
       </View>)
     } else {
       return <View style={{height: '90%',justifyContent: 'center', alignItems: 'center', width: windowWidth}}>
-        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? 'No events have been posted yet' : ''}</Text>
+        <Text style={eventStyles.commonTxtStyle}> {this.state.dataLoad ? this.state.translationDic['no_listing_found'] ?? 'No events have been posted yet' : ''}</Text>
       </View>
     }
   }
@@ -419,11 +476,11 @@ export default class Explore extends Component {
     return (<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.sortBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={sortIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Sort</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['sort'] ?? 'Sort'}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={eventStyles.headerViewStyle} onPress={() => this.filterBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode={'contain'} source={filterGrayIcon} />
-        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>Filters</Text>
+        <Text style={{ color: colors.AppGray, marginLeft: 10 }}>{this.state.translationDic['filter'] ?? 'Filters'}</Text>
       </TouchableOpacity>
     </View>)
   }
@@ -444,6 +501,7 @@ export default class Explore extends Component {
         <SearchBar
           ref="searchBar"
           barTintColor={colors.AppWhite}
+          placeholder={this.state.translationDic['type_to_search'] ?? 'Search..'}
           searchBarStyle={'minimal'}
           tintColor={colors.AppWhite}
           placeholderTextColor={colors.AppWhite}
@@ -457,7 +515,7 @@ export default class Explore extends Component {
         />
       </View>)
     } else {
-      return <HeaderView title={'Search'} showDoneBtn={true} doneBtnTitle={'Search'} doneBtnAction={() => this.openSearchBarAction()} />
+      return <HeaderView title={this.state.translationDic['title'] ?? 'Search'} showDoneBtn={true} doneBtnTitle={this.state.translationDic['title'] ?? 'Search'} doneBtnAction={() => this.openSearchBarAction()} />
     }
   }
 
@@ -479,7 +537,7 @@ export default class Explore extends Component {
           </MapView>
         </View>
         <TouchableOpacity style={styles.searchBtnStyle} onPress={() => this.openSearchBarAction()}> 
-          <Text>Search..</Text>
+          <Text>{this.state.translationDic['type_to_search'] ?? 'Search...'}</Text>
           <View>
             <SvgUri width={25} height={25} source={searchSvg} fill={colors.AppGray} />
           </View>

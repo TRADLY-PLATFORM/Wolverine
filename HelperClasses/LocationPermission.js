@@ -31,7 +31,7 @@ export default class CurrentLocation extends Component {
         // }
         if (code === 'UNAVAILABLE') {
           // AppAlert.alert('Location service is disabled or unavailable');
-          AppAlert(appConstant.locationPermissionError, appConstant.okTitle);
+          // AppAlert(appConstant.locationPermissionError, appConstant.okTitle);
         }
         if (code === 'TIMEOUT') {
           Alert.alert('Location request timed out');

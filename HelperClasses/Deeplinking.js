@@ -5,19 +5,19 @@ export default class Deeplinking extends Component {
 
   componentDidMount() {
     if (Platform.OS === 'android') {
-      Linking.getInitialURL().then(url => {
-        this.navigate(url);
-      });
+      // Linking.getInitialURL().then(url => {
+      //   this.navigate(url);
+      // });
     } else {
-      Linking.addEventListener('url', this.handleOpenURL);
+      // Linking.addEventListener('url', this.handleOpenURL);
     }
   }
 
   componentWillUnmount() {
-    Linking.removeEventListener('url', this.handleOpenURL);
+    // Linking.removeEventListener('url', this.handleOpenURL);
   }
   handleOpenURL = (event) => {
-    this.navigate(event.url);
+    // this.navigate(event.url);
   }
   navigate = (url) => {
     console.log('url ==>', url);
