@@ -39,7 +39,7 @@ export default class App extends Component {
         appConstant.appInstalled = val == undefined ? false : true
     }.bind(this))
     Sentry.init({environment: __DEV__ ?  'development' : 'production' ,dsn: appConstant.dsnSentry, enableNative: false});
-    this.configApi();
+    this.configListApi()
     this.getSavedValues();
   }
   
@@ -51,24 +51,25 @@ export default class App extends Component {
     }.bind(this))
   }
   
-  configApi = async () => {
-    this.setState({ isVisible: true })
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
-    if (responseJson['status'] == true) {     
-      let keyd = responseJson['data']['key']['app_key'];
-      let into = responseJson['data']['configs']
-      console.log('configs  == >', into);
-      appConstant.intoScreen = into['intro_screens'];
-      appConstant.bToken = keyd;
-      DefaultPreference.set('token', keyd).then(function () { console.log('done') });
-      this.configListApi()
-    }
-  }
+  // configApi = async () => {
+  //   this.setState({ isVisible: true })
+  //   const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
+  //   if (responseJson['status'] == true) {     
+  //     let keyd = responseJson['data']['key']['app_key'];
+  //     let into = responseJson['data']['configs']
+  //     console.log('configs  == >', into);
+  //     appConstant.intoScreen = into['intro_screens'];
+  //     // appConstant.bToken = keyd;
+  //     DefaultPreference.set('token', keyd).then(function () { console.log('done') });
+  //     this.configListApi()
+  //   }
+  // }
   configListApi = async()  => {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
       console.log('into -- = >', into)
+      appConstant.intoScreen = into['intro_screens'];
       appConstant.termCondition = into['terms_url'] || 'www.google.com';
       appConstant.privacyURL = into['privacy_policy_url'] || 'www.google.com';
       appConstant.appHomeTitle = into['app_title_home'] || 'www.google.com';
