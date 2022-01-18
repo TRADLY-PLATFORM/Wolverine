@@ -105,7 +105,7 @@ export default class ChatScreen extends Component {
     let sMsg = {
       "message":this.state.message,
       "timeStamp": Date.now(),
-       "username":appConstant.userName,
+       "userName":appConstant.userName,
        "userId":appConstant.userId,
        "mimeType":'text',
        "fileName":''
