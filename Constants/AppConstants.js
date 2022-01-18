@@ -1,3 +1,5 @@
+const appKey = require('../AppKeys');
+
 module.exports = {
   loggedIn: false,
   appInstalled: false,
@@ -8,7 +10,7 @@ module.exports = {
   termCondition: '',
   fcmToken:'',
   privacyURL: '',
-  bToken: '',
+  bToken: appKey.bearer,
   userId: '',
   userName: '',
   appHomeTitle: '',
