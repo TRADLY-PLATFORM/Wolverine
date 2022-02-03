@@ -509,9 +509,9 @@ PODS:
     - React-RCTImage
   - RNSearchBar (3.5.1):
     - React
-  - RNSentry (2.6.2):
+  - RNSentry (3.2.13):
     - React-Core
-    - Sentry (= 7.1.4)
+    - Sentry (= 7.9.0)
   - RNSVG (12.1.1):
     - React
   - SDWebImage (5.12.0):
@@ -520,9 +520,9 @@ PODS:
   - SDWebImageWebPCoder (0.6.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.7)
-  - Sentry (7.1.4):
-    - Sentry/Core (= 7.1.4)
-  - Sentry/Core (7.1.4)
+  - Sentry (7.9.0):
+    - Sentry/Core (= 7.9.0)
+  - Sentry/Core (7.9.0)
   - Stripe (21.7.0):
     - Stripe/Stripe3DS2 (= 21.7.0)
     - StripeCore (= 21.7.0)
@@ -841,11 +841,11 @@ SPEC CHECKSUMS:
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: 21b73c94c9117e1110a79ee0ee80c93ccefed8ce
   RNSearchBar: 54ad41edd78385681730b02b5e069900436d996b
-  RNSentry: 68644ef607b780551cc555f084869764f2566652
+  RNSentry: 0aa1567f66c20390f3834637fc4f73380dcd0774
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   SDWebImage: 4ea20cca2986adc5aacde07aa686742fd4c67a37
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
-  Sentry: 1d3eb1a25f8c5333c88dd5603904a6d461cd9fcf
+  Sentry: 2f7e91f247cfb05b05bd01e0b5d0692557a7687b
   Stripe: 90596971ef49bade169f68bc59369a796b30a045
   stripe-react-native: d7b98cfb047035341ca374d9cf2d00550191343b
   StripeCore: c09b492efc3b269a6ff875ad738ca366db97e03b

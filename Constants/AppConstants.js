@@ -1,4 +1,5 @@
-const appKey = require('../AppKeys');
+// const appKey = require('../AppKeys');
+import appKey from '../AppKeys';
 
 module.exports = {
   loggedIn: false,

@@ -72,7 +72,7 @@ export default class App extends Component {
       appConstant.intoScreen = into['intro_screens'];
       appConstant.termCondition = into['terms_url'] || 'www.google.com';
       appConstant.privacyURL = into['privacy_policy_url'] || 'www.google.com';
-      appConstant.appHomeTitle = into['app_title_home'] || 'www.google.com';
+      appConstant.appHomeTitle = into['app_title_home'] || 'App';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       appConstant.sellIcon = into['sell_icon'] ?? '';
       appConstant.branchDescription = into['branch_link_description'] ?? '';

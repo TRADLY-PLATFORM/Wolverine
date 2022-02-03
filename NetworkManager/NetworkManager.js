@@ -4,6 +4,7 @@ const to = require('await-to-js').default
 import appConstant from '../Constants/AppConstants';
 import DefaultPreference from 'react-native-default-preference';
 import RNFetchBlob from 'rn-fetch-blob'
+import AppKeys from '../AppKeys';
 
 
 class NetworkManager {
@@ -11,7 +12,7 @@ class NetworkManager {
     let url = APPURL.URLPaths.BaseURL + path;
     console.log('url == ', url)
     console.log('param == ', param)
-    console.log('token == ', token)
+    console.log('token == ',AppKeys.bearer)
     console.log('auth == ', auth)
     let err, response
     let headers = {
@@ -23,7 +24,7 @@ class NetworkManager {
       headers['x-language'] = appConstant.appLanguage
     }
     console.log(headers);
-    headers['Authorization'] = "Bearer " + token;
+    headers['Authorization'] = "Bearer " + AppKeys.bearer;
     headers['x-auth-key'] = auth;
     if (currency != undefined) {
       headers['X-Currency'] = currency;
