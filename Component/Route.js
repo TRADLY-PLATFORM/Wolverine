@@ -45,6 +45,7 @@ import InviteFriend from '../UI/Event/More/InviteFriends';
 import appConstant from '../Constants/AppConstants';
 import Notifications from '../UI/Event/Notification/Notifications';
 import Schedules from '../UI/Event/EventDetail/Schedule';
+import ResetPassword from '../UI/User/ResetPassword';
 
 const Stack = createStackNavigator();
 
@@ -92,6 +93,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.InviteFriend} component={InviteFriend} />
         <Stack.Screen name={NavigationRoots.Notifications} component={Notifications} />
         <Stack.Screen name={NavigationRoots.Schedule} component={Schedules} />
+        <Stack.Screen name={NavigationRoots.ResetPassword} component={ResetPassword} />
         <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

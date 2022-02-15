@@ -73,6 +73,9 @@ export default class Home extends Component {
           }.bind(this))
         }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {
+          DefaultPreference.get('profilePic').then(function (profilePic) { 
+            appConstant.profilePic = profilePic
+          })
           console.log('userId==>', userId);
           appConstant.userId = userId;
           this.getMyStoreApi()

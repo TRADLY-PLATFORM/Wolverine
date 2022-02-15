@@ -9,6 +9,7 @@ import networkService from './../../NetworkManager/NetworkManager';
 import APPURL from './../../Constants/URLConstants';
 import LinearGradient from 'react-native-linear-gradient';
 import Spinner from 'react-native-loading-spinner-overlay';
+import NavigationRoots from '../../Constants/NavigationRoots';
 
 export default class ForgotPassword extends Component {
   constructor(props) {
@@ -25,19 +26,22 @@ export default class ForgotPassword extends Component {
     // }.bind(this))
   }
   forgotPasswordApi = async () => {
-    this.setState({isVisible: true })
-    var dict = {"email": this.state.email}
+    this.setState({ isVisible: true })
+    var dict = { "email": this.state.email }
     const responseJson = await networkService.networkCall(APPURL.URLPaths.forgotpassword, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
     console.log("responseJson = ", responseJson)
     if (responseJson) {
-        this.setState({ isVisible: false })
-        if (responseJson['status'] == true) {
-          Alert.alert('Sent!')
-        } else {
-          Alert.alert(responseJson)
-          }
+      this.setState({ isVisible: false })
+      if (responseJson['status'] == true) {
+        this.props.navigation.navigate(NavigationRoots.ResetPassword, {
+          verifyId: responseJson['data']['verify_id'],
+        });
+        // Alert.alert('Sent!')
+      } else {
+        Alert.alert(responseJson)
+      }
     }
-}
+  }
   /*  Buttons   */
   sendBtnAction() {
     if (this.state.email.length == 0) {

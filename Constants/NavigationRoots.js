@@ -34,4 +34,5 @@ module.exports  = {
   InviteFriend: 'InviteFriend',
   Notifications:'Notifications' ,
   Schedule:'Schedule',
+  ResetPassword:'ResetPassword',
 }

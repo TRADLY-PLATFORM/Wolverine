@@ -99,6 +99,7 @@ export default class EditProfile extends Component {
       'last_name': this.state.lastname,
       'profile_pic': photoPath
     }
+    appConstant.profilePic = photoPath
     this.setState({ isVisible: true })
     let method = 'PATCH';
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}${appConstant.userId}`, 

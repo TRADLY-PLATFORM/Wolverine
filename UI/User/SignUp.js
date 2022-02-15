@@ -69,8 +69,7 @@ export default class SignUp extends Component {
       Alert.alert('enter password')
     } else if (this.state.confirmPassword.length != this.state.password.length ) {
       Alert.alert('password does not match')
-    }
-    else {
+    } else {
       this.registerApi()
     }
   }

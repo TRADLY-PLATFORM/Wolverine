@@ -40,7 +40,8 @@ module.exports = {
     schedules: '/schedules',
     schedulesPerDay: 'schedules_per_day?',
     cart: 'products/v1/cart',
-    addresses: 'v1/addresses'
+    addresses: 'v1/addresses',
+    resetPassword:'/v1/users/password/set',
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

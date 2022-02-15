@@ -147,7 +147,7 @@ export default class SignIn extends Component {
   }
   sendBtnAction() {
     if (this.state.email.length == 0) {      
-      Alert.alert('enter mobile ')
+      Alert.alert('enter email ')
     } else if (this.state.password.length == 0) {
       Alert.alert('enter password ')
     } else {
