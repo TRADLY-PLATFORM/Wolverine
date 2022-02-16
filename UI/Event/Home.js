@@ -48,7 +48,8 @@ export default class Home extends Component {
   }
   componentDidMount() {
     this.locationPermission()
-    this.getSavedData();
+    this.getSavedData( val => {
+    })
     this.getBranchData()
     this.fcmNotificationData()
   }
@@ -113,7 +114,7 @@ export default class Home extends Component {
     });
     return unsubscribe;
   };
-  getSavedData() {
+  getSavedData = (callback) => {
     // DefaultPreference.get('token').then(function (value) {
     //   appConstant.bToken = value;
       DefaultPreference.get('authKey').then(function (authKey) {
@@ -131,6 +132,7 @@ export default class Home extends Component {
             if (appConstant.loggedIn) {
               firebaseAuth(fToken);
             }
+            return callback(true);
           }.bind(this))
         }.bind(this))
         DefaultPreference.get('userId').then(function (userId) {

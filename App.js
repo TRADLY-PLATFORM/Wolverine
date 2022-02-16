@@ -80,7 +80,7 @@ export default class App extends Component {
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
-      appConstant.branchDescription = into['branch_link_description'];
+      appConstant.branchDescription = into['invite_friends_collection_title'];
       appConstant.enableSignupFirst = into['enable_signup_first'] || false;
       this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
