@@ -32,8 +32,23 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
-      </activity>
+             <!-- Branch URI Scheme -->
+            <intent-filter>
+                <data android:scheme="classbubs" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
 
+            <!-- Branch App Links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="4laju.app.link" />
+            </intent-filter>
+      </activity>
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_test_egXc98SOSxkLLYyi5tTjadlkwvkEO4sR"/>
     </application>
 
 </manifest>
