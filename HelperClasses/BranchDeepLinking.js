@@ -25,7 +25,9 @@ export const showShareSheet = async (type, param) => {
   // let { channel, completed, error } = await branchUniversalObject.showShareSheet(linkProperties)
   try {
     const result = await Share.share({
-      message: url,
+      title:AppConstants.inviteFriendTitle,
+      message: Platform.OS == 'android' ? url :  AppConstants.branchDescription,
+      url:url,
     });
     if (result.action === Share.sharedAction) {
       if (result.activityType) {

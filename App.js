@@ -76,6 +76,8 @@ export default class App extends Component {
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       appConstant.sellIcon = into['sell_icon'] ?? '';
       appConstant.branchDescription = into['branch_link_description'] ?? '';
+      appConstant.inviteFriendTitle = into['invite_friends_collection_title'] ?? '';
+
       // colors.AppTheme = into['app_color_primary'] ?? '#83f0c8'
       // colors.GradientTop = into['app_color_secondary'] ?? '#83f0c8'
       // colors.GradientBottom = into['app_color_primary'] ?? '#17d275'

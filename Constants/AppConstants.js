@@ -40,4 +40,5 @@ module.exports = {
   languageTitle: 'Language',
   locationPermissionError: 'Location service is disabled or unavailable',
   branchDescription: '',
+  inviteFriendTitle:'',
 }

@@ -285,7 +285,7 @@ export default class Home extends Component {
         var profilePic = dic['image_path'].length == 0 ? dummy : {uri:dic['image_path']}
         var imageView = [];
         if (index == 7) {
-          imageView.push(<Image style={{width:30,height:30,tintColor:colors.AppTheme}} source={moreSVG}/>)
+          imageView.push(<Image style={{width:30,height:30,tintColor:colors.AppTheme}} resizeMode={'contain'} source={moreSVG}/>)
         } else {
           imageView.push(<FastImage style={styles.imageThumbnail} source={profilePic} resizeMode={'contain'}/>)
         }
