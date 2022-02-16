@@ -29,4 +29,6 @@ module.exports = {
   dsnSentry: 'https://a36e7a2a75764b44aacc1400414d0fca@o396771.ingest.sentry.io/5896058',
   firebaseChatPath: '/classbubs_prod/',
   tenantID:'',
+  branchDescription: '',
+  enableSignupFirst: false,
 }

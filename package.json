@@ -32,6 +32,7 @@
     "react-native": "0.64.2",
     "react-native-actionsheet": "^2.4.2",
     "react-native-app-intro-slider": "^4.0.4",
+    "react-native-branch": "^5.4.0",
     "react-native-calendar-picker": "^7.1.2",
     "react-native-default-preference": "^1.4.3",
     "react-native-device-info": "^8.3.1",

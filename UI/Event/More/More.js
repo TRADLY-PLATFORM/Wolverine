@@ -87,6 +87,21 @@ export default class More extends Component {
     }
   }
   /*  Buttons   */
+  signInBtnAction() {
+    if (appConstant.enableSignupFirst) {
+      this.props.navigation.navigate(NavigationRoots.SignUp)
+    } else {
+      this.props.navigation.navigate(NavigationRoots.SignIn)
+    }
+    // DefaultPreference.get('firstTime').then(function (val) {
+    //   if (val == undefined) {
+    //     DefaultPreference.set('firstTime', 'true').then(function () { console.log('firstTime') });
+    //     this.props.navigation.navigate(NavigationRoots.SignUp)
+    //   } else {
+    //     this.props.navigation.navigate(NavigationRoots.SignIn)
+    //   }
+    // }.bind(this))
+  }
   settingBtnAction() {
     this.props.navigation.navigate(NavigationRoots.Profile)
   }
@@ -108,7 +123,7 @@ export default class More extends Component {
             DefaultPreference.set('loggedIn', 'false').then( () => { 
               appConstant.loggedIn = false;
               this.setState({ updateUI: !this.state.updateUI})
-              this.props.navigation.navigate(NavigationRoots.SignIn)
+              this.signInBtnAction();
             });  
           }
         }
@@ -167,7 +182,7 @@ export default class More extends Component {
             }
           }
         } else {
-          this.props.navigation.navigate(NavigationRoots.SignIn)
+          this.signInBtnAction()
         }
       }
     }
@@ -195,7 +210,7 @@ export default class More extends Component {
           this.props.navigation.navigate(NavigationRoots.MyOrders);
         }
       } else {
-        this.props.navigation.navigate(NavigationRoots.SignIn)
+        this.signInBtnAction()
       }
     }
   }
@@ -263,7 +278,7 @@ export default class More extends Component {
     } else {
       return (<View style={{ flexDirection: 'row', alignItems: 'center', margin: 20 }}>
         <FastImage source={sample} style={{ height: 60, width: 60, borderRadius: 30 }} />
-        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => this.props.navigation.navigate(NavigationRoots.SignIn)}>
+        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => this.signInBtnAction()}>
           <Text style={styles.titleStyle}>{'Sign in/Sign up'}</Text>
         </TouchableOpacity>
       </View>)

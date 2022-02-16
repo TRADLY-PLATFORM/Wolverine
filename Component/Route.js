@@ -46,6 +46,7 @@ import appConstant from '../Constants/AppConstants';
 import Notifications from '../UI/Event/Notification/Notifications';
 import Schedules from '../UI/Event/EventDetail/Schedule';
 import ResetPassword from '../UI/User/ResetPassword';
+import StoreList from '../UI/Event/StoreList';
 
 const Stack = createStackNavigator();
 
@@ -67,8 +68,12 @@ export default class App extends Component {
             title: '',
             ...TransitionPresets.ModalSlideFromBottomIOS,
           }} />
+        <Stack.Screen name={NavigationRoots.SignUp} component={Signup}
+          options={{
+            title: '',
+            ...TransitionPresets.ModalSlideFromBottomIOS,
+          }} />
         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
-        <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
         <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
         <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
         <Stack.Screen name={NavigationRoots.CategoryList} component={CategoryList} />
@@ -94,6 +99,8 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.Notifications} component={Notifications} />
         <Stack.Screen name={NavigationRoots.Schedule} component={Schedules} />
         <Stack.Screen name={NavigationRoots.ResetPassword} component={ResetPassword} />
+        <Stack.Screen name={NavigationRoots.StoreList} component={StoreList} />
+
         <Stack.Screen name={NavigationRoots.Filter} component={Filter} options={{
           title: '',
           ...TransitionPresets.ModalSlideFromBottomIOS,

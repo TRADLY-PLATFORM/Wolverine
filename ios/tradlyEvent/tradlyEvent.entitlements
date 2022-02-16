@@ -4,5 +4,12 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+  <array>
+    <string>applinks:4laju.app.link</string>
+      <string>applinks:4laju-alternate.app.link</string>
+      <string>applinks:4laju.test-app.link</string>
+      <string>applinks:4laju-alternate.test-app.link</string>
+    </array>
 </dict>
 </plist>

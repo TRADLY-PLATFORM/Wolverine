@@ -27,6 +27,8 @@ import notificationIcon from '../../assets/notificationIcon.png';
 import heartEmptyIcon from '../../assets/heartEmpty.png'
 import {normalize} from '../../HelperClasses/SingleTon';
 import eventStyles from '../../StyleSheet/EventStyleSheet';
+import branch from 'react-native-branch';
+import messaging from '@react-native-firebase/messaging';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -47,11 +49,70 @@ export default class Home extends Component {
   componentDidMount() {
     this.locationPermission()
     this.getSavedData();
+    this.getBranchData()
+    this.fcmNotificationData()
   }
   locationPermission() {
     let lp = new LocationPermission();
     lp._requestLocation();
   }
+  getBranchData(){
+    branch.subscribe(({ error, params, uri }) => {
+      if (error) {
+      } else {
+        setTimeout(() => {
+          if (params['+clicked_branch_link']) {
+            if (params['link_type'] == 'account') {
+              this.props.navigation.navigate(NavigationRoots.MyStore, {
+                accId: params['account_id'],
+              });
+            } else if (params['link_type'] == 'listing') {
+              this.props.navigation.navigate(NavigationRoots.EventDetail, {
+                id :params['listing_id'],
+              });
+            }
+          }
+        }, 3000)
+      }
+    })
+  };
+  fcmNotificationData() {
+    const granted =  messaging().requestPermission();
+    // console.log('GRANTED =', granted);;
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('FCM Message Data:', remoteMessage.data);
+    });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log( 'N ==>>',  remoteMessage);
+      this.getSavedData( val => {
+        setTimeout(() => {
+          let nDic = remoteMessage['data'];
+          if (nDic['type'] == 'chat') {
+            this.props.navigation.navigate(NavigationRoots.ChatScreen, {
+              chatRoomId: nDic['chat_room_id'],
+              name: nDic['sender_name'],
+            });
+          } else if (nDic['type'] == 'order') {
+            this.props.navigation.navigate(NavigationRoots.OrderDetail, {
+              orderId: nDic['order_id'], account: false
+            });
+          } else if (nDic['type'] == 'listing') {
+            this.props.navigation.navigate(NavigationRoots.EventDetail, {
+              id: nDic['listing_id']
+            });
+          } else if (nDic['type'] == 'account') {
+            this.props.navigation.navigate(NavigationRoots.MyStore, {
+              accId: nDic['account_id']
+            });
+          }
+        }, 3000)
+      })
+    });
+    messaging().setBackgroundMessageHandler(async message => {
+      // messaging().setBackgroundMessageHandler(message);
+    });
+    return unsubscribe;
+  };
   getSavedData() {
     // DefaultPreference.get('token').then(function (value) {
     //   appConstant.bToken = value;
@@ -158,6 +219,13 @@ export default class Home extends Component {
       accId :item['id'],
     });
   }
+  viewAllBtnAction(type) {
+    if (type == 1) {
+      this.props.navigation.navigate(NavigationRoots.StoreList);
+    }else {
+      this.props.navigation.navigate(NavigationRoots.EventList, {viewAll: true});
+    }
+  }
   /*  UI   */
   renderGridView = () => {
     return (<View style={{backgroundColor:colors.AppWhite}}>
@@ -239,9 +307,16 @@ export default class Home extends Component {
   }
   renderEventItemCell = ({item, index}) => {
     if (item['scope_type'] == 1 || item['scope_type'] == 4) {
+      var views = [];
+      views.push(<View>
+        <TouchableOpacity style={{alignItems: 'center'}} onPress={() => this.viewAllBtnAction(item['scope_type'])}>
+          <Text style={styles.viewTxtStyle}>{'View All'}</Text>
+        </TouchableOpacity>
+      </View>)
       return (<View style={{ backgroundColor: colors.AppWhite}}>
         <View style={styles.eventCellItemStyle}>
           <Text style={{fontSize: 18, fontWeight: '700', color: colors.AppWhite, marginTop: 5}}>{item['title']}</Text>
+          {views}
         </View>
         <View style={{ backgroundColor: colors.AppWhite, width: windowWidth, paddingBottom: 10,}}>
           <View style={{marginTop: -120}}>
@@ -396,5 +471,11 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  viewTxtStyle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.AppWhite,
+    marginTop: 5,
   },
 });

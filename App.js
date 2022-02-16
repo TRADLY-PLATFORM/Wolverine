@@ -14,9 +14,7 @@ import colors from './CommonClasses/AppColor';
 import DefaultPreference from 'react-native-default-preference';
 import networkService from './NetworkManager/NetworkManager';
 import APPURL from './Constants/URLConstants';
-import appConstant from './Constants/AppConstants';
-// import logoIcon from './assets/classbubslogo.png';
-// import androidLogoIcon from './assets/classbubslogo.jpg';
+import appConstant, { branchDescription } from './Constants/AppConstants';
 import classbubsLogo from './assets/classbubsLogoTransparent.png'
 import * as Sentry from "@sentry/react-native";
 import {StripeProvider} from '@stripe/stripe-react-native';
@@ -57,7 +55,6 @@ export default class App extends Component {
       console.log( 'N',  remoteMessage);
     });
   }
-
   // configApi = async () => {
   //   this.setState({ isVisible: true })
   //   const responseJson = await networkService.networkCall(APPURL.URLPaths.config, 'get')
@@ -83,9 +80,8 @@ export default class App extends Component {
       appConstant.appHomeTitle = into['app_title_home'] || 'ClassBubs';
       appConstant.appVersion = Platform.OS === 'ios' ? into['app_ios_version'] : into['app_android_version'];
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
-      // colors.AppTheme = into['app_color_primary'] || colors.AppTheme;
-      // colors.GradientBottom = into['app_color_primary'] || colors.AppTheme;
-      // colors.GradientTop = into['app_color_secondary'] || colors.GradientTop;
+      appConstant.branchDescription = into['branch_link_description'];
+      appConstant.enableSignupFirst = into['enable_signup_first'] || false;
       this.getCurrencyApi()
       this.setState({ reload: true, isVisible: false })
     }

@@ -35,4 +35,5 @@ module.exports  = {
   Notifications:'Notifications' ,
   Schedule:'Schedule',
   ResetPassword:'ResetPassword',
+  StoreList:'StoreList',
 }

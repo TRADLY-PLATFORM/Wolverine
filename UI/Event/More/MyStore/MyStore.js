@@ -34,6 +34,7 @@ import FastImage from 'react-native-fast-image'
 import RatingReview from '../../../../Component/RatingReview';
 import EventView from '../../../../Component/EventView';
 import SvgUri from 'react-native-svg-uri';
+import { showShareSheet } from '../../../../HelperClasses/BranchDeepLinking';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -178,22 +179,24 @@ export default class MyStore extends Component {
     this.setState({ starRatingValue: id + 1 })
   }
   onShareBtnAction = async () => {
-    try {
-      const result = await Share.share({
-        message: appConstant.appSharePath,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      alert(error.message);
-    }
+    const { accId } = this.props.route.params;
+    showShareSheet('account',accId)
+    // try {
+    //   const result = await Share.share({
+    //     message: appConstant.appSharePath,
+    //   });
+    //   if (result.action === Share.sharedAction) {
+    //     if (result.activityType) {
+    //       // shared with activity type of result.activityType
+    //     } else {
+    //       // shared
+    //     }
+    //   } else if (result.action === Share.dismissedAction) {
+    //     // dismissed
+    //   }
+    // } catch (error) {
+    //   alert(error.message);
+    // }
   }
   paginationMethod = () => {
     console.log('pagination');

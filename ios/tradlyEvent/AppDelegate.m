@@ -3,6 +3,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+#import <RNBranch/RNBranch.h>
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -40,6 +41,7 @@ static void InitializeFlipper(UIApplication *application) {
     [FIRApp configure];
   }
   [GMSServices provideAPIKey:@"AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM"];
+  [RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES];
 
   NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
 
@@ -70,18 +72,30 @@ static void InitializeFlipper(UIApplication *application) {
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-- (BOOL)application:(UIApplication *)application
-   openURL:(NSURL *)url
-   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+//- (BOOL)application:(UIApplication *)application
+//   openURL:(NSURL *)url
+//   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+//{
+//  return [RCTLinkingManager application:application openURL:url options:options];
+//}
+//- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
+// restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+//{
+// return [RCTLinkingManager application:application
+//                  continueUserActivity:userActivity
+//                    restorationHandler:restorationHandler];
+//}
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url  options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
-  return [RCTLinkingManager application:application openURL:url options:options];
+//  return [RCTLinkingManager application:application openURL:url options:options];
+  return [RNBranch application:application openURL:url options:options];
 }
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
- return [RCTLinkingManager application:application
-                  continueUserActivity:userActivity
-                    restorationHandler:restorationHandler];
+// return [RCTLinkingManager application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+  return [RNBranch continueUserActivity:userActivity];
+
 }
 
 @end

@@ -133,7 +133,7 @@ export default class SignUp extends Component {
               <Text style={commonStyle.btnTitleStyle}>Create account</Text>
             </TouchableOpacity>
             <View style={{ height: 20 }} />
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate(NavigationRoots.SignIn)}>
               <Text style={commonStyle.forgotBtntitleStyle}>have an account? Sign in</Text>
             </TouchableOpacity>
           </ScrollView>

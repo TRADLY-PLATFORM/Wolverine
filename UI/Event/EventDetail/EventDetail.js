@@ -46,8 +46,11 @@ import appMsg from '../../../Constants/AppMessages';
 import SvgUri from 'react-native-svg-uri';
 import backIcon from '../../../assets/back.png'
 import menuIcon from '../../../assets/menu.png'
+import shareIcon from '../../../assets/shareIcon.svg'
+
 import AppMessages from '../../../Constants/AppMessages';
 import ActionSheet from 'react-native-actionsheet'
+import { showShareSheet } from '../../../HelperClasses/BranchDeepLinking';
 
 const windowHeight = Dimensions.get('window').height;
 const windowwidth = Dimensions.get('window').width;
@@ -204,6 +207,10 @@ export default class EventDetail extends Component {
       this.props.navigation.navigate(NavigationRoots.SignIn)
     }
   }
+  shareBtnAction() {
+    const { id } = this.props.route.params;
+    showShareSheet('listing', id)
+  }
   addToCartBtnAction() {
     if (appConstant.loggedIn) {
       if (this.state.inCartBool) {
@@ -268,7 +275,7 @@ export default class EventDetail extends Component {
         <ActionSheet
           ref={o => this.ActionSheet = o}
           title={''}
-          options={["Edit", "Delete", "Cancel"]}
+          options={["Edit", "Delete","Cancel"]}
           cancelButtonIndex={2}
           destructiveButtonIndex={2}
           onPress={(index) => { 
@@ -686,6 +693,8 @@ export default class EventDetail extends Component {
       let icon = this.state.itsLiked ? favouriteIcon : heartIcon
       likeView.push(<Image style={{ width: 30, height: 30, marginTop: -3 }} source={icon} />)
     }
+    likeView.push(<Image style={{ width: 30, height: 30, marginTop: -3 }} source={shareIcon} />)
+
     if (this.state.itsOwnEvent) {
       moreView.push(<TouchableOpacity onPress={() => this.moreBtnAction()}>
         <Image style={commonStyles.backBtnStyle} resizeMode='contain' source={menuIcon} />
@@ -704,6 +713,12 @@ export default class EventDetail extends Component {
             <Text style={commonStyles.headerTitleStyle}>{this.props.title}</Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity onPress={() => this.shareBtnAction()}>
+              <View style={styles.shareBtnViewStyle}>
+                <SvgUri width={12} height={13} source={shareIcon} fill={colors.AppTheme} />
+              </View>
+            </TouchableOpacity>
+            <View style={{ width: 10 }} />
             <TouchableOpacity onPress={() => this.likeBtnAction()}>
               {likeView}
             </TouchableOpacity>
@@ -821,6 +836,15 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  shareBtnViewStyle: {
+    marginTop: 0,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.AppWhite,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });
 
