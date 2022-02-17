@@ -25,6 +25,7 @@
     "add": "^2.0.6",
     "await-to-js": "^3.0.0",
     "babel-plugin-inline-import": "^3.0.0",
+    "mangopay-cardregistration-js-kit": "^1.2.2",
     "moment": "^2.29.1",
     "pouchdb-react-native": "^6.4.1",
     "react": "17.0.1",
