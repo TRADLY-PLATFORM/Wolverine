@@ -44,6 +44,8 @@ module.exports = {
     language: 'v1/tenants/languages',
     clientTranslation: 'v1/client_translations/values?language=',
     logout:'v1/users/logout',
+    resetPassword:'/v1/users/password/set',
+    followers: '/v1/accounts/feeds/following?type=accounts&per_page=30&page=',
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

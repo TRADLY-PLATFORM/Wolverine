@@ -345,7 +345,7 @@ export default class EventDetail extends Component {
     );
   }
   handleScroll = (values) =>  {
-    console.log('values ==>> ',values.nativeEvent.contentOffset.y);
+    // console.log('values ==>> ',values.nativeEvent.contentOffset.y);
     this.setState({yPosition: values.nativeEvent.contentOffset.y})
    }
   /*  UI   */

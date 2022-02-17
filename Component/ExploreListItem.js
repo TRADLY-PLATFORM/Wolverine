@@ -55,7 +55,7 @@ export default class ExploreListItem extends Component {
 
     return (<View style={styles.variantCellViewStyle}>
     <View style={{flexDirection: 'row', width: '80%'}}>
-      <FastImage style={{ width: 110, height: 130, borderRadius: 5 }}  source={photo.length == 0 ? sample : { uri: photo[0] }} />
+      <FastImage style={{ width: 120, height: 120, borderRadius: 5 }}  source={photo.length == 0 ? sample : { uri: photo[0] }} />
         <View style={{ margin: 5 }}>
           <View style={{ margin: 5, flexDirection: 'row', alignItems: 'center',width: '85%' }}>
             <Text style={eventStyles.titleStyle} numberOfLines={1}>{title}</Text>

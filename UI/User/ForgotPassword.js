@@ -13,6 +13,7 @@ import LangifyKeys from '../../Constants/LangifyKeys';
 import tradlyDb from '../../TradlyDB/TradlyDB';
 import AppConstants from '../../Constants/AppConstants';
 import { validateEmail,AppAlert } from '../../HelperClasses/SingleTon';
+import NavigationRoots from '../../Constants/NavigationRoots';
 
 export default class ForgotPassword extends Component {
   constructor(props) {
@@ -82,7 +83,10 @@ export default class ForgotPassword extends Component {
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {
-        AppAlert(this.state.translationDic['updated'],this.state.translationDic['alertOk'])
+        this.props.navigation.navigate(NavigationRoots.ResetPassword, {
+          verifyId: responseJson['data']['verify_id'],
+        });
+        // AppAlert(this.state.translationDic['updated'],this.state.translationDic['alertOk'])
       } else {
         AppAlert(responseJson,this.state.translationDic['alertOk'])
       }
@@ -97,6 +101,7 @@ export default class ForgotPassword extends Component {
     }else {
       this.forgotPasswordApi()
     }
+    // this.props.navigation.navigate(NavigationRoots.ResetPassword);
   }
   /*  UI   */
   render() {

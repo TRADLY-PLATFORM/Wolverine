@@ -85,6 +85,7 @@ export default class AddEvent extends Component {
       online:false,
       translationDic:{},
       chooseCategoryPlaceholder: 'Select Category',
+      emptyCategory:'',
     }
   }
   componentDidMount() {
@@ -200,7 +201,9 @@ export default class AddEvent extends Component {
       if ('addproduct.alert_message_choose_category' == obj['key']) {
         this.state.translationDic['chooseCategory'] =  obj['value'];
         this.state.chooseCategoryPlaceholder = obj['value'];
-        this.state.categoryName = obj['value'];
+        if (this.state.categoryName  == 'Select Category'){
+          this.state.categoryName = obj['value'];
+        }
       }
       if ('addproduct.address' == obj['key']) {
         this.state.translationDic ['address'] =  obj['value'];
@@ -1151,13 +1154,24 @@ export default class AddEvent extends Component {
               ImagePicker.openPicker({
                 height: 1000,
                 width: 1000,
-                cropping: true,
                 includeBase64: true,
-              }).then(image => {
+                multiple: id == 2 ? false : true,
+                maxFiles:appConstant.pictureCount,
+                cropping: true,
+              }).then( async image => {
                 if (id == 2) {
                   this.state.documentFile = image;
                 } else {
-                  this.state.imagesArray.push(image)
+                  for (let img of image){
+                    // if (this.state.imagesArray < appConstant.pictureCount) {
+                      this.state.imagesArray.push( 
+                        await ImagePicker.openCropper({
+                        path: img.path,
+                        width: 1000,
+                        height: 1000,
+                      }))
+                    // }
+                  }
                 }
                 this.setState({ updateUI: !this.state.updateUI })
               }).catch(error => {
@@ -1199,7 +1213,7 @@ export default class AddEvent extends Component {
           </View>,
         );
       } else {
-        if (this.state.imagesArray.length < 4) {
+        if (this.state.imagesArray.length < appConstant.pictureCount) {
           views.push(
             <View>
               <TouchableOpacity style={styles.dottedViewStyle} onPress={() => this.ActionSheet.show()}>

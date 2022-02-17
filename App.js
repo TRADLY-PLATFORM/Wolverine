@@ -65,7 +65,7 @@ export default class App extends Component {
   //   }
   // }
   configListApi = async()  => {
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments', 'get','',appConstant.bToken,'')
+    const responseJson = await networkService.networkCall(APPURL.URLPaths.configList + 'general,onboarding,payments,listings', 'get','',appConstant.bToken,'')
     if (responseJson['status'] == true) {
       let into = responseJson['data']['configs']
       console.log('into -- = >', into)
@@ -77,6 +77,7 @@ export default class App extends Component {
       appConstant.sellIcon = into['sell_icon'] ?? '';
       appConstant.branchDescription = into['branch_link_description'] ?? '';
       appConstant.inviteFriendTitle = into['invite_friends_collection_title'] ?? '';
+      appConstant.pictureCount = into['listing_pictures_count'] ?? 1 ;
 
       // colors.AppTheme = into['app_color_primary'] ?? '#83f0c8'
       // colors.GradientTop = into['app_color_secondary'] ?? '#83f0c8'

@@ -38,4 +38,6 @@ module.exports  = {
   Shipment: 'Shipment',
   AddAddress: 'AddAddress',
   Language:'Language',
+  ResetPassword:'ResetPassword',
+  StoreList:'StoreList',
 }

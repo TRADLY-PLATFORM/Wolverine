@@ -5,7 +5,7 @@ export default class ErrorHandler {
           case 102: return 'User not register'
           case 103: return 'invalid credentials'
           case 104: return 'Verification code is invalid'
-          case 105: return 'INVALID CREDENTIALS'
+          // case 105: return 'INVALID CREDENTIALS'
           case 301: return 'User already exist'
           case 401: return 'Unauthorized'
           case 402: return 'Technical issue'

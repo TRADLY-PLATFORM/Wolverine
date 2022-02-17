@@ -41,4 +41,5 @@ module.exports = {
   locationPermissionError: 'Location service is disabled or unavailable',
   branchDescription: '',
   inviteFriendTitle:'',
+  pictureCount:1,
 }
