@@ -61,8 +61,8 @@ android {
         applicationId "com.classbubs.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16
-        versionName "1.15"
+        versionCode 17
+        versionName "1.16"
     }
     splits {
         abi {
