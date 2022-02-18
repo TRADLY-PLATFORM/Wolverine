@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
   Text,
   Image,
   View,
@@ -10,6 +9,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Linking,
+  AppState,
+
 } from 'react-native';
 
 import appConstant from '../../../Constants/AppConstants';
@@ -34,6 +36,7 @@ import {AppAlert } from '../../../HelperClasses/SingleTon';
 import tradlyDb from '../../../TradlyDB/TradlyDB';
 
 let pType = 'stripe';
+let pchannel = 'web';
 
 export default class ConfirmBooking extends Component {
   constructor(props) {
@@ -47,6 +50,7 @@ export default class ConfirmBooking extends Component {
       paymentArray: [],
       selectedPaymentId: 0,
       selectedPaymentType: '',
+      paymentChannel:'',
       ephemeralKey: '',
       customerId: '',
       clientSecretkey: '',
@@ -56,6 +60,7 @@ export default class ConfirmBooking extends Component {
       selectedDate:'',
       translationDic:{},
       dataload: false,
+      appState: AppState.currentState,
     }
   }
   componentDidMount() {
@@ -67,10 +72,22 @@ export default class ConfirmBooking extends Component {
     // this.state.eventDetailData = eventData
     // this.state.listPrice = this.state.eventDetailData['offer_price']['amount'];
     // this.setState({updateUI: !this.state.updateUI})
+    
+    AppState.addEventListener('change', this._handleAppStateChange);
     this.langifyAPI();
     this.getPaymentMethodsApi();
     this.getphemeralKeyApi();
   }
+  _handleAppStateChange = (nextAppState) => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      console.log('come from mango pay',);
+      if (appConstant.mangoPayStatus) {
+        this.setState({isVisible: false })
+        this.setState({showCAlert: true})
+      }
+    }
+    this.setState({ appState: nextAppState });
+  };
   langifyAPI = async () => {
     let productD = await tradlyDb.getDataFromDB(LangifyKeys.bookingconformation);
     if (productD != undefined) {
@@ -116,7 +133,7 @@ export default class ConfirmBooking extends Component {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.paymentMethod}`, 'get','',appConstant.bToken,appConstant.authKey)
     if (responseJson['status'] == true) {
       let pData = responseJson['data']['payment_methods'];
-      // console.log('pData', pData)
+      console.log('pData', pData)
       this.state.paymentArray = pData
       this.setState({updateUI: !this.state.updateUI, isVisible: false})
     }else {
@@ -149,6 +166,8 @@ export default class ConfirmBooking extends Component {
       console.log('cData', cData);
       if (this.state.selectedPaymentType == pType) {
         this.getpaymentIntentApi(cData['order_reference']);
+      } if (this.state.paymentChannel == pchannel) {
+        this.webPaymentIntentApi(cData['order_reference']);
       } else {
         this.setState({isVisible: false })
         this.setState({showCAlert: true})
@@ -171,6 +190,25 @@ export default class ConfirmBooking extends Component {
       this.setState({ isVisible: false })
     }
   }
+  webPaymentIntentApi = async (orderRef) => {
+    this.setState({updateUI: !this.state.updateUI, isVisible: false})
+    let path = `${orderRef}&auth_key=${appConstant.authKey}&payment_method_id=${this.state.selectedPaymentId}`
+    let webUrl = `${APPURL.URLPaths.BaseURL}${APPURL.URLPaths.webPayment}${path}`
+    console.log('webUrl',webUrl)
+    Linking.openURL(webUrl);
+    
+    // this.props.navigation.navigate(NavigationRoots.WebPayment,{webURL : webUrl});
+    // const responseJson = await networkService.networkCall(`${APPURL.URLPaths.webPayment}${path}`, 'get','',appConstant.bToken,appConstant.authKey)
+    // if (responseJson['status'] == true) {
+    //   let pData = responseJson['data']
+    //   console.log('webPaymentIntentApi', pData)
+    //   this.setState({updateUI: !this.state.updateUI, isVisible: false})
+    //   this.props.navigation.navigate(NavigationRoots.WebPayment,{webURL : 'https://google.com'});
+    // }else {
+    //   this.setState({ isVisible: false })
+    // }
+  }
+  
   successAlert() {
     this.setState({isVisible: false })
     this.setState({ showCAlert: false})
@@ -213,6 +251,7 @@ export default class ConfirmBooking extends Component {
   /*  Buttons   */
   confirmBookingBtnAction() {
     this.checkoutApiMethod();
+    // this.props.navigation.navigate(NavigationRoots.WebPayment,{webURL : 'https://google.com'});
   }
   incrementDecrementBtnAction(id) {
     if (id == 1) {
@@ -227,7 +266,7 @@ export default class ConfirmBooking extends Component {
     this.setState({updateUI: !this.state.updateUI})
   }
   didSelectPaymentType(item) {
-    this.setState({selectedPaymentId: item['id'],selectedPaymentType: item['type']})
+    this.setState({selectedPaymentId: item['id'],selectedPaymentType: item['type'], paymentChannel: item['channel'] })
   }
   /*  UI   */
   renderTimeAddressDetail = () => {
@@ -356,7 +395,6 @@ export default class ConfirmBooking extends Component {
       </TouchableOpacity>
     </View>)
   }
- 
   render() {
     if (this.state.dataload) {
       return (

@@ -31,8 +31,6 @@ import LangifyKeys from '../../Constants/LangifyKeys';
 import tradlyDb from '../../TradlyDB/TradlyDB';
 import branch from 'react-native-branch'
 import messaging from '@react-native-firebase/messaging';
-// import Mangopay from "mangopay-client-react";
-import Mangopay from 'mangopay-cardregistration-js-kit';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -57,40 +55,6 @@ export default class Home extends Component {
     })
     this.getBranchData();
     this.fcmNotificationData()
-  }
-  setupMangoPay = async() => {
-    Mangopay.cardRegistration.baseURL = "https://api.sandbox.mangopay.com";
-    Mangopay.cardRegistration.clientId = "tradly";
-    Mangopay.cardRegistration.init({
-      cardRegistrationURL: 'tradly', 
-      preregistrationData: '9OMFHj3kpB6MrjqVmk3Qsjte3QtSdVZmVJ2yiR9sfcYwnWYF7F', 
-      accessKey: '',
-      Id: ''
-  });
-    var cardData = {
-      cardNumber: '4972485830400049',
-      cardExpirationDate:'1226',
-      cardCvx: '123',
-      cardType: 'CB_VISA_MASTERCARD'
-    };
-    Mangopay.cardRegistration.registerCard(cardData,
-      function (res) {
-          // Success, you can use res.CardId now that points to registered card
-          console.log('res', res);
-      },
-      function(res) {
-          // Handle error, see res.ResultCode and res.ResultMessage
-          console.log('error', res);
-      }
-  );
-    // Mangopay.cardRegistration.init({})
-    // const MangoPayClient = Mangopay.getInstance('tradly', '9OMFHj3kpB6MrjqVmk3Qsjte3QtSdVZmVJ2yiR9sfcYwnWYF7F', 'jk@istrata.co', 'https://api.sandbox.mangopay.com/v2.01/tradly/cardregistrations');
-    // try {
-    //   let result = await MangoPayClient.getCards();
-    //   console.log('getCards', result);
-    // } catch (err) {
-    //   console.log(err)
-    // }
   }
   locationPermission() {
     let lp = new LocationPermission();
@@ -289,10 +253,9 @@ export default class Home extends Component {
     }
   }
   didSelectEvent(item,index) {
-    this.setupMangoPay()
-    // this.props.navigation.navigate(NavigationRoots.EventDetail, {
-    //   id :item['id'],
-    // });
+    this.props.navigation.navigate(NavigationRoots.EventDetail, {
+      id :item['id'],
+    });
   }
   didSelectAccount(item,index) {
     this.props.navigation.navigate(NavigationRoots.MyStore, {
@@ -480,7 +443,7 @@ export default class Home extends Component {
       <SafeAreaView style={styles.Container}>
         <StatusBar backgroundColor={colors.AppTheme} barStyle="light-content"/>
         <this.renderHeaderView />
-        {/* <Deeplinking /> */}
+        <Deeplinking />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <ScrollView
           showsVerticalScrollIndicator={false}

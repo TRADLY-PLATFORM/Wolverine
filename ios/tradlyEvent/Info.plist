@@ -30,6 +30,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>meetneeds</string>
+				<string>mangopay</string>
 			</array>
 		</dict>
 	</array>
@@ -38,6 +39,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>itms-apps</string>
+    <string>mangopay</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

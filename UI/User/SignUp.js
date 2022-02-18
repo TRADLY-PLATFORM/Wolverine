@@ -19,6 +19,9 @@ import LangifyKeys from '../../Constants/LangifyKeys';
 import AppConstants from '../../Constants/AppConstants';
 import { AppAlert, validateEmail } from '../../HelperClasses/SingleTon';
 import tradlyDb from '../../TradlyDB/TradlyDB';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+import {changeDateFormat} from '../../HelperClasses/SingleTon'
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -30,9 +33,11 @@ export default class SignUp extends Component {
       confirmPassword: '',
       firstName: '',
       lastName: '',
+      birthDate:'',
       bToken: '', 
       updateUI: false,
       translationDic:{},
+      showDatePicker:false,
     }
   }
   componentDidMount() {
@@ -54,7 +59,7 @@ export default class SignUp extends Component {
     '',AppConstants.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      console.log('objc', objc);
+      // console.log('objc', objc);
       tradlyDb.saveDataInDB(LangifyKeys.signup, objc)
       this.signUpTranslationData(objc);
       this.setState({ updateUI: true, isVisible: false })
@@ -121,6 +126,9 @@ export default class SignUp extends Component {
     }
     dict['email'] = this.state.email
     dict['password'] = this.state.password
+    if (AppConstants.requestBirthDate) {
+      dict['birth_date'] = this.state.birthDate
+    }
     console.log("this.state.bToken =", this.state.bToken)
     const responseJson = await networkService.networkCall(APPURL.URLPaths.register, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
     console.log("responseJson = ", responseJson)
@@ -157,12 +165,38 @@ export default class SignUp extends Component {
       AppAlert(this.state.translationDic['allFields'], this.state.translationDic['alertOk'])
     } else if (this.state.confirmPassword.length != this.state.password.length ) {
       AppAlert(this.state.translationDic['mismatchPassword'], this.state.translationDic['alertOk'])
-    } 
+    } else if (this.state.birthDate.length == 0 && AppConstants.requestBirthDate) {
+      AppAlert('Please select birth date', this.state.translationDic['alertOk'])
+    }  
     else {
       this.registerApi()
     }
   }
+  showTimePicker(id) {
+    this.setState({showDatePicker: true})
+  }
+  handleConfirmTime(time){
+    let DOB = changeDateFormat(time,'YYYY-MM-DD');
+    this.setState({showDatePicker: false,birthDate:DOB})
+  };
   /*  UI   */
+  renderDOBView = () => {
+    if (AppConstants.requestBirthDate) {
+    return (<TouchableOpacity style={styles.roundView} onPress={() => this.setState({ showDatePicker: true })}>
+      <View style={{height:14}}/>
+      <Text style={commonStyle.txtFieldStyle}>{this.state.birthDate.length == 0 ? 'Select birth date':this.state.birthDate}</Text>
+      <DateTimePickerModal
+        isVisible={this.state.showDatePicker}
+        mode="date"
+        locale="en"
+        onConfirm={time => this.handleConfirmTime(time)}
+        onCancel={() => this.setState({ showDatePicker: false })}
+      />
+    </TouchableOpacity>)
+    } else {
+      return <View />
+    }
+  }
   renderMainView = () => {
     if (this.state.updateUI) {
       return (<View>
@@ -210,6 +244,7 @@ export default class SignUp extends Component {
             onChangeText={txt => this.setState({ confirmPassword: txt })}
           />
         </View>
+        {this.renderDOBView()}
         <View style={{ height: 50 }} />
         <TouchableOpacity style={commonStyle.loginBtnStyle} onPress={() => this.sendBtnAction()}>
           <Text style={commonStyle.btnTitleStyle}>{this.state.translationDic['createBtn'] ?? 'Create'}</Text>
@@ -248,5 +283,16 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.lightTransparent
+  },
+  roundView: {
+    marginTop: 30,
+    backgroundColor: colors.lightTransparent,
+    marginLeft: "8%",
+    marginRight: "8%",
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: colors.AppWhite,
+    alignItems: 'center'
   },
 });

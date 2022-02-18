@@ -51,6 +51,8 @@ import AddAddress from '../UI/Event/More/MyCart/AddAddress'
 import Language from '../UI/User/Language';
 import ResetPassword from '../UI/User/ResetPassword';
 import StoreList from '../UI/Event/StoreList';
+import MangoPaySetup from '../UI/Event/More/Payments/MangoPaySetup';
+
 
 
 const Stack = createStackNavigator();
@@ -104,6 +106,7 @@ export default class App extends Component {
         <Stack.Screen name={NavigationRoots.Shipment} component={Shipment} />
         <Stack.Screen name={NavigationRoots.ResetPassword} component={ResetPassword} />
         <Stack.Screen name={NavigationRoots.StoreList} component={StoreList} />
+        <Stack.Screen name={NavigationRoots.MangoPaySetup} component={MangoPaySetup} />
 
         <Stack.Screen name={NavigationRoots.AddAddress} component={AddAddress} options={{
           title: '',

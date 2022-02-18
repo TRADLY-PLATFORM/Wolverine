@@ -42,4 +42,7 @@ module.exports = {
   branchDescription: '',
   inviteFriendTitle:'',
   pictureCount:1,
+  mangoPayKYCURL: '',
+  requestBirthDate: false,
+  mangoPayStatus: false,
 }

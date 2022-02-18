@@ -40,4 +40,5 @@ module.exports  = {
   Language:'Language',
   ResetPassword:'ResetPassword',
   StoreList:'StoreList',
+  MangoPaySetup:'MangoPaySetup',
 }

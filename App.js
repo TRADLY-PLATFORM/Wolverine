@@ -78,10 +78,8 @@ export default class App extends Component {
       appConstant.branchDescription = into['branch_link_description'] ?? '';
       appConstant.inviteFriendTitle = into['invite_friends_collection_title'] ?? '';
       appConstant.pictureCount = into['listing_pictures_count'] ?? 1 ;
-
-      // colors.AppTheme = into['app_color_primary'] ?? '#83f0c8'
-      // colors.GradientTop = into['app_color_secondary'] ?? '#83f0c8'
-      // colors.GradientBottom = into['app_color_primary'] ?? '#17d275'
+      appConstant.mangoPayKYCURL = into['mango_pay_kyc_url'] ?? '1' ;
+      appConstant.requestBirthDate = into['request_birth_date'] ?? false ;
 
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
       if (appConstant.appLanguage.length != 0) {

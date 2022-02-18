@@ -2,7 +2,7 @@ import appConstant from './AppConstants';
 
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.tradly.app/',
+    BaseURL: 'https://api.dev.tradly.app/',
     token: 'v1/users/token/refresh',
     config: `v1/tenants/${appConstant.tenantID}/configs`,
     configList: `v1/configs?key_group=`,
@@ -46,6 +46,9 @@ module.exports = {
     logout:'v1/users/logout',
     resetPassword:'/v1/users/password/set',
     followers: '/v1/accounts/feeds/following?type=accounts&per_page=30&page=',
+    webPayment: 'v1/payments/web/paymentIntent?order_reference=',
+    mangoPayConnectAccount: 'v1/payments/mangopay/kyc_details?account_id=',
+
   }
 }
 // BaseURL: 'https://api.tradly.app/app/',

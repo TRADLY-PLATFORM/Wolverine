@@ -112,33 +112,35 @@ export default class More extends Component {
       }
       if ('more.payments' == obj['key']) {
         constantArrays.menuArray[3] = obj['value'];
+        constantArrays.menuArray[4] = 'MongoPay KYC'
+
       }
       if ('more.language' == obj['key']) {
         constantArrays.customerMenuArray[2] = obj['value'];
-        constantArrays.menuArray[4] = obj['value'];
+        constantArrays.menuArray[5] = obj['value'];
       }
       if ('more_stores_i_follow' == obj['key']) {
-        constantArrays.menuArray[5] = obj['value'];
+        constantArrays.menuArray[6] = obj['value'];
       }
       if ('more.terms_condition' == obj['key']) {
         constantArrays.customerMenuArray[3] = obj['value'];
-        constantArrays.menuArray[6] = obj['value'];
+        constantArrays.menuArray[7] = obj['value'];
       }
       if ('more.privacy_policy' == obj['key']) {
         constantArrays.customerMenuArray[4] = obj['value'];
-        constantArrays.menuArray[7] = obj['value'];
+        constantArrays.menuArray[8] = obj['value'];
       }
       if ('more.tell_a_friend' == obj['key']) {
         constantArrays.customerMenuArray[5] = obj['value'];
-        constantArrays.menuArray[8] = obj['value'];
+        constantArrays.menuArray[9] = obj['value'];
       }
       if ('more.rate_app' == obj['key']) {
         constantArrays.customerMenuArray[6] = obj['value'];
-        constantArrays.menuArray[9] = obj['value'];
+        constantArrays.menuArray[10] = obj['value'];
       }
       if ('more.logging_out' == obj['key']) {
         constantArrays.customerMenuArray[7] = obj['value'];
-        constantArrays.menuArray[10] = obj['value'];
+        constantArrays.menuArray[11] = obj['value'];
         this.state.translationDic['logout'] = obj['value'];
       }
     }
@@ -184,6 +186,7 @@ export default class More extends Component {
     if (responseJson) {
       DefaultPreference.set('loggedIn', 'false').then( () => { 
         appConstant.loggedIn = false;
+        appConstant.authKey = '';
         this.setState({ updateUI: !this.state.updateUI})
         this.props.navigation.navigate(NavigationRoots.SignIn)
       }); 
@@ -225,18 +228,18 @@ export default class More extends Component {
     if (this.state.segmentIndex == 0) {
       this.customerCellDidSelect(index)
     } else {
-      if (index == 4) {
+      if (index == 5) {
         this.props.navigation.navigate(NavigationRoots.Language,{changeLanguage:true});
       }
-      else if (index == 6) {
+      else if (index == 7) {
         Linking.openURL(appConstant.termCondition);
       }
-      else if (index == 7) {
+      else if (index == 8) {
         Linking.openURL(appConstant.privacyURL);
       }
-      else if (index == 8) {
+      else if (index == 9) {
         this.props.navigation.navigate(NavigationRoots.InviteFriend);
-      } else if (index == 9) {
+      } else if (index == 10) {
         this.rateAppBtnAction()
       } else {
         if (appConstant.loggedIn) {
@@ -248,19 +251,25 @@ export default class More extends Component {
             } else {
               this.props.navigation.navigate(NavigationRoots.CreateStore);
             }
-          } else if (index == 3) {
-            if (this.state.accountId == 0) {
-              this.props.navigation.navigate(NavigationRoots.CreateStore);
-            } else {
-              this.props.navigation.navigate(NavigationRoots.PaymentScreen);
-            }
           } else if (index == 2) {
             if (this.state.accountId != 0) {
               this.props.navigation.navigate(NavigationRoots.MySale);
             } else {
               this.props.navigation.navigate(NavigationRoots.CreateStore);
             }
-          } else  if (index == 5) {
+          } else if (index == 3) {
+            if (this.state.accountId == 0) {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            } else {
+              this.props.navigation.navigate(NavigationRoots.PaymentScreen);
+            }
+          } else if (index == 4) {
+            if (this.state.accountId == 0) {
+              this.props.navigation.navigate(NavigationRoots.CreateStore);
+            } else {
+              this.props.navigation.navigate(NavigationRoots.MangoPaySetup);
+            }
+          }else  if (index == 6) {
             if (this.state.accountId == 0) {
               this.props.navigation.navigate(NavigationRoots.CreateStore);
             } else {

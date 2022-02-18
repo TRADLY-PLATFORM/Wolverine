@@ -25,7 +25,9 @@ class NetworkManager {
     }
     console.log(headers);
     headers['Authorization'] = "Bearer " + AppKeys.bearer;
-    headers['x-auth-key'] = auth;
+    if (auth != undefined){
+      headers['x-auth-key'] = auth
+    }
     if (currency != undefined) {
       headers['X-Currency'] = currency;
     }
@@ -44,7 +46,18 @@ class NetworkManager {
       if(json["error"])
       {
         if(json["error"]['code'] == 401){
-          return  this.refreshKeyCall(path,method,param,token,auth,currency)
+          console.log('response error', json["error"])
+          if (appConstant.authKey != undefined){
+            if (appConstant.authKey.length != 0){
+              return this.refreshKeyCall(path,method,param,token,auth,currency)
+            } else {
+              let error = errorHandler.errorHandle(json['error']['code'],json['error']['message']);
+              return error
+            }
+          } else {
+            let error = errorHandler.errorHandle(json['error']['code'],json['error']['message']);
+            return error
+          }
         } else {
           console.log('error => errror json ', json)
           console.log('error => errror json ', json['error']['errors'])

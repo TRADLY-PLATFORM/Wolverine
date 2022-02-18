@@ -27,19 +27,22 @@ export default class OnBoardings extends Component {
     }
   }
   componentDidMount() {
-    var index = 0 ;
+    var index = 0;
     this.langifyAPI()
     this.langifyMoreAPI()
     this.langifyHomeAPI()
-    for (let obj of appConstant.intoScreen) {
-      index = index + 1
-      let dic = {
-        key: index,
-        title: obj['text'],
-        text: '',
-        image: {uri:obj['image']},
+    console.log('appConstant.intoScreen',appConstant.intoScreen);
+    if (appConstant.intoScreen != undefined) {
+      for (let obj of appConstant.intoScreen) {
+        index = index + 1
+        let dic = {
+          key: index,
+          title: obj['text'],
+          text: '',
+          image: { uri: obj['image'] },
+        }
+        this.state.slides.push(dic)
       }
-      this.state.slides.push(dic)
     }
   }
   langifyAPI = async () => {
