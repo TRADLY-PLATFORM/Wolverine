@@ -113,7 +113,7 @@ export default class StoreList extends Component {
       </View>)
     } else {
       return <View style={{height: '100%',justifyContent: 'center', alignItems: 'center', backgroundColor: colors.LightBlueColor, width: '100%'}}>
-        <Text style={eventStyles.commonTxtStyle}> No Store Found!</Text>
+        <Text style={eventStyles.commonTxtStyle}> No Account Found!</Text>
       </View>
     }
   }
