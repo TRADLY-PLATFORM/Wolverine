@@ -85,7 +85,7 @@ class NetworkManager {
         'Content-Type': 'application/json',
         'X-Refresh-Key': appConstant.refreshKey,
         'x-agent': 1,
-        'Authorization': "Bearer " + token,
+        'Authorization': "Bearer " + AppKeys.bearer,
       },
       body: '',
     }))

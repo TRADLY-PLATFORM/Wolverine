@@ -80,6 +80,7 @@ export default class App extends Component {
       appConstant.pictureCount = into['listing_pictures_count'] ?? 1 ;
       appConstant.mangoPayKYCURL = into['mango_pay_kyc_url'] ?? '1' ;
       appConstant.requestBirthDate = into['request_birth_date'] ?? false ;
+      appConstant.payoutMethod = into['payout_method'] ?? ''
 
       this.state.stripePublishKey = into['stripe_api_publishable_key'] || '';
       if (appConstant.appLanguage.length != 0) {

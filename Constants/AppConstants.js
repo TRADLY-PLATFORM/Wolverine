@@ -45,4 +45,5 @@ module.exports = {
   mangoPayKYCURL: '',
   requestBirthDate: false,
   mangoPayStatus: false,
+  payoutMethod: '',
 }

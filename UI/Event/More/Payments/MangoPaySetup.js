@@ -44,6 +44,7 @@ export default class MangoPaySetup extends Component {
       mangopayKYCSubmission: false,
       mangopayKYCPayouts: false,
       mangoPayKYCStatus:'',
+      mangoPayCheckFailed:false,
       appState: AppState.currentState,
 
     }
@@ -134,11 +135,13 @@ export default class MangoPaySetup extends Component {
   }
    getMangoConnectAccountApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.mangoPayConnectAccount}${appConstant.accountID}`, 'get','',appConstant.bToken,appConstant.authKey)
+    console.log('responseJson kyc detail api', responseJson);
     if (responseJson['status'] == true) {
       let acctData = responseJson['data'];
       // this.state.stripConnectedOnboarding = acctData['stripe_connect_onboarding'];
       this.state.mangopayKYCPayouts = acctData['mangopay_payouts_enabled'];
       this.state.mangoPayKYCStatus = acctData['mangopay_kyc_status'];
+      this.state.mangoPayCheckFailed = acctData['mangopay_kyc_check_failed'];
       this.setState({updateUI: !this.state.updateUI, isVisible: false,loadData: true })
     }else {
       this.setState({ isVisible: false })
@@ -164,6 +167,17 @@ export default class MangoPaySetup extends Component {
 
   /*  UI   */
 
+  renderSubmitBtn = () => {
+    return <View style={{justifyContent: 'center', alignItems:'center'}}>
+      <TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.submitBtnAction()}>
+        <View style={eventStyles.applyBtnViewStyle} >
+          <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{'Submit'}</Text>
+        </View>
+      </TouchableOpacity>
+      <Text style={styles.subTitleTxtStyle}> {this.state.translationDic['redirected_to_mango'] ?? 'You’ll be redirected to MangoPay '}</Text>
+    </View>
+  }
+
   renderStripStatusView = () => {
     var imageIcon = paymentIcon
     var buttonTitle =  this.state.translationDic['viewDashboard'] ?? 'View Dashboard';
@@ -173,31 +187,39 @@ export default class MangoPaySetup extends Component {
     var views = [];
     if (this.state.mangopayKYCSubmission == false) {
       imageIcon = paymentIcon
-      title = `Countinue to mango payout \n to receive payments`
+      title = `Countinue to Mango Pay \n to receive payments`
       subTitle =  'You have not submitted your Bank account and KYC details yet.'
       buttonTitle = 'Submit';
-      views.push(<TouchableOpacity style={styles.bottomBtnViewStyle} onPress={() => this.submitBtnAction()}>
-        <View style={eventStyles.applyBtnViewStyle} >
-          <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>{buttonTitle}</Text>
-        </View>
-      </TouchableOpacity>)
+      views.push(<View>
+        {this.renderSubmitBtn()}
+       </View>)
     } else {
-      imageIcon = waitingIcon
       title = this.state.mangoPayKYCStatus
       subTitle =  ''
+      if (this.state.mangopayKYCPayouts) {
+        imageIcon = connectedIcon
+      } else {
+        if (!this.state.mangoPayCheckFailed) {
+          imageIcon = waitingIcon
+        } else {
+          imageIcon = errorIcon
+          views.push(<View>
+            {this.renderSubmitBtn()}
+           </View>)
+        }
+      }
     } 
     if (this.state.loadData) {
     return (<View style= {{alignItems: 'center'}}>
       <View style={{ height: '10%' }} />
       <Image style={{ aspectRatio: 1 / 1 }} source={imageIcon}></Image>
       <View style={{ height: 20 }} />
-      <Text style={{ color: colors.AppGray, fontSize: 18, fontWeight: '600', textAlign: 'center' }}>
+      <Text style={styles.titleStyle}>
         {title}
       </Text>
       <Text style={styles.subTitleTxtStyle}>{subTitle}</Text>
       <View style={{ height: 30 }} />
         {views}
-      <Text style={styles.subTitleTxtStyle}> {this.state.translationDic['redirected_to_stripe']  ?? 'You’ll be redirected to MangoPay '}</Text>
     </View>)
     }else {
       return (<View />);
@@ -221,9 +243,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.AppTheme
   },
+  titleStyle: {
+    color: colors.AppGray,
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingLeft:20,
+    paddingRight:20,
+  },
   subTitleTxtStyle:{
     padding: 16,
-    marginTop:20,
+    marginTop:10,
     color: colors.AppGray, fontSize: 14, fontWeight: '400', textAlign: 'center',
   },
   bottomBtnViewStyle: {
