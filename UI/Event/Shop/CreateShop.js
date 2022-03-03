@@ -528,7 +528,6 @@ export default class CreateShop extends Component {
     const responseJson = await networkService.networkCall(APPURL.URLPaths.accounts + path,
        this.state.isEditing ? 'put' : 'post', JSON.stringify({ account: dict }),appConstant.bToken,appConstant.authKey);
 
-    console.log(" responseJson =  ", responseJson) 
     if (responseJson) {
       this.setState({ isVisible: false })
       if (responseJson['status'] == true) {

@@ -111,24 +111,17 @@ export default class MangoPaySetup extends Component {
       if ('payments.setup_payout' == obj['key']) {
         this.state.translationDic['setup_payout'] = obj['value'];
       }
-      // payments.
-      // payments.
     }
   }
   loadApi() {
     this.getUserDetailApi();
     this.getMangoConnectAccountApi();
-    // this.createExpressLoginLinkAPI();
   }
   getUserDetailApi = async () => {
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.users}/${appConstant.userId}`, 'get','',appConstant.bToken,appConstant.authKey)
-    console.log('responseJson', responseJson);
     if (responseJson['status'] == true) {
       let acctData = responseJson['data']['user'];
-      console.log('responseJson', acctData['metadata']);
       this.state.mangopayKYCSubmission = acctData['metadata']['mangopay_kyc_submission'] || false;
-      // this.state.stripConnectedOnboarding = acctData['metadata']['mangopay_payouts_enabled'] || false;
-      // console.log('acctData',acctData);
       this.setState({updateUI: !this.state.updateUI, isVisible: false,loadData: true})
     }else {
       this.setState({ isVisible: false })
@@ -139,7 +132,6 @@ export default class MangoPaySetup extends Component {
     console.log('responseJson kyc detail api', responseJson);
     if (responseJson['status'] == true) {
       let acctData = responseJson['data'];
-      // this.state.stripConnectedOnboarding = acctData['stripe_connect_onboarding'];
       this.state.mangopayKYCPayouts = acctData['mangopay_payouts_enabled'];
       this.state.mangoPayKYCStatus = acctData['mangopay_kyc_status'];
       this.state.mangoPayCheckFailed = acctData['mangopay_kyc_check_failed'];
@@ -213,7 +205,7 @@ export default class MangoPaySetup extends Component {
     if (this.state.loadData) {
     return (<View style= {{alignItems: 'center'}}>
       <View style={{ height: '10%' }} />
-      <Image style={{ aspectRatio: 1 / 1 }} source={imageIcon}></Image>
+      <Image style={{ aspectRatio: 1 / 1 }} resizeMode={'contain'} source={imageIcon}></Image>
       <View style={{ height: 20 }} />
       <Text style={styles.titleStyle}>
         {title}

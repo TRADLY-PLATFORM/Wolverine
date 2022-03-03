@@ -1169,6 +1169,7 @@ export default class AddEvent extends Component {
                         path: img.path,
                         width: 1000,
                         height: 1000,
+                        includeBase64: true,
                       }))
                     // }
                   }

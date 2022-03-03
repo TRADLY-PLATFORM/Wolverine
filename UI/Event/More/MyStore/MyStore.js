@@ -162,6 +162,7 @@ export default class MyStore extends Component {
       if ('storedetail.inactive' == obj['key']) {
         this.state.translationDic['inactive'] = obj['value'];
       }
+      this.setState({ isVisible: false })
     }
   }
   getMyStoreDetailApi = async () => {
@@ -234,7 +235,7 @@ export default class MyStore extends Component {
   backBtnAction() {
     let { createProfile } = this.props.route.params;
     if (createProfile) {
-      this.props.navigation.navigate(NavigationRoots.BottomTabbar);
+      this.props.navigation.reset({index: 0, routes: [{name: NavigationRoots.BottomTabbar }]});
     } else {
       this.props.navigation.goBack();
     }

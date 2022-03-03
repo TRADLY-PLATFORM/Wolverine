@@ -100,6 +100,8 @@ class NetworkManager {
       {        
         if(json["error"]['code'] == 401){
           appConstant.loggedIn = false
+          appConstant.authKey = ''
+          DefaultPreference.set('authKey', '').then();
           DefaultPreference.set('loggedIn', 'false').then(function () { console.log('done loggedIn') });
         }
         return json
