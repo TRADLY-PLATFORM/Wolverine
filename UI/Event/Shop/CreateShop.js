@@ -100,12 +100,16 @@ export default class CreateShop extends Component {
       this.state.coordinates = storeDetail['coordinates'];;
       this.state.description = storeDetail['description'];
       this.state.name = storeDetail['name'];
-      this.state.categoryName = storeDetail['categories'][0]['name'];
+      if (storeDetail['categories'][0]){
+        this.state.categoryName = storeDetail['categories'][0]['name'];
+        this.loadAttributeApi(storeDetail['categories'][0]['id'])
+
+      }
       this.state.selectedCatData = storeDetail['categories'][0];
       let attributeArray = storeDetail['attributes'];
+
       this.state.isEditing = true;
       this.state.accountId = storeDetail['id']
-      // this.loadAttributeApi(this.state.selectedCatData['id'])
       for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
@@ -214,7 +218,9 @@ export default class CreateShop extends Component {
       }
       if ('addstore.alert_message_choose_category' == obj['key']) {
         this.state.translationDic['chooseCategory'] =  obj['value'];
-        this.state.categoryName = obj['value'];
+        if (this.state.categoryName  == 'Select Category'){
+          this.state.categoryName = obj['value'];
+        }
       }
       if ('addstore.address' == obj['key']) {
         this.state.translationDic ['address'] =  obj['value'];
@@ -542,12 +548,19 @@ export default class CreateShop extends Component {
     }
   }
   successAlert() {
-    this.setState({ showCAlert: false })
-    this.props.navigation.navigate(NavigationRoots.MyStore,{
-      createProfile:true,
-      accId: appConstant.accountID,
-    });
+    this.setState({ showCAlert: false,isVisible: false })
+    // this.props.navigation.navigate(NavigationRoots.MyStore,{
+    //   createProfile:true,
+    //   accId: appConstant.accountID,
+    // });
+    setTimeout(() => {
+      this.props.navigation.navigate(NavigationRoots.MyStore,{
+        createProfile:this.state.isEditing  ? false : true,
+        accId: appConstant.accountID,
+      });
+    }, 1000);
   }
+
   /*  Buttons   */
   createBtnAction() {
     if (this.state.photo == null) {    
@@ -804,7 +817,6 @@ export default class CreateShop extends Component {
               }
             }
           }
-
           let titleAray = [];
           if (item['optional'] == false) {
             titleAray.push(

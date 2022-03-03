@@ -144,6 +144,7 @@ export default class MangoPaySetup extends Component {
   /*   App State  */
   _handleAppStateChange = (nextAppState) => {
     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      this.setState({ isVisible: true })
       this.loadApi();
     }
     this.setState({ appState: nextAppState });

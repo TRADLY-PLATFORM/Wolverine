@@ -268,9 +268,7 @@ export default class AddEvent extends Component {
       this.state.selectedCatData = listData['categories'][0];
       this.state.imagesArray = listData['images'] || [];
       this.loadAttributeApi(this.state.selectedCatData['id'])
-
       let schedules = listData['schedules'];
-    
       for (let scObj of schedules) {
         // console.log('scObj',scObj);
         let eventdate = changeDateFormat(scObj['start_date'], 'ddd, D MMM yy')
@@ -298,7 +296,6 @@ export default class AddEvent extends Component {
             repeatName = ConstantArrays.repeatArray[index].name;
           }
         }
-        // console.log('repeatName', repeatName);
         let dict = {
           date: eventdate,
           startTime: sTime,
@@ -306,9 +303,7 @@ export default class AddEvent extends Component {
           repeatClass: { 'id': repeatIDs, 'name': repeatName, 'repeatIndex': repeatIndex },
         }
         this.state.eventDateArray.push(dict);
-      }
-      // console.log('this.state.eventDateArray === - ', this.state.eventDateArray)
-      
+      }      
       for (let item of attributeArray) {
         let fieldType = item['field_type'];
         if (fieldType == 1) {
@@ -357,6 +352,7 @@ export default class AddEvent extends Component {
           }
         }
       }
+      console.log('singleSelectedArray', this.state.singleSelectedArray)
       this.setState({ updateUI: !this.state.updateUI,isVisible: false })
     }else {
       this.setState({ isVisible: false })
@@ -1293,7 +1289,7 @@ export default class AddEvent extends Component {
               }
             }
           }
-
+          // console.log(this.state.singleSelectedArray,'value =>>', value);
           let titleAray = [];
           if (item['optional'] == false) {
             titleAray.push(<View>

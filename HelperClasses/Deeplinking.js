@@ -23,10 +23,11 @@ export default class Deeplinking extends Component {
   }
   navigate = (url) => {
     // console.log('url ==>', url);
-    const opt2 = url.split('=').slice(1).join("")     // prints: 20202-03
-    console.log('opt2 ==>', opt2);
-    AppConstants.mangoPayStatus = opt2 == 'success' ? true : false
-
+    if (url != null) {
+      const opt2 = url.split('=').slice(1).join("")     // prints: 20202-03
+      console.log('opt2 ==>', opt2);
+      AppConstants.mangoPayStatus = opt2 == 'success' ? true : false
+    }
     // const route = url.replace(/.*?:\/\//g, '');
     // const id = route.match(/\/([^\/]+)\/?$/)[1];
     // const routeName = route.split('/')[0];

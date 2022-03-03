@@ -39,8 +39,12 @@ class NetworkManager {
     }))
     if (err) {
       console.log('response error', err)
-      let error = errorHandler.errorHandle(response['error']['code'],'server error')
-      return error
+      if (response['error']) {
+        let error = errorHandler.errorHandle(response['error']['code'],'server error')
+        return error
+      } else {
+        return appConstant.networkError
+      }
     } else {
       const json = await response.json();
       if(json["error"])

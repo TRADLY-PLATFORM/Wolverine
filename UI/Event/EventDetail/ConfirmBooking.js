@@ -74,7 +74,9 @@ export default class ConfirmBooking extends Component {
     // this.setState({updateUI: !this.state.updateUI})
     
     AppState.addEventListener('change', this._handleAppStateChange);
-    this.langifyAPI();
+    this.langifyAPI(LangifyKeys.bookingconformation);
+    this.langifyAPI(LangifyKeys.payments);
+
     this.getPaymentMethodsApi();
     this.getphemeralKeyApi();
   }
@@ -84,31 +86,42 @@ export default class ConfirmBooking extends Component {
       if (appConstant.mangoPayStatus) {
         this.setState({isVisible: false })
         this.setState({showCAlert: true})
+      } else {
+        AppAlert(this.state.translationDic['failed'] ?? '',appConstant.okTitle);
+
       }
     }
     this.setState({ appState: nextAppState });
   };
-  langifyAPI = async () => {
-    let productD = await tradlyDb.getDataFromDB(LangifyKeys.bookingconformation);
+  langifyAPI = async (keyGroup) => {
+    let productD = await tradlyDb.getDataFromDB(keyGroup);
     if (productD != undefined) {
-      this.productTranslationData(productD);
+      if (LangifyKeys.bookingconformation == keyGroup) {
+        this.bookingTranslationData(productD);
+      } else {
+        this.paymentTranslationData(productD)
+      }
       this.setState({ updateUI: true})
     } else {
       this.setState({ isVisible: true })
     }
-    let group = `&group=${LangifyKeys.bookingconformation}`
+    let group = `&group=${keyGroup}`
     const responseJson = await networkService.networkCall(`${APPURL.URLPaths.clientTranslation}${appConstant.appLanguage}${group}`, 'get', '', appConstant.bToken)
     if (responseJson['status'] == true) {
       let objc = responseJson['data']['client_translation_values'];
-      tradlyDb.saveDataInDB(LangifyKeys.bookingconformation, objc)
-      this.productTranslationData(objc);
+      if (LangifyKeys.bookingconformation == keyGroup) {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.bookingTranslationData(objc);
+      } else {
+        tradlyDb.saveDataInDB(keyGroup, objc)
+        this.paymentTranslationData(objc);
+      }
       this.setState({ updateUI: true, isVisible: false })
     } else {
       this.setState({ isVisible: false })
     }
   }
-  productTranslationData(object) {
-    this.state.translationDic = {};
+  bookingTranslationData(object) {
     for (let obj of object) {
       if ('bookingconformation.title' == obj['key']) {
         this.state.translationDic['title'] = obj['value'];
@@ -126,7 +139,15 @@ export default class ConfirmBooking extends Component {
         this.state.translationDic['success'] = obj['value'];
       }
     }
-    
+    this.setState({ dataload: true})
+  }
+  paymentTranslationData(object) {
+    for (let obj of object) {
+      if ('payments.failed' == obj['key']) {
+        this.state.translationDic['failed'] = obj['value'];
+      }  
+    }
+    console.log('this.state.translationDic', this.state.translationDic['failed']);
     this.setState({ dataload: true})
   }
   getPaymentMethodsApi = async () => {

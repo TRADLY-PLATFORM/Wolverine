@@ -348,7 +348,7 @@ export default class EventList extends Component {
   }
   renderListView = () => {
     if (this.state.eventsArray.length != 0) {
-      return (<View style={{ margin: 5, height: '90%' }}>
+      return (<View style={{ margin: 5, height: '100%' }}>
         <FlatList
           data={this.state.eventsArray}
           numColumns={1}
@@ -419,12 +419,12 @@ export default class EventList extends Component {
     }
   }
   renderMainView = () => {
-    return (<View style={{ height: '100%' }}>
+    return (<View style={{ height: windowHeight}}>
       <View>
         {this.renderHeaderView()}
         {/* {this.renderDateListView()} */}
       </View>
-      <View style={{ height: windowHeight - 170 }}>
+      <View style={{ height: '81%'}}>
         {this.renderListView()}
       </View>
     </View>)
@@ -440,7 +440,7 @@ export default class EventList extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={categoryName} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
-        <View style={{ height: '100%', backgroundColor: colors.LightBlueColor }}>
+        <View style={{ height: windowHeight, backgroundColor: colors.LightBlueColor }}>
           <View style={{ zIndex: 5, position: 'absolute' }}>
             <this.renderMainView />
           </View>

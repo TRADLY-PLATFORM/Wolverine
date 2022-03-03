@@ -127,7 +127,7 @@ export default class MyStore extends Component {
         this.state.translationDic['edit'] = obj['value'];
       }
     }
-    // console.log('this.state.translationDic',this.state.translationDic);
+    this.setState({ isVisible: false })
   }
   productListTranslationData(object) {
     for (let obj of object) {
@@ -135,6 +135,7 @@ export default class MyStore extends Component {
         this.state.translationDic['no_products_found'] = obj['value'];
       }
     }
+    this.setState({ isVisible: false })
   }
   storeTranslationData(object) {
     for (let obj of object) {

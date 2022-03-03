@@ -155,9 +155,9 @@ export default class Home extends Component {
     let searchD = await tradlyDb.getDataFromDB(keyGrop);
     if (searchD != undefined) {
       this.generalTranslationData(searchD);
-      this.setState({ updateUI: true, isVisible: false })
+      this.setState({ updateUI: true, })
     } else {
-      this.setState({ isVisible: true })
+      // this.setState({ isVisible: true })
     }
     let group = `&group=${keyGrop}`
     console.log()
@@ -166,9 +166,9 @@ export default class Home extends Component {
       let objc = responseJson['data']['client_translation_values'];
       tradlyDb.saveDataInDB(keyGrop, objc)
       this.generalTranslationData(objc);
-      this.setState({ updateUI: true, isVisible: false })
+      this.setState({ updateUI: true, })
     } else {
-      this.setState({ isVisible: false })
+      // this.setState({ isVisible: false })
     }
   }
   generalTranslationData(object) {
@@ -185,6 +185,9 @@ export default class Home extends Component {
       }
       if ('general.cancel' == obj['key']) {
         appConstant.cancelTitle =  obj['value'];
+      }
+      if ('general.loading_delay_message' == obj['key']) {
+        appConstant.networkError =  obj['value'];
       }
     }
   }
@@ -262,8 +265,12 @@ export default class Home extends Component {
       accId :item['id'],
     });
   }
-  viewAllBtnAction() {
-    this.props.navigation.navigate(NavigationRoots.EventList, {viewAll: true});
+  viewAllBtnAction(item) {
+    if (item['scope_type'] == 1) {
+      this.props.navigation.navigate(NavigationRoots.StoreList,{viewAll: true,title:item['title']});
+    }else {
+      this.props.navigation.navigate(NavigationRoots.EventList, {viewAll: true,categoryName:item['title']});
+    }  
   }
   /*  UI   */
   renderGridView = () => {
@@ -347,13 +354,13 @@ export default class Home extends Component {
   renderEventItemCell = ({ item, index }) => {
     if (item['scope_type'] == 1 || item['scope_type'] == 4) {
       var views = [];
-      if(item['scope_type'] == 4) {
+      // if(item['scope_type'] == 4) {
         views.push(<View>
-          <TouchableOpacity style={{alignItems: 'center'}} onPress={() => this.viewAllBtnAction()}>
-            <Text style={styles.viewTxtStyle}>{appConstant.bottomTabBarDic['viewAll']?? 'View All'}</Text>
+          <TouchableOpacity style={{alignItems: 'center'}} onPress={() => this.viewAllBtnAction(item)}>
+            <Text style={styles.viewTxtStyle}>{appConstant.bottomTabBarDic['viewAll'] ?? 'View All'}</Text>
           </TouchableOpacity>
         </View>)
-      }
+      // }
       return (<View style={{ backgroundColor: colors.AppWhite }}>
         <View style={styles.eventCellItemStyle}>
           <Text style={styles.eventTitleTxtStyle}>{item['title']}</Text>

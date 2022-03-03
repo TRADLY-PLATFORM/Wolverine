@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import {
   FlatList,
-  TextInput,
   Text,
-  Image,
   View,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
   Dimensions,
 } from 'react-native';
 import NavigationRoots from '../../Constants/NavigationRoots';
@@ -20,8 +17,6 @@ import APPURL from '../../Constants/URLConstants';
 import networkService from '../../NetworkManager/NetworkManager';
 import appConstant from '../../Constants/AppConstants';
 import Spinner from 'react-native-loading-spinner-overlay';
-import ExploreListItem from '../../Component/ExploreListItem'
-import constantArrays from '../../Constants/ConstantArrays';
 import StoreListItem from '../../Component/StoreListItem';
 
 const windowHeight = Dimensions.get('window').height;
@@ -62,7 +57,14 @@ export default class StoreList extends Component {
     this.setState({ isVisible: true })
     var path = appConstant.accountID;
     path = `${this.state.pageNo}`
-    const responseJson = await networkService.networkCall(`${APPURL.URLPaths.followers}${path}`,'get', '', appConstant.bToken, appConstant.authKey)
+    let {viewAll} = this.props.route.params;
+    console.log();
+    if (viewAll){
+      path = `${APPURL.URLPaths.accounts}?page=${path}&type=accounts`
+    } else {
+      path = `${APPURL.URLPaths.followers}${path}`
+    }
+    const responseJson = await networkService.networkCall(`${path}`,'get', '', appConstant.bToken, appConstant.authKey)
       console.log('responseJson', responseJson)
     if (responseJson['status'] == true) {
       let stores = responseJson['data']['accounts'];
@@ -129,7 +131,7 @@ export default class StoreList extends Component {
         <HeaderView title={title} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <Spinner visible={this.state.isVisible} textContent={''} textStyle={commonStyles.spinnerTextStyle} />
         <View style={{ height: windowHeight, backgroundColor: colors.LightBlueColor }}>
-            <View style={{zIndex: 5, height: '82%'}}>
+            <View style={{zIndex: 5, height: '86%'}}>
             {this.renderListView()}
           </View>
         </View>

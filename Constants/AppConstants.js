@@ -46,4 +46,5 @@ module.exports = {
   requestBirthDate: false,
   mangoPayStatus: false,
   payoutMethod: '',
+  networkError:'Uh-Oh! Slow or no internet connection'
 }
