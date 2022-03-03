@@ -116,6 +116,7 @@ export default class MangoPaySetup extends Component {
     }
   }
   loadApi() {
+    this.getUserDetailApi();
     this.getMangoConnectAccountApi();
     // this.createExpressLoginLinkAPI();
   }
