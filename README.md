@@ -106,6 +106,12 @@ We recommend installing Node and Watchman using [Homebrew](https://brew.sh). Run
 * To run from command line try: `react-native run-android`
 
 
+#### Run App
+ ```sh
+   npm run ios
+   npm run android
+   ```
+
 
 <!-- USAGE EXAMPLES -->
 ## Usage
