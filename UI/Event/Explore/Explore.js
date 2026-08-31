@@ -36,7 +36,7 @@ import constantArrays from '../../../Constants/ConstantArrays';
 
 const windowHeight = Dimensions.get('window').height;
 
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
+import MapView, { Marker} from 'react-native-maps';
 const origin = { latitude: 30.6225, longitude: 76.6224 };
 const destination = { latitude: 30.7051, longitude: 76.68154 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyBAV63gkOE0d0eSV_3rIagJfzMwDcbzPnM';
@@ -369,7 +369,6 @@ export default class Explore extends Component {
       return (<View style={{height: windowHeight - 180,width: windowWidth}}>
         <View style={styles.containerMapStyle}>
           <MapView
-            provider={PROVIDER_GOOGLE}
             style={styles.mapStyle}
             initialRegion={{
               latitude: 30.68825,

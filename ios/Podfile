@@ -39,5 +39,24 @@ target 'tradlyEvent' do
         end
       end
     end
+    # Patch RCT-Folly New.h for Xcode 26 / iOS 26 SDK aligned new issue
+    folly_new = File.join(installer.sandbox.root, 'RCT-Folly/folly/lang/New.h')
+    if File.exist?(folly_new)
+      FileUtils.chmod(0644, folly_new) rescue nil
+      text = File.read(folly_new)
+      patched = text
+        .gsub('constexpr auto op_new_builtin_ =', 'constexpr auto op_new_builtin_ = false &&')
+        .gsub('constexpr auto op_del_builtin_ =', 'constexpr auto op_del_builtin_ = false &&')
+        .gsub('constexpr auto cpp_aligned_new_ = __cpp_aligned_new >= 201606;', 'constexpr auto cpp_aligned_new_ = false;')
+        .gsub(
+          "  FOLLY_NODISCARD FOLLY_ERASE void* operator()( //\n      std::size_t const s,\n      std::align_val_t const a) const //\n      noexcept(noexcept(::operator new(0))) {\n    return detail::op_new_<detail::cpp_aligned_new_>(s, a);\n  }\n  FOLLY_NODISCARD FOLLY_ERASE void* operator()( //\n      std::size_t const s,\n      std::align_val_t const a,\n      std::nothrow_t const& nt) const noexcept {\n    return detail::op_new_<detail::cpp_aligned_new_>(s, a, nt);\n  }",
+          "  FOLLY_NODISCARD FOLLY_ERASE void* operator()( //\n      std::size_t const s,\n      std::align_val_t const a) const //\n      noexcept(noexcept(::operator new(0))) {\n    return detail::op_new_<true>(s);\n  }\n  FOLLY_NODISCARD FOLLY_ERASE void* operator()( //\n      std::size_t const s,\n      std::align_val_t const a,\n      std::nothrow_t const& nt) const noexcept {\n    return detail::op_new_<true>(s, nt);\n  }"
+        )
+        .gsub(
+          "  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::align_val_t const a) const noexcept {\n    return detail::op_del_<detail::cpp_aligned_new_>(p, a);\n  }\n  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::size_t const s,\n      std::align_val_t const a) const noexcept {\n    return detail::do_op_del_sized_<detail::cpp_aligned_new_>(p, s, a);\n  }",
+          "  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::align_val_t const a) const noexcept {\n    return detail::op_del_<true>(p);\n  }\n  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::size_t const s,\n      std::align_val_t const a) const noexcept {\n    return detail::do_op_del_sized_<true>(p, s);\n  }"
+        )
+      File.write(folly_new, patched) if patched != text
+    end
   end
 end

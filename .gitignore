@@ -56,6 +56,12 @@ buck-out/
 # CocoaPods
 /ios/Pods/
 
+# Xcode generated
+/ios/build/
+ios/.xcode.env
+ios/.xcode.env.local
+ios/build/
+
 # Env JS
 /src/env.js
 

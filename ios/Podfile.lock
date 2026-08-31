@@ -2752,67 +2752,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNScreens (4.11.1):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-RCTImage
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.11.1)
-    - SocketRocket
-    - Yoga
-  - RNScreens/common (4.11.1):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-RCTImage
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - SocketRocket
-    - Yoga
-  - RNSearchBar (3.5.1):
-    - React
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
@@ -2910,8 +2849,6 @@ DEPENDENCIES:
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNOpenAppSettings (from `../node_modules/react-native-app-settings`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
-  - RNScreens (from `../node_modules/react-native-screens`)
-  - RNSearchBar (from `../node_modules/react-native-search-bar`)
   - SocketRocket (~> 0.7.1)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -3095,10 +3032,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-app-settings"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
-  RNScreens:
-    :path: "../node_modules/react-native-screens"
-  RNSearchBar:
-    :path: "../node_modules/react-native-search-bar"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3189,14 +3122,12 @@ SPEC CHECKSUMS:
   RNImageCropPicker: b0afedeefd8655254a15c34103718455fde6ce59
   RNOpenAppSettings: 73c178e228c94a4a5d9ba2f243ce4799389e5463
   RNReanimated: 9af1b9f7d221d1cc2f99d935bab08419cae7c1ce
-  RNScreens: d64f01363a5ae12e2998784f9527d7a8ffb04e93
-  RNSearchBar: feb1a3829c44d6ae1b96dc1397062b2fbfb95825
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: a3ed390a19db0459bd6839823a6ac6d9c6db198d
 
-PODFILE CHECKSUM: 9cdaf8cf2095b7f968c80b42ce41be7e1aeba38a
+PODFILE CHECKSUM: 8ccd0e793f472c5d3398695225c9f130d9d9e6b5
 
 COCOAPODS: 1.17.0
