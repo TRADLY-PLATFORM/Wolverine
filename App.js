@@ -6,10 +6,15 @@
  * @flow strict-local
  */
 
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
 import React, { Component } from 'react';
 import { StyleSheet, SafeAreaView ,LogBox,View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import colors from './CommonClasses/AppColor';
 import NavigationRoots from './Constants/NavigationRoots';
@@ -113,9 +118,16 @@ export default class App extends Component {
     if (this.state.reload == false) {
       return <SafeAreaView style={styles.container}></SafeAreaView>
     } else {
-      return (<View style={styles.navigationContainer}>
-        <this.navigationReturn />
-      </View>
+      return (
+        <GestureHandlerRootView style={styles.navigationContainer}>
+          <SafeAreaProvider>
+            <BottomSheetModalProvider>
+              <View style={styles.navigationContainer}>
+                <this.navigationReturn />
+              </View>
+            </BottomSheetModalProvider>
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
       );
     }
   }

@@ -18,7 +18,6 @@ import commonStyles from '../../../StyleSheet/UserStyleSheet';
 import tickIcon from '../../../assets/tick.png';
 import emptyIcon from '../../../assets/empty.png';
 import constantArrays from '../../../Constants/ConstantArrays';
-import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import eventStyles from '../../../StyleSheet/EventStyleSheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
@@ -373,48 +372,38 @@ export default class Filter extends Component {
   }
 
   renderSelectFilterView = () => {
-    var snapPoint = '50%';
-    let maxHeight = '100%'
     var viewHeight = windowHeight/ 3;
     if (this.state.selectedFilterIndex == 2) {
-      snapPoint = '40%'
       viewHeight = windowHeight/ 2;
     }else if (this.state.selectedFilterIndex == 4) {
-      snapPoint = '30%'
       viewHeight = windowHeight/ 1.5;
     }
     if (this.state.showFilterView) {
-      return (<View style={{backgroundColor: 'green'}}>
-        <ScrollBottomSheet
-          componentType="ScrollView"
-          snapPoints={[snapPoint, snapPoint, maxHeight]}
-          initialSnapIndex={1}
-          scrollEnabled={true}
-          animationType={'timing'}
-          renderHandle={() => (
-            <View style={styles.header}>
+      return (
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <TouchableOpacity activeOpacity={1} style={{flex: 1}} onPress={() => this.setState({showFilterView: false})} />
+          <View style={{ backgroundColor: colors.AppWhite, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingVertical: 20, maxHeight: windowHeight * 0.6 }}>
+            <View style={{alignItems: 'center'}}>
               <View style={styles.panelHandle} />
-              <View style={{ backgroundColor: colors.AppWhite, height: viewHeight, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center'}}>
-              <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{constantArrays.filterArray[this.state.selectedFilterIndex]}</Text>
-                </View>
-                <View style={{height: '58%', marginTop: 10}}>
-                  {this.renderSelectedType()}
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
-                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.doneBtnAction()}>
-                    <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+            </View>
+            <View style={{ backgroundColor: colors.AppWhite, width: '100%', marginTop: 15 }}>
+              <View style={{justifyContent: 'center'}}>
+                <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>{constantArrays.filterArray[this.state.selectedFilterIndex]}</Text>
+              </View>
+              <ScrollView style={{ marginTop: 10, maxHeight: viewHeight - 80}}>
+                {this.renderSelectedType()}
+              </ScrollView>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 10 }}>
+                <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.doneBtnAction()}>
+                  <View style={eventStyles.applyBtnViewStyle}>
+                    <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
-          )} topInset={false}
-          contentContainerStyle={styles.contentContainerStyle}
-          onSettle={index => { if (index == 2) { this.setState({showFilterView: false}) }}}
-        />
-      </View>)
+          </View>
+        </View>
+      )
     } else {
       return <View />
     }

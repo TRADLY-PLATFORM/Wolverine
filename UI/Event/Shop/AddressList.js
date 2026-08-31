@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import HeaderView from '../../../Component/Header'
 import colors from '../../../CommonClasses/AppColor';
-import SearchBar from 'react-native-search-bar';
 import 'react-native-gesture-handler';
 import APPURL from '../../../Constants/URLConstants';
 import networkService from '../../../NetworkManager/NetworkManager';
@@ -33,7 +32,7 @@ export default class AddressList extends Component {
   }
 
   componentDidMount() {
-    this.refs.searchBar.focus()
+    // searchBar autoFocus handled via TextInput
   }
   searchApi = async (text) => {
     this.setState({ isVisible: true })
@@ -80,17 +79,13 @@ export default class AddressList extends Component {
       <SafeAreaView style={styles.Container}>
         <HeaderView title={'Address'} showBackBtn={true} backBtnAction={() => this.props.navigation.goBack()} />
         <View style={{ height: '100%', backgroundColor: colors.AppWhite }}>
-          <View style={{ backgroundColor: colors.AppTheme, height: 55 }} >
-            <SearchBar
-              ref="searchBar"
-              barTintColor={colors.AppWhite}
-              searchBarStyle={'minimal'}
-              tintColor={colors.AppWhite}
-              textFieldBackgroundColor={colors.AppGreen}
-              style={{ borderColor: colors.Lightgray, height: 50 }}
-              textColor={colors.AppWhite}
+          <View style={{ backgroundColor: colors.AppTheme, height: 55, justifyContent: 'center', paddingHorizontal: 10 }} >
+            <TextInput
+              autoFocus={true}
+              placeholder="Search address"
+              placeholderTextColor={colors.AppWhite}
+              style={{ backgroundColor: colors.AppGreen, height: 40, borderRadius: 8, paddingHorizontal: 12, color: colors.AppWhite, borderWidth: 1, borderColor: colors.Lightgray }}
               onChangeText={text => this.onSearchChanges(text)}
-              tintColor={colors.AppWhite}
             />
           </View>
           <this.renderListView />

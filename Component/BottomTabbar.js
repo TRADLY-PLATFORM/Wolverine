@@ -12,35 +12,33 @@ import appConstant from '../Constants/AppConstants';
 const Tab = createBottomTabNavigator();
 
 function AppTabbar() {
-
- 
   return (
-    <Tab.Navigator initialRouteName="Home" tabBarOptions={{
-      activeTintColor: colors.AppTheme,
-      inactiveTintColor: '#c3d5fa',
-      labelStyle: { fontSize: 12, color: 'black' }
-      
-    }} screenOptions={({ route}) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        // console.log('hideTabbar==', appConstant.hideTabbar)
-        let iconName;
-        if (route.name === 'Home') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
-        } else if (route.name === 'Explore') {
-          iconName = focused ? require('../assets/feed.png') : require('../assets/feed.png');
-        } else if (route.name === 'Sell') {
-          iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
-        } else if (route.name === 'Chat') {
-          iconName = focused ? require('../assets/chat.png') : require('../assets/chat.png');
-        } else if (route.name === 'More') {
-          iconName = focused ? require('../assets/profile.png') : require('../assets/profile.png');
-        }
-        return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
-      },
-    })}>
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={({ route}) => ({
+        tabBarActiveTintColor: colors.AppTheme,
+        tabBarInactiveTintColor: '#c3d5fa',
+        tabBarLabelStyle: { fontSize: 12, color: 'black' },
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Home') {
+            iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
+          } else if (route.name === 'Explore') {
+            iconName = focused ? require('../assets/feed.png') : require('../assets/feed.png');
+          } else if (route.name === 'Sell') {
+            iconName = focused ? require('../assets/home.png') : require('../assets/home.png');
+          } else if (route.name === 'Chat') {
+            iconName = focused ? require('../assets/chat.png') : require('../assets/chat.png');
+          } else if (route.name === 'More') {
+            iconName = focused ? require('../assets/profile.png') : require('../assets/profile.png');
+          }
+          return <Image source={iconName} resizeMode={'contain'} style={{ width: 18, height: 18 }} />
+        },
+      })}>
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Explore" component={explore} options={{tabBarVisible: appConstant.hideTabbar}}/>
-      <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{tabBarVisible: false}}/>
+      <Tab.Screen name="Explore" component={explore} options={{ tabBarStyle: appConstant.hideTabbar ? undefined : undefined }}/>
+      <Tab.Screen name="Sell" component={appConstant.accountID.length == 0 ? shop : AddEvent} options={{ tabBarStyle: { display: 'none' }}}/>
       <Tab.Screen name="Chat" component={Home} />
       <Tab.Screen name="More" component={More} />
     </Tab.Navigator>

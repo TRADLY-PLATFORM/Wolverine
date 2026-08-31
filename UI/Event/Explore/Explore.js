@@ -28,7 +28,6 @@ import networkService from '../../../NetworkManager/NetworkManager';
 import appConstant from '../../../Constants/AppConstants';
 import FastImage from 'react-native-fast-image'
 import Spinner from 'react-native-loading-spinner-overlay';
-import ScrollBottomSheet from 'react-native-scroll-bottom-sheet';
 import radio from '../../../assets/radio.png';
 import selectedradio from '../../../assets/selectedradio.png';
 import {getTimeFormat,changeDateFormat,getDatesArray} from '../../../HelperClasses/SingleTon'
@@ -203,39 +202,32 @@ export default class Explore extends Component {
     </View>)
   }
   renderSortView = () => {
-    let maxHeight = '100%'
     if (this.state.showSortView) {
-      return (<View style={{backgroundColor: 'green'}}>
-        <ScrollBottomSheet
-          componentType="ScrollView"
-          snapPoints={['40%', "40%", maxHeight]}
-          initialSnapIndex={1}
-          scrollEnabled={true}
-          animationType={'timing'}
-          renderHandle={() => (
-            <View style={styles.header}>
+      return (
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <TouchableOpacity activeOpacity={1} style={{flex: 1}} onPress={() => this.sortBtnAction()} />
+          <View style={{ backgroundColor: colors.AppWhite, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingVertical: 20, maxHeight: windowHeight * 0.6 }}>
+            <View style={{alignItems: 'center'}}>
               <View style={styles.panelHandle} />
-              <View style={{ backgroundColor: colors.AppWhite, height: windowHeight/ 2, width: '100%', marginTop: 15 }}>
-                <View style={{justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
-                </View>
-                <View style={{height: '58%', marginTop: 10}}>
-                  {this.renderSortListView()}
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16,marginTop: -10 }}>
-                  <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
-                    <View style={eventStyles.applyBtnViewStyle}>
-                      <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+            </View>
+            <View style={{ backgroundColor: colors.AppWhite, width: '100%', marginTop: 15 }}>
+              <View style={{justifyContent: 'center'}}>
+                <Text style={{fontSize: 16, fontWeight: '600', paddingLeft: 20}}>Sort </Text>
+              </View>
+              <View style={{ marginTop: 10}}>
+                {this.renderSortListView()}
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, marginTop: 10 }}>
+                <TouchableOpacity style={eventStyles.bottomBtnViewStyle} onPress={()=> this.sortBtnAction(true)}>
+                  <View style={eventStyles.applyBtnViewStyle}>
+                    <Text style={{ color: colors.AppWhite, fontWeight: '600' }}>Done</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
-          )} topInset={false}
-          contentContainerStyle={styles.contentContainerStyle}
-          onSettle={index => { if (index == 2) {  this.sortBtnAction() }}}
-        />
-      </View>)
+          </View>
+        </View>
+      )
     } else {
       return <View />
     }
