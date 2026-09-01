@@ -40,9 +40,6 @@ export default function App() {
       <Suspense fallback={<View style={styles.placeholder}><ActivityIndicator color={colors.AppTheme} /><Text>Loading...</Text></View>}>
         {render()}
       </Suspense>
-      <View style={{position:'absolute', top:40, right:10, backgroundColor:'rgba(0,0,0,0.5)', padding:6, borderRadius:8}}>
-        <Text style={{color:'white', fontSize:10}}>{current.name}</Text>
-      </View>
     </View>
   );
 }

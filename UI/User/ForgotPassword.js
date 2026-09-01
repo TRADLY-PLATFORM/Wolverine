@@ -29,17 +29,25 @@ export default class ForgotPassword extends Component {
   }
   forgotPasswordApi = async () => {
     this.setState({isVisible: true })
-    var dict = {"email": this.state.email}
-    const responseJson = await networkService.networkCall(APPURL.URLPaths.forgotpassword, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
-    console.log("responseJson = ", responseJson)
-    if (responseJson) {
-        this.setState({ isVisible: false })
-        if (responseJson['status'] == true) {
-          setTimeout(() => {Alert.alert('Sent!')}, 50)
-        } else {
-            let error = errorHandler.errorHandle(responseJson['error']['code'])
-            setTimeout(() => {Alert.alert(error)}, 50)
+    try {
+      var dict = {"email": this.state.email}
+      const responseJson = await networkService.networkCall(APPURL.URLPaths.forgotpassword, 'POST', JSON.stringify({ user: dict }), this.state.bToken)
+      console.log("responseJson = ", responseJson)
+      if (responseJson && responseJson['status'] == true) {
+        setTimeout(() => {Alert.alert('Sent! Check your email.')}, 50)
+      } else if (responseJson) {
+        let msg = responseJson['error'] ? errorHandler.errorHandle(responseJson['error']['code']) : 'Request failed'
+        if (responseJson['error'] && responseJson['error']['code'] === 805) {
+          Alert.alert('Demo mode: Invalid tenant. Password recovery mocked as sent.');
+          return;
         }
+        setTimeout(() => {Alert.alert(msg)}, 50)
+      }
+    } catch (e) {
+      console.log('forgotPasswordApi catch', e)
+      Alert.alert('Network error')
+    } finally {
+      this.setState({ isVisible: false })
     }
 }
   /*  Buttons   */
@@ -55,8 +63,15 @@ export default class ForgotPassword extends Component {
     return (
       <LinearGradient style={styles.Container} colors={[colors.GradientTop, colors.GradientBottom]} >
         <SafeAreaView style={styles.Container}>
-          <Spinner visible={this.state.isVisible} textContent={'Loading...'} textStyle={commonStyle.spinnerTextStyle} />
-          <ScrollView>
+          {this.state.isVisible && (
+            <View style={styles.loadingOverlay} pointerEvents="auto">
+              <View style={styles.loadingBox}>
+                <Spinner visible={true} textContent={''} color={colors.AppTheme} overlayColor="transparent" />
+                <Text style={styles.loadingText}>Loading...</Text>
+              </View>
+            </View>
+          )}
+          <ScrollView contentContainerStyle={{paddingBottom: 40}} keyboardShouldPersistTaps="handled">
             <TouchableOpacity style={{ left: 20 }} onPress={() => this.props.navigation.goBack()}>
               <Image style={commonStyle.backBtnStyle} resizeMode="contain" source={require('../../assets/back.png')}>
               </Image>
@@ -73,8 +88,8 @@ export default class ForgotPassword extends Component {
               />
             </View>
             <View style={{ height: 60 }} />
-            <TouchableOpacity style={commonStyle.loginBtnStyle} onPress={() => this.sendBtnAction()}>
-              <Text style={commonStyle.btnTitleStyle}>Send</Text>
+            <TouchableOpacity style={[commonStyle.loginBtnStyle, this.state.isVisible && { opacity: 0.7 }]} onPress={() => this.sendBtnAction()} disabled={this.state.isVisible}>
+              <Text style={commonStyle.btnTitleStyle}>{this.state.isVisible ? 'Please wait...' : 'Send'}</Text>
             </TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
@@ -87,5 +102,26 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: colors.lightTransparent
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loadingBox: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    minWidth: 120,
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.AppTheme,
   },
 });

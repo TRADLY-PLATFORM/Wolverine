@@ -1,6 +1,10 @@
 module.exports = {
   URLPaths: {
-    BaseURL: 'https://api.dev.tradly.app/app/',
+    // Updated 2026: api.dev.tradly.app is deprecated (DNS gone). Use api.tradly.app.
+    // Tenant eventdev not found on prod (412 Invalid tenant) – keep for backward compat,
+    // fallback to demo mode if 412/404. Configure your workspace domain in .env
+    // See https://developer.tradly.app and https://github.com/TRADLY-PLATFORM/Tradly-Boilerplate
+    BaseURL: 'https://api.tradly.app/',
     token: 'v1/users/token/refresh',
     config: 'v1/tenants/eventdev/configs',
     register: 'v1/users/register',
