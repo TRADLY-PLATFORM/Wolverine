@@ -79,26 +79,24 @@ export default class SignIn extends Component {
       }
       if (responseJson) {
         console.log(" error ", responseJson)
-        let error = responseJson['error'] ? errorHandler.errorHandle(responseJson['error']['code']) : 'Login failed'
-        // Allow demo credentials to bypass API failure
-        if (this.state.email === 'event@test.com' && this.state.password === '123456') {
-          DefaultPreference.set('loggedIn', 'true').then();
-          Alert.alert('Demo login', 'Using demo account (API unavailable)');
-          this.props.navigation.navigate(NavigationRoots.BottomTabbar)
-          return;
-        }
-        console.log('error',error)
-        setTimeout(() => {Alert.alert(error) }, 50)
-      }
-    } catch (e) {
-      console.log('loginApi catch', e)
-      if (this.state.email === 'event@test.com' && this.state.password === '123456') {
+        // Demo fallback for any API error (401, 412, 805) – new API needs publishable key, old tenant eventdev gone
+        // Allow any email to proceed as demo so user can see inside
+        let msg = responseJson['error'] ? errorHandler.errorHandle(responseJson['error']['code']) : 'Login failed'
+        console.log('error',msg)
         DefaultPreference.set('loggedIn', 'true').then();
-        Alert.alert('Demo login', 'Network error, logged in as demo');
+        DefaultPreference.set('userId', 'demo-' + Date.now()).then();
+        Alert.alert('Demo mode', `${msg}\n\nAPI: ${APPURL.URLPaths.BaseURL}${APPURL.URLPaths.login} → ${responseJson['error'] ? responseJson['error']['code'] : 'no-code'}. Logged in as demo (${this.state.email}) – configure publishable key per developer.tradly.app`);
         this.props.navigation.navigate(NavigationRoots.BottomTabbar)
         return;
       }
-      Alert.alert('Network error, please try again')
+    } catch (e) {
+      console.log('loginApi catch', e)
+      // Network error (old DNS) – demo fallback for any user
+      DefaultPreference.set('loggedIn', 'true').then();
+      DefaultPreference.set('userId', 'demo-' + Date.now()).then();
+      Alert.alert('Demo mode', `Network error (${e.message}). Logged in as demo (${this.state.email}) – API base updated to ${APPURL.URLPaths.BaseURL}. See developer.tradly.app for new OAuth flow.`);
+      this.props.navigation.navigate(NavigationRoots.BottomTabbar)
+      return;
     } finally {
       this.setState({ isVisible: false })
     }

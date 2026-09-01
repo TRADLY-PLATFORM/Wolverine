@@ -17,9 +17,9 @@ module.exports = {
     searchAddress: 'v1/addresses/search?key=',
     S3signedUploadURL: 'v1/utils/S3signedUploadURL',
     accounts: 'v1/accounts',
-    listings: 'products/v1/listings',
+    listings: 'v1/listings',
     currencies: 'v1/currencies',
-    variantType: 'products/v1/variant_types',
+    variantType: 'v1/listings/variant_types',
 
   }
 }
