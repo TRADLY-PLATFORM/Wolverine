@@ -1,39 +1,54 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, LogBox } from 'react-native';
+import React, { useState, Suspense } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, LogBox, ActivityIndicator } from 'react-native';
 import colors from './CommonClasses/AppColor';
+import NavigationRoots from './Constants/NavigationRoots';
 
 LogBox.ignoreAllLogs(true);
 
+const LazyOnBoarding = React.lazy(() => import('./UI/User/OnBoarding'));
+const LazySignIn = React.lazy(() => import('./UI/User/SignIn'));
+const LazySignUp = React.lazy(() => import('./UI/User/SignUp'));
+const LazyVerification = React.lazy(() => import('./UI/User/Verification'));
+const LazyForgot = React.lazy(() => import('./UI/User/ForgotPassword'));
+
 export default function App() {
-  const [count, setCount] = React.useState(0);
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tradly Event</Text>
-      <Text style={styles.subtitle}>Upgraded • RN 0.81.4 • React 19.1.0</Text>
-      <Text style={styles.subtitle}>iPhone 17 Pro • iOS 26.5 • Hermes • New Arch</Text>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Build Status</Text>
-        <Text style={styles.cardText}>✓ Metro bundling: OK</Text>
-        <Text style={styles.cardText}>✓ Native build: BUILD SUCCEEDED</Text>
-        <Text style={styles.cardText}>✓ JS runtime: OK (no RNScreens)</Text>
-        <Text style={styles.cardText}>✓ OnBoarding: OK (JS fallback)</Text>
+  const [screen, setScreen] = useState(NavigationRoots.OnBoardings);
+  const [stack, setStack] = useState([{ name: NavigationRoots.OnBoardings, params: {} }]);
+  const current = stack[stack.length - 1];
+  const navigate = (name, params = {}) => setStack(s => [...s, { name, params }]);
+  const goBack = () => { if (stack.length > 1) setStack(s => s.slice(0,-1)); };
+  const navigation = { navigate, goBack, setParams: () => {}, addListener: () => () => {} };
+  const route = { params: current.params };
+
+  const render = () => {
+    if (current.name === NavigationRoots.OnBoardings) return <LazyOnBoarding navigation={navigation} route={route} />;
+    if (current.name === NavigationRoots.SignIn) return <LazySignIn navigation={navigation} route={route} />;
+    if (current.name === NavigationRoots.SignUp) return <LazySignUp navigation={navigation} route={route} />;
+    if (current.name === NavigationRoots.Verification) return <LazyVerification navigation={navigation} route={route} />;
+    if (current.name === NavigationRoots.ForgotPassword) return <LazyForgot navigation={navigation} route={route} />;
+    if (current.name === NavigationRoots.BottomTabbar) return <View style={styles.placeholder}><Text style={styles.title}>Inside App</Text><Text>BottomTabbar • JS Fallback</Text><TouchableOpacity onPress={() => navigate(NavigationRoots.OnBoardings)} style={styles.btn}><Text style={styles.btnText}>Logout</Text></TouchableOpacity></View>;
+    return (
+      <View style={styles.placeholder}>
+        <Text style={styles.title}>{current.name}</Text>
+        <TouchableOpacity onPress={goBack} style={styles.btn}><Text style={styles.btnText}>Go Back</Text></TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => setCount(c => c + 1)} style={styles.btn}>
-        <Text style={styles.btnText}>Tap count: {count}</Text>
-      </TouchableOpacity>
-      <Text style={styles.note}>Note: Native Stack disabled due to RNScreens Fabric interop on iOS 26. Full JS navigation available.</Text>
+    );
+  };
+
+  return (
+    <View style={styles.root}>
+      <Suspense fallback={<View style={styles.placeholder}><ActivityIndicator color={colors.AppTheme} /><Text>Loading...</Text></View>}>
+        {render()}
+      </Suspense>
+      <View style={{position:'absolute', top:40, right:10, backgroundColor:'rgba(0,0,0,0.5)', padding:6, borderRadius:8}}>
+        <Text style={{color:'white', fontSize:10}}>{current.name}</Text>
+      </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.AppTheme || '#1abc9c', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 26, fontWeight: '700', color: 'white', marginBottom: 6 },
-  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.9)', marginBottom: 2 },
-  card: { marginTop: 20, backgroundColor: 'white', borderRadius: 12, padding: 16, width: '100%', maxWidth: 320 },
-  cardTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333' },
-  cardText: { fontSize: 13, color: '#555', marginBottom: 4 },
-  btn: { marginTop: 20, backgroundColor: 'white', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
-  btnText: { color: '#1abc9c', fontWeight: '600' },
-  note: { marginTop: 16, fontSize: 11, color: 'rgba(255,255,255,0.7)', textAlign: 'center', paddingHorizontal: 20 },
+  root: { flex: 1, backgroundColor: colors.AppTheme },
+  placeholder: { flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#fff' },
+  btn: { marginTop:12, backgroundColor:'#1abc9c', paddingHorizontal:20, paddingVertical:12, borderRadius:8 },
+  btnText: { color:'white', fontWeight:'600' },
 });
