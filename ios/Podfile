@@ -32,10 +32,10 @@ target 'tradlyEvent' do
     )
     installer.pods_project.targets.each do |target|
       if target.name == 'RCT-Folly'
-        target.build_configurations.each do |config|
-          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
-          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FOLLY_CFG_NO_COROUTINES=1'
-          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
+        target.build_configurations.each do |c|
+          c.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          c.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FOLLY_CFG_NO_COROUTINES=1'
+          c.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
         end
       end
     end
@@ -57,6 +57,15 @@ target 'tradlyEvent' do
           "  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::align_val_t const a) const noexcept {\n    return detail::op_del_<true>(p);\n  }\n  FOLLY_ERASE void operator()( //\n      void* const p,\n      std::size_t const s,\n      std::align_val_t const a) const noexcept {\n    return detail::do_op_del_sized_<true>(p, s);\n  }"
         )
       File.write(folly_new, patched) if patched != text
+    end
+    # Patch RNScreens for RN 0.81 Fabric ImageProps copy deleted (Xcode 26)
+    rns_path = File.join(installer.sandbox.root, 'RNScreens/ios/RNSScreenStackHeaderConfig.mm')
+    if File.exist?(rns_path)
+      FileUtils.chmod(0644, rns_path) rescue nil
+      t = File.read(rns_path)
+      t = t.gsub('auto const imageProps = *std::static_pointer_cast<const react::ImageProps>(view.props);', 'auto imageProps = std::static_pointer_cast<const react::ImageProps>(view.props);')
+           .gsub('react::ImageSource cppImageSource = imageProps.sources.at(0);', 'react::ImageSource cppImageSource = imageProps->sources.at(0);')
+      File.write(rns_path, t)
     end
   end
 end

@@ -1,51 +1,146 @@
-import React, { useState, Suspense } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, LogBox, ActivityIndicator } from 'react-native';
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow strict-local
+ */
+
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+import React, { Component } from 'react';
+import { StyleSheet, SafeAreaView ,LogBox,View} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 import colors from './CommonClasses/AppColor';
 import NavigationRoots from './Constants/NavigationRoots';
 
-LogBox.ignoreAllLogs(true);
+import OnBoarding from './UI/User/OnBoarding';
+import Signin from './UI/User/SignIn';
+import Signup from './UI/User/SignUp';
+import Verifications from './UI/User/Verification';
+import ForgotPassword from './UI/User/ForgotPassword';
+import bottomBar from './Component/BottomTabbar';
+import CategoryList from './UI/Event/Shop/CategoryList';
+import AttributesList from './UI/Event/Shop/AttributeList';
+import AddressList from './UI/Event/Shop/AddressList';
+import MyStore from './UI/Event/More/MyStore/MyStore';
+import Profile from './UI/Event/More/EditProfile/EditProfile';
+import CreateStore from './UI/Event/Shop/CreateShop';
+import AddEvent from './UI/Event/More/AddEvent/AddEvent';
+import Currency from './UI/Event/More/AddEvent/Currency';
+import EventTimings from './UI/Event/More/AddEvent/EventTiming';
+import AddVariant from './UI/Event/More/AddEvent/AddVariant';
+import VariantList from './UI/Event/More/AddEvent/VariantList';
+import AddVariantValue from './UI/Event/More/AddEvent/AddVariantValue';
+import Filter from './UI/Event/Explore/Filter';
+import Category from './UI/Event/Explore/Category';
+import EventDetail from './UI/Event/EventDetail/EventDetail';
 
-const LazyOnBoarding = React.lazy(() => import('./UI/User/OnBoarding'));
-const LazySignIn = React.lazy(() => import('./UI/User/SignIn'));
-const LazySignUp = React.lazy(() => import('./UI/User/SignUp'));
-const LazyVerification = React.lazy(() => import('./UI/User/Verification'));
-const LazyForgot = React.lazy(() => import('./UI/User/ForgotPassword'));
 
-export default function App() {
-  const [screen, setScreen] = useState(NavigationRoots.OnBoardings);
-  const [stack, setStack] = useState([{ name: NavigationRoots.OnBoardings, params: {} }]);
-  const current = stack[stack.length - 1];
-  const navigate = (name, params = {}) => setStack(s => [...s, { name, params }]);
-  const goBack = () => { if (stack.length > 1) setStack(s => s.slice(0,-1)); };
-  const navigation = { navigate, goBack, setParams: () => {}, addListener: () => () => {} };
-  const route = { params: current.params };
+const Stack = createStackNavigator();
 
-  const render = () => {
-    if (current.name === NavigationRoots.OnBoardings) return <LazyOnBoarding navigation={navigation} route={route} />;
-    if (current.name === NavigationRoots.SignIn) return <LazySignIn navigation={navigation} route={route} />;
-    if (current.name === NavigationRoots.SignUp) return <LazySignUp navigation={navigation} route={route} />;
-    if (current.name === NavigationRoots.Verification) return <LazyVerification navigation={navigation} route={route} />;
-    if (current.name === NavigationRoots.ForgotPassword) return <LazyForgot navigation={navigation} route={route} />;
-    if (current.name === NavigationRoots.BottomTabbar) return <View style={styles.placeholder}><Text style={styles.title}>Inside App</Text><Text>BottomTabbar • JS Fallback</Text><TouchableOpacity onPress={() => navigate(NavigationRoots.OnBoardings)} style={styles.btn}><Text style={styles.btnText}>Logout</Text></TouchableOpacity></View>;
-    return (
-      <View style={styles.placeholder}>
-        <Text style={styles.title}>{current.name}</Text>
-        <TouchableOpacity onPress={goBack} style={styles.btn}><Text style={styles.btnText}>Go Back</Text></TouchableOpacity>
-      </View>
-    );
-  };
+export default class App extends Component {
 
-  return (
-    <View style={styles.root}>
-      <Suspense fallback={<View style={styles.placeholder}><ActivityIndicator color={colors.AppTheme} /><Text>Loading...</Text></View>}>
-        {render()}
-      </Suspense>
-    </View>
-  );
+  constructor(props) {
+    super(props);
+    this.state = {
+      loggedIn: 'false',
+      reload: true,
+    }
+  }
+  componentDidMount() {
+    LogBox.ignoreAllLogs(true)
+
+  }
+  navigationReturn = () => {
+    return <NavigationContainer>
+      <Stack.Navigator initialRouteName={NavigationRoots.BottomTabbar} screenOptions={{
+        headerShown: false}}>
+        <Stack.Screen name={NavigationRoots.OnBoardings} component={OnBoarding} />
+        <Stack.Screen name={NavigationRoots.SignIn} component={Signin}
+          options={{
+            title: '',
+            ...TransitionPresets.ModalSlideFromBottomIOS,
+          }} />
+         <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomBar} />
+        <Stack.Screen name={NavigationRoots.SignUp} component={Signup} />
+        <Stack.Screen name={NavigationRoots.Verification} component={Verifications} />
+        <Stack.Screen name={NavigationRoots.ForgotPassword} component={ForgotPassword} />
+        <Stack.Screen name={NavigationRoots.Category} component={CategoryList} />
+        <Stack.Screen name={NavigationRoots.AttributeList} component={AttributesList} />
+        <Stack.Screen name={NavigationRoots.AddressList} component={AddressList} />
+        <Stack.Screen name={NavigationRoots.MyStore} component={MyStore} />
+        <Stack.Screen name={NavigationRoots.Currency} component={Currency} />
+        <Stack.Screen name={NavigationRoots.EventTiming} component={EventTimings} />
+        <Stack.Screen name={NavigationRoots.AddVariant} component={AddVariant} />
+        <Stack.Screen name={NavigationRoots.VariantList} component={VariantList} />
+        <Stack.Screen name={NavigationRoots.AddVariantValue} component={AddVariantValue} />
+        <Stack.Screen name={NavigationRoots.Sort} component={Category} />
+        <Stack.Screen name={NavigationRoots.EventDetail} component={EventDetail} />
+
+        <Stack.Screen name={NavigationRoots.Filter}component={Filter} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}/>
+        <Stack.Screen name={NavigationRoots.Profile}component={Profile} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}/>
+        <Stack.Screen name={NavigationRoots.CreateStore} component={CreateStore} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }} />
+         <Stack.Screen name={NavigationRoots.AddEvent} component={AddEvent} options={{
+          title: '',
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }} />
+        {/* <Stack.Screen name={NavigationRoots.BottomTabbar} component={bottomTabBar}/>
+        <Stack.Screen name={NavigationRoots.VerifyPhoneNo}component={VerifyPhone} />
+        <Stack.Screen name={NavigationRoots.PhoneVerification}component={PhoneVerifications} />
+        <Stack.Screen name={NavigationRoots.Target}component={Target} />
+        <Stack.Screen name={NavigationRoots.SetTarget}component={SetTarget} />
+        <Stack.Screen name={NavigationRoots.CollectionHistory}component={CollectionHistory} />
+        <Stack.Screen name={NavigationRoots.AddRecycleItem}component={AddRecycleItems} />
+        <Stack.Screen name={NavigationRoots.RecycleGuide}component={RecycleGuides} />
+        <Stack.Screen name={NavigationRoots.ApplyGroup}component={ApplyGroups} />
+        <Stack.Screen name={NavigationRoots.InviteFriends}component={InviteFriends} />
+        <Stack.Screen name={NavigationRoots.AddBinMap}component={AddBinMaps} />
+        <Stack.Screen name={NavigationRoots.Notifications}component={Notifications} /> */}
+      </Stack.Navigator>
+    </NavigationContainer>
+  }
+  render() {
+    if (this.state.reload == false) {
+      return <SafeAreaView style={styles.container}></SafeAreaView>
+    } else {
+      return (
+        <GestureHandlerRootView style={styles.navigationContainer}>
+          <SafeAreaProvider>
+            <BottomSheetModalProvider>
+              <View style={styles.navigationContainer}>
+                <this.navigationReturn />
+              </View>
+            </BottomSheetModalProvider>
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
+      );
+    }
+  }
 }
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.AppTheme },
-  placeholder: { flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#fff' },
-  btn: { marginTop:12, backgroundColor:'#1abc9c', paddingHorizontal:20, paddingVertical:12, borderRadius:8 },
-  btnText: { color:'white', fontWeight:'600' },
+  container: {
+    flex: 1,
+    backgroundColor:colors.AppTheme,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navigationContainer: {
+    flex: 1,
+    backgroundColor:colors.AppTheme,
+  },
 });
